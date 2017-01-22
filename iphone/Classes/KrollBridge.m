@@ -940,7 +940,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return module;
 	}
 
-    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
     [contents release];
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
@@ -1077,7 +1077,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	if (data != nil) {
 		[self setCurrentURL:[NSURL URLWithString:[path stringByDeletingLastPathComponent] relativeToURL:[[self host] baseURL]]];
-		return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+		return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
 	}
 	return nil;
 }
@@ -1293,7 +1293,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     // 2. let I = count of PARTS - 1
     NSInteger i = [parts count] - 1;
     // 3. let DIRS = []
-    NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
+    NSMutableArray* dirs = [NSMutableArray arrayWithCapacity:0];
     // 4. while I >= 0,
     while (i >= 0) {
         // a. if PARTS[I] = "node_modules" CONTINUE
@@ -1495,7 +1495,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	for (int currentBridgeIndex = 0; currentBridgeIndex < bridgeCount; currentBridgeIndex++)
 	{
 #ifdef TI_USE_KROLL_THREAD
-        KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
+		KrollBridge * currentBridge = registryObjects[currentBridgeIndex];
 		if ([[[currentBridge krollContext] threadName] isEqualToString:threadName])
 		{
 			result = [[currentBridge retain] autorelease];

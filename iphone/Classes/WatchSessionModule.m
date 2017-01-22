@@ -21,13 +21,15 @@
 
 -(id)initWithCallback:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
 {
-    //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
+#ifndef __clang_analyzer__
+    // Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
     if (self = [super init])
     {
         callback = [callback_ retain];
         context = [context_ retain];
     }
     return self;
+#endif
 }
 -(void)dealloc
 {
@@ -200,6 +202,8 @@
         return;
     }
     [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:^(NSDictionary<NSString *,id> * _Nonnull replyMessage) {
+#ifndef __clang_analyzer__
+		// Ignore static analyzer here. Delegate will call autorelease onLoad or onError.
         WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
         [wmc replySuccess:replyMessage];
         [wmc release];
@@ -207,6 +211,7 @@
         WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
         [wmc replyError:error];
         [wmc release];
+#endif
     }];
 }
 //sent to watch so that it can update its state when it wakes

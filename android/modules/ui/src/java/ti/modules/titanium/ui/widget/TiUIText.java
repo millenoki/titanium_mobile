@@ -31,6 +31,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
@@ -491,10 +492,7 @@ public class TiUIText extends TiUINonViewGroupView
                 autoCapValue = 0;
                 break;
             case UIModule.TEXT_AUTOCAPITALIZATION_ALL:
-                autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | 
-                    InputType.TYPE_TEXT_FLAG_CAP_SENTENCES |
-                    InputType.TYPE_TEXT_FLAG_CAP_WORDS
-                    ;
+                autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
                 break;
             case UIModule.TEXT_AUTOCAPITALIZATION_SENTENCES:
                 autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
@@ -840,7 +838,11 @@ public class TiUIText extends TiUINonViewGroupView
 			}
 		}
         
-		
+		if ((autoCapValue & InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) {
+			tv.setFilters(new InputFilter[] {});
+		} else {
+			tv.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
+		}
 		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
 		//after we set inputType.
 //		if (!field) {

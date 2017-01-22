@@ -193,7 +193,7 @@
     }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
-    [event release];
+    RELEASE_TO_NIL(event);
 }
 
 -(void)didHandleURL:(NSNotification*)info
@@ -708,14 +708,15 @@
 		CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
         
 		if (!CLLocationCoordinate2DIsValid(center)) {
+			RELEASE_TO_NIL(localNotif);
 			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
             [localNotif release];
 			return;
 		}
         
-		localNotif.region = [[CLCircularRegion alloc] initWithCenter:center
+		localNotif.region = [[[CLCircularRegion alloc] initWithCenter:center
                                                               radius:kCLDistanceFilterNone
-                                                          identifier:identifier ? identifier : @"notification"];
+                                                          identifier:identifier ? identifier : @"notification"] autorelease];
 		
 		localNotif.regionTriggersOnce = regionTriggersOnce;
 	}

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -28,6 +29,18 @@ public class PickerRowProxy extends ViewProxy
 	public PickerRowProxy()
 	{
 		super();
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getColor()
+	{
+		return (String)getProperty(TiC.PROPERTY_COLOR);
+	}
+
+	@Kroll.setProperty @Kroll.method
+	public void setColor(String color)
+	{
+		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
 	}
 
 	@Kroll.getProperty @Kroll.method

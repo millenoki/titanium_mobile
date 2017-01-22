@@ -97,7 +97,7 @@
 {
 	if (button==nil)
 	{
-        BOOL hasImage = [self.proxy valueForKey:@"backgroundImage"]!=nil;
+        BOOL hasImage = [self hasImageProperties];
         BOOL hasBgdColor = [self.proxy valueForKey:@"backgroundColor"]!=nil;
 		
         UIButtonType defaultType = (hasImage==YES || hasBgdColor==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
@@ -119,6 +119,11 @@
         [self addSubview:button];
     }
 	return button;
+}
+
+- (BOOL)hasImageProperties
+{
+    return [self.proxy valueForKey:@"backgroundImage"] || [self.proxy valueForKey:@"backgroundSelectedImage"] || [self.proxy valueForKey:@"backgroundSelectedColor"];
 }
 
 - (id)accessibilityElement

@@ -2042,6 +2042,7 @@ SEL GetterForKrollProperty(NSString * key)
     layoutProperties.sizeRatio = 0.0f;
 #endif
 	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
+	[self initializeProperty:@"touchEnabled" defaultValue:NUMBOOL(YES)];
 
 	if (properties!=nil)
 	{
@@ -2141,6 +2142,8 @@ SEL GetterForKrollProperty(NSString * key)
     }
 	RELEASE_TO_NIL(destroyLock);
 	
+	//Dealing with children is in _destroy, which is called by super dealloc.
+	RELEASE_TO_NIL(barButtonItem);
 	[super dealloc];
 }
 

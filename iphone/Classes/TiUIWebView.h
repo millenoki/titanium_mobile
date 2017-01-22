@@ -29,6 +29,7 @@
     BOOL willHandleTouches;
     BOOL willHandleUrl;
     NSString* lastValidLoad;
+    NSArray *blacklistedURLs;
 }
 
 @property(nonatomic,readonly) id url;

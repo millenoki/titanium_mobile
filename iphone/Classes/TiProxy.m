@@ -518,10 +518,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 #if PROXY_MEMORY_TRACK == 1
     NSLog(@"[DEBUG] DEALLOC: %@ (%d)",self,[self hash]);
 #endif
-    [self _destroy];
-    pthread_rwlock_destroy(&listenerLock);
-    pthread_rwlock_destroy(&dynpropsLock);
-    [super dealloc];
+	RELEASE_TO_NIL(modelDelegate);
+	[self _destroy];
+	pthread_rwlock_destroy(&listenerLock);
+	pthread_rwlock_destroy(&dynpropsLock);
+	[super dealloc];
 }
 
 -(TiHost*)_host

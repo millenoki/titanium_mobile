@@ -243,25 +243,33 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 }
 #endif
 
+#ifdef USE_TI_AUDIOCANRECORD
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiAudioSession sharedSession] hasInput]);
 }
+#endif
 
+#ifdef USE_TI_AUDIOAUDIOPLAYING
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiAudioSession sharedSession] volume]);
 }
+#endif
 
+#ifdef USE_TI_AUDIOAUDIOPLAYING
 -(NSNumber*)audioPlaying
 {
     return NUMBOOL([[TiAudioSession sharedSession] isAudioPlaying]);
 }
+#endif
 
+#ifdef USE_TI_AUDIOCURRENTROUTE
 -(NSDictionary*)currentRoute
 {
     return [[TiAudioSession sharedSession] currentRoute];
 }
+#endif
 
 #pragma mark Public Methods
 

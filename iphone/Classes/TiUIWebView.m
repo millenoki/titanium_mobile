@@ -30,6 +30,7 @@ static NSString * const kContentMimeType = @"kContentMimeType";
 static NSString * const kContentInjection = @"kContentInjection";
 static NSOperationQueue *_operationQueue = nil;
 
+static unsigned long localId = 0;
 
 NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
@@ -110,6 +111,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(lastValidLoad);
     RELEASE_TO_NIL(_currentRequest);
     RELEASE_TO_NIL(_progressProxy)
+	RELEASE_TO_NIL(blacklistedURLs);
 	[super dealloc];
 }
 
@@ -378,6 +380,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[NSURLProtocol setProperty:textEncodingName forKey:kContentTextEncoding inRequest:request];
 	[NSURLProtocol setProperty:mimeType forKey:kContentMimeType inRequest:request];
+    
+	[request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
 	
 	[self loadURLRequest:request];
 	if (scalingOverride==NO) {
@@ -531,7 +535,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			{
 				[self ensureLocalProtocolHandler];
 				// Empty NSURL since nil is not accepted here
-				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[[NSURL new] autorelease]];
+				NSURL *emptyURL = [[NSURL new] autorelease];
+				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:emptyURL];
 				if (scalingOverride==NO)
 				{
 					[[self webview] setScalesPageToFit:YES];
@@ -638,6 +643,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(void)setPassword_:(id)value
 {
 	RELEASE_TO_NIL(_currentRequest)
+}
+
+-(void)setBlacklistedURLs_:(id)args
+{
+    ENSURE_TYPE(args, NSArray);
+    
+    if (blacklistedURLs) {
+        RELEASE_TO_NIL(blacklistedURLs);
+    }
+    
+    for (id blacklistedURL in args) {
+        ENSURE_TYPE(blacklistedURL, NSString);
+    }
+    
+    blacklistedURLs = [args copy];
 }
 
 -(void)setHandlePlatformUrl_:(id)arg
@@ -869,6 +889,23 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 
 	NSURL * newUrl = [request URL];
+    
+	if (blacklistedURLs && blacklistedURLs.count > 0) {
+		NSString *urlAbsoluteString = [newUrl absoluteString];
+        
+		for (NSString *blackListedUrl in blacklistedURLs) {
+			if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
+				if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
+					NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
+					[self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
+				}
+		
+				[self hideSpinner];
+				return NO;
+			}
+		}
+	}
+
     if ([[newUrl scheme] isEqualToString:[AppProtocolHandler specialProtocolScheme]] && [[newUrl path] hasPrefix:@"/_TiA0_"]) {
         return ![AppProtocolHandler handleAppToTiRequest:newUrl];
     }

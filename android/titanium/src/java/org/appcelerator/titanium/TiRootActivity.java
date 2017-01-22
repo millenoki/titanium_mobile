@@ -10,6 +10,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -77,6 +78,14 @@ public class TiRootActivity extends TiLaunchActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		TiApplication tiApp = getTiApp();
+		Intent intent = getIntent();
+		TiRootActivity rootActivity = tiApp.getRootActivity();
+
+		if (intent != null && rootActivity != null) {
+			rootActivity.setIntent(intent);
+		}
+
 		if (willFinishFalseRootActivity(savedInstanceState)) {
 			return;
 		}
@@ -85,8 +94,6 @@ public class TiRootActivity extends TiLaunchActivity
 			// Android bug 2373 detected and we're going to restart.
 			return;
 		}
-
-		TiApplication tiApp = getTiApp();
 		
 		startedFromBoot = getIntentBoolean(TiC.INTENT_PROPERTY_ON_BOOT, false);
 

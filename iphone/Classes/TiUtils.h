@@ -788,4 +788,10 @@ typedef enum
 +(CGSize)sizeForString:(NSString*)text forSize:(CGSize)size options:(NSObject*)options padding:(UIEdgeInsets)padding;
 
 +(NSData*)dataValue:(id)arg;
+/**
+ Converts a color into an image.
+ @return The generated image.
+ */
++ (UIImage*)imageWithColor:(UIColor*)color;
+
 @end
