@@ -2589,25 +2589,28 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         if (minimatch(relPath, toIgnore[i], {dot:true})) {
                             ignored = true;
                             _t.logger.debug(__('Ignoring %s', from.cyan));
-                            return next();
+                            next();
+                            return;
                         }
                     }
                 }
 
                 // check that the file actually exists and isn't a broken symlink
-                if (!fs.existsSync(from)) return next();
+                if (!fs.existsSync(from)) {
+                    next();
+                    return;
+                }
 
                 // check if we are ignoring this file
                 if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
-                    _t.logger.debug(__('Ignoring %s', from.cyan));
-                    return next();
+                    _t.logger.debug(__('Ignoring %s ', from.cyan));
+                    next();
+                    return;
                 }
 
                 // if this is a directory, recurse
                 if (isDir) {
-                    setImmediate(function () {
-                        recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
-                    });
+                    recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
                     return;
                 }
                 var parts = filename.match(filenameRegExp),
@@ -2621,12 +2624,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         dest: to,
                         srcStat: srcStat
                     };
-                _t.cli.createHook('build.android.walkResource', _t, function(info, next) {
+                _t.cli.createHook('build.android.walkResource', _t, function(info, cb) {
                     if (!!info.ignored) {
-                        return next();
+                        cb();
+                        return;
                     }
                     // we have a file, now we need to see what sort of file
-
                     // check if it's a drawable resource
                     var m = info.relPath.match(drawableRegExp),
                         isDrawable = false;
