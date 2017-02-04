@@ -839,9 +839,9 @@ public class TiUIText extends TiUINonViewGroupView
 		}
         
 		if ((autoCapValue & InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) {
-			tv.setFilters(new InputFilter[] {});
+		    realtv.setFilters(new InputFilter[] {});
 		} else {
-			tv.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
+		    realtv.setFilters(new InputFilter[] {new InputFilter.AllCaps()});
 		}
 		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
 		//after we set inputType.
