@@ -3069,7 +3069,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                         fs.writeFileSync(to, r.contents);
                                                         this.jsFilesChanged = true;
                                                         if (transformed.map) {
-
                                                             //we remove sourcesContent as it is big and not really usefull
                                                             delete transformed.map.sourcesContent;
 
@@ -3079,8 +3078,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                                 transformed.map.file = '/' + transformed.map.file;
                                                             }
                                                             if (transformed.map.sources) {
-                                                                var relToBuild = path.relative(path.dirname(from), path.join(this.projectDir, 'Resources'));
-                                                                transformed.map.sources = transformed.map.sources.map(function(value) {
+                                                                var relToBuild = path.relative(
+                                                                    path.dirname(from), 
+                                                                    path.join(this.projectDir, 'Resources'));
+
+                                                                transformed.map.sources = transformed.map.sources.map(
+                                                                    function(value) {
                                                                     if (value.indexOf(relToBuild) != -1) {
                                                                         return value.replace(relToBuild, '');
                                                                     }
@@ -3089,18 +3092,18 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                             }
                                                            fs.writeFileSync(info.destSourceMap, JSON.stringify(transformed.map));
                                                             if (this.encryptJS) {
-                                                                this.jsFilesToEncrypt.push(path.relative(this.buildAssetsEncryptDir, info.destSourceMap));
+                                                                this.jsFilesToEncrypt.push(
+                                                                    path.relative(this.buildAssetsEncryptDir, 
+                                                                    info.destSourceMap));
                                                             }
                                                         }
                                                     } else {
                                                         this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
                                                     }
                                                     cb2();
-                                                }.bind(this));  
-                
-                                                
+                                                }.bind(this));
                                             }.bind(this));
-                                        }.bind(this))(from, to, cb);            
+                                        }.bind(this))(from, to, cb);
                                     } else {
                                         var data = fs.readFileSync(from).toString();
                                         this.analyzeJs(to, data, {minify:minifyJS, sourcemap:{file:to}}, function(r) {
