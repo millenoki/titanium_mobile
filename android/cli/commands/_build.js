@@ -2463,8 +2463,6 @@ AndroidBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
         emitDecoratorMetadata: true
     }
 
-    console.log('getTsConfig', options);
-
     var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
     if (fs.existsSync(tsconfigPath)) {
         var parsedConfig, errors;
