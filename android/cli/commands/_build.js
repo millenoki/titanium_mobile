@@ -2324,7 +2324,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 
 AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile(next) {
     // check if we need to do a rebuild
-    this.forceRebuild = this.checkIfShouldForceRebuild();
+    this.forceRebuild = !this.cli.argv.ide && this.checkIfShouldForceRebuild();
 
     if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
         wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
