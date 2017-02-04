@@ -150,7 +150,8 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	NSString* newpath = [TiFileSystemHelper pathFromComponents:args];
     
 	if ([newpath hasSuffix:@".html"]||
-		 [newpath hasSuffix:@".js"]||
+        [newpath hasSuffix:@".js"]||
+        [newpath hasSuffix:@".json"]||
 		 [newpath hasSuffix:@".css"])
 	{
 		NSURL *url = [NSURL fileURLWithPath:newpath];
