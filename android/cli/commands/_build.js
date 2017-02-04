@@ -3790,7 +3790,6 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
     var tasks = Object.keys(this.jarLibraries).map(function (jarFile) {
             return function (done) {
-                this.logger.debug(__('test: %s', jarFile.cyan));
                 if (this.jarLibraries[jarFile] !== 1) {
                     //trick if the jar file is not at the same location as the respackage (googleplayservices)
                     jarFile = this.jarLibraries[jarFile];
