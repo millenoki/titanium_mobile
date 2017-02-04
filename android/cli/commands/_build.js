@@ -2686,20 +2686,22 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                     switch (info.ext) {
                         case 'css':
+                        {
                             // if we encounter a css file, check if we should minify it
                             if (_t.minifyCSS) {
                                 _t.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, to.cyan));
                                 fs.readFile(info.src, function (err, data) {
                                     if (err) throw err;
-                                    fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
+                                    fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, cb);
                                 });
-                                return;
+                                break;
                             } else {
                                 resourcesToCopy[info.relPath] = info;
                             }
                             break;
-
+                        }
                         case 'html':
+                        {
                             // find all js files referenced in this html file
                             var relPath = info.src.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
                             relPath.pop(); // remove the filename
@@ -2710,14 +2712,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                             resourcesToCopy[info.relPath] = info;
                             break;
+                        }
                         case 'ts':
+                        {
                             var tsRealPath = path.join(_t.buildTsDir, path.relative(info.origSrc, info.src));
-                            copyFile.call(_t, info.src, tsRealPath);
                             tsFiles.push(tsRealPath);
+                            copyFile.call(_t, info.src, tsRealPath);
                             break;
+                        }
                         case 'js':
+                        {
                             // track each js file so we can copy/minify later
-
                             // we use the destination file name minus the path to the assets dir as the id
                             // which will eliminate dupes
                             var id = info.dest.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
@@ -2725,24 +2730,26 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(info.src, info.dest, id)) {
                                 jsFiles[id] = info;
                             }
-
                             break;
-
+                        }
                         case 'xml':
+                        {
                             if (_t.xmlMergeRegExp.test(filename)) {
                                 _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
                                     _t.writeXmlFile(from, to);
                                     cb();
-                                })(info.src, info.dest, next);
+                                })(info.src, info.dest, cb);
+                                return;
                             } else {
-                                resourcesToCopy[info.relPath] = info;
+                               resourcesToCopy[info.relPath] = info;
                             }
                             break;
+                        }
                         case 'json': 
                         case 'map': 
                         {
-                            if (isProduction && info.ext != 'map') {
-                                return;
+                            if (isProduction && info.ext == 'map') {
+                                break;
                             }
                             if (_t.encryptJS) {
                                 // info.relPath = info.relPath.replace(/\./g, '_');
@@ -2754,8 +2761,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         }
                         default:
                             resourcesToCopy[info.relPath] = info;
+                            break;
                     }
-                    next();
+                    cb();
                 })(info, next);
             },
 
