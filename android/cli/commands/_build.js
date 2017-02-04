@@ -3030,7 +3030,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             if (!fileChanged) {
                                 this.logger.trace(__('No change, skipping %s', from.cyan));
                                 var data = fs.readFileSync(to).toString();
-                                this.analyzeJs(to, data, function() {
+                                this.analyzeJs(to, data, undefined, function() {
                                     //make sure not to return the result of analyzeJS in next
                                     //as the builder might see it as an error
                                     done();
