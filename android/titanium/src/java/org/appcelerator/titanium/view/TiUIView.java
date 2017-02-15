@@ -69,6 +69,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Outline;
 import android.graphics.Path;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -623,10 +624,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public void applyAnchorPoint(Object anchorPoint) {
         View view = getOuterView();
         if (view != null && !useCustomLayoutParams) {
-            if (anchorPoint instanceof HashMap) {
-                HashMap point = (HashMap) anchorPoint;
-                layoutParams.anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
-                layoutParams.anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
+            PointF point = TiConvert.toPointF(anchorPoint);
+            if (point != null) {
+                layoutParams.anchorX = point.x;
+                layoutParams.anchorY = point.y;
             } else {
                 layoutParams.anchorX = layoutParams.anchorY = 0.5f;
             }
@@ -972,7 +973,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             break;
         case TiC.PROPERTY_ENABLED:
             boolean oldEnabled = isEnabled;
-            isEnabled = TiConvert.toBoolean(newValue, true);
+            isEnabled = TiConvert.toBoolean(newValue, oldEnabled);
             if (oldEnabled != isEnabled) {
                 setEnabled(isEnabled, true);
             }
