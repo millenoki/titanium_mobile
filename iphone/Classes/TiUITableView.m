@@ -342,6 +342,19 @@
 -(void)dealloc
 {
     RELEASE_WITH_DELEGATE(searchField)
+    
+	if (headerViewProxy != nil) {
+		[headerViewProxy setProxyObserver:nil];
+		[[self proxy] forgetProxy:headerViewProxy];
+		headerViewProxy = nil;
+	}
+    
+	if (footerViewProxy != nil) {
+		[footerViewProxy setProxyObserver:nil];
+		[[self proxy] forgetProxy:footerViewProxy];
+		footerViewProxy = nil;
+	}
+    
 	RELEASE_TO_NIL(tableController);
     
     searchController.searchResultsDataSource =  nil;

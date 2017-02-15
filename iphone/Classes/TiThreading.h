@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,7 +33,7 @@ return; \
 #define ENSURE_UI_THREAD(x,y) \
 if (![NSThread isMainThread]) { \
 	TiThreadPerformOnMainThread(^{[self x:y];},NO); \
-return; \
+	return; \
 } \
 
 #define ENSURE_UI_THREAD_WAIT(x,y) \

@@ -10,21 +10,23 @@
 #import "APSHTTPRequest.h"
 #import "NJKWebViewProgress.h"
 
-@interface TiUIWebView : TiScrollingView<UIWebViewDelegate, APSHTTPRequestDelegate, NJKWebViewProgressDelegate> {
+@interface TiUIWebView : TiScrollingView<UIWebViewDelegate, APSHTTPRequestDelegate, NJKWebViewProgressDelegate, NSURLConnectionDelegate> {
 @private
-	UIWebView *webview;
-	UIActivityIndicatorView *spinner;
-	NSURL *url;
-	NSMutableDictionary *listeners;
-	NSString *pageToken;
-	BOOL scalingOverride;
-	NSString *basicCredentials;
+    UIWebView *webview;
+    UIActivityIndicatorView *spinner;
+    NSURL *url;
+    NSMutableDictionary *listeners;
+    NSURLConnection *insecureConnection;
+    NSString *pageToken;
+    BOOL scalingOverride;
+    NSString *basicCredentials;
 	
-	//TODO: make more elegant
-	BOOL ignoreNextRequest;
-	id reloadData;
+    BOOL ignoreNextRequest;
+    BOOL ignoreSslError;
+    BOOL isAuthenticated;
+    id reloadData;
     id reloadDataProperties;
-	SEL reloadMethod;
+    SEL reloadMethod;
     
     BOOL willHandleTouches;
     BOOL willHandleUrl;
@@ -47,6 +49,7 @@
 -(BOOL)canGoBack;
 -(BOOL)canGoForward;
 -(void)reload;
+-(UIWebView*)webview;
 
 -(void)setHtml_:(NSString*)content withObject:(id)property;
 -(void)setAllowsLinkPreview_:(id)value;

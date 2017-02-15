@@ -28,7 +28,7 @@
 	MPMediaPickerController* musicPicker;
 	
 	// Music players
-#ifdef USE_TI_AUDIOMUSICPLAYER
+#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
 	TiAudioMusicPlayer* systemMusicPlayer;
 	TiAudioMusicPlayer* appMusicPlayer;
 #endif

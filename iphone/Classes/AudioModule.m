@@ -13,7 +13,7 @@
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiAudioSession.h"
-#ifdef USE_TI_AUDIOMUSICPLAYER
+#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
 #import "TiAudioMusicPlayer.h"
 #endif
 #import "TiAudioItem.h"
@@ -57,7 +57,7 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-#ifdef USE_TI_AUDIOMUSICPLAYER
+#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
 #endif
@@ -200,7 +200,7 @@ MAKE_SYSTEM_PROP(UNKNOWN_ERROR,AudioModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY,AudioModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 
-#ifdef USE_TI_AUDIOMUSICPLAYER
+#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
 -(TiAudioMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {

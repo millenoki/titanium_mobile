@@ -755,6 +755,8 @@ typedef enum
 + (BOOL) isSVG:(NSString*)ext;
 + (NSString*)fileExtension:(id)arg;
 
++(UIImage*)loadCappedBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)leftCap topCap:(TiDimension)topCap;
+
 /**
  Convenience method to extract a useful error message from NSError, or nil if none exist.
  @param error The NSError

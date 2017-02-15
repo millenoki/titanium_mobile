@@ -49,7 +49,9 @@ public class TiUISearchView extends TiUIView implements
         SearchView.OnQueryTextListener, SearchView.OnCloseListener {
     private SearchView searchView;
 
-    public static final String TAG = "SearchView";
+	private boolean changeEventEnabled = true;
+
+	public static final String TAG = "SearchView";
 
     private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
 

@@ -33,11 +33,11 @@ exports.cliVersion = '>=3.2';
 exports.init = function (logger, config, cli) {
 	cli.on('build.ios.xcodebuild', {
 		pre: function (data, finished) {
-			if (this.target !== 'dist-appstore') {
+			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc') {
 				return finished();
 			}
 
-			var stagingArchiveDir = path.join(this.buildDir, 'staging.xcarchive');
+			var stagingArchiveDir = path.join(this.buildDir, this.tiapp.name + '.xcarchive');
 			fs.existsSync(stagingArchiveDir) && wrench.rmdirSyncRecursive(stagingArchiveDir);
 
 			// inject the temporary archive path into the xcodebuild args
@@ -54,20 +54,48 @@ exports.init = function (logger, config, cli) {
 	});
 
 	cli.on('build.post.compile', {
-        priority: 8000,
-        post: function (builder, finished) {
-            if (!/dist-(appstore|adhoc)|device/.test(cli.argv.target)) return finished();
+		priority: 8000,
+		post: function (builder, finished) {
+			var target = cli.argv.target;
 
-            switch (cli.argv.target) {
-                case 'dist-appstore':
+			if (target !== 'dist-appstore' && target !== 'dist-adhoc') {
+				return finished();
+			}
+
+			var name = builder.tiapp.name;
+			var stagingArchiveDir = path.join(builder.buildDir, name + '.xcarchive');
+			if (!fs.existsSync(stagingArchiveDir)) {
+				return finished(new Error(__('Staging archive directory does not exist')));
+			}
+
+			var now = new Date;
+			var destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
+			if (!fs.existsSync(destInfoPlist)) {
+				var origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
+				var newPlist = new appc.plist();
+				var appBundle = 'Applications/' + name + '.app';
+
+				appc.util.mix(newPlist, {
+					ApplicationProperties: {
+						ApplicationPath: appBundle,
+						CFBundleIdentifier: origPlist.CFBundleIdentifier || builder.tiapp.id,
+						CFBundleShortVersionString: origPlist.CFBundleShortVersionString || '1.0',
+						CFBundleVersion: origPlist.CFBundleVersion || '1.0',
+						SigningIdentity: 'iPhone Distribution: ' + builder.certDistributionName,
+						IconPaths: [
+							appBundle + '/' + builder.tiapp.icon
+						]
+					},
+					ArchiveVersion: newPlist.type('integer', 2),
+					CreationDate: now,
+					Name: name,
+					SchemeName: name
+				}).save(destInfoPlist);
+			}
+
+			switch (target) {
+				case 'dist-appstore':
 					logger.info(__('Preparing xcarchive'));
-
-					var name = builder.tiapp.name;
-
-					var stagingArchiveDir = path.join(builder.buildDir, 'staging.xcarchive');
-					if (!fs.existsSync(stagingArchiveDir)) {
-						return finished(new Error(__('Staging archive directory does not exist')));
-					}
 
 					var productsDir = path.join(builder.buildDir, 'build', 'Products');
 					if (!fs.existsSync(productsDir)) {
@@ -98,31 +126,6 @@ exports.init = function (logger, config, cli) {
 						}
 					});
 
-					var now = new Date;
-					var destInfoPlist = path.join(stagingArchiveDir, 'Info.plist');
-					if (!fs.existsSync(destInfoPlist)) {
-						var origPlist = new appc.plist(path.join(builder.buildDir, 'Info.plist'));
-						var newPlist = new appc.plist();
-						var appBundle = 'Applications/' + name + '.app';
-
-						appc.util.mix(newPlist, {
-							ApplicationProperties: {
-								ApplicationPath: appBundle,
-								CFBundleIdentifier: origPlist.CFBundleIdentifier || builder.tiapp.id,
-								CFBundleShortVersionString: origPlist.CFBundleShortVersionString || '1.0',
-								CFBundleVersion: origPlist.CFBundleVersion || '1.0',
-								SigningIdentity: 'iPhone Distribution: ' + builder.certDistributionName,
-								IconPaths: [
-									appBundle + '/' + builder.tiapp.icon
-								]
-							},
-							ArchiveVersion: newPlist.type('integer', 2),
-							CreationDate: now,
-							Name: name,
-							SchemeName: name
-						}).save(destInfoPlist);
-					}
-
 					var month = now.getMonth() + 1;
 					var day = now.getDate();
 					var hours = now.getHours();
@@ -136,7 +139,9 @@ exports.init = function (logger, config, cli) {
 
 					// move the finished archive directory into the correct location
 					fs.existsSync(archivesDir) || wrench.mkdirSyncRecursive(archivesDir);
-					fs.renameSync(stagingArchiveDir, dest);
+					appc.fs.copyDirSyncRecursive(stagingArchiveDir, dest, {
+						logger: logger.debug
+					});
 
 					// open xcode + organizer after packaging
 					logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
@@ -149,48 +154,83 @@ exports.init = function (logger, config, cli) {
 					});
 					return;
 
-                case 'device':
-                case 'dist-adhoc':
-                    logger.info('Packaging for Ad Hoc distribution');
-                    var pkgapp = path.join(builder.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-                    exec('"' + pkgapp + '" "' + builder.xcodeAppDir + '"', function (err, stdout, stderr) {
-                        if (err) {
-                            logger.error(__('Failed to package application'));
-                            stderr.split('\n').forEach(logger.error);
-                            return finished();
-                        }
+				case 'dist-adhoc':
+					var outputDir = cli.argv['output-dir'] && afs.resolvePath(cli.argv['output-dir']);
+					if (!outputDir) {
+						logger.warn(__('Invalid %s, skipping packaging', '--output-dir'.cyan));
+						return finished();
+					}
+					logger.info(__('Packaging for Ad Hoc distribution'));
 
-                        var appName = builder.tiapp.name;
-                        if (cli.argv.target == 'device')
-                            appName += '_dev';
-                        
-                        var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa'),
-                            dest = ipa,
-                            dsymfilename = appName + '.app.dSYM'
-                            dsym = path.join(path.dirname(builder.xcodeAppDir), dsymfilename);
-                        
-                        if (cli.argv['output-dir']) {
-                            dest = path.join(cli.argv['output-dir'], appName + '.ipa');
-                            afs.exists(dest) && fs.unlinkSync(dest);
-                            afs.copyFileSync(ipa, dest, { logger: logger.debug });
+					// make sure the output directory is good to go
+					fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+					var ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
+					fs.existsSync(ipaFile) && fs.unlinkSync(ipaFile);
 
-                            dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM');
-                            afs.exists(dest) && deleteFolderRecursive(dest);
-                            afs.copyDirSyncRecursive(dsym, dest, { logger: logger.debug });
+					// write the export options plist file
+					var exportsOptionsPlistFile = path.join(builder.buildDir, 'export_options.plist');
+					var exportsOptions = new appc.plist();
+					exportsOptions.method = 'ad-hoc';
 
-                            dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM.zip');
-                            afs.exists(dest) && fs.unlinkSync(dest);
-                            exec('cd "' + path.dirname(dsym) + '"; /usr/bin/zip -r  "' + dest +  '" "' + dsymfilename +  '"', function (err, stdout, stderr) {
-                                logger.info(__('Packaging complete'));
-                                logger.info(__('Package location: %s', dest.cyan));
-                                finished();
-                            });
-                        }
-                        else finished();
-                    });
-                    break;
-            }
-        }
-    });
+					var pp = null;
+					builder.iosInfo.provisioning.distribution.some(function (p) {
+						if (p.uuid === builder.provisioningProfileUUID) {
+							pp = p;
+							return true;
+						}
+					});
+					if (!pp) {
+						builder.iosInfo.provisioning.adhoc.some(function (p) {
+							if (p.uuid === builder.provisioningProfileUUID) {
+								pp = p;
+								return true;
+							}
+						});
+					}
+					if (pp && pp.team && pp.team.length) {
+						exportsOptions.teamId = pp.team[0];
+					}
+
+					fs.writeFileSync(exportsOptionsPlistFile, exportsOptions.toString('xml'));
+
+					// construct the command
+					var cmd = [
+						builder.xcodeEnv.executables.xcodebuild,
+						'-exportArchive',
+						'-archivePath', '"' + stagingArchiveDir + '"',
+						'-exportPath', '"' + outputDir + '"',
+						'-exportOptionsPlist', '"' + exportsOptionsPlistFile + '"'
+					].join(' ');
+
+					// execute!
+					logger.debug(__('Running: %s', cmd.cyan));
+					exec(cmd, function (err, stdout, stderr) {
+						if (err) {
+							logger.error(__('Failed to export archive to ipa'));
+							stderr.trim().split('\n').forEach(logger.error);
+						} else {
+							logger.info(__('Packaging complete'));
+							logger.info(__('Package location: %s', ipaFile.cyan));
+
+							//dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM');
+                            //afs.exists(dest) && deleteFolderRecursive(dest);
+                            //afs.copyDirSyncRecursive(dsym, dest, { logger: logger.debug });
+
+                            //dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM.zip');
+                            //afs.exists(dest) && fs.unlinkSync(dest);
+                            //exec('cd "' + path.dirname(dsym) + '"; /usr/bin/zip -r  "' + dest +  '" "' + dsymfilename +  '"', function (err, stdout, stderr) {
+                            //    logger.info(__('Packaging complete'));
+                            //    logger.info(__('Package location: %s', dest.cyan));
+                            //    finished();
+                            //});
+						}
+						finished();
+					});
+					return;
+			}
+
+			finished();
+		}
+	});
 
 };

@@ -212,6 +212,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'compileJsClosure',
 		'compileJS',
 		'jsToC',
+		'verifyBuildArch',
 		'ndkBuild',
 		'ndkLocalBuild',
 		'compileAllFinal',
@@ -507,6 +508,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// Remove these folders and re-create them
 	// 	build/class
 	// 	build/generated/json
+	// 	build/generated/jni
 	// 	dist/
 	[this.buildClassesDir, this.buildGenJsonDir, this.binDir].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
@@ -891,6 +893,10 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				path.join(this.buildGenDir, 'KrollGeneratedBindings.gperf'),
 				ejs.render(fs.readFileSync(this.gperfTemplateFile).toString(), gperfContext)
 			);
+
+			// clean any old 'KrollGeneratedBindings.cpp'
+			var krollGeneratedBindingsCpp = path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp');
+			fs.existsSync(krollGeneratedBindingsCpp) && fs.unlinkSync(krollGeneratedBindingsCpp);
 
 			cb();
 		},
@@ -1651,7 +1657,8 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				id = this.manifest.moduleid.toLowerCase(),
 				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join(''),
 				moduleZipPath = path.join(this.distDir, zipName),
-				moduleFolder = path.join('modules', 'android', this.manifest.moduleid, this.manifest.version);
+				moduleFolder = path.join('modules', 'android', this.manifest.moduleid, this.manifest.version),
+				manifestArchs = this.manifest['architectures'].split(' ');
 
 			this.moduleZipPath = moduleZipPath;
 
@@ -1757,12 +1764,15 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 						}
 					}.bind(this));
 				}
+				// 7. libs folder, only architectures defined in manifest
+				this.dirWalker(this.libsDir, function (file) {
+					var archLib = path.relative(this.libsDir, file).split(path.sep),
+						arch = archLib.length ? archLib[0] : undefined;
+					if (arch && manifestArchs.indexOf(arch) > -1) {
+						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
+					}
+				}.bind(this));
 
-
-				// 7. so libs
-				if (fs.existsSync(this.libsDir)) {
-					dest.directory(this.libsDir, path.join(moduleFolder, 'libs'));
-				}
 
 				if (fs.existsSync(this.projLibDir)) {
 					dest.directory(this.projLibDir, path.join(moduleFolder, 'lib'));

@@ -2366,10 +2366,17 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
-	this.xcodeAppDir            = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process
-		.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : ((this.target === 'dist-appstore')?
-		path.join(this.iosBuildDir, this.tiapp.name + '.temp.app')
-		:path.join(this.iosBuildDir, this.tiapp.name + '.app'));
+	
+	if (argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH) {
+		this.xcodeAppDir = path.join(process
+		.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH);
+	} else {
+		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
+			this.xcodeAppDir        = path.join(this.buildDir, 'ArchiveStaging');
+		} else {
+			this.xcodeAppDir        = path.join(this.iosBuildDir, this.tiapp.name + '.app');
+		}
+	}
 	
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
@@ -2710,6 +2717,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: target changed since last build'));
 			this.logger.info('  ' + __('Was: %s', cyan(manifest.target)));
 			this.logger.info('  ' + __('Now: %s', cyan(this.target)));
+			return true;
+		}
+
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
 
@@ -3184,6 +3196,32 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				}
 			}, this);
 		}, this);
+	}
+
+	// add the post-compile build phase for dist-appstore builds
+	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
+		xobjs.PBXShellScriptBuildPhase || (xobjs.PBXShellScriptBuildPhase = {});
+		var buildPhaseUuid = this.generateXcodeUuid(xcodeProject);
+		var name = 'Copy Resources to Archive';
+
+		xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+			value: buildPhaseUuid,
+			comment: '"' + name + '"'
+		});
+
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] = {
+			isa: 'PBXShellScriptBuildPhase',
+			buildActionMask: 2147483647,
+			files: [],
+			inputPaths: [],
+			name: '"' + name + '"',
+			outputPaths: [],
+			runOnlyForDeploymentPostprocessing: 0,
+			shellPath: '/bin/sh',
+			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/* \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			showEnvVarsInLog: 0
+		};
+		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
 	}
 
 	// inject the team id
@@ -6821,6 +6859,16 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'PkgInfo'));
 	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'embedded.mobileprovision'));
 
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'export_options.plist'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, this.tiapp.name + '.xcarchive'));
+
+	try {
+		var releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
+		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
+			this.unmarkBuildDirFiles(releaseDir);
+		}
+	} catch (e) {}
+
 	this.logger.info(__('Removing files'));
 
 	var hook = this.cli.createHook('build.ios.removeFiles', this, function (done) {
@@ -7063,7 +7111,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		});
 
 	var args = [
-		(this.target === 'dist-appstore'? 'archive' : 'build'),
+		this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'archive' : 'build',
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),

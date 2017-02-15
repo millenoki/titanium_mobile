@@ -112,6 +112,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     RELEASE_TO_NIL(_currentRequest);
     RELEASE_TO_NIL(_progressProxy)
 	RELEASE_TO_NIL(blacklistedURLs);
+	RELEASE_TO_NIL(insecureConnection);
 	[super dealloc];
 }
 
@@ -201,6 +202,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         _progressProxy.progressDelegate = self;
 
 		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
+		ignoreSslError = [TiUtils boolValue:[[self proxy] valueForKey:@"ignoreSslError"] def:NO];
+		isAuthenticated = NO;
 		
 		// only show the loading indicator if it's a remote URL and 'hideLoadIndicator' property is not set.
 		if (![[self class] isLocalURL:url] && !hideLoadIndicator)
@@ -223,6 +226,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[spinner sizeToFit];
             spinner.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds));
 			[spinner startAnimating];
+		}
+
+		if ([[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"] == nil) {
+			NSString *defaultUserAgent = [webview stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+			[[NSUserDefaults standardUserDefaults] setObject:defaultUserAgent forKey:@"DefaultUserAgent"];
 		}
 	}
 	return webview;
@@ -483,6 +491,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     //not working for now
 }
 
+-(void)setIgnoreSslError_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    
+    ignoreSslError = [TiUtils boolValue:value def:NO];
+    isAuthenticated = NO;
+    [[self proxy] replaceValue:value forKey:@"ignoreSslError" notification:NO];
+}
+
 -(void)setBackgroundColor_:(id)color
 {
 	UIColor *c = [Webcolor webColorNamed:color];
@@ -604,6 +621,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSString);
     if (args == nil) return;
 	ignoreNextRequest = YES;
+	isAuthenticated = NO;
 	[self setReloadData:args];
 	[self setReloadDataProperties:nil];
 	reloadMethod = @selector(setUrl_:);
@@ -621,6 +639,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         url = [[components URL] retain];
     }
 
+	
+	if (insecureConnection) {
+		[insecureConnection cancel];
+	}
+	
 	[self stopLoading];
 	
 	if ([[self class] isLocalURL:url]) {
@@ -670,6 +693,18 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     _asyncLoad = [TiUtils boolValue:arg def:NO];
 }
 
+
+-(void)setUserAgent_:(id)value
+{
+    ENSURE_TYPE_OR_NIL(value, NSString);
+    
+    if (value == nil || [value isEqualToString:@""]) {
+        value = [[NSUserDefaults standardUserDefaults] objectForKey:@"DefaultUserAgent"];
+    }
+
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UserAgent": value}];
+    [[self proxy] replaceValue:value forKey:@"userAgent" notification:NO];
+}
 
 - (void)ensureLocalProtocolHandler
 {
@@ -864,28 +899,33 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
+	if (navigationType != UIWebViewNavigationTypeOther) {
+ 		RELEASE_TO_NIL(lastValidLoad);
+	}
+    
 	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
 	BOOL allHeadersIncluded = NO;
 	int requiredHeaders = (int)[newHeaders count];
     
-	for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
-		for (NSString* newHeader in [newHeaders allKeys]) {
-			if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
-				requiredHeaders--;
+	if (newHeaders) {
+		for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
+			for (NSString* newHeader in [newHeaders allKeys]) {
+				if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
+					requiredHeaders--;
+				}
 			}
 		}
-	}
-    
-	// If there are custom headers and not all of them are included, add them
-	if (newHeaders != nil && requiredHeaders > 0) {
-		NSMutableURLRequest* newRequest = [request mutableCopy];
-		for (NSString* newHeader in [newHeaders allKeys]) {
-			[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+
+		if (requiredHeaders > 0) {
+			NSMutableURLRequest* newRequest = [request mutableCopy];
+			for (NSString* newHeader in [newHeaders allKeys]) {
+				[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
+			}
+			[self loadURLRequest:newRequest];
+			[newRequest release];
+
+			return NO;
 		}
-		[self loadURLRequest:newRequest];
-		[newRequest release];
-        
-		return NO;
 	}
 
 	NSURL * newUrl = [request URL];
@@ -895,9 +935,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         
 		for (NSString *blackListedUrl in blacklistedURLs) {
 			if ([urlAbsoluteString rangeOfString:blackListedUrl options:NSCaseInsensitiveSearch].location != NSNotFound) {
-				if ([self.proxy _hasListeners:@"onStopBlacklistedUrl"]) {
-					NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:urlAbsoluteString,@"url",@"Webview did not load blacklisted url.", @"messsage", nil];
-					[self.proxy fireEvent:@"onStopBlacklistedUrl" withObject:eventDict];
+				if ([[self proxy] _hasListeners:@"blacklisturl"]) {
+					[[self proxy] fireEvent:@"blacklisturl" withObject:@{
+						@"url": urlAbsoluteString,
+						@"message": @"Webview did not load blacklisted url."
+					}];
 				}
 		
 				[self hideSpinner];
@@ -933,6 +975,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	if (navigationType != UIWebViewNavigationTypeOther) {
 		RELEASE_TO_NIL(lastValidLoad);
+	}
+    
+	// Handle invalid SSL certificate
+	if (ignoreSslError && !isAuthenticated) {
+		RELEASE_TO_NIL(insecureConnection);
+		isAuthenticated = NO;
+		insecureConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+		[insecureConnection start];
+
+		return NO;
 	}
 
 	if (isHTTPOrLocalFile) {
@@ -970,7 +1022,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         }
         return YES;
 	}
-	
+
 	UIApplication * uiApp = [UIApplication sharedApplication];
 	
 	if ([uiApp canOpenURL:newUrl] && !willHandleUrl)
@@ -1108,6 +1160,33 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
         [self.proxy fireEvent:@"loadprogress" withObject:event propagate:NO checkForListener:NO];
     }
 }
+#pragma mark NSURLConnection Delegates (used for the "ignoreSslError" property)
+
+- (void)connection:(NSURLConnection *)connection didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge;
+{
+    if ([challenge previousFailureCount] == 0) {
+        isAuthenticated = YES;
+        
+        [[challenge sender] useCredential:[NSURLCredential credentialForTrust:[[challenge protectionSpace] serverTrust]]
+               forAuthenticationChallenge:challenge];
+    } else {
+        [[challenge sender] cancelAuthenticationChallenge:challenge];
+    }
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response;
+{
+    isAuthenticated = YES;
+
+    [webview loadRequest:[NSURLRequest requestWithURL:url]];
+    [insecureConnection cancel];
+}
+
+- (BOOL)connection:(NSURLConnection *)connection canAuthenticateAgainstProtectionSpace:(NSURLProtectionSpace *)protectionSpace
+{
+    return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
+}
+
 #pragma mark TiEvaluator
 
 - (void)evalFile:(NSString*)path

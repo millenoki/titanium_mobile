@@ -114,6 +114,8 @@ public class TiUILabel extends TiUINonViewGroupView
     private Integer strokeColor = Color.TRANSPARENT;
     private Join strokeJoin = Join.MITER;
     private float strokeMiter = 10;
+	private String minimumFontSize = null;
+	private String autoshrinkSetFontSize = null;
 
 
 	private RectF textPadding = null;
@@ -426,7 +428,7 @@ public class TiUILabel extends TiUINonViewGroupView
 
             return super.onTouchEvent(event);
         }
-
+	
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
 			if (touchPassThrough(getParentViewForChild(), event)) return false;
@@ -1075,6 +1077,7 @@ public class TiUILabel extends TiUINonViewGroupView
 			{
 				super.onLayout(changed, left, top, right, bottom);
                 if (changed) {
+                    adjustTextFontSize(this);
                     TiUIHelper.firePostLayoutEvent(TiUILabel.this);
                 }
 			}
@@ -1087,6 +1090,43 @@ public class TiUILabel extends TiUINonViewGroupView
 		setNativeView(tv);
 
 	}
+	
+	/**
+     * Method used to decrease the fontsize of the text to fit the width
+     * fontsize should be >= than the property minimumFontSize
+     * @param v
+     */
+    private void adjustTextFontSize(View v){    
+        if (minimumFontSize != null){
+            TextView tv = getTextView();
+
+            if (tv != null) {
+                if (autoshrinkSetFontSize != null) {
+                    if (tv.getTextSize() == TiConvert.toFloat(autoshrinkSetFontSize)) {
+                        String[] fontProperties = TiUIHelper.getFontProperties(proxy.getProperties());
+
+                        if (fontProperties.length > TiUIHelper.FONT_SIZE_POSITION && fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+                            tv.setTextSize(TiUIHelper.getSizeUnits(fontProperties[TiUIHelper.FONT_SIZE_POSITION]), TiUIHelper.getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
+                        } else {
+                            tv.setTextSize(TiUIHelper.getSizeUnits(null), TiUIHelper.getSize(null));
+                        }
+                    }
+                }
+                
+                TextPaint textPaint = tv.getPaint();
+                if (textPaint != null) {
+                    float stringWidth = textPaint.measureText(tv.getText().toString());
+                    int textViewWidth = tv.getWidth();
+                    if (textViewWidth < stringWidth && stringWidth > 0) {
+                        float fontSize = (textViewWidth / stringWidth) * tv.getTextSize();
+                        autoshrinkSetFontSize = fontSize > TiConvert.toFloat(minimumFontSize, 0) ? String.valueOf(fontSize) : minimumFontSize;
+                        tv.setTextSize(TiUIHelper.getSizeUnits(autoshrinkSetFontSize), TiUIHelper.getSize(autoshrinkSetFontSize));
+                    }
+                }
+            }
+        }
+    }
+
 
 //	private CharSequence fromHtml(CharSequence str)
 //	{
@@ -1356,6 +1396,13 @@ public class TiUILabel extends TiUINonViewGroupView
 				getTextView().setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
             break;
+		case TiC.PROPERTY_MINIMUM_FONT_SIZE: {
+                minimumFontSize = TiConvert.toString(newValue);
+                getTextView().setSingleLine(true);
+                getTextView().setEllipsize(TruncateAt.END);
+                getTextView().requestLayout();
+                break;
+            }
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

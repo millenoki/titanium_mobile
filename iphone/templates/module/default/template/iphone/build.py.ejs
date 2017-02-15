@@ -63,6 +63,13 @@ def glob_libfiles():
 	return files
 	
 if __name__ == '__main__':
+	print "**************************************************************"
+	print "  WARNING!"
+	print "    This Python script is deprecated!"
+	print "    Please use 'appc run -p ios --build-only' instead"
+	print "**************************************************************"
+	print ""
+
 	global options
 	parser = optparse.OptionParser()
 	parser.add_option("-s", "--skip-docs",
