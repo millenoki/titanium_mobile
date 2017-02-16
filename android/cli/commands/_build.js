@@ -4546,11 +4546,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     // set the app icon
     finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
-    // merge the custom android manifest
-    finalAndroidManifest.merge(customAndroidManifest);
-
-    // merge the tiapp.xml android manifest
-    finalAndroidManifest.merge(tiappAndroidManifest);
 
     this.modules.forEach(function (module) {
         var moduleXmlFile = path.join(module.modulePath, 'timodule.xml');
@@ -4572,6 +4567,12 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             }
         }
     });
+
+    // merge the custom android manifest
+    finalAndroidManifest.merge(customAndroidManifest);
+
+    // merge the tiapp.xml android manifest
+    finalAndroidManifest.merge(tiappAndroidManifest);
 
     // if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
     // the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
