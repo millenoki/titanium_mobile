@@ -796,6 +796,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             needsToUpdateNativeSideProps  = true;
         }
         propertiesToUpdateNativeSide = null;
+        readyToUpdateNativeSideProperties = true;
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
