@@ -13,51 +13,32 @@ public class TiTypefaceSpan extends TypefaceSpan {
 
     public TiTypefaceSpan(String family, Typeface type) {
         super(family);
-    	this.fontFamily = family;
+        this.fontFamily = family;
         newType = type;
     }
     
     public TiTypefaceSpan(String family) {
-        this(family, TiUIHelper.toTypeface(TiApplication.getInstance().getApplicationContext(), family));
+        super(family);
+        this.fontFamily = family;
+        newType = null;
     }
 
     @Override
     public void updateDrawState(TextPaint ds) {
-    	if (newType != null) {
-    		applyCustomTypeFace(ds, newType);
-    	}
-        super.updateDrawState(ds);
+        if (fontFamily != null && fontFamily.length() > 0) {
+            applyCustomTypeFace(ds, newType);
+        }
     }
 
     @Override
     public void updateMeasureState(TextPaint paint) {
-        if (newType != null) {
-    		applyCustomTypeFace(paint, newType);
-    	}
-        super.updateMeasureState(paint);
+        if (fontFamily != null && fontFamily.length() > 0) {
+            applyCustomTypeFace(paint, newType);
+        }
     }
 
     private void applyCustomTypeFace(Paint paint, Typeface tf) {
-//        int oldStyle;
-        Typeface old = paint.getTypeface();
-        if (tf == old) {
-            return;
-        }
-//        if (old == null) {
-//            oldStyle = 0;
-//        } else {
-//            oldStyle = old.getStyle();
-//        }
-//
-//        int fake = oldStyle & ~tf.getStyle();
-//        if ((fake & Typeface.BOLD) != 0) {
-//            paint.setFakeBoldText(true);
-//        }
-//
-//        if ((fake & Typeface.ITALIC) != 0) {
-//            paint.setTextSkewX(-0.25f);
-//        }
-
+        tf = TiUIHelper.toTypeface(TiApplication.getInstance().getApplicationContext(), fontFamily);
         paint.setTypeface(tf);
     }
 }
