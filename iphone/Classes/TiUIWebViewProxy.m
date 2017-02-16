@@ -116,11 +116,6 @@
 //USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_SIZE
 
-- (NSString *)userAgent
-{
-    return [[(TiUIWebView *)self.view webview] stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-}
-
 - (NSString*)html
 {
 	NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
