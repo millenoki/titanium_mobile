@@ -13,7 +13,7 @@ var os = require('os'),
 		10: 'android-2.3.3',
 		11: 'android-3.0'
 	},
-	DEFAULT_GMS_VERSION = '9.8.0';
+	DEFAULT_GMS_VERSION = '10.2.0';
 
 /**
  * Given a hinted at location of Android SDK, find one.
