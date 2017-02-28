@@ -105,7 +105,7 @@ public class LocaleModule extends KrollModule
 			if (parts.length > 1) {
 				locale = new Locale(parts[0], parts[1]);
 			} else {
-				locale = new Locale(parts[0]);
+				locale = new Locale(parts[0], parts[0].toUpperCase());
 			}
 
 			Locale.setDefault(locale);
