@@ -1443,6 +1443,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     				}
     				position += sectionItemIndex;
     				if (section.hasHeader()) {
+    				    position += 1;			
+    				}
+    				if (section.hasFooter()) {
     					position += 1;			
     				}
     				break;
@@ -1588,6 +1591,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	    }
         int position = findItemPosition(sectionIndex, itemIndex);
         int childCount = listView.getListChildCount();
+
         for (int i = 0; i < childCount; i++) {
             View child = listView.getListChildAt(i);
             TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) child.findViewById(listContentId);
