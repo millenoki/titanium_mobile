@@ -348,6 +348,12 @@ public class BufferProxy extends KrollProxy
 		return new String(buffer);
 	}
 
+	@Kroll.getProperty(enumerable=false)
+    @Kroll.method
+    public int[] getByteArray() {
+        return TiConvert.bytesToIntArray(buffer);
+    }
+
 	@Kroll.method
 	public TiBlob toBlob()
 	{

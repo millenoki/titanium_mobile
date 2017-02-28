@@ -3208,4 +3208,23 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return image;
 }
 
++(NSArray*)byteArray:(NSData*)data {
+    const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
+    
+    if (!dataBuffer)
+    {
+        return [NSMutableArray array];
+    }
+    
+    NSUInteger          dataLength  = [data length];
+    NSMutableArray     *hexArray  = [NSMutableArray arrayWithCapacity:dataLength];
+    
+    for (int i = 0; i < dataLength; ++i)
+    {
+        [hexArray addObject:NUMINTEGER((unsigned int)dataBuffer[i])];
+    }
+    
+    return [NSArray arrayWithArray:hexArray];
+}
+
 @end

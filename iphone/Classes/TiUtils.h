@@ -795,5 +795,6 @@ typedef enum
  @return The generated image.
  */
 + (UIImage*)imageWithColor:(UIColor*)color;
++(NSArray*)byteArray:(NSData*)data;
 
 @end

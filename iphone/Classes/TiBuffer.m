@@ -373,22 +373,12 @@ NSArray* bufferKeySequence = nil;
 
 -(NSArray*)bytes
 {
-    const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
-    
-    if (!dataBuffer)
-    {
-        return [NSMutableArray array];
-    }
-    
-    NSUInteger          dataLength  = [data length];
-    NSMutableArray     *hexArray  = [NSMutableArray arrayWithCapacity:dataLength];
-    
-    for (int i = 0; i < dataLength; ++i)
-    {
-        [hexArray addObject:NUMINTEGER((unsigned int)dataBuffer[i])];
-    }
-    
-    return [NSArray arrayWithArray:hexArray];
+    return [TiUtils byteArray:[self data]];
+}
+
+-(NSArray*)byteArray
+{
+    return [self bytes];
 }
 
 -(NSString*)toString:(id)_void 

@@ -240,23 +240,8 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 }
 
 -(NSArray*)byteArray
-{    
-    const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
-    
-    if (!dataBuffer)
-    {
-        return [NSMutableArray array];
-    }
-    
-    NSUInteger          dataLength  = [data length];
-    NSMutableArray     *hexArray  = [NSMutableArray arrayWithCapacity:dataLength];
-    
-    for (int i = 0; i < dataLength; ++i)
-    {
-        [hexArray addObject:NUMINTEGER((unsigned int)dataBuffer[i])];
-    }
-    
-    return [NSArray arrayWithArray:hexArray];
+{
+    return [TiUtils byteArray:[self data]];
 }
 
 -(NSData*)data
