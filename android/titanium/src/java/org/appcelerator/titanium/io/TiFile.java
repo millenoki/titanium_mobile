@@ -25,9 +25,11 @@ import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiFileProxy;
 
 import android.net.Uri;
 import android.os.StatFs;
+import ti.modules.titanium.BufferProxy;
 
 /**
  * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
@@ -388,29 +390,39 @@ public class TiFile extends TiBaseFile
 		return result;
 	}
 
+    public void write(Object arg, boolean append) throws IOException {
+        boolean needsClosing = false;
+        if (!stream) {
+            needsClosing = true;
+            open(append ? MODE_APPEND : MODE_WRITE, true);
+        }
+        if (!opened) {
+            throw new IOException("Must open before calling write");
+        }
+        if (arg instanceof TiBlob) {
+            write((TiBlob) arg, append);
+        } else if (arg instanceof String) {
+            write((String) arg, append);
+        } else if (arg instanceof TiFileProxy) {
+            write(((TiFileProxy) arg).read(), append);
+         } else if (arg instanceof BufferProxy) {
+             write(((BufferProxy) arg).getBuffer(), append);
+         }
+
+        if (needsClosing) {
+            close();
+        }
+
+    }
 	public void write(TiBlob blob, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
 		if (blob != null) {
-			if (!stream) {
-				try {
-					open(append ? MODE_APPEND : MODE_WRITE, true);
-					copyStream(blob.getInputStream(), outstream);
-				} finally {
-					close();
-				}
+			if (binary) {
+				copyStream(blob.getInputStream(), outstream);
 			} else {
-
-				if (!opened) {
-					throw new IOException("Must open before calling write");
-				}
-
-				if (binary) {
-					copyStream(blob.getInputStream(), outstream);
-				} else {
-					outwriter.write(new String(blob.getBytes(),"UTF-8"));
-				}
+				outwriter.write(new String(blob.getBytes(),"UTF-8"));
 			}
 		}
 	}
@@ -424,90 +436,52 @@ public class TiFile extends TiBaseFile
 		TiBaseFile f = TiFileFactory.createTitaniumFile(parts, append);
 
 		if (f != null) {
-			if (!stream) {
+			if (binary) {
 				InputStream is = null;
 				try {
-					open(append ? MODE_APPEND : MODE_WRITE, true);
 					is = f.getInputStream();
 					copyStream(is, outstream);
 				} finally {
 					if (is != null) {
 						is.close();
 					}
-					close();
 				}
 			} else {
-				if (!opened) {
-					throw new IOException("Must open before calling write");
-				}
-
-				if (binary) {
-					InputStream is = null;
-					try {
-						is = f.getInputStream();
-						copyStream(is, outstream);
-					} finally {
-						if (is != null) {
-							is.close();
-						}
-					}
-				} else {
-					BufferedReader ir = null;
-					try {
-						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
-						copyStream(ir, outwriter);
-					} finally {
-						if(ir != null) {
-							ir.close();
-						}
+				BufferedReader ir = null;
+				try {
+					ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+					copyStream(ir, outwriter);
+				} finally {
+					if(ir != null) {
+						ir.close();
 					}
 				}
 			}
 		}
 	}
 
-	@Override
     public void write(byte[] data, boolean append) throws IOException
     {
-	    if (!opened) {
-	        open(append ? MODE_APPEND : MODE_WRITE, true);
-	    }
         if (binary) {
             outstream.write(data);
+        } else {
+            outwriter.write(new String(data,"UTF-8"));
         }
     }
 	
-	@Override
 	public void write(String data, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
-		if (!stream) {
-			try {
-				open(append ? MODE_APPEND : MODE_WRITE, false);
-				outwriter.write(data);
-			} finally {
-				close();
-			}
+		if (binary) {
+			outstream.write(data.getBytes());
 		} else {
-			if (!opened) {
-				throw new IOException("Must open before calling write");
-			}
-
-			if (binary) {
-				outstream.write(data.getBytes());
-			} else {
-				outwriter.write(data);
-			}
+			outwriter.write(data);
 		}
 	}
 
-	@Override
 	public void writeLine(String data) throws IOException
 	{
-		if (!opened) {
-			throw new IOException("Must open before calling readLine");
-		}
 		if (binary) {
 			throw new IOException("File opened in binary mode, writeLine not available.");
 		}

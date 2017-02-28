@@ -300,10 +300,20 @@ public class TiFileProxy extends KrollProxy
 	        append = false;
         }
 		try {
-		    byte[] data = TiConvert.toBytes(arg);
+//		    byte[] data = TiConvert.toBytes(arg);
 		    if (arg != null) {
-                tbf.write(data, append);
-		    } else {
+                tbf.write( arg, append);
+//                if (arg instanceof TiBlob) {
+//                    tbf.write((TiBlob) arg, append);
+//                } else if (arg instanceof String) {
+//                    tbf.write((String) arg, append);
+//                } else if (arg instanceof TiFileProxy) {
+//                    tbf.write(((TiFileProxy) arg).read(), append);
+//                } else {
+//                    Log.i(TAG, "Unable to write to an unrecognized file type");
+//                    return false;
+//                }
+            } else {
 				Log.i(TAG, "Unable to write to an unrecognized file type");
 				return false;
 			}
