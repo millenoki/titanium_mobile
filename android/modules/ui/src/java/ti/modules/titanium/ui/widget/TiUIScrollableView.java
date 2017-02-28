@@ -927,7 +927,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 //			if (proxy == null || needsRepopulate == true) return POSITION_NONE;
 			if (proxy == null) return POSITION_NONE;
 
-			int index = ((ScrollableViewProxy)proxy).getPositionOfView(proxy);
+			int index = ((ScrollableViewProxy)TiUIScrollableView.this.proxy).getPositionOfView(proxy);
             if (index != -1) {
                 return index;
             }
