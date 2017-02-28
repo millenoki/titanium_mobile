@@ -529,6 +529,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                         }
                         return;
                     }
+                } else {
+                    notifyItemRangeChanged(index, 1);
                 }
             }
         }, false);
