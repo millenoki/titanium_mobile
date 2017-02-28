@@ -1469,29 +1469,29 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                         bubbles &= TiConvert.toBoolean(entry.getValue());
                         it.remove();
                         break;
-                    case TiC.PROPERTY_SUCCESS:
-                        hashValue = entry.getValue();
-                        if (hashValue != null && reportSuccess == false) {
-                            reportSuccess = true;
-                            code = ((Boolean) hashValue).booleanValue()?0:-1;
-                        }
-                        it.remove();
-                        break;
-                    case TiC.PROPERTY_CODE:
-                        hashValue = entry.getValue();
-                        if (hashValue instanceof Integer) {
-                            code = ((Integer) hashValue).intValue();
-                            reportSuccess = true;
-                        } 
-                        it.remove();
-                        break;
-                    case TiC.EVENT_PROPERTY_ERROR:
-                        hashValue = entry.getValue();
-                        if (hashValue instanceof String) {
-                            message = (String) hashValue;
-                            it.remove();
-                        }
-                        break;
+//                    case TiC.PROPERTY_SUCCESS:
+//                        hashValue = entry.getValue();
+//                        if (hashValue != null && reportSuccess == false) {
+//                            reportSuccess = true;
+//                            code = ((Boolean) hashValue).booleanValue()?0:-1;
+//                        }
+//                        it.remove();
+//                        break;
+//                    case TiC.PROPERTY_CODE:
+//                        hashValue = entry.getValue();
+//                        if (hashValue instanceof Integer) {
+//                            code = ((Integer) hashValue).intValue();
+//                            reportSuccess = true;
+//                        } 
+//                        it.remove();
+//                        break;
+//                    case TiC.EVENT_PROPERTY_ERROR:
+//                        hashValue = entry.getValue();
+//                        if (hashValue instanceof String) {
+//                            message = (String) hashValue;
+//                            it.remove();
+//                        }
+//                        break;
                     case TiC.PROPERTY_SOURCE:
                         hashValue = entry.getValue();
                         if (hashValue != this) {
@@ -1859,10 +1859,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         case MSG_LISTENER_ADDED:
         case MSG_LISTENER_REMOVED: {
-            if (modelListener == null) {
-                return true;
-            }
-
             String event = (String) msg.obj;
 
             if (msg.what == MSG_LISTENER_ADDED) {
