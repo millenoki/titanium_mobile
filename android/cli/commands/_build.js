@@ -2589,29 +2589,25 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         if (minimatch(relPath, toIgnore[i], {dot:true})) {
                             ignored = true;
                             _t.logger.debug(__('Ignoring %s', from.cyan));
-                            next();
-                            return;
+                            return next();
                         }
                     }
                 }
 
                 // check that the file actually exists and isn't a broken symlink
                 if (!fs.existsSync(from)) {
-                    next();
-                    return;
+                    return next();
                 }
 
                 // check if we are ignoring this file
                 if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
                     _t.logger.debug(__('Ignoring %s ', from.cyan));
-                    next();
-                    return;
+                    return next();
                 }
 
                 // if this is a directory, recurse
                 if (isDir) {
-                    recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
-                    return;
+                    return recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
                 }
                 var parts = filename.match(filenameRegExp),
                     info = {
@@ -2626,8 +2622,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     };
                 _t.cli.createHook('build.android.walkResource', _t, function(info, cb) {
                     if (!!info.ignored) {
-                        cb();
-                        return;
+                        return cb();
                     }
                     // we have a file, now we need to see what sort of file
                     // check if it's a drawable resource
@@ -2693,11 +2688,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             // if we encounter a css file, check if we should minify it
                             if (_t.minifyCSS) {
                                 _t.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, to.cyan));
-                                fs.readFile(info.src, function (err, data) {
+                                return fs.readFile(info.src, function (err, data) {
                                     if (err) throw err;
                                     fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, cb);
                                 });
-                                break;
                             } else {
                                 resourcesToCopy[info.relPath] = info;
                             }
@@ -2738,11 +2732,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         case 'xml':
                         {
                             if (_t.xmlMergeRegExp.test(filename)) {
-                                _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+                                return _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
                                     _t.writeXmlFile(from, to);
                                     cb();
                                 })(info.src, info.dest, cb);
-                                return;
                             } else {
                                resourcesToCopy[info.relPath] = info;
                             }
