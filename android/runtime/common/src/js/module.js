@@ -471,12 +471,16 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 	var module;
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports;
+		return Module.cache[filename].exports || true;
 	}
 	
 	module = new Module(filename, this, context);
 	module.load(filename);
-	return module.exports;
+	
+	// Stick it in the cache
+	Module.cache[filename] = module;
+	
+	return module.exports || true;
 }
 
 /**
@@ -492,7 +496,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports;
+		return Module.cache[filename].exports || true;
 	}
 
 	module = new Module(filename, this, context);
@@ -512,7 +516,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.exports = JSON.parse(source);
 	module.loaded = true;
 
-	return module.exports;
+	return module.exports || true;
 }
 
 /**
