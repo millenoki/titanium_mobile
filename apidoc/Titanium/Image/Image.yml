@@ -14,7 +14,7 @@ methods:
     parameters:
       - name: image
         summary: Image to filter.
-        type: Ti.Blob | String
+        type: [Ti.Blob, String]
 
       - name: parameters
         type: Dictionary

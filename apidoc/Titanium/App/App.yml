@@ -559,6 +559,20 @@ properties:
     type: Dictionary
     permission: read-only
 
+  - name: defaultNavBarHeight
+    summary: |
+      defaultNavBarHeight.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+
+  - name: defaultStatusBarHeight
+    summary: |
+      defaultNavBarHeight.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, android]
+
 ---
 name: launchOptions
 summary: |

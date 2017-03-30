@@ -30,7 +30,7 @@ module Generator {
 	interface TiMethod {
 		parameters : Array<TiParameter>;
 		returns    : any;
-        aliases      : Array<String>
+        aliases      : Array<string>
 		name       : string;
 	}
 
@@ -500,7 +500,7 @@ module Generator {
 			if (returnTypes.length === 0) {
 				renderResult.push ('');
 			} else {
-						renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: returnTypes.join(' | ')}));
+						renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: returnTypes.map(Mapper.ComputeType).join(' | ')}));
 				// _.each (returnTypes, (retType: string) => {
 				// 	if (retType) {
 				// 		renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: retType}));
@@ -581,18 +581,18 @@ module Generator {
 			var returnTypes : Array<string> = [];
 			if (_.isArray (tiReturnType)) {
 				_.each (tiReturnType, (returnType: TypeField) => {
-					returnTypes.push (Mapper.SanitizeModuleRoute(Mapper.ComputeType (returnType.type)));
+					returnTypes.push (Mapper.ComputeType (returnType.type));
 				});
 			} 
 			else if (_.isArray (tiReturnType.type)) {
 				_.each (tiReturnType.type, (returnType: string) => {
-					returnTypes.push (Mapper.SanitizeModuleRoute(Mapper.ComputeType (returnType)));
+					returnTypes.push (Mapper.ComputeType (returnType));
 				});
 			} 
 			else if (_.isString(tiReturnType.type)) {
-				returnTypes.push (Mapper.SanitizeModuleRoute(Mapper.ComputeType (tiReturnType.type)));
+				returnTypes.push (Mapper.ComputeType (tiReturnType.type));
 			} else {
-				returnTypes.push (Mapper.SanitizeModuleRoute(Mapper.ComputeType ('void')));
+				returnTypes.push (Mapper.ComputeType ('void'));
 			}
 			return returnTypes;
 		}
@@ -668,9 +668,9 @@ module Generator {
 		/// @return the property type sanitized.
 		private static ComputePropertyType (type : any) : string {
 			if (_.isArray(type)) {
-				return type.map(Mapper.SanitizeModuleRoute).join(' | ');
+				return type.map(Mapper.ComputeType).join(' | ');
 			}
-			return Mapper.ComputeType (<string>(type));
+			return Mapper.ComputeType(<string>(type));
 		}
 
 		/// <b>SanitizeParameterName</b>

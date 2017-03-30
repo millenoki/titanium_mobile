@@ -86,7 +86,7 @@ properties:
     
     name: padding
     summary: Number of pixels to extend the background image past the label on the bottom.
-    type: Number
+    type: [Number, Dictionary, Array<Number>]
     platforms: [iphone, ipad, android]
 
   - name: backgroundPaddingBottom
