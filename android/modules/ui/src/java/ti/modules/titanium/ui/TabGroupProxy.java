@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -282,8 +283,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void handleCreationDict(HashMap options) {
-		super.handleCreationDict(options);
+	public void handleCreationDict(HashMap options, KrollProxy rootProxy) {
+		super.handleCreationDict(options, rootProxy);
 
 		// Support setting orientation modes at creation.
 		Object orientationModes = options.get(TiC.PROPERTY_ORIENTATION_MODES);

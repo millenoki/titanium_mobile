@@ -95,9 +95,9 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
     }
 	
 	@Override
-    public void handleCreationDict(final HashMap options)
+    public void handleCreationDict(final HashMap options, KrollProxy rootProxy)
     {
-        super.handleCreationDict(options);
+        super.handleCreationDict(options, rootProxy);
         Object window = options.get(TiC.PROPERTY_WINDOW);
         if (window instanceof TiWindowProxy) {
             setWindow((TiWindowProxy) window);

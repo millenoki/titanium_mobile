@@ -53,8 +53,8 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 	}
 
 	@Override
-	public void handleCreationDict(HashMap dict) {
-		super.handleCreationDict(dict);
+	public void handleCreationDict(HashMap dict, KrollProxy rootProxy) {
+		super.handleCreationDict(dict, rootProxy);
 		if (dict.containsKey("rows")) {
 			Object rowsAtCreation = dict.get("rows");
 			if (rowsAtCreation.getClass().isArray()) {

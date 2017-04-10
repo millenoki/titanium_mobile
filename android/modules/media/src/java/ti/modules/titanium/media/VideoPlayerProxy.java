@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -124,9 +125,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	@Override
-	public void handleCreationDict(HashMap options)
+	public void handleCreationDict(HashMap options, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(options);
+		super.handleCreationDict(options, rootProxy);
 
 		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
 		if (mcStyle != null) {

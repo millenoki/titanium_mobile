@@ -35,7 +35,7 @@ public class BroadcastReceiverProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap dict)
+	public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
 	{
 		if (dict != null) {
 			if (dict.containsKey(TiC.PROPERTY_URL)) {
@@ -44,7 +44,7 @@ public class BroadcastReceiverProxy extends KrollProxy
 			if (dict.containsKey(TiC.PROPERTY_ON_RECEIVED)) {
 				setOnReceived(dict.get(TiC.PROPERTY_ON_RECEIVED));
 			}
-			super.handleCreationDict(dict);
+			super.handleCreationDict(dict, rootProxy);
 		}
 	}
 

@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -88,9 +89,9 @@ public class PickerRowProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap options)
+	public void handleCreationDict(HashMap options, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(options);
+		super.handleCreationDict(options, rootProxy);
 		if (options.containsKey("title")) {
 			title = TiConvert.toString(options, "title");
 		}

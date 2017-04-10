@@ -36,8 +36,8 @@ public class BonjourBrowserProxy extends KrollProxy {
     }
     
     @Override
-    public void handleCreationDict(HashMap dict) {
-        super.handleCreationDict(dict);
+    public void handleCreationDict(HashMap dict, KrollProxy rootProxy) {
+        super.handleCreationDict(dict, rootProxy);
 
         if (dict.containsKey("serviceType")) {
             mServiceType = TiConvert.toString(dict, "serviceType");

@@ -86,9 +86,9 @@ public class CookieProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap dict)
+	public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(dict);
+		super.handleCreationDict(dict, rootProxy);
 
 		String name = TiConvert.toString(getProperty(TiC.PROPERTY_NAME));
 		String value = TiConvert.toString(getProperty(TiC.PROPERTY_VALUE));

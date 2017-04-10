@@ -92,7 +92,7 @@ public class PendingIntentProxy extends KrollProxy
 	}
 
 	@Override
-    public void handleCreationDict(HashMap dict)
+    public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
     {
 		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
 			intent = IntentProxy.fromObject(dict.get(TiC.PROPERTY_INTENT));
@@ -109,7 +109,7 @@ public class PendingIntentProxy extends KrollProxy
 			flags =  flags | PendingIntent.FLAG_UPDATE_CURRENT;
 		}
 
-		super.handleCreationDict(dict);
+		super.handleCreationDict(dict, rootProxy);
 	}
 
 	public PendingIntent getPendingIntent()

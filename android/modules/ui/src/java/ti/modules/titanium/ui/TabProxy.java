@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -57,9 +58,9 @@ public class TabProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap options)
+	public void handleCreationDict(HashMap options, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(options);
+		super.handleCreationDict(options, rootProxy);
 		Object window = options.get(TiC.PROPERTY_WINDOW);
 		if (window instanceof TiWindowProxy) {
 			setWindow((TiWindowProxy) window);

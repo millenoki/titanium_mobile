@@ -10,6 +10,7 @@ import ti.modules.titanium.android.AndroidModule;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -25,9 +26,9 @@ public class BigTextStyleProxy extends StyleProxy {
 	}
 
 	@Override
-	public void handleCreationDict(HashMap d)
+	public void handleCreationDict(HashMap d, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(d);
+		super.handleCreationDict(d, rootProxy);
 
 		if (d == null) {
 			return;

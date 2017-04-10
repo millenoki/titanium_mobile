@@ -76,8 +76,8 @@ public class PlayerProxy extends KrollProxy implements OnLifecycleEvent,
     }
 
     @Override
-    public void handleCreationDict(HashMap options) {
-        super.handleCreationDict(options);
+    public void handleCreationDict(HashMap options, KrollProxy rootProxy) {
+        super.handleCreationDict(options, rootProxy);
         if (options.containsKey(TiC.PROPERTY_URL)) {
             setProperty(
                     TiC.PROPERTY_URL,

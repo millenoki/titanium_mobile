@@ -91,7 +91,7 @@ public class TableViewProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap dict)
+	public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
 	{
 		Object data[] = null;
 		if (dict.containsKey(TiC.PROPERTY_DATA)) {
@@ -111,7 +111,7 @@ public class TableViewProxy extends ViewProxy
 				dict.remove(TiC.PROPERTY_SECTIONS); // don't override our data accessor
 			}
 		}
-		super.handleCreationDict(dict);
+		super.handleCreationDict(dict, rootProxy);
 		if (data != null) {
 			processData(data);
 		}

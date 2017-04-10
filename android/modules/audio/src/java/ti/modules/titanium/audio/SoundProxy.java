@@ -80,9 +80,9 @@ public class SoundProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(HashMap options)
+	public void handleCreationDict(HashMap options, KrollProxy rootProxy)
 	{
-		super.handleCreationDict(options);
+		super.handleCreationDict(options, rootProxy);
 		if (options.containsKey(TiC.PROPERTY_URL)) {
 			Object url = options.get(TiC.PROPERTY_URL);
 			String path = parseURL(url);
