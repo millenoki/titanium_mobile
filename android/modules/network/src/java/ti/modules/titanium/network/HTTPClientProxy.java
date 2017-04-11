@@ -51,9 +51,9 @@ public class HTTPClientProxy extends KrollProxy
 	}
 	
 	@Override
-    public void handleCreationDict(HashMap dict)
+    public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
     {
-		super.handleCreationDict(dict);
+		super.handleCreationDict(dict, rootProxy);
 
 		if (dict.containsKey(TiC.PROPERTY_TIMEOUT)) {
 			client.setTimeout(TiConvert.toInt(dict, TiC.PROPERTY_TIMEOUT,0));
