@@ -722,7 +722,7 @@ public class TiUIText extends TiUINonViewGroupView
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+		if (Build.VERSION.SDK_INT < 24 && (realtv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);
@@ -730,7 +730,7 @@ public class TiUIText extends TiUINonViewGroupView
 			}
 			Context context = TiApplication.getInstance().getApplicationContext();
 			InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+			inputManager.hideSoftInputFromWindow(realtv.getWindowToken(), 0);
 		}
 
 		String value = realtv.getText().toString();

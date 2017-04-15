@@ -973,19 +973,19 @@ public class TiFileHelper implements Handler.Callback
 		return false;
 	}
 	
-	protected static File createExternalStorageFile() {
+	public static File createExternalStorageFile() {
 		return createExternalStorageFile(null, Environment.DIRECTORY_PICTURES, false);
 	}
 
-	protected static File createGalleryImageFile() {
+	public static File createGalleryImageFile() {
 		return createGalleryImageFile(".jpg");
 	}
 
-	private static File createGalleryImageFile(String extension) {
+	public static File createGalleryImageFile(String extension) {
 		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
 	}
 
-	private static File createExternalStorageFile(String extension, String type, boolean isPublic) {
+	public static File createExternalStorageFile(String extension, String type, boolean isPublic) {
 		File dir = isPublic ? Environment.getExternalStoragePublicDirectory(type) : TiApplication.getInstance().getExternalFilesDir(type);
 		File appDir = new File(dir, TiApplication.getInstance().getAppInfo().getName());
 		if (!appDir.exists()) {
