@@ -232,7 +232,8 @@ public class PlayerProxy extends KrollProxy implements OnLifecycleEvent,
 
     protected TiSound getSound() {
         if (snd == null) {
-            snd = new TiSound(this, mEnableLockscreenControls );
+            snd = new TiSound(this, mEnableLockscreenControls);
+            snd.audioFocus = TiConvert.toBoolean(getProperty(TiC.PROPERTY_AUDIO_FOCUS), true);
             setModelListener(snd);
             snd.setAllowBackground(allowBackground);
         }

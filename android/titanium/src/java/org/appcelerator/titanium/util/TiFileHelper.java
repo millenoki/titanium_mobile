@@ -973,55 +973,36 @@ public class TiFileHelper implements Handler.Callback
 		return false;
 	}
 	
-	public static File createExternalStorageFile() {
-        return createExternalStorageFile(null);
-    }
-	public static File createGalleryImageFile() {
-        return createGalleryImageFile(null);
-    }
-    
-	public static File createExternalStorageFile(String extension) {
-        File pictureDir = TiApplication.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
-        if (!appPictureDir.exists()) {
-            if (!appPictureDir.mkdirs()) {
-                Log.e(TAG, "Failed to create external storage directory.");
-                return null;
-            }
-        }
-        String ext = (extension == null) ? ".jpg" : extension;
-        File imageFile;
-        try {
-            imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
+	protected static File createExternalStorageFile() {
+		return createExternalStorageFile(null, Environment.DIRECTORY_PICTURES, false);
+	}
 
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to create image file: " + e.getMessage());
-            return null;
-        }
+	protected static File createGalleryImageFile() {
+		return createGalleryImageFile(".jpg");
+	}
 
-        return imageFile;
-    }
-    
-	public static File createGalleryImageFile(String extension) {
-        File pictureDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
-        if (!appPictureDir.exists()) {
-            if (!appPictureDir.mkdirs()) {
-                Log.e(TAG, "Failed to create application gallery directory.");
-                return null;
-            }
-        }
-        String ext = (extension == null) ? ".jpg" : extension;
-        File imageFile;
-        try {
-            imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
+	private static File createGalleryImageFile(String extension) {
+		return createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
+	}
 
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to create gallery image file: " + e.getMessage());
-            return null;
-        }
-
-        return imageFile;
-    }
+	private static File createExternalStorageFile(String extension, String type, boolean isPublic) {
+		File dir = isPublic ? Environment.getExternalStoragePublicDirectory(type) : TiApplication.getInstance().getExternalFilesDir(type);
+		File appDir = new File(dir, TiApplication.getInstance().getAppInfo().getName());
+		if (!appDir.exists()) {
+			if (!appDir.mkdirs()) {
+				Log.e(TAG, "Failed to create external storage directory.");
+				return null;
+			}
+		}
+		File file;
+		String ext = extension == null ? ".jpg" : extension;
+		try {
+			file = TiFileHelper.getInstance().getTempFile(appDir, ext, false);
+		} catch (IOException e) {
+			Log.e(TAG, "Failed to create file: " + e.getMessage());
+			return null;
+		}
+		return file;
+	}
 }
 

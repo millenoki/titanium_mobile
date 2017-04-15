@@ -126,7 +126,8 @@ import android.widget.ViewSwitcher;
 	"touchTestId",	
 	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
 	TiC.PROPERTY_TRANSITION_NAME,
-	TiC.PROPERTY_HIT_RECT
+	TiC.PROPERTY_HIT_RECT,
+    TiC.PROPERTY_HIDDEN_BEHAVIOR
 })
 public abstract class TiViewProxy extends AnimatableProxy implements Handler.Callback
 {

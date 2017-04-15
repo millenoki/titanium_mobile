@@ -73,13 +73,30 @@
     return NO;
 }
 
+-(BOOL)isInsideScrollView {
+    
+    UIView* theView = self.superview;
+    BOOL result = false;
+    while (theView) {
+        if (IS_OF_CLASS(theView, UIScrollView)) {
+            result = true;
+            break;
+        }
+        theView = [theView superview];
+    }
+    return result;
+}
+
+
 - (void)updateKeyboardInset  {
+    if ([self isInsideScrollView]) {
+        return;
+    }
     UIView* inputView = [[TiApp app] controller].keyboardActiveInput;
     CGFloat keyboardHeight = [[TiApp app] controller].keyboardHeight;
     
-    
     [self keyboardDidShowAtHeight:keyboardHeight];
-    
+
     if (inputView && [self topView:self containsView:inputView]) {
         double delayInSeconds = 0.3;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));

@@ -234,7 +234,7 @@ public class MediaModule extends KrollModule
 		if (saveToPhotoGallery) {
 			imageFile = TiFileHelper.createGalleryImageFile(extension);
 		} else {
-			imageFile = TiFileHelper.createExternalStorageFile(extension);
+			imageFile = TiFileHelper.createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
 		}
 
 		//Sanity Checks
@@ -370,9 +370,9 @@ public class MediaModule extends KrollModule
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+				context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;
@@ -382,8 +382,8 @@ public class MediaModule extends KrollModule
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
 	    }
-	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-	    if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+	    Context context = TiApplication.getInstance().getApplicationContext();
+	    if (context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
 	    }
 	    return false;
@@ -393,8 +393,8 @@ public class MediaModule extends KrollModule
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
 	    }
-	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+	    Context context = TiApplication.getInstance().getApplicationContext();
+	    if (context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
 	    }
 	    return false;
@@ -501,29 +501,27 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		TiBlob theBlob = null;
+		TiBlob blob = null;
 		try {
 			//Make sure our processing argument is a Blob
 			if (arg instanceof TiFileProxy) {
-				theBlob = TiBlob.blobFromObject(((TiFileProxy)arg).getBaseFile());
+				blob = TiBlob.blobFromObject(((TiFileProxy)arg).getBaseFile());
 			} else {
-				theBlob = (TiBlob) arg;
+				blob = (TiBlob) arg;
 			}
 
-			if ((theBlob.getWidth() == 0) || (theBlob.getHeight() == 0)) {
+			boolean isVideo = blob.getMimeType().startsWith("video");
+			if (((blob.getWidth() == 0) || (blob.getHeight() == 0)) && !isVideo) {
 				if (errorCallback != null) {
 					KrollDict response = new KrollDict();
-					response.putCodeAndMessage(UNKNOWN_ERROR,"Could not decode bitmap from argument");
+					response.putCodeAndMessage(UNKNOWN_ERROR, "Could not decode bitmap from argument");
 					errorCallback.callAsync(getKrollObject(), response);
 				}
 				return;
 			}
 
-			BufferedInputStream bis = null;
-			BufferedOutputStream bos = null;
-
-			if (theBlob.getType() == TiBlob.TYPE_IMAGE) {
-				Bitmap image = theBlob.getImage();
+			if (blob.getType() == TiBlob.TYPE_IMAGE) {
+				Bitmap image = blob.getImage();
 				if (image.hasAlpha()) {
 					extension = ".png";
 				}else {
@@ -531,35 +529,32 @@ public class MediaModule extends KrollModule
 				}
 			} else {
 				try {
-					String mimetype = theBlob.getMimeType();
-					extension = '.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, ".jpg");
+					String mimetype = blob.getMimeType();
+					extension = '.' + TiMimeTypeHelper.getFileExtensionFromMimeType(mimetype, isVideo ? ".mp4" : ".jpg");
 				} catch(Throwable t) {
 					extension = null;
 				}
 			}
 
-
-			bis = new BufferedInputStream(theBlob.getInputStream());
-			
-			File imageFile = TiFileHelper.createGalleryImageFile(extension);
-			bos = new BufferedOutputStream(new FileOutputStream(imageFile));
-			byte[] buf = new byte[8096];
-			int len = 0;
-
-			while ((len = bis.read(buf)) != -1) {
-				bos.write(buf, 0, len);
+			File file = isVideo ? TiFileHelper.createExternalStorageFile(extension, Environment.DIRECTORY_MOVIES, true) : TiFileHelper.createGalleryImageFile(extension);
+			BufferedInputStream inputStream = new BufferedInputStream(blob.getInputStream());
+			BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(file));
+			byte[] buffer = new byte[1024*1024*8];
+			int len = -1;
+			while ((len = inputStream.read(buffer)) > 0) {
+				outputStream.write(buffer, 0, len);
 			}
-			if (bis != null) {
-				bis.close();
-				bis = null;
+			if (outputStream != null) {
+				outputStream.close();
+				outputStream = null;
 			}
-			if (bos != null) {
-				bos.close();
-				bos = null;
+			if (inputStream != null) {
+				inputStream.close();
+				inputStream = null;
 			}
 
 			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-			Uri contentUri = Uri.fromFile(imageFile);
+			Uri contentUri = Uri.fromFile(file);
 			mediaScanIntent.setData(contentUri);
 			Activity activity = TiApplication.getInstance().getCurrentActivity();
 			activity.sendBroadcast(mediaScanIntent);
@@ -659,7 +654,7 @@ public class MediaModule extends KrollModule
 						} catch (Throwable t) {
 							//Ignore error
 						}
-						imageFile = saveToPhotoGallery? TiFileHelper.createGalleryImageFile(extension) : TiFileHelper.createExternalStorageFile(extension);
+						imageFile = saveToPhotoGallery ? TiFileHelper.createGalleryImageFile(extension) : TiFileHelper.createExternalStorageFile(extension, Environment.DIRECTORY_PICTURES, false);
 					}
 					long compareLength = (validFileCreated) ? imageFile.length() : 0;
 

@@ -15,6 +15,9 @@ import android.Manifest;
 import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;

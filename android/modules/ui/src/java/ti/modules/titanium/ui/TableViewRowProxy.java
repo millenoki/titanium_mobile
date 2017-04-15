@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -59,7 +60,6 @@ public class TableViewRowProxy extends ViewProxy
 	public TableViewRowProxy()
 	{
 		super();
-
 		// TIMOB-24058: Prevent setOnClickListener() from being set allowing
 		// backgroundSelectedColor and backgroundSelectedImage to function
 		defaultValues.put(TiC.PROPERTY_TOUCH_ENABLED, false);
@@ -87,6 +87,18 @@ public class TableViewRowProxy extends ViewProxy
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
 			Log.w(TAG, "selectedBackgroundImage is deprecated, use backgroundSelectedImage instead");
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, options.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
+		}
+		if (!options.containsKey(TiC.PROPERTY_COLOR)) {
+			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				int color = Color.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));
+				if (Math.abs(color - Color.WHITE) < Math.abs(color - Color.BLACK)) {
+					options.put(TiC.PROPERTY_COLOR, "black");
+				} else {
+					options.put(TiC.PROPERTY_COLOR, "white");
+				}
+			} else {
+				options.put(TiC.PROPERTY_COLOR, "white");
+			}
 		}
 	}
 

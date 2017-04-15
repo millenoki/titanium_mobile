@@ -10,6 +10,11 @@
 
 @interface TiUIClipboardModule : TiModule {
 @private
+    UIPasteboard *_pasteboard;
+    NSString *pasteboardName;
+    BOOL shouldCreatePasteboard;
+    BOOL isNamedPasteBoard;
+    BOOL isUnique;
 }
 
 #pragma mark internal

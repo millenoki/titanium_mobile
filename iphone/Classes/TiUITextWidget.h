@@ -37,7 +37,7 @@
 -(void)setValue_:(id)text;
 -(void)setSelectionFrom:(id)start to:(id)end;
 #pragma mark - Titanium Internal Use Only
--(void)updateKeyboardStatus;
+//-(void)updateKeyboardStatus;
 -(NSDictionary*)selectedRange;
 @end
 

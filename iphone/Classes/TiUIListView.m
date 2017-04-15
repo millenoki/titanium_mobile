@@ -1366,6 +1366,12 @@ static NSDictionary* replaceKeysForRow;
         [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:indexPath item:theItem];
         [theItem release];
         
+        BOOL emptyTable = NO;
+        NSUInteger sectionCount = [[self.listViewProxy sectionCount] unsignedIntValue];
+        if ( sectionCount == 0) {
+            emptyTable = YES;
+        }
+        
         BOOL emptySection = NO;
         
         if ([theSection itemCount] == 0) {
@@ -1374,13 +1380,7 @@ static NSDictionary* replaceKeysForRow;
                 [self.listViewProxy deleteSectionAtIndex:indexPath.section];
             }
         }
-        
-        BOOL emptyTable = NO;
-        NSUInteger sectionCount = [[self.listViewProxy sectionCount] unsignedIntValue];
-        if ( sectionCount == 0) {
-            emptyTable = YES;
-        }
-        
+
         //Reload the data now.
         [tableView beginUpdates];
         if (emptyTable) {

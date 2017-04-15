@@ -44,6 +44,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
@@ -719,6 +721,18 @@ public class TiUIText extends TiUINonViewGroupView
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
+		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
+		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+			if (getNativeView() != null) {
+				ViewGroup view = (ViewGroup) getNativeView().getParent();
+				view.setFocusableInTouchMode(true);
+				view.requestFocus();
+			}
+			Context context = TiApplication.getInstance().getApplicationContext();
+			InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
+		}
+
 		String value = realtv.getText().toString();
 		
 

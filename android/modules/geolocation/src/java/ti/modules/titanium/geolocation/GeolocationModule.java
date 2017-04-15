@@ -698,8 +698,8 @@ public class GeolocationModule extends KrollModule
 		if (Build.VERSION.SDK_INT < 23) {
 			return true;
 		}
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity != null && currentActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 			return true;
 		}
 		return false;

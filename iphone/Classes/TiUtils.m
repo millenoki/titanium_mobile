@@ -183,43 +183,42 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 
 +(BOOL)isIOS8OrGreater
 {
-    static BOOL isIOS8OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS8OrGreater = [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
-    });
-    
-    return isIOS8OrGreater;
+    return [TiUtils isIOSVersionOrGreater:@"8.0"];
 }
 
 +(BOOL)isIOS9OrGreater
 {
-    static BOOL isIOS9OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS9OrGreater = [UIImage instancesRespondToSelector:@selector(flipsForRightToLeftLayoutDirection)];
-    });
-    
-    return isIOS9OrGreater;
+    return [TiUtils isIOSVersionOrGreater:@"9.0"];
 }
 
 +(BOOL)isIOS9_1OrGreater
 {
-    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+    return [TiUtils isIOSVersionOrGreater:@"9.1"];
 }
 
 +(BOOL)isIOS9_3OrGreater
 {
-    return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
+    return [TiUtils isIOSVersionOrGreater:@"9.3"];
 }
 
 +(BOOL)isIOS10OrGreater
 {
 #if IS_XCODE_8
-    return [[[UIDevice currentDevice] systemVersion] compare:@"10.0" options:NSNumericSearch] != NSOrderedAscending;
+    return [TiUtils isIOSVersionOrGreater:@"10.0"];
 #else
     return NO;
 #endif
+}
+
++(BOOL)isIOSVersionOrGreater:(NSString *)version
+{
+    static NSString* systemVersion;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        systemVersion = [[[UIDevice currentDevice] systemVersion] retain];
+    });
+    
+    return [systemVersion compare:version options:NSNumericSearch] != NSOrderedAscending;
 }
 
 +(BOOL)isIPad

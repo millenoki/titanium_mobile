@@ -19,24 +19,6 @@ since: "0.8"
 
 methods:
 
-    # main doc inherited from Ti.UI.View.add
-  - name: add
-    description: |
-        Adding children to a `TextField` is not supported on all platforms.
-
-        If you need to display views on top of this object, consider using 
-        another view as a container for both this object and the views you want 
-        to appear on top of it.
-
-        See also: <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-
-  - name: blur
-    summary: Forces the field to lose focus.
-    
-  - name: focus
-    summary: Forces the field to gain focus.
-
   - name: hasText
     summary: Returns `true` if this text field contains text.
     returns:
@@ -44,11 +26,6 @@ methods:
         summary: True if this text field contains text.
     since: "2.1.0"
 
-  - name: remove
-    description: |
-        See also: [add](Titanium.UI.TextField.add), <Titanium.UI.View.add>.
-    platforms: [iphone, ipad]
-    
   - name: setSelection
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad]
@@ -263,10 +240,20 @@ properties:
     type: Boolean
     default: false
     
-    
   - name: font
     summary: Font to use for text.
     type: Font
+    
+  - name: fullscreen
+    summary: |
+        Leave some space above the keyboard in landscape mode or not.
+    description: |
+        Switch between a fullscreen keyboard in landscape mode (default) or a non-fullscreen keyboard which
+        will leave some space to display UI elements.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: {android: "6.1.0"}
     
   - name: hintText
     summary: Hint text to display when the field is empty.

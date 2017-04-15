@@ -88,10 +88,10 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
                                                    @"value":newValue?newValue:@""
                                                    } propagate:NO checkForListener:NO];
         }
-        TiThreadPerformOnMainThread(^{
-            //Make sure the text widget is in view when editing.
-            [(TiUITextWidget*)[self view] updateKeyboardStatus];
-        }, NO);
+//        TiThreadPerformOnMainThread(^{
+//            //Make sure the text widget is in view when editing.
+//            [(TiUITextWidget*)[self view] updateKeyboardStatus];
+//        }, NO);
 	}
 }
 

@@ -222,63 +222,63 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 
             if (target == 'device') {
                 new ADB(config).devices(function (err, devices) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        this.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
-                        if (this.devices.length > 1) {
-                            // we have more than 1 device, so we should show 'all'
-                            this.devices.push({
-                                id: 'all',
-                                model: 'All Devices'
-                            });
-                        }
-                        callback(null, targetDeviceCache[target] = this.devices.map(function (d) {
-                            return {
-                                name: d.model || d.manufacturer,
-                                id: d.id,
-                                version: d.release,
-                                abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
-                                type: 'device'
-                            };
-                        }));
-                    }
-                }.bind(this));
+                                        if (err) {
+                                        callback(err);
+                                        } else {
+                                        this.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
+                                        if (this.devices.length > 1) {
+                                        // we have more than 1 device, so we should show 'all'
+                                        this.devices.push({
+                                                          id: 'all',
+                                                          model: 'All Devices'
+                                                          });
+                                        }
+                                        callback(null, targetDeviceCache[target] = this.devices.map(function (d) {
+                                                                                                    return {
+                                                                                                    name: d.model || d.manufacturer,
+                                                                                                    id: d.id,
+                                                                                                    version: d.release,
+                                                                                                    abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
+                                                                                                    type: 'device'
+                                                                                                    };
+                                                                                                    }));
+                                        }
+                                        }.bind(this));
             } else if (target == 'emulator') {
                 new EmulatorManager(config).detect(function (err, emus) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        this.devices = emus;
-                        callback(null, targetDeviceCache[target] = emus.map(function (emu) {
-                            // normalize the emulator info
-                            if (emu.type == 'avd') {
-                                return {
-                                    name: emu.name,
-                                    id: emu.name,
-                                    api: emu['api-level'],
-                                    version: emu['sdk-version'],
-                                    abi: emu.abi,
-                                    type: emu.type,
-                                    googleApis: emu.googleApis,
-                                    sdcard: emu.sdcard
-                                };
-                            } else if (emu.type == 'genymotion') {
-                                return {
-                                    name: emu.name,
-                                    id: emu.name,
-                                    api: emu['api-level'],
-                                    version: emu['sdk-version'],
-                                    abi: emu.abi,
-                                    type: emu.type,
-                                    googleApis: emu.googleApis,
-                                    sdcard: true
-                                };
-                            }
-                            return emu; // not good
-                        }));
-                    }
-                }.bind(this));
+                                                   if (err) {
+                                                   callback(err);
+                                                   } else {
+                                                   this.devices = emus;
+                                                   callback(null, targetDeviceCache[target] = emus.map(function (emu) {
+                                                                                                       // normalize the emulator info
+                                                                                                       if (emu.type == 'avd') {
+                                                                                                       return {
+                                                                                                       name: emu.name,
+                                                                                                       id: emu.id,
+                                                                                                       api: emu['api-level'],
+                                                                                                       version: emu['sdk-version'],
+                                                                                                       abi: emu.abi,
+                                                                                                       type: emu.type,
+                                                                                                       googleApis: emu.googleApis,
+                                                                                                       sdcard: emu.sdcard
+                                                                                                       };
+                                                                                                       } else if (emu.type == 'genymotion') {
+                                                                                                       return {
+                                                                                                       name: emu.name,
+                                                                                                       id: emu.name,
+                                                                                                       api: emu['api-level'],
+                                                                                                       version: emu['sdk-version'],
+                                                                                                       abi: emu.abi,
+                                                                                                       type: emu.type,
+                                                                                                       googleApis: emu.googleApis,
+                                                                                                       sdcard: true
+                                                                                                       };
+                                                                                                       }
+                                                                                                       return emu; // not good
+                                                                                                       }));
+                                                   }
+                                                   }.bind(this));
             } else {
                 callback();
             }
@@ -1489,29 +1489,29 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         }
     }, this);
 
-    if (this.debugPort || this.profilerPort) {
-        // if debugging/profiling, make sure we only have one device and that it has an sd card
-        if (this.target == 'emulator') {
-            var emu = this.devices.filter(function (d) { return d.name == deviceId; }).shift();
-            if (!emu) {
-                logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
-                process.exit(1);
-            } else if (!emu.sdcard && emu.type != 'genymotion') {
-                logger.error(__('The selected emulator "%s" does not have an SD card.', emu.name));
-                if (this.profilerPort) {
-                    logger.error(__('An SD card is required for profiling.') + '\n');
-                } else {
-                    logger.error(__('An SD card is required for debugging.') + '\n');
-                }
-                process.exit(1);
-            }
-        } else if (this.target == 'device' && deviceId == 'all' && this.devices.length > 1) {
-            // fail, can't do 'all' for debug builds
-            logger.error(__('Cannot debug application when --device-id is set to "all" and more than one device is connected.'));
-            logger.error(__('Please specify a single device to debug on.') + '\n');
-            process.exit(1);
-        }
-    }
+	if (this.debugPort || this.profilerPort) {
+		// if debugging/profiling, make sure we only have one device and that it has an sd card
+		if (this.target == 'emulator') {
+			var emu = this.devices.filter(function (d) { return d.id == deviceId; }).shift();
+			if (!emu) {
+				logger.error(__('Unable find emulator "%s"', deviceId) + '\n');
+				process.exit(1);
+			} else if (!emu.sdcard && emu.type != 'genymotion') {
+				logger.error(__('The selected emulator "%s" does not have an SD card.', emu.name));
+				if (this.profilerPort) {
+					logger.error(__('An SD card is required for profiling.') + '\n');
+				} else {
+					logger.error(__('An SD card is required for debugging.') + '\n');
+				}
+				process.exit(1);
+			}
+		} else if (this.target == 'device' && deviceId == 'all' && this.devices.length > 1) {
+			// fail, can't do 'all' for debug builds
+			logger.error(__('Cannot debug application when --device-id is set to "all" and more than one device is connected.'));
+			logger.error(__('Please specify a single device to debug on.') + '\n');
+			process.exit(1);
+		}
+	}
 
     // check that the build directory is writeable
     var buildDir = path.join(cli.argv['project-dir'], 'build');
@@ -1888,17 +1888,16 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.appid.indexOf('.') == -1 && (this.appid = 'com.' + this.appid);
 
     this.buildOnly = argv['build-only'];
-
-    var deviceId = this.deviceId = argv['device-id'];
-    if (!this.buildOnly && this.target == 'emulator') {
-        var emu = this.devices.filter(function (e) { return e.name == deviceId; }).shift();
-        if (!emu) {
-            // sanity check
-            this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
-            process.exit(0);
-        }
-        this.emulator = emu;
-    }
+	var deviceId = this.deviceId = argv['device-id'];
+	if (!this.buildOnly && this.target == 'emulator') {
+		var emu = this.devices.filter(function (e) { return e.id == deviceId; }).shift();
+		if (!emu) {
+			// sanity check
+			this.logger.error(__('Unable to find Android emulator "%s"', deviceId) + '\n');
+			process.exit(0);
+		}
+		this.emulator = emu;
+	}
 
     this.outputDir = argv['output-dir'] ? afs.resolvePath(argv['output-dir']) : null;
 
@@ -4561,8 +4560,13 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         }
     });
 
-    // merge the custom android manifest
-    finalAndroidManifest.merge(customAndroidManifest);
+	// add permissions
+	if (!this.tiapp['override-permissions']) {
+		Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
+		Object.keys(permissions).forEach(function (perm) {
+			finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
+		});
+	}
 
     // merge the tiapp.xml android manifest
     finalAndroidManifest.merge(tiappAndroidManifest);
@@ -4582,6 +4586,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     // }
 
     // add permissions
+    if (!this.tiapp['override-permissions']) {
     Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
     Object.keys(permissions).forEach(function (perm) {
         if (finalAndroidManifest['uses-permission'].indexOf(perm) == -1) {
@@ -4593,6 +4598,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             }
         }
     });
+    }
 
     // if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
     fs.existsSync(this.androidManifestFile) && fs.unlinkSync(this.androidManifestFile);

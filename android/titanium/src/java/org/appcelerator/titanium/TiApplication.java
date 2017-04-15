@@ -1156,6 +1156,12 @@ public abstract class TiApplication extends Application implements
         return runOnMainThread;
     }
 	
+
+	public boolean intentFilterNewTask()
+	{
+		return getAppProperties().getBool("intent-filter-new-task", false);
+	}
+
 	public void setFilterAnalyticsEvents(String[] events)
 	{
 		filteredAnalyticsEvents = events;

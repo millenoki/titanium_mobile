@@ -86,7 +86,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)dealloc
 {
-	if (webview!=nil)
+	if (webview != nil)
 	{
 		webview.delegate = nil;
 		
@@ -96,7 +96,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			[webview stopLoading];
 		}
 	}
-	if (listeners!=nil)
+	if (listeners != nil)
 	{
 		RELEASE_TO_NIL(listeners);
 	}
@@ -182,7 +182,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(UIWebView*)webview 
 {
-	if (webview==nil)
+	if (webview == nil)
 	{
 		// we attach the XHR bridge the first time we need a webview
 		[[TiApp app] attachXHRBridgeIfRequired];
@@ -210,7 +210,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		{
 			TiColor *bgcolor = [TiUtils colorValue:[self.proxy valueForKey:@"backgroundColor"]];
 			UIActivityIndicatorViewStyle style = UIActivityIndicatorViewStyleGray;
-			if (bgcolor!=nil)
+			if (bgcolor != nil)
 			{
 				// check to see if the background is a dark color and if so, we want to 
 				// show the white indicator instead
@@ -251,11 +251,19 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 }
 -(void)loadURLRequest:(NSMutableURLRequest*)request
 {
-	if (basicCredentials!=nil)
-	{
+    
+	if (basicCredentials != nil) {
 		[request setValue:basicCredentials forHTTPHeaderField:@"Authorization"];
 	}
-    
+
+	// Set the custom request headers if specified
+	NSDictionary *requestHeaders = [[self proxy] valueForKey:@"requestHeaders"];
+	if (requestHeaders != nil) {
+		for (NSString *key in [requestHeaders allKeys]) {
+			[request setValue:[requestHeaders objectForKey:key] forHTTPHeaderField:key];
+		}
+	}
+        
     if (_asyncLoad) {
         [NSURLConnection sendAsynchronousRequest:request queue:[TiUIWebView operationQueue] completionHandler:^(NSURLResponse *response, NSData *data, NSError *error)
          {
@@ -274,11 +282,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [super frameSizeChanged:frame bounds:bounds];
-	if (webview!=nil)
+	if (webview != nil)
 	{
 		[TiUtils setView:webview positionRect:bounds];
 		
-		if (spinner!=nil)
+		if (spinner != nil)
 		{
 			spinner.center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
 		}		
@@ -299,7 +307,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (NSString *)_titaniumInjection
 {
-	if (pageToken==nil) {
+	if (pageToken == nil) {
 		pageToken = [[NSString stringWithFormat:@"%lu",(unsigned long)[self hash]] retain];
 		[(TiUIWebViewProxy*)self.proxy setPageToken:pageToken];
 	}
@@ -375,7 +383,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	
 	[self ensureLocalProtocolHandler];
 	[[self webview] loadData:[content dataUsingEncoding:encoding] MIMEType:mimeType textEncodingName:textEncodingName baseURL:baseURL];
-	if (scalingOverride==NO) {
+	if (scalingOverride == NO) {
 		[[self webview] setScalesPageToFit:NO];
 	}
 }
@@ -392,7 +400,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[request setValue:[NSString stringWithFormat:@"%lu", (localId++)] forHTTPHeaderField:@"X-Titanium-Local-Id"];
 	
 	[self loadURLRequest:request];
-	if (scalingOverride==NO) {
+	if (scalingOverride == NO) {
 		[[self webview] setScalesPageToFit:NO];
 	}
 }
@@ -420,7 +428,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(id)url
 {
 	NSString * result =[[[webview request] URL] absoluteString];
-	if (result!=nil)
+	if (result != nil)
 	{
 		return result;
 	}
@@ -554,7 +562,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 				// Empty NSURL since nil is not accepted here
 				NSURL *emptyURL = [[NSURL new] autorelease];
 				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:emptyURL];
-				if (scalingOverride==NO)
+				if (scalingOverride == NO)
 				{
 					[[self webview] setScalesPageToFit:YES];
 				}
@@ -651,7 +659,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	} else {
 		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 		[self loadURLRequest:request];
-		if (scalingOverride==NO) {
+		if (scalingOverride == NO) {
 			[[self webview] setScalesPageToFit:YES];
 		}
 	}
@@ -732,17 +740,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		// file read:
 		// step 1: read and attempt to have system determine
 		NSString *html = [NSString stringWithContentsOfFile:path usedEncoding:&encoding error:&error];
-		if (html==nil && error!=nil)
+		if (html == nil && error != nil)
 		{
 			//step 2: if unknown encoding, try UTF-8
 			error = nil;
 			html = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:&error];
-			if (html==nil && error!=nil)
+			if (html == nil && error != nil)
 			{
 				//step 3: try an appropriate legacy encoding (if one) -- what's that? Latin-1?
 				//at this point we're just going to fail
                 //This is assuming, of course, that this just isn't a pdf or some other non-HTML file.
-                if([[path pathExtension] hasPrefix:@"htm"]){
+                if([[path pathExtension] hasPrefix:@"htm"]) {
                     DebugLog(@"[ERROR] Couldn't determine the proper encoding. Make sure this file: %@ is UTF-8 encoded.",[path lastPathComponent]);                    
                 }
 			} else {
@@ -758,7 +766,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 				textEncodingName = @"utf-8";
 			}
 		}
-		if ((error!=nil && [error code]==261) || [mimeType isEqualToString:(NSString*)svgMimeType])
+		if ((error != nil && [error code] == 261) || [mimeType isEqualToString:(NSString*)svgMimeType])
 		{
 			//TODO: Shouldn't we be checking for an HTML mime type before trying to read? This is right now rather inefficient, but it
 			//Gets the job done, with minimal reliance on extensions.
@@ -766,11 +774,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			
 			NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 			[self loadURLRequest:request];
-			if (scalingOverride==NO) {
+			if (scalingOverride == NO) {
 				[[self webview] setScalesPageToFit:YES];
 			}
 			return;
-		} else if (error!=nil) {
+		} else if (error != nil) {
 			DebugLog(@"[DEBUG] Cannot load file: %@. Error message was: %@", path, error);
 			RELEASE_TO_NIL(url);
 			return;
@@ -785,7 +793,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		if (data != nil) {
 			html = [[[NSString alloc] initWithData:data encoding:encoding] autorelease];
 		}
-		if (html!=nil) {
+		if (html != nil) {
 			//Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
 			[self loadHTML:html encoding:encoding textEncodingName:textEncodingName mimeType:mimeType baseURL:baseURL];
 		} else {
@@ -821,7 +829,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	NSString *username = [args objectAtIndex:0];
 	NSString *password = [args objectAtIndex:1];
 	
-	if (username==nil && password==nil)
+	if (username == nil && password == nil)
 	{
 		RELEASE_TO_NIL(basicCredentials);
 		return;
@@ -899,35 +907,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-	if (navigationType != UIWebViewNavigationTypeOther) {
- 		RELEASE_TO_NIL(lastValidLoad);
-	}
-    
-	NSDictionary *newHeaders = [[self proxy] valueForKey:@"requestHeaders"];
-	BOOL allHeadersIncluded = NO;
-	int requiredHeaders = (int)[newHeaders count];
-    
-	if (newHeaders) {
-		for (NSString* existingHeader in [[request allHTTPHeaderFields] allKeys]) {
-			for (NSString* newHeader in [newHeaders allKeys]) {
-				if ([[existingHeader lowercaseString] isEqualToString:[newHeader lowercaseString]]) {
-					requiredHeaders--;
-				}
-			}
-		}
-
-		if (requiredHeaders > 0) {
-			NSMutableURLRequest* newRequest = [request mutableCopy];
-			for (NSString* newHeader in [newHeaders allKeys]) {
-				[newRequest addValue:[newHeaders valueForKey:newHeader] forHTTPHeaderField:newHeader];
-			}
-			[self loadURLRequest:newRequest];
-			[newRequest release];
-
-			return NO;
-		}
-	}
-
 	NSURL * newUrl = [request URL];
     
 	if (blacklistedURLs && blacklistedURLs.count > 0) {
@@ -1114,7 +1093,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 		// this means the pending request has been cancelled and should be
 		// safely squashed
-		if ([error code]==NSURLErrorCancelled)
+		if ([error code] == NSURLErrorCancelled)
 		{
 			return;
 		}
@@ -1187,6 +1166,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     return [[protectionSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust];
 }
 
+#pragma mark UIGestureRecognizer Delegates
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer;
+{
+    return !willHandleTouches;
+}
+
 #pragma mark TiEvaluator
 
 - (void)evalFile:(NSString*)path
@@ -1206,7 +1192,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
     // don't bother firing an app event to the webview if we don't have a webview yet created
-    if (webview!=nil)
+    if (webview != nil)
     {
         NSDictionary *event = (NSDictionary*)obj;
         NSString *name = [event objectForKey:@"type"];

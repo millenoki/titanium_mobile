@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_AUDIOMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER) || defined(USE_TI_AUDIOSTREAMER)
+#ifdef USE_TI_AUDIO
 
 #import "TiAudioSession.h"
 #import "TiUtils.h"
@@ -36,8 +36,9 @@ NSString * const kTiAudioSessionInputChange = @"TiAudioSessionInputChange";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeChangeCallback:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interruptionCallback:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:NULL];
+    
     if (error != nil) {
-        DebugLog(@"Could not activate session");
+        DebugLog(@"Could not activate session: %@ (%ld)", [error localizedDescription], [error code]);
     } else {
         [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
     }

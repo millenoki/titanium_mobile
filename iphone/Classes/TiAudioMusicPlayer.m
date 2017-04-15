@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
+#ifdef USE_TI_AUDIO
 #import "TiAudioMusicPlayer.h"
 #import "AudioModule.h"
 
@@ -79,6 +79,21 @@
 	}
 	else if ([arg isKindOfClass:[TiAudioItem class]]) {
 		[items addObject:[(TiAudioItem*)arg item]];
+	}
+	else if ([arg isKindOfClass:[NSString class]]) {
+		MPMediaQuery *query = [MPMediaQuery songsQuery];  // general songs query
+		MPMediaPropertyPredicate *predicate = [MPMediaPropertyPredicate predicateWithValue:arg forProperty:MPMediaItemPropertyPersistentID];
+
+		[query addFilterPredicate:predicate];
+		if ([query.items count] == 0) {
+			[self throwException:[NSString stringWithFormat:@"Invalid media item persistent ID %@ for player queue", arg]
+					   subreason:nil
+						location:CODELOCATION];
+            
+			return;
+		}
+
+		[items addObject:[query.items firstObject]];
 	}
 	else {
 		[self throwException:[NSString stringWithFormat:@"Invalid object type %@ for player queue",[arg class]]
@@ -264,4 +279,5 @@
 }
 
 @end
+
 #endif

@@ -887,6 +887,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_AUDIO_FOCUS = "audioFocus";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_AUTO_LINK = "autoLink";
 
 	/**
@@ -3462,6 +3467,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TOUCH_ENABLED = "touchEnabled";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
 
 	/**
 	 * @module.api

@@ -156,7 +156,6 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
 #endif
 
 //Constants for MusicPlayer playback state
-#ifdef USE_TI_MEDIAMUSICPLAYER
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
@@ -175,7 +174,6 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_DEFAULT, MPMusicShuffleModeDefault);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_NONE, MPMusicShuffleModeOff);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_SONGS, MPMusicShuffleModeSongs);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
-#endif
 
 //Error constants for MediaModule
 MAKE_SYSTEM_PROP(UNKNOWN_ERROR,MediaModuleErrorUnknown);
@@ -935,6 +933,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [NSThread sleepForTimeInterval:0.5];
     [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
     [pool release];
+    
+#ifndef TI_USE_KROLL_THREAD
+    //TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
+    KrollContext *krollContext = [self.pageContext krollContext];
+    [krollContext forceGarbageCollectNow];
+#endif
 }
 
 -(void)sendPickerError:(int)code
@@ -1263,7 +1267,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 [view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
             }
             [picker setCameraOverlayView:view];
-            [view setAutoresizingMask:UIViewAutoresizingNone];
             
             [cameraView windowDidOpen];
             [cameraView layoutChildren:NO];
@@ -1582,8 +1585,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
                     UIGraphicsBeginImageContextWithOptions(ourRect.size, NO, originalImage.scale);
                     CGContextRef context = UIGraphicsGetCurrentContext();
+                    CGContextSetRGBFillColor(context, 0.0, 0.0, 0.0, 1.0);
+                    CGContextFillRect(context, CGRectMake(0.0, 0.0, ourRect.size.width, ourRect.size.height));
                     
-                    // translated rectangle for drawing sub image 
+                    // translated rectangle for drawing sub image
                     CGRect drawRect = CGRectMake(-ourRect.origin.x, -ourRect.origin.y, originalImage.size.width, originalImage.size.height);
                     
                     // clip to the bounds of the image context
@@ -1630,7 +1635,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     if (cropRect != nil) {
         [dictionary setObject:cropRect forKey:@"cropRect"];
     }
-	
+    
     [self sendPickerSuccess:dictionary];
 }
 

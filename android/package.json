@@ -15,12 +15,12 @@
 	],
 	"minSDKVersion": "9",
 	"vendorDependencies": {
-		"android sdk": "23",
-		"android build tools": ">=17 <=23.x",
-		"android platform tools": ">=17 <=23.x",
-		"android tools": "<=24.3.x",
-		"android ndk": ">=r8e <=r10e",
-		"node": ">=4.0 <=6.x",
+		"android sdk": ">=23 <=25.x",
+		"android build tools": ">=17 <=25.x",
+		"android platform tools": ">=17 <=25.x",
+		"android tools": "<=26.x",
+        "android ndk": ">=r8e <=r12b",
+		"node": ">=4.0 <=7.x",
 		"java": "<=1.8.x"
 	},
 	"repository": {

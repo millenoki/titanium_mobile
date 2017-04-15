@@ -307,12 +307,12 @@
 
 
 #pragma mark - Titanium Internal Use Only
--(void)updateKeyboardStatus
-{
-    if ( ([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy]) ) {
-        [[[TiApp app] controller] performSelector:@selector(updateKeyboardStatus) withObject:nil afterDelay:0.0];
-    }
-}
+//-(void)updateKeyboardStatus
+//{
+//    if ( ([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy]) ) {
+//        [[[TiApp app] controller] performSelector:@selector(updateKeyboardStatus) withObject:nil afterDelay:0.0];
+//    }
+//}
 
 @end
 

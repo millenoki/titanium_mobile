@@ -165,6 +165,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	private static int totalWindowStack = 0;
 
 	public boolean isResumed = false;
 	
@@ -242,6 +243,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			windowStack.peek().onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
+		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -259,11 +261,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
-		if (!wasCurrentWindow) {
-		    return;
-		}
-		
-		if (!windowStack.empty()) {
+		totalWindowStack--;
+
+		//Fire focus only if activity is not paused and the removed window was topWindow
+		if (!windowStack.empty() && isResumed && isTopWindow) {
 			TiWindowProxy nextWindow = windowStack.peek();
             updateForWindow(nextWindow);
 			//Fire focus only if activity is not paused and the removed window was topWindow

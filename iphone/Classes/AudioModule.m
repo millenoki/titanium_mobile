@@ -57,10 +57,8 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
-#endif
     RELEASE_TO_NIL(popoverView);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
@@ -71,14 +69,24 @@ typedef void (^PermissionBlock)(BOOL granted)
 +(NSDictionary*)filterableItemProperties
 {
     if (TI_filterableItemProperties == nil) {
-        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType", // Filterable
-                                                                                   MPMediaItemPropertyTitle, @"title", // Filterable
-                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle", // Filterable
-                                                                                   MPMediaItemPropertyArtist, @"artist", // Filterable
-                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist", //Filterable
-                                                                                   MPMediaItemPropertyGenre, @"genre", // Filterable
-                                                                                   MPMediaItemPropertyComposer, @"composer", // Filterable
-                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation", // Filterable
+        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType",
+                                                                                   MPMediaItemPropertyTitle, @"title",
+                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle",
+                                                                                   MPMediaItemPropertyArtist, @"artist",
+                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist",
+                                                                                   MPMediaItemPropertyGenre, @"genre",
+                                                                                   MPMediaItemPropertyComposer, @"composer",
+                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation",
+                                                                                   MPMediaItemPropertyPlayCount, @"playCount",
+                                                                                   MPMediaItemPropertyPersistentID, @"persistentID",
+                                                                                   MPMediaItemPropertyAlbumPersistentID, @"albumPersistentID",
+                                                                                   MPMediaItemPropertyAlbumArtistPersistentID, @"albumArtistPersistentID",
+                                                                                   MPMediaItemPropertyGenrePersistentID, @"genrePersistentID",
+                                                                                   MPMediaItemPropertyComposerPersistentID, @"composerPersistentID",
+                                                                                   MPMediaItemPropertyIsCloudItem, @"isCloudItem",
+                                       [TiUtils isIOSVersionOrGreater:@"9.2"] ? MPMediaItemPropertyHasProtectedAsset : NO, @"hasProtectedAsset",
+                                                                                   MPMediaItemPropertyPodcastTitle, @"podcastTitle",
+                                                                                   MPMediaItemPropertyPodcastPersistentID, @"podcastPersistentID",
                                                                                    nil];
     }
     return TI_filterableItemProperties;
@@ -93,11 +101,23 @@ typedef void (^PermissionBlock)(BOOL granted)
                                                                          MPMediaItemPropertyDiscNumber, @"discNumber",
                                                                          MPMediaItemPropertyDiscCount, @"discCount",
                                                                          MPMediaItemPropertyLyrics, @"lyrics",
-                                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
-                                                                         MPMediaItemPropertyPlayCount, @"playCount",
                                                                          MPMediaItemPropertySkipCount, @"skipCount",
                                                                          MPMediaItemPropertyRating, @"rating",
-                                                                         nil	];		
+                                                                         MPMediaItemPropertyAssetURL, @"assetURL",
+                                                                         MPMediaItemPropertyIsExplicit, @"isExplicit",
+                                                                         MPMediaItemPropertyReleaseDate, @"releaseDate",
+                                                                         MPMediaItemPropertyBeatsPerMinute, @"beatsPerMinute",
+                                                                         MPMediaItemPropertyComments, @"comments",
+                                                                         MPMediaItemPropertyLastPlayedDate, @"lastPlayedDate",
+                                                                         MPMediaItemPropertyUserGrouping, @"userGrouping",
+                                                                         MPMediaItemPropertyBookmarkTime, @"bookmarkTime",
+#ifdef __IPHONE_10_0
+                                                                         MPMediaItemPropertyDateAdded, @"dateAdded",
+#endif
+#ifdef __IPHONE_10_3
+                                                                         MPMediaItemPropertyPlaybackStoreID, @"playbackStoreID",
+#endif
+                                                                         nil	];
 	}
 	return TI_itemProperties;
 }
@@ -128,7 +148,6 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
 
 //Constants for currentRoute
-#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
@@ -154,7 +173,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
-#endif
 
 //Constants for mediaTypes in openMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
@@ -200,7 +218,6 @@ MAKE_SYSTEM_PROP(UNKNOWN_ERROR,AudioModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY,AudioModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 
-#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined (USE_TI_AUDIOAPPMUSICPLAYER)
 -(TiAudioMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {
@@ -230,7 +247,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     }
     return appMusicPlayer;
 }
-#endif
+
 #if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 -(void)setAudioSessionCategory:(NSString*)mode
 {
@@ -243,47 +260,36 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 }
 #endif
 
-#ifdef USE_TI_AUDIOCANRECORD
 -(NSNumber*)canRecord
 {
     return NUMBOOL([[TiAudioSession sharedSession] hasInput]);
 }
-#endif
 
-#ifdef USE_TI_AUDIOAUDIOPLAYING
 -(NSNumber*)volume
 {
     return NUMFLOAT([[TiAudioSession sharedSession] volume]);
 }
-#endif
 
-#ifdef USE_TI_AUDIOAUDIOPLAYING
 -(NSNumber*)audioPlaying
 {
     return NUMBOOL([[TiAudioSession sharedSession] isAudioPlaying]);
 }
-#endif
 
-#ifdef USE_TI_AUDIOCURRENTROUTE
 -(NSDictionary*)currentRoute
 {
     return [[TiAudioSession sharedSession] currentRoute];
 }
-#endif
 
 #pragma mark Public Methods
 
-#if defined(USE_TI_AUDIOPLAYER) || defined(USE_TI_AUDIOMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
 }
-#endif
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
 
-#ifdef USE_TI_AUDIOHASAUDIOPERMISSIONS
 -(NSNumber*)hasAudioPermissions
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -294,9 +300,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     
     [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
 }
-#endif
 
-#ifdef USE_TI_AUDIOREQUESTAUDIOPERMISSIONS
 -(void)requestAudioPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
@@ -319,7 +323,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         return;
     }
 }
-#endif
 
 -(void)startMicrophoneMonitor:(id)args
 {
@@ -356,7 +359,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 /**
  Music Library Support
  **/
-#ifdef USE_TI_AUDIOOPENMUSICLIBRARY
 -(void)openMusicLibrary:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
@@ -435,17 +437,13 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         [self destroyPicker];
     }
 }
-#endif
 
-#ifdef USE_TI_AUDIOHASMUSICLIBRARYPERMISSIONS
 -(NSNumber*)hasMusicLibraryPermissions:(id)unused
 {
     // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
     return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
 }
-#endif
 
-#ifdef USE_TI_AUDIOREQUESTMUSICLIBRARYPERMISSIONS
 -(void)requestMusicLibraryPermissions:(id)args
 {
     NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
@@ -476,9 +474,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         return;
     }
 }
-#endif
-
-#ifdef USE_TI_AUDIOUERYMUSICLIBRARY
 
 -(NSArray*)queryMusicLibrary:(id)arg
 {
@@ -511,7 +506,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     }
     return result;
 }
-#endif
 /**
  End Music Library Support
  **/

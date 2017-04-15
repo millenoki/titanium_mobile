@@ -181,7 +181,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // to maintain sync visibility between borderview and view. Default is
     // visible
     private int visibility = View.VISIBLE;
-
+    private int hiddenBehavior = View.INVISIBLE;
+    
     protected Handler handler;
 
     protected boolean exclusiveTouch = false;
@@ -971,6 +972,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             this.setVisibility(TiConvert.toBoolean(newValue, true)
                     ? View.VISIBLE : View.GONE);
             break;
+        case TiC.PROPERTY_HIDDEN_BEHAVIOR:
+            hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
+            if (this.visibility == View.INVISIBLE) {
+                this.setVisibility(hiddenBehavior);
+            }
+            break;
         case TiC.PROPERTY_ENABLED:
             boolean oldEnabled = isEnabled;
             isEnabled = TiConvert.toBoolean(newValue, oldEnabled);
@@ -1551,7 +1558,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (this.visibility == visibility)
             return;
         forceLayoutNativeView(true);
-        this.visibility = visibility;
+        if (visibility == View.INVISIBLE) {
+			this.visibility = hiddenBehavior;
+		} else {
+            this.visibility = visibility;
+        }
         proxy.setProperty(TiC.PROPERTY_VISIBLE, (visibility == View.VISIBLE));
         if (visibility != View.VISIBLE) {
             blur();
@@ -2122,12 +2133,16 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             return;
         }
 
-        boolean clickable = isClickable();
+        if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
+			touchable.setSoundEffectsEnabled(soundEnabled);
+		}
 
+        boolean clickable = isClickable();
         if (clickable) {
             if (touchView == null || touchView.get() != touchable)
                 registerTouchEvents(touchable);
-
+            
             // Previously, we used the single tap handling above to fire our
             // click event. It doesn't
             // work: a single tap is not the same as a click. A click can be

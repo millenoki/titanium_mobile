@@ -716,10 +716,12 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		// 3. write encrypted data to template
 		function(cb) {
 			var data = ejs.render(fs.readFileSync(this.assetsTemplateFile).toString(), renderData),
-				moduleAssetsFile = path.join(this.projectDir, 'Classes', this.moduleIdAsIdentifier + 'ModuleAssets.m'),
-				moduleAssetsHeaderFile = path.join(this.projectDir, 'Classes', this.moduleIdAsIdentifier + 'ModuleAssets.h');
+				moduleAssetsDir = path.join(this.projectDir, 'Classes'),
+				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier+'ModuleAssets.m'),
+                moduleAssetsHeaderFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier + 'ModuleAssets.h');
 
 			this.logger.debug(__('Writing module assets file: %s', moduleAssetsFile.cyan));
+			fs.existsSync(moduleAssetsDir) || wrench.mkdirSyncRecursive(moduleAssetsDir);
 			fs.writeFileSync(moduleAssetsFile, data);
 			if (!fs.existsSync(moduleAssetsHeaderFile)) {
 				fs.writeFileSync(moduleAssetsHeaderFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'module',
@@ -729,15 +731,13 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			cb();
 		},
 
-		// 4. genereate exports
-		function(cb) {
-			// this.tiSymbols.forEach(function(symbols) {
-			// 	// var r = jsanalyze.analyzeJsFile(path.join(this.assetsDir, file), {
-			// 	// 	minify: true
-			// 	// });
-			// 	// this.tiSymbols[file] = r.symbols;
-			// 	this.metaData.push.apply(this.metaData, symbols);
-			// }.bind(this));
+		// 4. generate exports
+		function (cb) {
+			this.jsFilesToEncrypt.forEach(function(file) {
+				var r = jsanalyze.analyzeJsFile(file, { minify: true });
+				this.tiSymbols[file] = r.symbols;
+				this.metaData.push.apply(this.metaData, r.symbols);
+			}.bind(this));
 
             this.logger.debug(__('Writing metadata file: %s', this.metaDataFile.cyan));
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);

@@ -158,7 +158,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     public static final String EVENT_COMPLETE_JSON = "{ type : '"
             + EVENT_COMPLETE + "' }";
 
-
+    public  boolean audioFocus = true;
     protected Handler handler;
 
     private boolean paused = false;
@@ -341,7 +341,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     }
 
     void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
+        if (audioFocus && mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
                 && mAudioFocusHelper.abandonFocus())
             mAudioFocus = AudioFocus.NoFocusNoDuck;
         AudioModule.widgetAbandonsFocused(this);
@@ -926,6 +926,9 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         case TiC.PROPERTY_METADATA:
             updateMetadata((HashMap<String, Object>) newValue);
             break;
+        case TiC.PROPERTY_AUDIO_FOCUS:
+ 			audioFocus = TiConvert.toBoolean(newValue, audioFocus);
+            break; 		
         default:
             break;
         }
