@@ -1048,7 +1048,11 @@ static NSDictionary* replaceKeysForRow;
     }
     self.searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
-    [self reloadTableViewData];
+    if ([[self viewProxy] isConfigurationSet])
+    {
+        [[self viewProxy] contentsWillChange];
+    }
+}
 }
 
 //-(UITableViewController*)tableViewController
