@@ -49,6 +49,7 @@
     id _defaultItemTemplate;
     BOOL hideOnSearch;
     BOOL searchViewAnimating;
+    BOOL searchIgnoreExactMatch;
 
     TiDimension _itemWidth;
     TiDimension _minItemWidth;
@@ -141,6 +142,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
         _stickyHeaders = YES;
         _appearAnimation = nil;
         _useAppearAnimation = NO;
+        searchIgnoreExactMatch = NO;
     }
     return self;
 }
@@ -688,8 +690,11 @@ static TiProxyTemplate* sDefaultItemTemplate;
             NSUInteger maxItems = [section itemCount];
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:sectionIndex];
-                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] inSection:section atIndex:j];
-                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+                id theValue = [TiUtils stringValue:[self firstItemValueForKeys:@[@"searchableText", @"title"] inSection:section atIndex:j]];
+                if (theValue!=nil && [theValue rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+                    if (searchIgnoreExactMatch && [theValue isEqualToString:self.searchString]) {
+                        continue;
+                    }
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
                 }
@@ -1042,6 +1047,13 @@ static TiProxyTemplate* sDefaultItemTemplate;
     self.searchString = [TiUtils stringValue:args];
     [self updateSearchResults:nil];
 }
+
+-(void)setSearchIgnoreExactMatch_:(id)args
+{
+    searchIgnoreExactMatch = [TiUtils boolValue:args];
+    [self updateSearchResults:nil];
+}
+
 
 -(void)setSearchViewExternal_:(id)args {
     RELEASE_TO_NIL(tableController);

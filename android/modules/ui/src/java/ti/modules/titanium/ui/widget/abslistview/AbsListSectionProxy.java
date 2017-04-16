@@ -1074,7 +1074,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	    return (searchText != null && searchText.length() > 0);
 	}
 
-	public void applyFilter(String searchText, final boolean caseInsensitive) {
+	public void applyFilter(String searchText, final boolean caseInsensitive, final boolean ignoreExactMatch) {
 		// Clear previous result
 		filterIndices.clear();
 		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
@@ -1108,7 +1108,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	                searchableText = searchableText.toLowerCase();
 	            }
 	            // String comparison
-	            if (searchableText.contains(searchText)) {
+	            if (searchableText.contains(searchText) && (!ignoreExactMatch || !searchableText.equals(searchText))) {
 	                filterIndices.add(getListViewRealPosition(i));
 	            }
 	        }

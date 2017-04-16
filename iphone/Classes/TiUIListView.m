@@ -44,6 +44,7 @@
     id _defaultItemTemplate;
     BOOL hideOnSearch;
     BOOL searchViewAnimating;
+    BOOL searchIgnoreExactMatch;
 
     TiDimension _rowHeight;
     TiDimension _minRowHeight;
@@ -132,6 +133,7 @@ static NSDictionary* replaceKeysForRow;
         caseInsensitiveSearch = YES;
         _appearAnimation = nil;
         _useAppearAnimation = NO;
+        searchIgnoreExactMatch = NO;
     }
     return self;
 }
@@ -658,8 +660,11 @@ static NSDictionary* replaceKeysForRow;
             NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
-                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] atIndexPath:thePath];
-                if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+                id theValue = [TiUtils stringValue:[self firstItemValueForKeys:@[@"searchableText", @"title"] atIndexPath:thePath]];
+                if (theValue!=nil && [theValue rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+                    if (searchIgnoreExactMatch && [theValue isEqualToString:self.searchString]) {
+                        continue;
+                    }
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
                 }
@@ -1053,6 +1058,11 @@ static NSDictionary* replaceKeysForRow;
         [[self viewProxy] contentsWillChange];
     }
 }
+
+-(void)setSearchIgnoreExactMatch_:(id)args
+{
+    searchIgnoreExactMatch = [TiUtils boolValue:args];
+    [self updateSearchResults:nil];
 }
 
 //-(UITableViewController*)tableViewController

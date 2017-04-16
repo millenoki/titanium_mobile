@@ -97,6 +97,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	private int[] marker = new int[2];
 	private String searchText;
 	private boolean caseInsensitive;
+	private boolean ignoreExactMatch;
 	private static final String TAG = "TiListView";
 	private boolean hideKeyboardOnScroll = true;
 	private boolean canShowMenus = false;
@@ -563,6 +564,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		templatesByBinding.put(defaultTemplateKey, defaultTemplate);
 		defaultTemplate.setType(BUILT_IN_TEMPLATE_ITEM_TYPE);
 		caseInsensitive = true;
+		ignoreExactMatch = false;
 		
 		//handling marker
 		HashMap<String, Integer> preloadMarker = ((AbsListViewProxy)proxy).getPreloadMarker();
@@ -891,6 +893,11 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             filterBy(TiConvert.toString(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
+        case TiC.PROPERTY_SEARCH_IGNORE_EXACT_MATCH:
+            this.ignoreExactMatch = TiConvert.toBoolean(newValue, true);
+            filterBy(TiConvert.toString(this.searchText));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+            break;
         case TiC.PROPERTY_SEARCH_VIEW:
             setSearchView(newValue, true);
             break;
@@ -1070,7 +1077,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         synchronized (sections) {
 			for (int i = 0; i < sections.size(); ++i) {
 				AbsListSectionProxy section = sections.get(i);
-				section.applyFilter(searchText, caseInsensitive);
+				section.applyFilter(searchText, caseInsensitive, ignoreExactMatch);
 			}
 		}
 		notifyDataSetChanged();
@@ -1298,7 +1305,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 			section.processPreloadData();
 			//Apply filter if necessary
 			if (searchText != null) {
-				section.applyFilter(searchText, caseInsensitive);
+				section.applyFilter(searchText, caseInsensitive, ignoreExactMatch);
 			}
 		}
 		else if(sec instanceof HashMap) {

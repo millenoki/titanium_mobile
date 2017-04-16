@@ -114,6 +114,7 @@ public class TiCollectionView extends TiUINonViewGroupView
     private int[] marker = new int[2];
     private String searchText;
     private boolean caseInsensitive;
+    private boolean ignoreExactMatch;
     private static final String TAG = "TiCollectionView";
     private boolean hideKeyboardOnScroll = true;
 
@@ -838,6 +839,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         processTemplates(null);
 
         caseInsensitive = true;
+        ignoreExactMatch = false;
 
         // handling marker
         HashMap<String, Integer> preloadMarker = ((AbsListViewProxy) proxy)
@@ -1240,7 +1242,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             section.processPreloadData();
             // Apply filter if necessary
             if (searchText != null) {
-                section.applyFilter(searchText, caseInsensitive);
+                section.applyFilter(searchText, caseInsensitive, ignoreExactMatch);
             }
         } else if (sec instanceof HashMap) {
             CollectionSectionProxy section = (CollectionSectionProxy) KrollProxy
@@ -1407,6 +1409,11 @@ public class TiCollectionView extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_CASE_INSENSITIVE_SEARCH:
             this.caseInsensitive = TiConvert.toBoolean(newValue, true);
+            filterBy(TiConvert.toString(this.searchText));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+            break;
+        case TiC.PROPERTY_SEARCH_IGNORE_EXACT_MATCH:
+            this.ignoreExactMatch = TiConvert.toBoolean(newValue, true);
             filterBy(TiConvert.toString(this.searchText));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
@@ -1702,7 +1709,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         synchronized (sections) {
             for (int i = 0; i < sections.size(); ++i) {
                 AbsListSectionProxy section = sections.get(i);
-                section.applyFilter(searchText, caseInsensitive);
+                section.applyFilter(searchText, caseInsensitive, ignoreExactMatch);
             }
         }
         notifyDataSetChanged();

@@ -3001,6 +3001,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SEARCH_IGNORE_EXACT_MATCH = "searchIgnoreExactMatch";
 
 	/**
 	 * @module.api
