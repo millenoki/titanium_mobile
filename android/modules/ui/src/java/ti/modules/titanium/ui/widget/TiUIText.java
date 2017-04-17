@@ -173,7 +173,12 @@ public class TiUIText extends TiUINonViewGroupView
                 super.clearFocus();
             }
         }
-        
+
+        public void customSetMeasuredDimension(int measuredWidth,
+                int measuredHeight) {
+            setMeasuredDimension(measuredWidth, measuredHeight);
+        }
+
         @Override
         public boolean dispatchKeyEventPreIme(KeyEvent event) {
                 InputMethodManager imm = getIMM();
@@ -226,9 +231,15 @@ public class TiUIText extends TiUINonViewGroupView
 			this.addView(rightPane, createBaseParams());
 		}
 		
-		@Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // @Override
+        // protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+        // {
+        // super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // }
+
+        public void customSetMeasuredDimension(int measuredWidth,
+                int measuredHeight) {
+            setMeasuredDimension(measuredWidth, measuredHeight);
         }
 
 		public FocusFixedEditText(Context context) {
@@ -332,6 +343,25 @@ public class TiUIText extends TiUINonViewGroupView
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
+
+    @Override
+    protected void didSetMeasureDimension(int measuredWidth,
+            int measuredHeight) {
+        //because of the way the TextView size itself and if we have children, the TextView
+        //might be sized incorrectly, but we are! So lets pass it on
+        final boolean autoSizeWidth = layoutParams.autoSizeWidth();
+        final boolean autoSizeHeight = layoutParams.autoSizeHeight();
+        if (autoSizeWidth || autoSizeHeight) {
+            if (!autoSizeWidth) {
+                measuredWidth = tv.getMeasuredWidth();
+            }
+            if (!autoSizeHeight) {
+                measuredHeight = tv.getMeasuredHeight();
+            }
+            tv.customSetMeasuredDimension(measuredWidth, measuredHeight);
+            realtv.customSetMeasuredDimension(measuredWidth, measuredHeight);
+        }
+    }
         realtv.setSingleLine(field);
 		if (field) {
 			realtv.setMaxLines(1);

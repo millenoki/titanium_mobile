@@ -518,7 +518,11 @@ public class TiCompositeLayout extends FreeLayout implements
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
-		
+		TiUIView view = getView();
+        if (view != null)
+        {  
+            view.didSetMeasureDimension(measuredWidth, measuredHeight);
+        }
 		
 	}
 	

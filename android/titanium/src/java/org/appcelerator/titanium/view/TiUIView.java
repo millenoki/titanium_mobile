@@ -3068,4 +3068,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public void setState(String state) {
         proxy.setState(state);
     }
+
+    protected void didSetMeasureDimension(int measuredWidth, int measuredHeight) {        
+    }
 }
