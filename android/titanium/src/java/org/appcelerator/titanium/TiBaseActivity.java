@@ -258,7 +258,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	public void removeWindowFromStack(final TiWindowProxy proxy)
 	{
-	    boolean wasCurrentWindow = this.window == proxy;
 		proxy.onWindowFocusChange(false);
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
