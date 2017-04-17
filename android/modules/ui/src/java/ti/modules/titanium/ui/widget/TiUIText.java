@@ -343,6 +343,7 @@ public class TiUIText extends TiUINonViewGroupView
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
+    }
 
     @Override
     protected void didSetMeasureDimension(int measuredWidth,
@@ -361,7 +362,6 @@ public class TiUIText extends TiUINonViewGroupView
             tv.customSetMeasuredDimension(measuredWidth, measuredHeight);
             realtv.customSetMeasuredDimension(measuredWidth, measuredHeight);
         }
-    }
         realtv.setSingleLine(field);
 		if (field) {
 			realtv.setMaxLines(1);
