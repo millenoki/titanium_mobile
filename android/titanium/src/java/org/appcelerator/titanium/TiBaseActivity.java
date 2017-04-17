@@ -240,7 +240,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		boolean isEmpty = windowStack.empty();
 		if (!isEmpty) {
-			windowStack.peek().onWindowFocusChange(false);
+		    TiWindowProxy window = windowStack.peek();
+		    window.blur();
+		    window.onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
 		totalWindowStack++;
