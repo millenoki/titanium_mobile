@@ -58,7 +58,7 @@
     "windowslib": "0.4.29",
     "wrench": "1.5.9",
     "xcode": "git://github.com/Akylas/node-xcode.git",
-    "xmldom": "0.1.27"
+    "xmldom": "0.1.22"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
