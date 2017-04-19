@@ -343,6 +343,26 @@ public class TiUIText extends TiUINonViewGroupView
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
+        realtv.setSingleLine(field);
+        if (field) {
+            realtv.setMaxLines(1);
+        }
+        else {
+//            realtv.setMaxLines(1000);
+//            realtv.setMinLines(2);
+//            realtv.setHorizontallyScrolling(false);
+//            realtv.setEllipsize(null);
+//            realtv.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        }
+        realtv.addTextChangedListener(this);
+        realtv.setOnEditorActionListener(this);
+        realtv.setIncludeFontPadding(true); 
+        if (field) {
+            realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+        } else {
+            realtv.setGravity(Gravity.TOP | Gravity.LEFT);
+        }
+        color = disabledColor = selectedColor = realtv.getCurrentTextColor();
         setNativeView(tv);
     }
 
@@ -363,26 +383,6 @@ public class TiUIText extends TiUINonViewGroupView
             tv.customSetMeasuredDimension(measuredWidth, measuredHeight);
             realtv.customSetMeasuredDimension(measuredWidth, measuredHeight);
         }
-        realtv.setSingleLine(field);
-		if (field) {
-			realtv.setMaxLines(1);
-		}
-		else {
-//            realtv.setMaxLines(1000);
-//            realtv.setMinLines(2);
-//            realtv.setHorizontallyScrolling(false);
-//            realtv.setEllipsize(null);
-//            realtv.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-		}
-		realtv.addTextChangedListener(this);
-		realtv.setOnEditorActionListener(this);
-		realtv.setIncludeFontPadding(true); 
-		if (field) {
-			realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-		} else {
-			realtv.setGravity(Gravity.TOP | Gravity.LEFT);
-		}
-		color = disabledColor = selectedColor = realtv.getCurrentTextColor();
 	}
 
 
