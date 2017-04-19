@@ -343,6 +343,7 @@ public class TiUIText extends TiUINonViewGroupView
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
+        setNativeView(tv);
     }
 
     @Override
@@ -382,7 +383,6 @@ public class TiUIText extends TiUINonViewGroupView
 			realtv.setGravity(Gravity.TOP | Gravity.LEFT);
 		}
 		color = disabledColor = selectedColor = realtv.getCurrentTextColor();
-		setNativeView(tv);
 	}
 
 
