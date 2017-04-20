@@ -1681,7 +1681,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join(''),
 				moduleZipPath = path.join(this.distDir, zipName),
 				moduleFolder = path.join('modules', 'android', this.manifest.moduleid, this.manifest.version),
-				manifestArchs = this.manifest['architectures'].split(' ');
+				manifestArchs = this.manifest['architectures'] && this.manifest['architectures'].split(' ');
 
 			this.moduleZipPath = moduleZipPath;
 
@@ -1792,7 +1792,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					this.dirWalker(this.libsDir, function (file) {
 						var archLib = path.relative(this.libsDir, file).split(path.sep),
 							arch = archLib.length ? archLib[0] : undefined;
-						if (arch && manifestArchs.indexOf(arch) > -1) {
+						if (!manifestArchs || (arch && manifestArchs.indexOf(arch) > -1)) {
 							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
 						}
 					}.bind(this));
