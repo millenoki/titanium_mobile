@@ -6,12 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -436,7 +434,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		mPager.setAdapter(mAdapter);
 	}
 	
-	private TiUIPagerTabStrip applyPropertiesPageStrip(KrollDict d) {
+	private TiUIPagerTabStrip applyPropertiesPageStrip(HashMap d) {
 	    if (mPager == null) {
 	        return null;
 	    }
@@ -623,7 +621,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             mPager.updatePageTransformer();
             break;
         case TiC.PROPERTY_STRIP:
-            applyPropertiesPageStrip(TiConvert.toKrollDict(newValue));
+            applyPropertiesPageStrip(TiConvert.toHashMap(newValue));
             break;
         case TiC.PROPERTY_CURRENT_PAGE:
             mCurrentPage = TiConvert.toInt(newValue, 0);
