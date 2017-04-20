@@ -253,7 +253,7 @@ public class ScrollableViewProxy extends TiViewProxy
             }
 	    }
 	    if (view != null) {
-            getView().notifyViewsChanged();
+//            getView().notifyViewsChanged();
         } else {
             preload = true;
         }

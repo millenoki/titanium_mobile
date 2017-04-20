@@ -585,6 +585,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             if (changedProperty) {
                 ScrollableViewProxy viewProxy = (ScrollableViewProxy) proxy;
                 ((ScrollableViewProxy)proxy).setViews(newValue);
+                mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             } else {
                 ScrollableViewProxy viewProxy = (ScrollableViewProxy) proxy;
                 if (!viewProxy.getPreload()) {
@@ -787,7 +788,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	@Override
     protected void didProcessProperties() {        
         super.didProcessProperties();
-
+        int currentPage = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CURRENT_PAGE), mCurrentPage);
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_ADAPTER_CHANGE) != 0) {
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_ADAPTER_CHANGE;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
@@ -798,9 +799,9 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             currentItemCount = ((ScrollableViewProxy)proxy).getViewCount();
             mAdapter.notifyDataSetChanged();
         }
-        if ((mProcessUpdateFlags & TIFLAG_NEEDS_CURRENT_PAGE) != 0) {
+        if (currentPage != mCurrentPage || (mProcessUpdateFlags & TIFLAG_NEEDS_CURRENT_PAGE) != 0) {
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_CURRENT_PAGE;
-            setCurrentPage(mCurrentPage);
+            setCurrentPage(currentPage);
         }
     }
 
