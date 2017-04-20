@@ -793,6 +793,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void updateKrollObjectProperties() {
         
         //use a shallow copy because properties is synchronized
+        if (krollObject == null && KrollRuntime.getInstance().isRuntimeThread()) {
+            initKrollObject();
+        }
         if (krollObject != null) {
             internalUpdateKrollObjectProperties(properties, true);
         } else {
