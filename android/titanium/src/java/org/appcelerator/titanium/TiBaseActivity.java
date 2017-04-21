@@ -267,8 +267,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
 			TiWindowProxy nextWindow = windowStack.peek();
+			
+			
 			if (nextWindow instanceof TiWindowManager) {
-			    nextWindow = ((TiWindowManager) nextWindow).getTopWindow();
+			    TiWindowProxy topWindow = ((TiWindowManager) nextWindow).getTopWindow();
+			    while (topWindow != nextWindow) {
+			        nextWindow = topWindow;
+			        if (topWindow instanceof TiWindowManager) {
+	                    topWindow = ((TiWindowManager) nextWindow).getTopWindow();
+			        }
+	            }
             }
             updateForWindow(nextWindow);
 			//Fire focus only if activity is not paused and the removed window was topWindow
