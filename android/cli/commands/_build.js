@@ -1768,7 +1768,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
         function (next) {
             if (!cli.argv.ide || this.forceRebuild) {
-                series(this, [
+                async.series(this, [
                     // 'removeOldFiles',
                     'generateJavaFiles',
                     'generateAidl',
@@ -1791,7 +1791,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
         function (next) {
             if (!cli.argv.ide) {
-                series(this, [
+                async.series(this, [
                     'packageApp',
 
                     // provide a hook event before javac
