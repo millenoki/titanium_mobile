@@ -32,6 +32,9 @@ methods:
         type: [Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
 
+  - name: closeWindowsInFront
+    summary: Closes all the windows in front of this window.
+
   - name: hideNavBar
     summary: Hides the navigation bar.
     description: |
@@ -531,7 +534,7 @@ properties:
                 </TabGroup>
             </Alloy>
     platforms: [iphone, ipad, mobileweb]
-    type: Titanium.UI.View
+    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
 
   - name: leftNavButtons
     summary: An Array of views to show in the left nav bar area.

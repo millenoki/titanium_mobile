@@ -42,6 +42,17 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
     
+  - name: createActivityView
+    summary: |
+        Creates  an activity view
+        <Titanium.UI.iOS.ActivityView>.
+    parameters:
+      - name: args
+        type: Dictionary<Titanium.UI.iOS.ActivityView>
+    returns:
+      - type: Titanium.UI.iOS.ActivityView
+    since: "5.2.0"
+    
 properties:
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
     summary: |

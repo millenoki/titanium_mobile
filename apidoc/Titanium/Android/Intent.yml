@@ -111,6 +111,8 @@ since: "1.5"
 methods:
   - name: addCategory
     summary: Adds a category to this Intent.
+    returns:
+        type: this
     parameters:
       - name: name
         summary: The category name.
@@ -121,6 +123,8 @@ methods:
     summary: Adds to the existing flags on the `Intent`.
     description: |
         The specified flag are combined with the existing flags using a bitwise OR.
+    returns:
+        type: this
     parameters:
       - name: flags
         summary: Bitwise OR of the flags to add to the existing set.
@@ -208,6 +212,8 @@ methods:
 
   - name: putExtra
     summary: Puts an extra property on this `Intent`.
+    returns:
+        type: this
     parameters:
       - name: name
         summary: Name of the property to add.
@@ -220,6 +226,8 @@ methods:
   - name: putExtraUri
     summary:
         Put a URI property on this `Intent` (useful for <Titanium.Android.EXTRA_STREAM>).
+    returns:
+        type: this
     parameters:
 
       - name: name
@@ -229,6 +237,14 @@ methods:
       - name: value
         summary: The URI, as a string or a string array.
         type: Object
+
+  - name: putExtraInitialIntents
+    parameters:
+      - name: name
+        summary: The property name.
+        type: Array<Titanium.Android.Intent | Dictionary<Titanium.Android.Intent>>
+    returns:
+        type: this
 
 properties:
 

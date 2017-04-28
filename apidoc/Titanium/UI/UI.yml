@@ -971,6 +971,9 @@ properties:
 
   - name: BlendMode
     type: BlendMode
+
+  - name: TransitionStyle
+    type: TransitionStyle
   
   - name: TEXT_ELLIPSIZE_WORD
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
@@ -2285,9 +2288,13 @@ properties:
         This property is only available when using the <Titanium.UI.Window.url> property to load
         JavaScript files in their own contexts.
     type: Titanium.UI.Window
+    permission: read-only    
+
+  - name: topWindow
+    summary: The current top Window
+    type: Titanium.UI.Window
     permission: read-only
 
-    
   - name: orientation
     summary: Updates the orientation of the current window to the specified orientation value.
     deprecated:
@@ -2463,3 +2470,82 @@ properties:
     type: Number
     permission: read-only
         
+---
+name: TransitionStyle
+summary: view transition modes
+platforms: [android, ipad, iphone]
+since: '5.0.0'
+properties:
+  - name: CUBE
+    type: Number
+    permission: read-only
+    
+  - name: CAROUSEL
+    type: Number
+    permission: read-only
+    
+  - name: CROSS
+    type: Number
+    permission: read-only
+    
+  - name: GHOST
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: GLUE
+    permission: read-only
+    type: Number
+    
+  - name: ZOOM
+    type: Number
+    permission: read-only
+    
+  - name: SWIPE
+    type: Number
+    permission: read-only
+    
+  - name: SWIPE_FADE
+    type: Number
+    permission: read-only
+    
+  - name: SWIPE_DUAL_FADE
+    type: Number
+    permission: read-only
+    
+  - name: FLIP
+    type: Number
+    permission: read-only
+    
+  - name: SWAP
+    type: Number
+    permission: read-only
+    
+  - name: SCALE
+    type: Number
+    permission: read-only
+    
+  - name: FADE
+    type: Number
+    permission: read-only
+    
+  - name: BACK_FADE
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    
+  - name: FOLD
+    type: Number
+    platforms: [iphone, ipad]
+    
+  - name: PUSH_ROTATE
+    type: Number
+    permission: read-only
+    
+  - name: SLIDE
+    type: Number
+    permission: read-only
+    
+  - name: MODERN_PUSH
+    type: Number
+    permission: read-only

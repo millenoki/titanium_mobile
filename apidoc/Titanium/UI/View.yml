@@ -726,7 +726,7 @@ methods:
             View to add to this view's hierarchy.
 
             You may pass an array of views.
-        type: [Titanium.UI.View, Array<Titanium.UI.View>, Dictionary<Titanium.UI.View>, Array<Dictionary<Titanium.UI.View>>]
+        type: [Titanium.UI.View, Array<Titanium.UI.View>, Dictionary, Array<Dictionary>]
       - name: index
         summary: |
             Position in the [children](Titanium.UI.View.children) array to
@@ -760,32 +760,24 @@ methods:
   - name: cancelAllAnimations
     summary: Cancel all animations on this view.
     
-  - name: finishLayout
-    since: "2.0.0"
-    deprecated:
-        since: "3.0.0"
-        notes: Use the <Titanium.Proxy.applyProperties> method to batch-update layout properties.
-    summary: |
-        Finishes a batch update of the View's layout properties and schedules a layout pass of the 
-        view tree.
-    description: |
-        Since the layout pass scheduled is asynchronous, the [rect](Titanium.UI.View.rect)
-        and [size](Titanium.UI.View.size) values may not be available immediately after 
-        `finishLayout` is called. 
-        
-        To be notified when the layout pass completes, add a listener for the
-        [postlayout](Titanium.UI.View.postlayout) event.
-        
-        On Mobile Web, this method has no effect, but is included for parity.
-        
-  - name: hide
+  - name: containsView
     summary: Hides this view.
+    returns:
+        type: Boolean
     parameters:
       - name: options
         summary: |
-            Animation options for Android. **Since Release 5.1.0.**
+            return true if the view is a subview ouf ourself
         type: AnimationOption
         optional: true
+    
+  - name: hide
+    summary: Hides this view.
+    parameters:
+      - name: view
+        summary: |
+            The view to test for
+        type: Titanium.UI.View
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
@@ -1649,6 +1641,18 @@ properties:
   - name: touchEnabled
     summary: Determines whether view should receive touch events.
     description: If false, will forward the events to peers.
+    type: Boolean
+    default: true
+    
+  - name: enabled
+    summary: Determines whether the view is enabled or not.
+    description: It will influence backgroundColor and other properties.
+    type: Boolean
+    default: true
+        
+  - name: selected
+    summary: Determines whether the view is selected or not.
+    description: It will influence backgroundColor and other properties.
     type: Boolean
     default: true
 

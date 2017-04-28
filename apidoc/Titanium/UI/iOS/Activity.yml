@@ -1,0 +1,16 @@
+---
+name: Titanium.UI.iOS.Activity
+extends: Titanium.Proxy
+since: "5.0"
+platforms: [iphone, ipad]
+
+properties:
+
+- name: category
+    type: Number
+- name: image
+    type: String
+- name: title
+    type: String
+- name: type
+    type: String

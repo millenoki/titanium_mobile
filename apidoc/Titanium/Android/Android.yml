@@ -309,6 +309,17 @@ methods:
         optional: true
     since: "3.2.0"
 
+  - name: queryIntentActivities
+    summary: query intent activities
+    returns:
+        type: Array<ResolveInfo>
+    parameters:
+      - name: action
+        type: String
+      - name: type
+        type: String
+    since: "6.0.0"
+
 properties:
 
   - name: ACTION_AIRPLANE_MODE_CHANGED
@@ -2263,3 +2274,16 @@ properties:
 name: RequestPermissionAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
+---    
+name: ResolveInfo
+properties:
+  - name: packageName
+    type: String
+  - name: icon
+    type: String
+  - name: label
+    type: String
+  - name: flags
+    type: Number
+  - name: className
+    type: String

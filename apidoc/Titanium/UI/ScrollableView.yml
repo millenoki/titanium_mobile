@@ -41,7 +41,7 @@ methods:
 
       - name: views
         summary: Views to insert.
-        type: Array<Titanium.UI.View>
+        type: Array<Titanium.UI.View | Dictionary<Titanium.UI.View>>
     since: 5.4.0
     platforms: [android, iphone, ipad]
 
@@ -50,7 +50,7 @@ methods:
     parameters:
       - name: view
         summary: The page to add.
-        type: Titanium.UI.View
+        type: Titanium.UI.View | Dictionary<Titanium.UI.View>
 
   - name: moveNext
     summary: |
@@ -89,6 +89,13 @@ methods:
       - name: view
         summary: An integer index or <Titanium.UI.View> object to set as the current page.
         type: [Number, Titanium.UI.View]
+    
+  - name: getView
+    summary: returns the specified page in <Titanium.UI.ScrollableView.views>.
+    parameters:
+      - name: index
+        summary: An integer index.
+        type: [Number]
 
 events:
   - name: dblclick
@@ -396,7 +403,7 @@ properties:
 
   - name: views
     summary: Sets the pages within this Scrollable View.
-    type: Array<Titanium.UI.View>
+    type: Array<Titanium.UI.View | Dictionary<Titanium.UI.View>>
 
   - name: clipViews
     summary: |
