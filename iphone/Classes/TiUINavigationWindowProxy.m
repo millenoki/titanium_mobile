@@ -234,10 +234,22 @@ else{\
 //        TiWindowProxy *realWindow = rootWindow;
         NSUInteger index = [[navController viewControllers] indexOfObject:winController];
         if (index > 0) {
-            TiWindowProxy *realWindow = (TiWindowProxy *)[[[navController viewControllers] objectAtIndex:(index-1)] proxy];
-            TiThreadPerformOnMainThread(^{
-                [self popOnUIThread:([args count] > 1) ? @[realWindow,[args objectAtIndex:1]] : @[realWindow]];
-            }, YES);
+            if (index == [[navController viewControllers] count] -1) {
+                TiWindowProxy *realWindow = (TiWindowProxy *)[[[navController viewControllers] objectAtIndex:(index-1)] proxy];
+                TiThreadPerformOnMainThread(^{
+                    [self popOnUIThread:([args count] > 1) ? @[realWindow,[args objectAtIndex:1]] : @[realWindow]];
+                }, YES);
+            } else {
+                NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray:[navController viewControllers]];
+                [allViewControllers removeObjectIdenticalTo: winController];
+                [navController setViewControllers: allViewControllers];
+                [window setTab:nil];
+                [window setParentOrientationController:nil];
+                [window close:nil];
+            }
+            
+
+            
             return;
         }
     }
