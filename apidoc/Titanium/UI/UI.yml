@@ -969,12 +969,6 @@ properties:
     since: "3.0.0"
     platforms: [android, iphone, ipad]
 
-  - name: BlendMode
-    type: BlendMode
-
-  - name: TransitionStyle
-    type: TransitionStyle
-  
   - name: TEXT_ELLIPSIZE_WORD
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
     description: |
@@ -2350,7 +2344,7 @@ examples:
             win.add(table);
             win.open();
 ---
-name: BlendMode
+name: Titanium.UI.BlendMode
 summary: image blending modes
 platforms: [android, ipad, iphone]
 since: '5.0.0'
@@ -2471,7 +2465,7 @@ properties:
     permission: read-only
         
 ---
-name: TransitionStyle
+name: Titanium.UI.TransitionStyle
 summary: view transition modes
 platforms: [android, ipad, iphone]
 since: '5.0.0'
