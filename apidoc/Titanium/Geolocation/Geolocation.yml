@@ -263,6 +263,27 @@ methods:
         type: Callback<LocationAuthorizationResponse>
     platforms: [iphone, ipad, android]
     since: "5.1.0"
+  
+  - name: requestLocationPermissions
+    summary: Requests for location access.
+    description: |
+        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
+        the user has to manually enable the permission in device settings. If the user asks for permissions or 
+        tries to get unauthorized location information, then the app should call the request method to show 
+        the permission settings. This method requests `Manifest.permission.ACCESS_FINE_LOCATION` on Android. 
+        If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
+
+        In iOS 8, Apple introduced the Info.plist keys `NSLocationWhenInUseUsageDescription` and `NSLocationAlwaysUsageDescription`
+        that are used to display an own description while requesting location permissions. In addition to this method, you need to
+        include one of these keys (based on how your location updates should behave) or the application will crash if your app does not. 
+        Check the [Apple docs](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
+    parameters:
+      - name: callback
+        summary: Function to call upon user decision to grant location access.
+        type: Callback<LocationAuthorizationResponse>
+    platforms: [android]
+    since: "5.1.0"
 
   - name: reverseGeocoder
     summary: Tries to resolve a location to an address.
@@ -768,28 +789,6 @@ properties:
         Therefore, this method always returns `true` on these devices.
     type: Boolean
     permission: read-only
-
-  - name: preferredProvider
-    deprecated:
-        since: "2.0.0"
-        notes: |
-            Android legacy mode operation is deprecated. For new development, use
-            either simple mode or manual mode. See "Configurating Location Updates on Android"
-            in the main description of this class for more information.
-    summary: |
-        Determines the preferred location provider.
-    description: |
-        Setting a preferred provider enables legacy location mode on Android.
-        Note that only a single provider can be active at one time in legacy mode.
-
-        The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
-        requires the most power, and `PROVIDER_PASSIVE` requires the least.
-
-        If `undefined`, the preferred provider is auto-detected.
-    type: String
-    constants: Titanium.Geolocation.PROVIDER_*
-    platforms: [android]
-    default: <Titanium.Geolocation.PROVIDER_NETWORK>
 
   - name: purpose
     summary: |

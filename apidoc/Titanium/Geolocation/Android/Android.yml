@@ -169,6 +169,21 @@ properties:
     type: Boolean
     default: false
     
+  - name: preferredProvider
+    summary: |
+        Determines the preferred location provider.
+    description: |
+        Setting a preferred provider enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        The preferred provider affects power consumption. In general, `PROVIDER_GPS` 
+        requires the most power, and `PROVIDER_PASSIVE` requires the least.
+
+        If `undefined`, the preferred provider is auto-detected.
+    type: String
+    constants: Titanium.Geolocation.PROVIDER_*
+    default: <Titanium.Geolocation.PROVIDER_NETWORK>
+    
 methods:
 
   - name: addLocationProvider
@@ -179,7 +194,7 @@ methods:
     parameters:
       - name: provider
         summary: The location provider to add.
-        type: Titanium.Geolocation.Android.LocationProvider
+        type: [Titanium.Geolocation.Android.LocationProvider, Array<Titanium.Geolocation.Android.LocationProvider | String>]
 
   - name: removeLocationProvider
     summary: Disables and removes the specified location provider.

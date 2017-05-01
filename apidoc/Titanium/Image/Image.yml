@@ -18,6 +18,14 @@ methods:
 
       - name: parameters
         type: Dictionary
+  - name: getFilteredScreenshot
+    summary: Filters an screenshot
+    returns:
+        type: Ti.Blob
+    platforms: [ipad, iphone, android]
+    parameters:
+      - name: parameters
+        type: Dictionary
 
 
 properties:
