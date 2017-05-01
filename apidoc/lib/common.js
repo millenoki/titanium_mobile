@@ -183,6 +183,7 @@ exports.parseYAML = function parseYAML(path) {
 					}
 					catch (e) {
 						e.__file = currentFile;
+						console.error('WARNING:error parsing YAML file', elem, e.toString());
 						rv.errors.push(e);
 					}
 				}
