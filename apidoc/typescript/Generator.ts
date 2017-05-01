@@ -77,7 +77,7 @@ module Generator {
 		static MODULE_INTERFACE_TEMPLATE: string = '{{name}}: {{moduleType}}{{className}}' + Module.NEWLINE;
 		/// <b>INTERFACE_TEMPLATE</b>
 		/// Interface representation inside a Typescript module.
-		static INTERFACE_TEMPLATE: string = '{{entityType}} {{className}} {{inheritsFrom}} {' + Module.NEWLINE +
+		static INTERFACE_TEMPLATE: string = '{{entityType}} {{className}} {{inheritsFrom}} {//{{test}}' + Module.NEWLINE +
 		'{{moduleContent}}' + Module.NEWLINE;
 		static ENUM_TEMPLATE: string = 'enum {{className}} {' + Module.NEWLINE +
 		'{{moduleContent}}' + Module.NEWLINE;
@@ -230,14 +230,14 @@ module Generator {
 				moduleType: moduleType,
 				inheritsFrom: this.RenderInterfaceInheritsPart(),
 				className: this.GetClassName(),
-				test: this.Name,
+				test: this.realName,
 				moduleContent: content
 			}).Indent(level);
 		}
 
 		private GetClassName() {
 			// var parentModule = this.extendsFrom;
-			var split = this.realName.split('.');
+			var split = this.realName ? this.realName.split('.') : [this.Name];
 			var name = (split.length > 1 ? split.slice(1) : split).join('');
 			// if (parentModule && parentModule.IsModule()) {
 			// 	name = parentModule.GetClassName() + name;
@@ -258,7 +258,7 @@ module Generator {
 			return template({
 				moduleType: moduleType,
 				className: this.GetClassName(),
-				test: this.Name,
+				test: this.realName,
 				// inheritsFrom: this.RenderInterfaceInheritsPart(),
 				name: _.last(this.Name.split('.')),
 			}).Indent(level);
@@ -282,7 +282,7 @@ module Generator {
 			}
 			let prefix = '';
 			var entityType = 'class';
-			if (/Dictionary/.test(this.Name)) {
+			if (/^Dictionary/.test(this.Name)) {
 				entityType = 'type';
 			}
 			if (this.InheritsFrom) {
@@ -298,7 +298,7 @@ module Generator {
 			return prefix + template({
 				entityType: entityType,
 				className: name,
-				test: this.Name,
+				test: this.realName,
 				inheritsFrom: this.RenderInterfaceInheritsPart(),
 				moduleContent: content
 			}).Indent(level);
@@ -309,7 +309,7 @@ module Generator {
 			if (!_.isNull(this.ExtendsFrom)) {
 				parentIsEnum = this.ExtendsFrom.IsEnum();
 			}
-			if (/Dictionary/.test(this.Name)) {
+			if (/^Dictionary/.test(this.Name)) {
 				return ' = ';
 			}
 			if (parentIsEnum || this.InheritsFrom === 'Object') {
@@ -673,24 +673,25 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		/// @param[in] route to sanitize.
 		/// @return a sanitized module route.
 		private static SanitizeModuleRoute(route: string): string {
-			var pathParts: Array<string> = route.split('.');
-			var type: string = '';
-			if (/^Ti/.test(pathParts[0])) {
-				type = pathParts.slice(1).join('')
-			} else {
-				var moduleSep: string = '';
-				_.each(pathParts, (part: string) => {
-					type += moduleSep + Mapper.SanitizeName(part);
-					
-					moduleSep = '.';
-				});
-			}
+			// var pathParts: Array<string> = route.split('.');
+			// var type: string = '';
+			// if (/^Ti/.test(pathParts[0])) {
+			// 	type = pathParts.slice(1).join('')
+			// } else {
+			// 	var moduleSep: string = '';
+			// 	_.each(pathParts, (part: string) => {
+			// 		type += moduleSep + Mapper.SanitizeName(part);
 
-			// if (type.indexOf('Titanium.') == 0 || type.indexOf('Ti.') == 0) {
-			// 	type = 'typeof ' + type;
+			// 		moduleSep = '.';
+			// 	});
 			// }
-			type = type.replace(/typeof\s/g, '').replace(/(Titanium|Ti)\./g, 'typeof Ti.').replace(/Dictionary</g, 'DictionaryT<');
-			return type;
+			let result = route;
+			let regex = /Ti(tanium)?(\.\w*)+/g, match;
+			while (match = regex.exec(result)) {
+				result = result.substring(0, match.index) + match[0].split('.').slice(1).join('') + result.substring(match.index + match[0].length);
+			}
+			result = result.replace(/Dictionary</g, 'DictionaryT<');
+			return result;
 		}
 
 		/// <b>ComputeMethodParameter</b>
@@ -747,8 +748,9 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		/// @brief This method returns a valid type for a given property.
 		/// @param[in] the property type.
 		/// @return the property type sanitized.
-		private static ComputePropertyType(type: any): string {
-			if (_.isArray(type)) {
+		private static ComputePropertyType(type: string | string[]): string {
+			if (Array.isArray(type)) {
+				// console.log('ComputePropertyType', type);
 				return type.map(Mapper.ComputeType).join(' | ');
 			}
 			return Mapper.ComputeType(<string>(type));
@@ -789,6 +791,7 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 					return type;
 				default:
 					return Mapper.SanitizeModuleRoute(type);
+				// return type.split('|').map(s=>Mapper.SanitizeModuleRoute(s.trim())).join(' | ');
 			}
 		}
 
@@ -814,12 +817,18 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 
 			// var genericMatch = type.split('/^Dictionary(\\<.*)(\\>$)/');
 			if (secondType) {
-				var atModule = Mapper.ComputeModule(mainType);
-				if (!_.isNull(atModule)) {
-					atModule.IsGeneric = true;
+				if (mainType === 'Dictionary') {
+					mainType = 'DictionaryT'
+				} else if (mainType !== 'DictionaryT') {
+					// console.log('ComputeModule', mainType,secondType, type);
+					var atModule = Mapper.ComputeModule(mainType);
+					if (!_.isNull(atModule)) {
+						atModule.IsGeneric = true;
+					}
 				}
+
 				// TODO Manage the type that is being using as instance of the generic type.
-				secondType = Mapper.SanatizeParameter(secondType);
+				secondType = secondType.split('|').map(s => Mapper.SanatizeParameter(s.trim())).join(' | ');
 			}
 			var result;
 			switch (mainType) {
