@@ -179,7 +179,6 @@ module Generator {
 				if (/^Dictionary/.test(this.Name)) {
 					definitions += `	type dictany = object | boolean | string | number | null | Function | Proxy;
 	type Dictionary = {
-		[key: string]: dictany | Array<dictany>
 	} & Object;
 	type Properties = {
 		[key: string]: dictany | Array<dictany>
