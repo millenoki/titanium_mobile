@@ -33,3 +33,6 @@ properties:
     type: String
   - name: thumbnailForActivityType
     type: Callback<Object>
+
+methods:
+  - name: show
