@@ -5,12 +5,11 @@ since: "5.0"
 platforms: [iphone, ipad]
 
 properties:
-
-- name: category
+  - name: category
     type: Number
-- name: image
+  - name: image
     type: String
-- name: title
+  - name: title
     type: String
-- name: type
+  - name: type
     type: String

@@ -19,17 +19,17 @@ events:
 properties:
   - name: excluded
     type: Array<String>
-- name: items
+  - name: items
     type: Array<String | Ti.Filesystem.File | Ti.Blob>
-- name: activities
+  - name: activities
     type: Array<Ti.UI.iOS.Activity | Dictionary<Ti.UI.iOS.Activity>>
-- name: itemForActivityType
+  - name: itemForActivityType
     type: Callback<Object>
-- name: subject
+  - name: subject
     type: String
-- name: subjectForActivityType
+  - name: subjectForActivityType
     type: Callback<Object>
-- name: thumbnail
+  - name: thumbnail
     type: String
-- name: thumbnailForActivityType
+  - name: thumbnailForActivityType
     type: Callback<Object>

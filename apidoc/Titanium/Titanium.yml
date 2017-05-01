@@ -82,8 +82,8 @@ properties:
           
   
         -   The included filename is interpreted *local to the current file*. For 		
-      example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 		
-      `c.js`, this is interpreted as `dir/c.js`.		
+            example, suppose `a.js` includes `dir/b.js.` If `b.js` includes another file, 		
+            `c.js`, this is interpreted as `dir/c.js`.		
   
         -   Calling `include` from an event handler does not work consistently across 		
         platforms.		
