@@ -117,6 +117,12 @@ module Generator {
 		set ExtendsFrom(module: Module) { this.extendsFrom = module; }
 		set Methods(methods: Array<string>) { this.methods = methods; }
 
+		public hasEnum(name: string) {
+			var theModule: Module = _.first(_.where(this.Modules, { Name: name }));
+			return theModule && theModule.IsEnum();
+
+		}
+
 		/// Tells whether the current representation is a Typescript Module or not.
 		public IsModule(): boolean {
 			const result = !_.isEmpty(this.Modules) || (this.ExtendsFrom && this.ExtendsFrom.Name === 'Module');
@@ -478,7 +484,7 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 				// Other example is the fieldCount property/ method at Database.ResultSet
 				if (!_.contains(atModule.Identifiers, tiProperty.name)) {
 					if (tiProperty.name !== 'R') {
-						atModule.Properties.push(Mapper.ComputeTiProperty(tiProperty));
+						atModule.Properties.push(Mapper.ComputeTiProperty(tiProperty, atModule));
 					}
 				}
 			});
@@ -570,7 +576,7 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 			if (returnTypes.length === 0) {
 				renderResult.push('');
 			} else {
-				renderResult.push(template({ ReturnTypeSeparator: ':', ReturnType: returnTypes.map(Mapper.ComputeType).join(' | ') }));
+				renderResult.push(template({ ReturnTypeSeparator: ':', ReturnType: returnTypes.map(t => Mapper.ComputeType(t)).join(' | ') }));
 				// _.each (returnTypes, (retType: string) => {
 				// 	if (retType) {
 				// 		renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: retType}));
@@ -720,10 +726,10 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		/// @brief Extracts a property from the JSON.
 		/// @param[in] tiProperty is the param in JSON format.
 		/// @return the tiProperty flattened.
-		private static ComputeTiProperty(tiProperty: TiProperty): string {
+		private static ComputeTiProperty(tiProperty: TiProperty, atModule: Module): string {
 
 			var name: string = tiProperty.name;
-			var type: string = Mapper.ComputePropertyType(tiProperty.type);
+			var type: string = Mapper.ComputePropertyType(tiProperty.type, atModule);
 			return name + (tiProperty.optional ? '?' : '') + ' : ' + type + '';
 		}
 
@@ -748,12 +754,12 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		/// @brief This method returns a valid type for a given property.
 		/// @param[in] the property type.
 		/// @return the property type sanitized.
-		private static ComputePropertyType(type: string | string[]): string {
+		private static ComputePropertyType(type: string | string[], atModule: Module): string {
 			if (Array.isArray(type)) {
 				// console.log('ComputePropertyType', type);
-				return type.map(Mapper.ComputeType).join(' | ');
+				return type.map(t => Mapper.ComputeType(t, atModule)).join(' | ');
 			}
-			return Mapper.ComputeType(<string>(type));
+			return Mapper.ComputeType(<string>(type), atModule);
 		}
 
 		/// <b>SanitizeParameterName</b>
@@ -802,8 +808,7 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		///        handling the Dictionary generic type.
 		/// @param[in] type is the type to be converted.
 		/// @return a valid type name.
-		private static ComputeType(type: string): string {
-			// console.log('ComputeType', type);
+		private static ComputeType(type: string, atModule?: Module): string {
 			if (!_.isNull(type.match('Callback<.*>'))) {
 				return '(...args : any[]) => any';
 			}
@@ -814,14 +819,13 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 				secondType = match[4];
 			}
 			mainType = Mapper.SanatizeParameter(mainType, !!secondType);
-
+			var atModule:Module;
 			// var genericMatch = type.split('/^Dictionary(\\<.*)(\\>$)/');
 			if (secondType) {
 				if (mainType === 'Dictionary') {
 					mainType = 'DictionaryT'
 				} else if (mainType !== 'DictionaryT') {
-					// console.log('ComputeModule', mainType,secondType, type);
-					var atModule = Mapper.ComputeModule(mainType);
+					atModule = Mapper.ComputeModule(mainType);
 					if (!_.isNull(atModule)) {
 						atModule.IsGeneric = true;
 					}
@@ -842,7 +846,11 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 					break;
 				default:
 					if (match) {
-						result = mainType + (secondType ? ('<' + secondType + '>') : '');
+						if (secondType) {
+							result = mainType + '<' + secondType + '>';
+						} else {
+							result = mainType;
+						}
 					}
 					else {
 						result = mainType;
