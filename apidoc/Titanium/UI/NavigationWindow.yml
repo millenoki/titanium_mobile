@@ -1,0 +1,55 @@
+---
+name: Titanium.UI.NavigationWindow
+summary: A navigation controller for Ti.UI.Window
+extends: Titanium.UI.Window
+since: "6.0"
+
+methods:
+  - name: closeAllWindows
+    summary: Closes all the windows.
+    parameters:
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: [Dictionary]
+        optional: true
+  - name: closeToRootWindow
+    summary: Closes all the windows.
+    parameters:
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: [Dictionary]
+        optional: true
+  - name: closeCurrentWindow
+    summary: Closes the current window.
+    parameters:
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: [Dictionary]
+        optional: true
+  - name: closeWindow
+    summary: Closes the window.
+    parameters:
+      - name: window
+        summary: Window to close
+        type: [Ti.UI.Window]
+        optional: true
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: [Dictionary]
+        optional: true
+  - name: openWindow
+    summary: Closes the window.
+    parameters:
+      - name: window
+        summary: Window to close
+        type: [Ti.UI.Window, Dictionary<Ti.UI.Window>]
+        optional: true
+      - name: params
+        summary: Animation or display properties to use when closing the window.
+        type: [Dictionary]
+        optional: true
+properties:
+  - name: window
+    summary: |
+        the rootWindow
+    type: [Titanium.UI.Window, Dictionary<Titanium.UI.Window>]
