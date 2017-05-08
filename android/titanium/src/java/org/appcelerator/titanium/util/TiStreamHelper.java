@@ -16,13 +16,23 @@ import ti.modules.titanium.BufferProxy;
 public class TiStreamHelper
 {
 
-	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length) throws IOException
+	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length, Number position) throws IOException
 	{
 		byte[] buffer = bufferProxy.getBuffer();
 
 		if ((offset + length) > buffer.length) {
 			length = buffer.length - offset;
 		}
+		
+      if (position != null && inputStream.markSupported()) {
+      try {
+          inputStream.reset();
+          inputStream.skip(position.intValue());
+      } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+      }
+  }
 
 		return inputStream.read(buffer, offset, length);
 	}

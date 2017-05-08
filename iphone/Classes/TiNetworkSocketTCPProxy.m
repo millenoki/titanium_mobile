@@ -427,7 +427,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return NUMBOOL(internalState & SOCKET_CONNECTED);
 }
 
--(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
+-(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length position:(NSNumber*)thePosition callback:(KrollCallback *)callback
 {
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
     if ([[buffer data] length] == 0 && length != 0) {
@@ -442,13 +442,13 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
-        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(readToBuffer:offset:length:callback:)]];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(readToBuffer:offset:length:position:callback:)]];
         [invocation setTarget:self];
-        [invocation setSelector:@selector(readToBuffer:offset:length:callback:)];
+        [invocation setSelector:@selector(readToBuffer:offset:length:position:callback:)];
         [invocation setArgument:&buffer atIndex:2];
         [invocation setArgument:&offset atIndex:3];
         [invocation setArgument:&length atIndex:4];
-        [invocation setArgument:&callback atIndex:5];
+        [invocation setArgument:&callback atIndex:6];
         [invocation retainArguments];
         
         if (callback == nil) {

@@ -31,7 +31,7 @@
 
 #pragma mark I/O Stream implementation
 
--(NSInteger)readToBuffer:(TiBuffer *)toBuffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
+-(NSInteger)readToBuffer:(TiBuffer *)toBuffer offset:(NSInteger)offset length:(NSInteger)length position:(NSNumber*)thePosition callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -50,6 +50,9 @@
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }
         return 0;
+    }
+    if (thePosition != nil) {
+        position = [thePosition integerValue];
     }
     
     // TODO: Throw exception, or no-op?  For now, assume NO-OP

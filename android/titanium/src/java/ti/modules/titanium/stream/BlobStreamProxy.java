@@ -41,44 +41,37 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 		BufferProxy bufferProxy = null;
 		int offset = 0;
 		int length = 0;
+		Number readposition = null;
+        if(args.length > 0) {
+            if(args[0] instanceof BufferProxy) {
+                bufferProxy = (BufferProxy) args[0];
+                length = bufferProxy.getLength();
 
-		if(args.length == 1 || args.length == 3) {
-			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
-			}
-
-			if(args.length == 3) {
-				if(args[1] instanceof Integer) {
-					offset = ((Integer)args[1]).intValue();
-
-				} else if(args[1] instanceof Double) {
-					offset = ((Double)args[1]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid offset argument");
-				}
-
-				if(args[2] instanceof Integer) {
-					length = ((Integer)args[2]).intValue();
-
-				} else if(args[2] instanceof Double) {
-					length = ((Double)args[2]).intValue();
-
-				} else {
-					throw new IllegalArgumentException("Invalid length argument");
-				}
-			}
-
-		} else {
-			throw new IllegalArgumentException("Invalid number of arguments");
-		}
-
+            } else {
+                throw new IllegalArgumentException("Invalid buffer argument");
+            }
+            if(args.length > 1) {
+                if(args[1] instanceof Number) {
+                    offset = ((Number)args[1]).intValue();
+                } else {
+                    throw new IllegalArgumentException("Invalid offset argument");
+                }
+            }
+            if(args.length > 2) {
+                if(args[2] instanceof Number) {
+                    length = ((Number)args[2]).intValue();
+                } else {
+                    throw new IllegalArgumentException("Invalid length argument");
+                }
+            }
+            if(args.length > 3) {
+                if(args[3] instanceof Number) {
+                    readposition = ((Number)args[3]);
+                } else {
+                    throw new IllegalArgumentException("Invalid position argument");
+                }
+            }
+        }
 		if (inputStream == null) {
 			inputStream = tiBlob.getInputStream();
 			// TODO set position based on mode
@@ -86,7 +79,7 @@ public class BlobStreamProxy extends KrollProxy implements TiStream
 
 		if(inputStream != null) {
 			try {
-				return TiStreamHelper.read(inputStream, bufferProxy, offset, length);
+				return TiStreamHelper.read(inputStream, bufferProxy, offset, length, readposition);
 
 			} catch (IOException e) {
 				e.printStackTrace();

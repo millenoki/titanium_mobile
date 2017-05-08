@@ -116,7 +116,7 @@ if(fileHandle == nil) {\
 
 #pragma mark TiStreamInternal methods
 
--(NSInteger) readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
+-(NSInteger) readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length position:(NSNumber*)thePosition callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if([[buffer data] length] == 0 && length != 0) {
@@ -136,8 +136,14 @@ if(fileHandle == nil) {\
 	if([buffer data] == nil) {
 		[buffer setData:[NSMutableData data]];
 	}
-	
-	if([fileHandle offsetInFile] >= [self currentFileSize]) {
+    
+    
+    
+    long long fileSize =  [self currentFileSize];
+    if (thePosition) {
+        [fileHandle seekToFileOffset:[thePosition integerValue]];
+    }
+	if(fileSize != 0 && [fileHandle offsetInFile] >= fileSize) {
 		//out of bounds
         if (callback != nil) {
             NSMutableDictionary* event = [TiUtils dictionaryWithCode:-1 message:nil];

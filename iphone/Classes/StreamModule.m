@@ -138,7 +138,7 @@
                    subreason:@"read() operation on stream that is not readable"
                     location:CODELOCATION];        
     }
-    [self invokeRWOperation:@selector(readToBuffer:offset:length:callback:) withArgs:args];
+    [self invokeRWOperation:@selector(readToBuffer:offset:length:position:callback:) withArgs:args];
 }
 
 -(void)write:(id)args
@@ -181,7 +181,7 @@
     
     // Handle asynch
     if (callback != nil) {
-        SEL operation = @selector(readToBuffer:offset:length:callback:);
+        SEL operation = @selector(readToBuffer:offset:length:position:callback:);
         NSInteger offset = 0;
         NSInteger length = 0;
         
@@ -191,14 +191,15 @@
         [invoke setArgument:&buffer atIndex:2];
         [invoke setArgument:&offset atIndex:3];
         [invoke setArgument:&length atIndex:4];
-        [invoke setArgument:&callback atIndex:5];
+//        [invoke setArgument:nil atIndex:5];
+        [invoke setArgument:&callback atIndex:6];
         [invoke retainArguments];
         [self performSelectorInBackground:@selector(performInvocation:) withObject:invoke];
         
         return nil;
     }
     
-    [stream readToBuffer:buffer offset:0 length:0 callback:nil];
+    [stream readToBuffer:buffer offset:0 length:0 position:nil callback:nil];
     return buffer;
 }
 

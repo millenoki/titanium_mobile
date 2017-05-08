@@ -18,7 +18,7 @@
 @required
 // DEFINED BEHAVIOR: callback != nil indicates an asynch operation.  length==0 indicates to read all available data into
 // the buffer (and grow it if necessary).  These methods MAY be called by classes other than the TiStreamProxy ducktype (i.e. Ti.Stream module methods)
--(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
+-(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length position:(NSNumber*)position callback:(KrollCallback*)callback;
 -(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
 -(NSInteger)writeData:(NSData*)data offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
 
