@@ -40,7 +40,7 @@
 				
 				NSFileManager *fm = [NSFileManager defaultManager];
 				if([fm fileExistsAtPath:filePath] == NO) {
-					if(mode != TI_WRITE && mode != TI_APPEND) {
+					if(!(mode & TI_WRITE || mode & TI_APPEND)) {
 						[NSException raise:NSInternalInconsistencyException format:@"File does not exist at path %@", filePath, nil];
 					}
 					BOOL created = [fm createFileAtPath:filePath contents:[NSData data] attributes:nil];
@@ -49,7 +49,7 @@
 					}
 				} else {
 					//If the file exists and the mode is TI_WRITE, truncate the file.
-					if(mode == TI_WRITE) {
+					if(mode & TI_WRITE) {
 						NSError *error = nil;
                         [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
 						if(error != nil) {
@@ -58,7 +58,7 @@
 					}
 				}
 				
-				if(mode == TI_WRITE || mode == TI_APPEND) {
+				if(mode & TI_WRITE || mode & TI_APPEND) {
 					handle = [NSFileHandle fileHandleForUpdatingAtPath:filePath];
 				} else {
 					handle = [NSFileHandle fileHandleForReadingAtPath:filePath];
@@ -379,11 +379,11 @@ if(fileHandle == nil) {\
 }
 
 -(NSNumber*)isReadable:(id)_void {
-	return NUMBOOL(mode == TI_READ);
+	return NUMBOOL(mode & TI_READ);
 }
 
 -(NSNumber*)isWritable:(id)_void {
-	return NUMBOOL(mode == TI_WRITE || mode == TI_APPEND);
+	return NUMBOOL(mode & TI_WRITE || mode & TI_APPEND);
 }
 
 @end

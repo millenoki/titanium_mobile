@@ -193,7 +193,7 @@ FILENOOP(setHidden:(id)x);
 -(TiFilesystemFileStreamProxy *) open:(id) args {
 	NSNumber *mode = nil;
 	ENSURE_ARG_AT_INDEX(mode, args, 0, NSNumber);
-	ENSURE_VALUE_RANGE([mode intValue], TI_READ, TI_APPEND);
+//	ENSURE_VALUE_RANGE([mode intValue], TI_READ, TI_APPEND);
 	
 	NSArray *payload = [NSArray arrayWithObjects:[self path], mode, nil];
 	

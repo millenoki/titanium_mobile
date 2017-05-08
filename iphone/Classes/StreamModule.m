@@ -96,7 +96,7 @@
     ENSURE_ARG_FOR_KEY(obj, args, @"source", NSObject);
     ENSURE_INT_FOR_KEY(mode, args, @"mode");
     
-    if (mode != TI_READ && mode != TI_WRITE && mode != TI_APPEND) {
+    if (!(mode & TI_READ || mode & TI_WRITE || mode & TI_APPEND)) {
         [self throwException:@"TypeError"
                    subreason:[NSString stringWithFormat:@"Invalid mode value %d", mode]
                     location:CODELOCATION];
