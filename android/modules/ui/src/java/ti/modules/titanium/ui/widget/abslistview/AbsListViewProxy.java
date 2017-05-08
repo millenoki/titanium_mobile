@@ -189,7 +189,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         if (listView instanceof TiCollectionViewInterface) {
 			return ((TiCollectionViewInterface)listView).getSectionCount();
 		} else {
-			return preloadSections.size();
+		    if (preloadSections != null) {
+	            return preloadSections.size();
+            }
+            return 0;
 
 		}
 	}
