@@ -3181,9 +3181,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         return [arg data];
     } else if (IS_OF_CLASS(arg, NSArray) || IS_OF_CLASS(arg, NSMutableArray)) {
         NSMutableData *theBufferData = [[[NSMutableData alloc] initWithCapacity: [arg count]] autorelease];
-        for( NSString *string in arg) {
-            char byte = (char)[string intValue];
-            [theBufferData appendBytes: &byte length: 1];
+        for( id value in arg) {
+            if (IS_OF_CLASS(value, NSString)) {
+                [theBufferData appendData:[value dataUsingEncoding:NSUTF8StringEncoding]];
+            } else  if ([value respondsToSelector:@selector(intValue)]){
+                char byte = (char)[value intValue];
+                [theBufferData appendBytes: &byte length: 1];
+            } else {
+                [theBufferData appendBytes: value length: 1];
+            }
         }
         return theBufferData;
     } else if (IS_OF_CLASS(arg, NSString)) {

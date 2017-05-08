@@ -213,20 +213,8 @@
                 break;
             }
         }
-    }else if (IS_OF_CLASS(data, NSArray) || IS_OF_CLASS(data, NSMutableArray)) {
-        NSMutableData *theBufferData = [[[NSMutableData alloc] initWithCapacity: [data count]] autorelease];
-        for( NSString *string in data) {
-            char byte = (char)[string intValue];
-            [theBufferData appendBytes: &byte length: 1];
-        }
-        [buffer setData:theBufferData];
-    } else if ([data respondsToSelector:@selector(data)]) {
-        [buffer setData:[NSMutableData dataWithData:[data data]]];
-    }
-    else if (data != nil) {
-        [self throwException:[NSString stringWithFormat:@"Invalid data type '%@'",data]
-                   subreason:nil
-                    location:CODELOCATION];
+    }else {
+        [buffer setData:[NSMutableData dataWithData:[TiUtils dataValue:data]]];
     }
 
     return buffer;
