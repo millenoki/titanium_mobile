@@ -213,7 +213,7 @@
                 break;
             }
         }
-    }else {
+    }else if (data) {
         [buffer setData:[NSMutableData dataWithData:[TiUtils dataValue:data]]];
     }
 
