@@ -1335,8 +1335,15 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 {
 	NSURL *oldURL = [self currentURL];
 	@try {
+        
+        // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
+        TiModule *module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+        if (module) {
+            return module;
+        }
+        
 		// 1. If X is a core module,
-		TiModule *module = [self loadCoreModule:path withContext:kroll];
+		module = [self loadCoreModule:path withContext:kroll];
 		if (module) {
 			// a. return the core module
 			// b. STOP
@@ -1380,13 +1387,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				}
 			}
 
-			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
-			// TODO How can we make this spit this out to Ti.API.log?
-//			NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
-			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
-			if (module) {
-				return module;
-			}
+			
             
             // Need base path to work from for determining the node_modules search paths.
             NSString *workingPath = [oldURL relativePath];
