@@ -152,7 +152,7 @@ if(fileHandle == nil) {\
             [event setObject:@"" forKey:@"errorDescription"];
             [self _fireEventToListener:@"read" withObject:event listener:callback thisObject:nil];
         }        
-		return -1;
+		return 0;
 	}
 	
 	if(length == 0) {
