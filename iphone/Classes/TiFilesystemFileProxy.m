@@ -170,7 +170,7 @@ FILENOOP(setHidden:(id)x);
 -(id)createDirectory:(id)args
 {
 	BOOL result = NO;
-	if (![fm fileExistsAtPath:path])
+	if (![fm fileExistsAtPath:path isDirectory:&result])
 	{
 		BOOL recurse = args!=nil && [args count] > 0 ? [TiUtils boolValue:[args objectAtIndex:0]] : NO;
 		result = [fm createDirectoryAtPath:path withIntermediateDirectories:recurse attributes:nil error:nil];
