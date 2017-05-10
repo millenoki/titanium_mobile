@@ -77,7 +77,9 @@
         }];
         return;
     }
+    [child retain];
     [self childRemoved:child wasChild:YES shouldDetach:YES];
+    [child release];
 }
 
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
