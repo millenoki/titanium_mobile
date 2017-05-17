@@ -508,6 +508,7 @@ public class TiUIText extends TiUINonViewGroupView
         case TiC.PROPERTY_ELLIPSIZE:
             getEditText().setEllipsize(TiConvert.toBoolean(newValue)?TruncateAt.END:null);
             break;
+        case TiC.PROPERTY_HINT_TEXT_COLOR:
         case TiC.PROPERTY_HINT_COLOR:
             getEditText().setHintTextColor(TiConvert.toColor(newValue, Color.GRAY));
             break;
