@@ -198,6 +198,10 @@
     [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
+-(void)setText_:(id)value
+{
+    [self setTitle_:value];
+}
 //-(void)setBackgroundImage_:(id)value
 //{
 //    if (!configurationSet) {
