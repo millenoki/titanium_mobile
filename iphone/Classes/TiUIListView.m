@@ -167,12 +167,14 @@ static NSDictionary* replaceKeysForRow;
 }
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
 {
-    [theProxy setProxyObserver:self];
+    UIView* headerView = [theProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
+    CGRect frame = headerView.frame;
     if (header) {
-        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:[TiUtils appFrame]]];
+        [self.tableView setTableHeaderView:headerView];
     } else {
-        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:[TiUtils appFrame]]];
+        [self.tableView setTableFooterView:headerView];
     }
+    [theProxy setProxyObserver:self];
 }
 
 -(TiViewProxy*)getOrCreateHeaderHolder
@@ -181,12 +183,11 @@ static NSDictionary* replaceKeysForRow;
     if (!vp) {
         vp = (TiViewProxy*)[[self viewProxy] addObjectToHold:@{
                                                                @"layout":@"vertical",
-                                                               @"top":@(0),
                                                                @"touchPassThrough":@(YES),
                                                                @"width":@"FILL",
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
-        [vp setProxyObserver:self];
+        vp.canBeResizedByFrame = YES;
     }
     [self setHeaderFooter:vp isHeader:YES];
     return vp;
@@ -365,12 +366,10 @@ static NSDictionary* replaceKeysForRow;
         NSString* key = [keys objectAtIndex:0];
         if ([key isEqualToString:@"headerWrapper"] || [key isEqualToString:@"headerView"]) {
             UIView* headerView = [[self tableView] tableHeaderView];
-            [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
             [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         } else if ([key isEqualToString:@"footerView"]) {
             UIView* footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
             [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         }
