@@ -1209,11 +1209,11 @@ SEL GetterForKrollProperty(NSString * key)
     CGFloat suggestedHeight = size.height;
 //    BOOL followsFillWBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
     
-    CGFloat offsetx = TiDimensionCalculateValue(layoutProperties.left, size.width)
-    + TiDimensionCalculateValue(layoutProperties.right, size.width);
-    
-    CGFloat offsety = TiDimensionCalculateValue(layoutProperties.top, size.height)
-    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
+//    CGFloat offsetx = TiDimensionCalculateValue(layoutProperties.left, size.width)
+//    + TiDimensionCalculateValue(layoutProperties.right, size.width);
+//    
+//    CGFloat offsety = TiDimensionCalculateValue(layoutProperties.top, size.height)
+//    + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
     
     CGSize result = CGSizeZero;
     
@@ -1224,7 +1224,7 @@ SEL GetterForKrollProperty(NSString * key)
     else if (TiDimensionIsAutoFill(layoutProperties.width))
     {
         result.width = size.width;
-        result.width -= offsetx;
+//        result.width -= offsetx;
     }
     else if (TiDimensionIsUndefined(layoutProperties.width))
     {
@@ -1239,11 +1239,11 @@ SEL GetterForKrollProperty(NSString * key)
         }
         else {
             result.width = size.width;
-            result.width -= offsetx;
+//            result.width -= offsetx;
         }
     } else {
         result.width = size.width;
-        result.width -= offsetx;
+//        result.width -= offsetx;
     }
     
     if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height))        {
@@ -1252,7 +1252,7 @@ SEL GetterForKrollProperty(NSString * key)
     else if (TiDimensionIsAutoFill(layoutProperties.height))
     {
         result.height = size.height;
-        result.height -= offsety;
+//        result.height -= offsety;
     }
     else if (TiDimensionIsUndefined(layoutProperties.height))
     {
@@ -1267,11 +1267,11 @@ SEL GetterForKrollProperty(NSString * key)
         }
         else{
             result.height = size.height;
-            result.height -= offsety;
+//            result.height -= offsety;
         }
     } else {
         result.height = size.height;
-        result.height -= offsety;
+//        result.height -= offsety;
     }
     result = minmaxSize(&layoutProperties, result, size);
     return result;
@@ -1286,6 +1286,8 @@ SEL GetterForKrollProperty(NSString * key)
     CGFloat offsety = TiDimensionCalculateValue(layoutProperties.top, size.height)
     + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
     
+    size.width -= offsetx;
+    size.height -= offsety;
     CGSize result = [self minimumParentSizeForSizeNoPadding:size];
     result.width += offsetx;
     result.height += offsety;
