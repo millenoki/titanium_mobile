@@ -259,7 +259,10 @@ public class TiUISlider extends TiUIView
 			}
 		}
 		LayerDrawable ld = null;
-		if(rightDrawable == null) {
+		if (rightDrawable == null && leftDrawable == null) {
+		    
+		}
+		else if(rightDrawable == null ) {
 			Drawable[] lda = {new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)};
 			ld = new LayerDrawable(lda);
 			ld.setId(0, android.R.id.progress);
