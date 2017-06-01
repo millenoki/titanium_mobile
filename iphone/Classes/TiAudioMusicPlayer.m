@@ -90,7 +90,6 @@
 					   subreason:nil
 						location:CODELOCATION];
             
-			return;
 		}
 
 		[items addObject:[query.items firstObject]];

@@ -168,7 +168,6 @@ static NSDictionary* replaceKeysForRow;
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
 {
     UIView* headerView = [theProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
-    CGRect frame = headerView.frame;
     if (header) {
         [self.tableView setTableHeaderView:headerView];
     } else {

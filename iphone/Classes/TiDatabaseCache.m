@@ -151,6 +151,7 @@
     _writeQueueLock = nil;
     [_queue release];
     _queue = nil;
+    RELEASE_TO_NIL(_databasePath)
     [super dealloc];
 }
 

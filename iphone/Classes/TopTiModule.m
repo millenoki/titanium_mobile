@@ -238,7 +238,7 @@
 
 -(NSDictionary*)prepareErrorArgs:(NSDictionary*)args
 {
-    id test = [self valueForUndefinedKey:@"prepareError"];
+//    id test = [self valueForUndefinedKey:@"prepareError"];
     if (_prepareErrorHandler) {
         return [_prepareErrorHandler call:@[args] thisObject:self];
     }

@@ -305,7 +305,7 @@ DEFINE_EXCEPTIONS
 }
 
 #ifdef TI_USE_KROLL_THREAD
--(void)listenerAdded:(NSString *)type count:(int)count
+-(void)listenerAdded:(NSString *)type count:(NSInteger)count
 {
     if (count == 1 && [type isEqualToString:@"load"]) {
         NSString *loadEventState = [(TiUIImageViewProxy*)[self proxy] loadEventState];

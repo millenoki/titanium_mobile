@@ -41,6 +41,7 @@
     RELEASE_TO_NIL_AUTORELEASE(current);
     RELEASE_TO_NIL(_defaultTransition);
     RELEASE_TO_NIL(popRecognizer);
+    RELEASE_TO_NIL(onstackchange);
 	[super dealloc];
 }
 

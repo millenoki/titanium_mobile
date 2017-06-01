@@ -15,7 +15,8 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(textStyle);
+    RELEASE_TO_NIL(textStyle);
+    RELEASE_TO_NIL(_weight);
 	RELEASE_TO_NIL(font);
 	RELEASE_TO_NIL(family);
 	[super dealloc];

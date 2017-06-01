@@ -203,6 +203,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @synthesize lastLocation;
 
+-(void)dealloc
+{
+    RELEASE_TO_NIL(lastLocation);
+    [super dealloc];
+}
+
 #pragma mark Internal
 
 // TODO: Do we need to force this onto the main thread?

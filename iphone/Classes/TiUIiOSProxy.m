@@ -656,7 +656,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
         return nil;
     }
     
-    TiBlob *image = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge] autorelease];
+    TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
     
     return [image autorelease];
 }

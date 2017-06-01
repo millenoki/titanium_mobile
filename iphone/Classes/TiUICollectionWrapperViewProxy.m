@@ -135,6 +135,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     RELEASE_TO_NIL(_currentValues)
     RELEASE_TO_NIL(_resetKeys)
     RELEASE_TO_NIL(_indexPath)
+    RELEASE_TO_NIL(_wrapperView)
 //    RELEASE_TO_NIL(_bindings)
     RELEASE_TO_NIL(_templateProperties)
     [super dealloc];

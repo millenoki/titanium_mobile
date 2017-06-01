@@ -170,7 +170,7 @@
     
     RELEASE_TO_NIL(imageURL);
 #ifdef TI_USE_KROLL_THREAD
-    RELEASE_TO_NIL(loadEventState);
+//    RELEASE_TO_NIL(loadEventState);
 #endif
     [super dealloc];
 }

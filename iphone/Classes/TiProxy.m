@@ -522,6 +522,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	[self _destroy];
 	pthread_rwlock_destroy(&listenerLock);
 	pthread_rwlock_destroy(&dynpropsLock);
+    RELEASE_TO_NIL(bindId);
 	[super dealloc];
 }
 
@@ -1096,7 +1097,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     if((bubbleObject != nil) && ([params count]==1)){
         params = nil; //No need to propagate when we already have this information
     }
-    [self fireEvent:type withObject:params withSource:self propagate:bubble reportSuccess:NO errorCode:0 message:nil];
+    [self fireEvent:type withObject:params withSource:self propagate:bubble reportSuccess:NO errorCode:0 message:nil checkForListener:!bubble];
 }
 
 -(void)emit:(id)args

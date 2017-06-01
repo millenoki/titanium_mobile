@@ -169,8 +169,6 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
     BOOL animated = YES;
     
     [[TiApp app] hideModalController:composer animated:animated];
-    [composer autorelease];
-    composer = nil;
     if ([self _hasListeners:@"complete"])
     {
         if (error) {
@@ -185,6 +183,7 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
         
     }
     [self forgetSelf];
+    [composer autorelease];
     [self autorelease];
 }
 

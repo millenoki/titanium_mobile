@@ -36,7 +36,7 @@
 
 -(void)previewingContext:(id<UIViewControllerPreviewing>)previewingContext commitViewController:(UIViewController *)viewControllerToCommit
 {
-    NSMutableDictionary * propertiesDict = [[[NSMutableDictionary alloc] initWithDictionary:[self listViewEvent]] autorelease];
+    NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:[self listViewEvent]];
     [propertiesDict setObject:_previewContext.preview forKey:@"preview"];
     [[self previewContext] fireEvent:@"pop" withObject:propertiesDict];
     [propertiesDict release];
@@ -63,7 +63,7 @@
         [[self previewContext] fireEvent:@"peek" withObject:@{@"preview": [[self previewContext] preview]}];
     }
     
-    TiViewController *controller = [[[TiViewController alloc] initWithViewProxy:[[self previewContext] preview]] autorelease];
+    TiViewController *controller = [[TiViewController alloc] initWithViewProxy:[[self previewContext] preview]];
     [[[[self previewContext] preview] view] setFrame:[[controller view] bounds]];
     [[controller view] addSubview:[[[self previewContext] preview] view]];
     

@@ -175,6 +175,9 @@ typedef enum {
 }
 
 -(void)dealloc {
+    RELEASE_TO_NIL(_queue)
+    RELEASE_TO_NIL(_originalQueue)
+    RELEASE_TO_NIL(_nowPlayingItem)
     [super dealloc];
 }
 

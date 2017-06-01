@@ -39,7 +39,15 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(m_tiViewProxy);
+    RELEASE_TO_NIL(m_tiViewProxy);
+    RELEASE_TO_NIL(_zIndex);
+    RELEASE_TO_NIL(_color);
+    RELEASE_TO_NIL(_backgroundColor);
+    RELEASE_TO_NIL(_opacity);
+    RELEASE_TO_NIL(_opaque);
+    RELEASE_TO_NIL(_visible);
+    RELEASE_TO_NIL(_transform);
+    RELEASE_TO_NIL(_center);
     [super dealloc];
 }
 

@@ -31,6 +31,12 @@
     BOOL _insideScrollView;
 }
 
+- (void)dealloc {
+    RELEASE_TO_NIL(_placeholder)
+    [super dealloc];
+}
+
+
 -(id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame]) {

@@ -160,6 +160,10 @@
     observer = arg;
 }
 
+-(id)proxyObserver {
+    return observer;
+}
+
 -(void)processTempProperties:(NSDictionary*)arg
 {
     //arg will be non nil when called from updateLayout
@@ -738,7 +742,7 @@ SEL GetterForKrollProperty(NSString * key)
     }
     scale *= [TiUtils screenScale];
     UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], scale);
-    float oldOpacity = myview.alpha;
+//    float oldOpacity = myview.alpha;
 //    myview.alpha = 1;
     [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
 //    myview.alpha = oldOpacity;
@@ -2252,7 +2256,12 @@ SEL GetterForKrollProperty(NSString * key)
 		[view removeFromSuperview];
 		view.proxy = nil;
         view.touchDelegate = nil;
-		RELEASE_TO_NIL(view);
+        [_holdedProxies enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if (IS_OF_CLASS(obj, TiViewProxy) && [obj proxyObserver] == view ) {
+                [obj setProxyObserver:nil];
+            }
+        }];
+        RELEASE_TO_NIL(view)
 		[self viewDidDetach];
 	}
     if (self.modelDelegate!=nil)
@@ -3228,7 +3237,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             repositioning = NO;
             return NO;
         }
-        ENSURE_UI_THREAD_0_ARGS
+//        ENSURE_UI_THREAD_0_ARGS
         OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
         repositioning = YES;
         

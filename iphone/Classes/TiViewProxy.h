@@ -131,6 +131,7 @@ enum
 -(void)setTempProperty:(id)propVal forKey:(id)propName;
 -(void)processTempProperties:(NSDictionary*)arg;
 -(void)setProxyObserver:(id)arg;
+-(id)proxyObserver;
 
 /**
  Tells the view proxy to set visibility on a child proxy to _YES_.

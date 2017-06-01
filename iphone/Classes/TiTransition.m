@@ -62,10 +62,10 @@
 
 -(void)dealloc
 {
-    [super dealloc];
     RELEASE_TO_NIL(_inAnimation);
     RELEASE_TO_NIL(_outAnimation);
     RELEASE_TO_NIL(_adTransition);
+    [super dealloc];
 }
 - (id)initWithADTransition:(ADTransition*)transition
 {

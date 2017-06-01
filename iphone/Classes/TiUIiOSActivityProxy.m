@@ -24,6 +24,17 @@
 	return [[[TiUIiOSActivityProxy alloc] _initWithPageContext:context] autorelease];
 }
 
+-(void) dealloc
+{
+    RELEASE_TO_NIL(_category)
+    RELEASE_TO_NIL(_type)
+    RELEASE_TO_NIL(_image)
+    RELEASE_TO_NIL(_title)
+    RELEASE_TO_NIL(_onPerformActivity)
+    [super dealloc];
+    
+}
+
 -(UIImage*)imageOrDefault
 {
     if (_image) {

@@ -62,11 +62,11 @@
 
 - (void)dealloc
 {
-    [super dealloc];
     [_cachedObject release];
     [_cacheKey release];
     [_key release];
     [_timestamp release];
+    [super dealloc];
 }
 
 
