@@ -4706,6 +4706,9 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
     });
 
     this.modules.forEach(function (module) {
+        if (!module.jarFile) {
+            return;
+        }
         var filename = path.basename(module.jarFile);
         if (fs.existsSync(module.jarFile)) {
             var jarHash = this.hash(fs.readFileSync(module.jarFile).toString());
