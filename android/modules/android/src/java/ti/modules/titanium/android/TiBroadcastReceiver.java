@@ -47,7 +47,7 @@ public class TiBroadcastReceiver extends BroadcastReceiver
 		} else if (callback != null) {
 			KrollDict event = new KrollDict();
 			event.put(TiC.EVENT_PROPERTY_INTENT, new IntentProxy(intent));
-			callback.call(proxy.getKrollObject(), new Object[] { event });
+			callback.callAsync(proxy.getKrollObject(), new Object[] { event });
 		}
 	}
 
