@@ -99,7 +99,7 @@ public class TextFieldProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public KrollDict getSelection()
 	{
 		TiUIView v = peekView();
