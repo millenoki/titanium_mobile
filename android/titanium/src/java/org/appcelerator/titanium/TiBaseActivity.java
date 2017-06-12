@@ -60,6 +60,7 @@ import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -1791,8 +1792,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	            new OnGlobalLayoutListener() {
 	                @Override
 	                public void onGlobalLayout() {
-	                   layout.getViewTreeObserver()
-	                                .removeOnGlobalLayoutListener(this);
+	                    if (TiC.JELLY_BEAN_OR_GREATER) {
+                            layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+	                    } else {
+                            layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+	                    }
 	                   windowStack.peek().onWindowFocusChange(true);
 	                }
 	            });
