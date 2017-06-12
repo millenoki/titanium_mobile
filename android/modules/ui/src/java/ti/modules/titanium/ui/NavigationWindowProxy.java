@@ -25,6 +25,7 @@ import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
 import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy.State;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -784,7 +785,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 
 	@Override
 	public boolean handleClose(TiWindowProxy proxy, Object arg) {
-		if (pushing || poping) return true;
+		if (pushing || poping || state == State.CLOSED || state == State.CLOSING ) return true;
 		poping = true;
 		if (TiApplication.isUIThread()) {
 			return handlePop(proxy, arg);
