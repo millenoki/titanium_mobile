@@ -200,6 +200,20 @@ public class ActivityProxy extends KrollProxy
 			activity.sendBroadcast(intent.getIntent());
 		}
 	}
+	
+
+    @Kroll.method
+    public void sendStickyBroadcast(Object intentValue)
+    {
+        IntentProxy intent = IntentProxy.fromObject(intentValue);
+        if (intent == null) { 
+            return;
+        }
+        Activity activity = getWrappedActivity();
+        if (activity != null) {
+            activity.sendStickyBroadcast(intent.getIntent());
+        }
+    }
 
 	@Kroll.method
 	public void sendBroadcastWithPermission(Object intentValue, @Kroll.argument(optional = true) String receiverPermission)
