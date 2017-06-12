@@ -1,21 +1,14 @@
 package ti.modules.titanium.platform;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
 import android.content.Context;
-//import android.os.PowerManager;
-//import android.os.PowerManager.WakeLock;
-//import android.app.KeyguardManager;
-//import android.app.KeyguardManager.KeyguardLock;
-//import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
