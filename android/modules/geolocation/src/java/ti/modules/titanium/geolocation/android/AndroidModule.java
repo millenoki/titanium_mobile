@@ -390,5 +390,12 @@ public class AndroidModule extends KrollModule
     {
         return tiLocation.getProviderState(provider);
     }
+	
+	   
+    @Kroll.method
+    public boolean isProviderEnabled(String name)
+    {
+        return tiLocation.isProviderEnabled(name);
+    }
 }
 

@@ -108,6 +108,11 @@ public class TiLocation implements Handler.Callback
             return LocationProviderProxy.STATE_DISABLED;
         }
     }
+	
+	public boolean isProviderEnabled(String name)
+    {
+	    return locationManager.isProviderEnabled(name);
+    }
 
 	public boolean getLocationServicesEnabled()
 	{
