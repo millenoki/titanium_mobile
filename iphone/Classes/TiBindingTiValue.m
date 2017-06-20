@@ -299,12 +299,14 @@ TiValueRef TiBindingTiValueFromNSObject(TiContextRef jsContext, NSObject * obj)
 	if ([obj isKindOfClass:[NSArray class]])
 	{
 		size_t count = [(NSArray *)obj count];
-		TiValueRef args[count];
+        NSMutableArray* data = [obj mutableCopy];
+        TiObjectRef res = TiObjectMakeArray(jsContext, 0, NULL, NULL);
 		int i=0;
-		for (id thisObject in (NSArray *)obj) {
-			args[i++]=TiBindingTiValueFromNSObject(jsContext, thisObject);
+        TiValueRef exception = NULL;
+		for (id thisObject in (NSArray *)data) {
+            TiObjectSetPropertyAtIndex(jsContext, res, i++, TiBindingTiValueFromNSObject(jsContext, thisObject), &exception);
 		}
-		return TiObjectMakeArray(jsContext, count, args, NULL);
+		return res;
 	}
 	if ([obj isKindOfClass:[NSDictionary class]])
 	{
