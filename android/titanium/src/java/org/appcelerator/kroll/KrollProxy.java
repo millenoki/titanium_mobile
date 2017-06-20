@@ -516,7 +516,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				} else {
 					((TiWindowProxy) lifecycleProxy).addProxyWaitingForActivity(this);
 				}
-			} else {
+			} else if (lifecycleProxy instanceof ActivityProxy) {
+                    attachActivityLifecycle(lifecycleProxy.getActivity());
+            } else {
 				Log.e(TAG, TiC.PROPERTY_LIFECYCLE_CONTAINER + " must be a WindowProxy or TabGroupProxy (TiWindowProxy)");
 			}
 		}
