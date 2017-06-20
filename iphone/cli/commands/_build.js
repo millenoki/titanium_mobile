@@ -1330,10 +1330,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				// cli.argv['force-copy-all'] = this.buildManifest.forceCopyAll;
 			} else {
 				// we are being build from Xcode
-				// cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : 'device';
-				// cli.argv['deploy-type'] = process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test';
-				// cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '');
-				// cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '');
+				cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : 'device';
+				cli.argv['deploy-type'] = process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test';
+				cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '');
+				cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '');
 
 			}
 			cli.argv['skip-js-minify'] = true; // never minify Xcode builds
