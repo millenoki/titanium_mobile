@@ -596,7 +596,7 @@ static NSDictionary* replaceKeysForRow;
 {
     NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
     id propertiesValue = [item objectForKey:@"properties"];
-    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : item;
     NSString* replaceKey = [self replacedKeyForKey:key];
     id theValue = [properties objectForKey:replaceKey];
     if (theValue == nil) {

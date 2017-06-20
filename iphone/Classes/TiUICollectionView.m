@@ -590,7 +590,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
 {
     NSDictionary *item = [[self.listViewProxy sectionForIndex:sectionIndex] valueForKey:location];
     id propertiesValue = [item objectForKey:@"properties"];
-    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : item;
     id theValue = [properties objectForKey:key];
     if (theValue == nil) {
         id templateId = [item objectForKey:@"template"];
