@@ -973,9 +973,9 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     
 	// make sure path doesn't begin with ., .., or /
 	// Can't be a "core" module then
-//	if ([path hasPrefix:@"/"] || [path hasPrefix:@"."]) {
-//		return nil;
-//	}
+	if ([path hasPrefix:@"."]) {
+		return nil;
+	}
 
 	// moduleId then is the first path component
     NSArray* components = [self fullPathAndModuleID:path];
