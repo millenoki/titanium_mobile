@@ -162,6 +162,7 @@
 
 -(void)handleContentSize
 {
+    ENSURE_UI_THREAD_0_ARGS
  #ifndef TI_USE_AUTOLAYOUT
    if (!needsHandleContentSize) {
         return;
