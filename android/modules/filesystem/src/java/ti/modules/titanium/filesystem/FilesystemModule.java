@@ -91,6 +91,9 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	public FileProxy getFile(KrollInvocation invocation, Object[] parts)
 	{
+	    if (parts.length == 0) {
+	        return null;
+	    }
 		//If directory doesn't exist, return
 		if (parts[0] == null) {
 		    Log.w(TAG, "A null directory was passed. Returning null.");
