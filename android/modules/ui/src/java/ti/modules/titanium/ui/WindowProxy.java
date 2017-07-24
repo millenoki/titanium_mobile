@@ -555,9 +555,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 	
 	@Override
-	public void setActivity(Activity activity)
+	public void setActivity(final Activity activity)
 	{
+	    if (!TiApplication.isUIThread()) {
+	        activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setActivity(activity);
+                }
+            });
+            return;
+        }
 		windowActivity = new WeakReference<TiBaseActivity>((TiBaseActivity) activity);
+		
 		super.setActivity(activity);
 		if (activity == null) return;
 		if (!hasProperty(TiC.PROPERTY_FULLSCREEN)) {
