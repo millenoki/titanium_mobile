@@ -33,6 +33,7 @@ import org.appcelerator.titanium.animation.TiViewAnimator;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -1112,7 +1113,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 if (props != null) {
                     applyPropertiesNoSave(props, true, true);
                 }
-                return TiUIHelper.viewToBitmap(view.getLayoutParams(), viewForScreenshot());
+                Bitmap result = TiUIHelper.viewToBitmap(view.getLayoutParams(), viewForScreenshot());
+                if (scale != 1) {
+                    result = TiImageHelper.imageScaled(result, scale);
+                }
+                return result;
             }
         });
 	}
