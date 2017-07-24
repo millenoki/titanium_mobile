@@ -6358,23 +6358,24 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											exists && fs.unlinkSync(to);
 											fs.writeFileSync(to, r.contents);
 											this.jsFilesChanged = true;
-											if (r.map) {
+											var rMap  = r.map || transformed.map;
+											if (rMap) {
 
 												//we remove sourcesContent as it is big and not really usefull
-												delete r.map.sourcesContent;
+												delete rMap.sourcesContent;
 
 												// fix file 
-												r.map.file = file
-												if (r.map.sources) {
+												rMap.file = file
+												if (rMap.sources) {
 													var relToBuild = path.relative(path.dirname(from), path.join(this.projectDir, 'Resources')) + '/';
-													r.map.sources = r.map.sources.map(function(value) {
+													rMap.sources = rMap.sources.map(function(value) {
 														if (value.indexOf(relToBuild) != -1) {
 															return value.replace(relToBuild, '');
 														}
 														return value;
 													});
 												}
-												fs.writeFileSync(info.destSourceMap, JSON.stringify(r.map));
+												fs.writeFileSync(info.destSourceMap, JSON.stringify(rMap));
 												if (this.encryptJS) {
                                                   	this.jsFilesToEncrypt.push(path.relative(info.destSourceMap, this.buildAssetsDir));
 												}
