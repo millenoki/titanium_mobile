@@ -293,6 +293,23 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return image;
 }
 
+-(void)releaseImage {
+    switch(type)
+    {
+        case TiBlobTypeFile:
+        case TiBlobTypeData:
+        {
+            if (image != nil) {
+                RELEASE_TO_NIL(image)
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
 -(id)representedObject
 {
     if ([mimetype isEqualToString:MIMETYPE_PNG] ||

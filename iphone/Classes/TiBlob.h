@@ -169,4 +169,5 @@ typedef enum {
 -(void)setInfo:(NSDictionary*)info;
 -(void)addInfo:(NSDictionary*)info;
 -(NSDictionary*)info;
+-(void)releaseImage;
 @end
