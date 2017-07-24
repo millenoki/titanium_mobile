@@ -15,6 +15,8 @@
 #import "SLColorArt.h"
 #import "UIImage+UserInfo.h"
 #import "UIImage+ImageEffects.h"
+#import "ImageLoader.h"
+#import "TiSVGImage.h"
 
 
 @implementation TiImageHelper
@@ -163,6 +165,35 @@
     }
     
     image.info = info;
+    return image;
+}
+
++(id)convertToUIImage:(id)arg withProxy:(TiProxy*)proxy
+{
+    id image = nil;
+    UIImage* imageToUse = nil;
+    
+    if ([arg isKindOfClass:[NSString class]]) {
+        NSURL *url_ = [TiUtils toURL:arg proxy:proxy];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+    }
+    else if ([arg isKindOfClass:[TiBlob class]]) {
+        TiBlob *blob = (TiBlob*)arg;
+        image = [blob image];
+    }
+    else if ([arg isKindOfClass:[TiFile class]]) {
+        TiFile *file = (TiFile*)arg;
+        NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
+    }
+    else if ([arg isKindOfClass:[UIImage class]]) {
+        // called within this class
+        image = (UIImage*)arg;
+    }
+    else if ([arg isKindOfClass:[TiSVGImage class]]) {
+        // called within this class
+        image = (TiSVGImage*)arg;
+    }
     return image;
 }
 @end

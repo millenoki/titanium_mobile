@@ -6,6 +6,7 @@
 //
 //
 
+#import "TiProxy.h"
 typedef NS_ENUM(NSInteger, TiImageHelperFilterType) {
     TiImageHelperFilterBoxBlur,
     TiImageHelperFilterGaussianBlur,
@@ -20,4 +21,5 @@ typedef NS_ENUM(NSInteger, TiImageHelperFilterType) {
 +(UIImage*)getFilteredImage:(UIImage*)inputImage withFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options;
 +(id)imageFiltered:(UIImage*)image withOptions:(NSDictionary*)options;
 +(UIImage*)tintedImage:(UIImage*)source withColor:(UIColor*)color blendMode:(CGBlendMode)mode;
++(id)convertToUIImage:(id)arg withProxy:(TiProxy*)proxy;
 @end

@@ -686,28 +686,7 @@ DEFINE_EXCEPTIONS
 
 -(id)convertToUIImage:(id)arg
 {
-    id image = nil;
-    UIImage* imageToUse = nil;
-    
-    if ([arg isKindOfClass:[TiBlob class]]) {
-        TiBlob *blob = (TiBlob*)arg;
-        image = [blob image];
-    }
-    else if ([arg isKindOfClass:[TiFile class]]) {
-        TiFile *file = (TiFile*)arg;
-        NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
-    }
-    else if ([arg isKindOfClass:[UIImage class]]) {
-        // called within this class
-        image = (UIImage*)arg;
-    }
-    else if ([arg isKindOfClass:[TiSVGImage class]]) {
-        _svg = [arg retain];
-        // called within this class
-        image = (TiSVGImage*)arg;
-    }
-    return image;
+    return [TiImageHelper convertToUIImage:arg withProxy:self.proxy];
 }
 #pragma mark Public APIs
 

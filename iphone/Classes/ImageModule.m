@@ -78,34 +78,6 @@ typedef UIImage* (^ProcessImageBlock) ();
     }
 }
 
--(id)convertToUIImage:(id)arg
-{
-    id image = nil;
-    UIImage* imageToUse = nil;
-    
-    if ([arg isKindOfClass:[NSString class]]) {
-        NSURL *url_ = [TiUtils toURL:arg proxy:self];
-        image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
-    }
-    else if ([arg isKindOfClass:[TiBlob class]]) {
-        TiBlob *blob = (TiBlob*)arg;
-        image = [blob image];
-    }
-    else if ([arg isKindOfClass:[TiFile class]]) {
-        TiFile *file = (TiFile*)arg;
-        NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
-        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
-    }
-    else if ([arg isKindOfClass:[UIImage class]]) {
-        // called within this class
-        image = (UIImage*)arg;
-    }
-    else if ([arg isKindOfClass:[TiSVGImage class]]) {
-        // called within this class
-        image = [(TiSVGImage*)arg fullImage];
-    }
-    return image;
-}
 
 -(id)getFilteredImage:(id)args
 {
@@ -119,7 +91,7 @@ typedef UIImage* (^ProcessImageBlock) ();
 //        return nil;
 //    }
     return [self processImage:^UIImage *{
-        return [self convertToUIImage:imageArg];
+        return [TiImageHelper convertToUIImage:imageArg withProxy:self];
     } withOptions:options];
 }
 
