@@ -27,7 +27,7 @@ methods:
     parameters:
       - name: Array
         summary: Array of Titanium.App.iOS.SearchableItem objects to be added to the default search index.
-        type: Array<Titanium.App.iOS.SearchableItem>
+        type: Array<Titanium.App.iOS.SearchableItem | Dictionary<Titanium.App.iOS.SearchableItem>>
       - name: callback
         summary: Function to invoke on success or failure of adding the array Titanium.App.iOS.SearchableItem object to the default search index.
         type: Callback<Dictionary>

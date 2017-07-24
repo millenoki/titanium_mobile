@@ -741,7 +741,7 @@ properties:
 
   - name: sections
     summary: Sections of this list.
-    type: Array<Titanium.UI.ListSection | Dictionary<Object>>
+    type: Array<Titanium.UI.ListSection | Dictionary<Titanium.UI.ListSection>>
 
   - name: defaultItemTemplate
     summary: Sets the default template for list data items that do not specify the `template` property.
@@ -778,7 +778,7 @@ properties:
     description: |
         In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
         element (see Examples). On Android, this is a creation only property.
-    type: Titanium.UI.View
+    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -801,7 +801,7 @@ properties:
         In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListView>`
         element (see Examples).
 
-    type: Titanium.UI.View
+    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -833,7 +833,7 @@ properties:
             </Alloy>
 
         See the code example on `pullView` to  see how it may be utilized.
-    type: Titanium.UI.View
+    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
     platforms: [iphone, ipad]
     since: 3.2.0
 
@@ -867,7 +867,7 @@ properties:
                 </ListView>
             </Alloy>
 
-    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
+    type: Titanium.UI.SearchBar | Titanium.UI.SearchView | Dictionary<Titanium.UI.SearchBar> | Dictionary<Titanium.UI.SearchView>
     platforms: [android, iphone, ipad]
     since: 3.2.0
 
@@ -1219,6 +1219,112 @@ methods:
         type: Number
     platforms: [ipad,iphone]
 
+  - name: updateItemAt
+    summary: |
+        Updates an item at the specified index.
+    description: |
+        On iOS, the list item can be updated with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Section index of where to update the item.
+        type: Number
+      - name: index
+        summary: Index of where to update the item.
+        type: Number
+
+      - name: dataItem
+        summary: List item to update.
+        type: ListDataItem
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
+  - name: deleteItemsAt
+    summary: Removes count entries from the list section at the specified index.
+    description: |
+        On iOS, the list item(s) can be removed with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Section index of where to update the item.
+        type: Number
+      - name: itemIndex
+        summary: Index of where to remove items.
+        type: Number
+
+      - name: count
+        summary: Number of items to remove.
+        type: Number
+
+      - name: animation
+        summary: Animation properties.
+        type: ListViewAnimationProperties
+        optional: true
+  - name: replaceItemsAt
+    summary: |
+        Removes count entries from the list section at the specified index,
+        then inserts data entries to the list section at the same index.
+    description: |
+        On iOS, the list item(s) can be replaced with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Section index of where to update the item.
+        type: Number
+      - name: index
+        summary: Index of where to remove then insert items.
+        type: Number
+
+      - name: count
+        summary: Number of list items to remove.
+        type: Number
+
+      - name: dataItems
+        summary: List items to insert.
+        type: Array<ListDataItem>
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+  - name: insertItemsAt
+    summary: Inserts data entries to the list section at the specified index.
+    description: |
+        On iOS, the list item(s) can be inserted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Section index of where to update the item.
+        type: Number
+      - name: itemIndex
+        summary: Index of where to insert the items.
+        type: Number
+
+      - name: dataItems
+        summary: List items to insert.
+        type: Array<ListDataItem>
+
+      - name: animation
+        type: ListViewAnimationProperties
+        summary: Animation properties. (iOS only.)
+        optional: true
+
+  - name: appendItems
+    summary: Appends the data entries to the end of the list section.
+    description: |
+        On iOS, the list item(s) can be inserted with an animation by specifying the `animation` parameter.
+    parameters:
+      - name: sectionIndex
+        summary: Section index of where to update the item.
+        type: Number
+      - name: dataItems
+        summary: List items to add.
+        type: Array<ListDataItem>
+
+      - name: animation
+        summary: Animation properties. (iOS only.)
+        type: ListViewAnimationProperties
+        optional: true
+
   - name: setContentInsets
     summary: Sets this list view's content insets.
     description: |
@@ -1273,6 +1379,10 @@ methods:
         type: ListViewMarkerProps
     platforms: [iphone, ipad, android]
     since: 4.1.0
+
+  - name: closeSwipeMenu
+    summary: close any open swipe menu
+    platforms: [iphone, ipad, android]
 
 examples:
   - title: List View Sections

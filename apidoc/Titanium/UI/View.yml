@@ -726,7 +726,7 @@ methods:
             View to add to this view's hierarchy.
 
             You may pass an array of views.
-        type: [Titanium.UI.View, Array<Titanium.UI.View>, Dictionary, Array<Dictionary>]
+        type: [Titanium.UI.View, Array<Titanium.UI.View>, Dictionary<Titanium.UI.View>, Array<Dictionary<Titanium.UI.View>>]
       - name: index
         summary: |
             Position in the [children](Titanium.UI.View.children) array to
@@ -1643,6 +1643,11 @@ properties:
     description: If false, will forward the events to peers.
     type: Boolean
     default: true
+        
+  - name: touchPassThrough
+    summary: Determines whether view should pass touch events to parent view.
+    type: Boolean
+    default: false
     
   - name: enabled
     summary: Determines whether the view is enabled or not.

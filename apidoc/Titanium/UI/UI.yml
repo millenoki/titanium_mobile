@@ -2268,7 +2268,10 @@ properties:
         windows.
     type: String
 
-    
+  - name: backgroundOpacity
+    summary: background opacity
+    type: Number
+
   - name: currentTab
     summary: The currently active tab, if a tab group is open.
     description: |

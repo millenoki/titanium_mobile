@@ -611,6 +611,7 @@ since: '3.1.0'
 properties:
   - name: template
     type: [String, Number]
+    optional: true
     summary: |
         Template ID configured with the <Titanium.UI.ListView.templates> property or
         <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT>.
