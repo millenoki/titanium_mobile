@@ -401,6 +401,7 @@ typedef enum
  @return The string-representation of the value.
  */
 +(NSString*)hexColorValue:(UIColor *)color;
++(NSString *)colorHexString:(UIColor *)color;
 
 +(id) hexColorFormat;
 +(BOOL) hexColorUsesRGBA;
