@@ -436,6 +436,26 @@ public class UIModule extends KrollModule implements Handler.Callback
     }
     
     @Kroll.method
+    @Kroll.getProperty(enumerable = false)
+    public Object currentWindow()
+    {
+        return getTopWindow();
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty(enumerable = false)
+    public Object currentTab()
+    {
+        return null;
+    }    
+    @Kroll.method
+    @Kroll.getProperty(enumerable = false)
+    public Object currentTabGroup()
+    {
+        return null;
+    }
+    
+    @Kroll.method
     public void showNotification(Object args) {
         if (args instanceof HashMap) {
             NotificationProxy proxy = (NotificationProxy) createProxy(NotificationProxy.class, null, new Object[] { args }, null);

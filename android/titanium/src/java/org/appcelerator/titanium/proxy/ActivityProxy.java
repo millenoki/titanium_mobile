@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -126,8 +127,17 @@ public class ActivityProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void startActivityForResult(Object intentValue, KrollFunction callback)
+	public void startActivityForResult(final Object intentValue, final KrollFunction callback)
 	{
+	    if (!TiApplication.isUIThread()) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    startActivityForResult(intentValue, callback);
+                }
+            }, true);
+            return;
+        }
 	    IntentProxy intent = IntentProxy.fromObject(intentValue);
         if (intent == null) { 
             return;

@@ -528,4 +528,15 @@ public class AndroidModule extends KrollModule
 	    intent.setType(type);
         return TiIntentHelper.queryIntentActivities(intent);
     }
+	
+	@Kroll.method
+    @Kroll.getProperty(enumerable = false)
+    public Object currentActivity()
+    {
+        Activity activity = TiApplication.getAppCurrentActivity();
+        if (activity instanceof TiBaseActivity) {
+            return ((TiBaseActivity)activity).getActivityProxy();
+        }
+        return null;
+    }
 }

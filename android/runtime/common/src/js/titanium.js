@@ -112,7 +112,7 @@ function TitaniumWrapper(context) {
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
 		module: context.module,
-		currentActivity: this.Android.currentActivity,
+//		currentActivity: this.Android.currentActivity,
 		currentService: this.Android.currentService
 	});
 	Titanium.bindInvocationAPIs(this, scopeVars);
@@ -121,30 +121,30 @@ TitaniumWrapper.prototype = Titanium;
 Titanium.Wrapper = TitaniumWrapper;
 
 function UIWrapper(context, Android) {
-	this.currentWindow = context.currentWindow;
-	this.currentTab = context.currentTab;
-	this.currentTabGroup = context.currentTabGroup;
+//	this.currentWindow = context.currentWindow;
+//	this.currentTab = context.currentTab;
+//	this.currentTabGroup = context.currentTabGroup;
 
-	if (!context.currentWindow && Android.currentActivity) {
-		this.currentWindow = Android.currentActivity.window;
-	}
+//	if (!context.currentWindow && Android.currentActivity) {
+//		this.currentWindow = Android.currentActivity.window;
+//	}
 }
 UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
-	this.currentActivity = context.currentActivity;
+//	this.currentActivity = context.currentActivity;
 	this.currentService = context.currentService;
-	var currentWindow = context.currentWindow;
+//	var currentWindow = context.currentWindow;
 
-	if (!this.currentActivity) {
-		var topActivity;
-		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
-			this.currentActivity = currentWindow.activity;
-
-		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-			this.currentActivity = topActivity;
-		}
-	}
+//	if (!this.currentActivity) {
+//		var topActivity;
+//		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
+//			this.currentActivity = currentWindow.activity;
+//
+//		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
+//			this.currentActivity = topActivity;
+//		}
+//	}
 }
 AndroidWrapper.prototype = Titanium.Android;
 
