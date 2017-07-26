@@ -546,7 +546,7 @@ public class TiFileHelper implements Handler.Callback
 				}
 			}
 		} catch (Exception e) {
-			Log.e(TAG, path + " not found.", e);
+			Log.e(TAG, path + " not found.");
 		} finally {
 			if (is != null) {
 				try {
