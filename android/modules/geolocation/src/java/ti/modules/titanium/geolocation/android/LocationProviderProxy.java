@@ -47,8 +47,8 @@ public class LocationProviderProxy extends KrollProxy
 
 	private static final String TAG = "LocationProviderProxy";
 
-	private final double defaultMinUpdateDistance = 0.0;
-	private final double defaultMinUpdateTime = 0;
+	public double defaultMinUpdateDistance = 0.0;
+	public double defaultMinUpdateTime = 0;
 
 	private LocationProviderListener providerListener;
 
@@ -73,8 +73,6 @@ public class LocationProviderProxy extends KrollProxy
 	{
 		super();
 
-		defaultValues.put(TiC.PROPERTY_MIN_UPDATE_DISTANCE, defaultMinUpdateDistance);
-		defaultValues.put(TiC.PROPERTY_MIN_UPDATE_TIME, defaultMinUpdateTime);
 		handleCreationArgs(null, creationArgs);
 
 		this.providerListener = providerListener;
@@ -97,8 +95,8 @@ public class LocationProviderProxy extends KrollProxy
 		super();
 
 		setProperty(TiC.PROPERTY_NAME, name);
-		setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, minUpdateDistance);
-		setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, minUpdateTime);
+		defaultMinUpdateDistance =  minUpdateDistance;
+		defaultMinUpdateTime = minUpdateTime;
 
 		this.providerListener = providerListener;
 	}

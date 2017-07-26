@@ -129,17 +129,17 @@ public class GeolocationModule extends KrollModule
 {
 	// TODO move these to the AndroidModule namespace since they will only be used when creating
 	// manual location providers
-	@Kroll.constant @Deprecated public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
-	@Kroll.constant @Deprecated public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
-	@Kroll.constant @Deprecated public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
+	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
 
 	@Kroll.constant public static final int ACCURACY_LOW = 0;
 	@Kroll.constant public static final int ACCURACY_HIGH = 1;
-	@Kroll.constant @Deprecated public static final int ACCURACY_BEST = 2;
-	@Kroll.constant @Deprecated public static final int ACCURACY_NEAREST_TEN_METERS = 3;
-	@Kroll.constant @Deprecated public static final int ACCURACY_HUNDRED_METERS = 4;
-	@Kroll.constant @Deprecated public static final int ACCURACY_KILOMETER = 5;
-	@Kroll.constant @Deprecated public static final int ACCURACY_THREE_KILOMETERS = 6;
+	@Kroll.constant public static final int ACCURACY_BEST = 2;
+	@Kroll.constant public static final int ACCURACY_NEAREST_TEN_METERS = 3;
+	@Kroll.constant public static final int ACCURACY_HUNDRED_METERS = 4;
+	@Kroll.constant public static final int ACCURACY_KILOMETER = 5;
+	@Kroll.constant public static final int ACCURACY_THREE_KILOMETERS = 6;
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
@@ -178,10 +178,11 @@ public class GeolocationModule extends KrollModule
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	@Deprecated private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
-	@Deprecated private int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
-	@Deprecated private double legacyLocationFrequency = 5000;
-	@Deprecated private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
+	private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
+	public int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
+    public double legacyLocationAccuracyLookupResult = 10.0;
+    public double legacyLocationFrequency = 5000;
+    private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
 
     private boolean currentlyEnabled = false;
     private boolean listeningForChanges = false;
@@ -223,7 +224,7 @@ public class GeolocationModule extends KrollModule
 		legacyLocationAccuracyMap.put(ACCURACY_KILOMETER, 1000.0);
 		legacyLocationAccuracyMap.put(ACCURACY_THREE_KILOMETERS, 3000.0);
 
-		legacyLocationProviders.put(PROVIDER_NETWORK, new LocationProviderProxy(PROVIDER_NETWORK, 10.0f, legacyLocationFrequency, this));
+		legacyLocationProviders.put(PROVIDER_NETWORK, new LocationProviderProxy(PROVIDER_NETWORK, legacyLocationAccuracyLookupResult, legacyLocationFrequency, this));
 
 		simpleLocationProviders.put(PROVIDER_NETWORK, new LocationProviderProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE, SIMPLE_LOCATION_NETWORK_TIME, this));
 		simpleLocationProviders.put(PROVIDER_PASSIVE, new LocationProviderProxy(PROVIDER_PASSIVE, SIMPLE_LOCATION_PASSIVE_DISTANCE, SIMPLE_LOCATION_PASSIVE_TIME, this));
@@ -396,10 +397,6 @@ public class GeolocationModule extends KrollModule
 	private void propertyChangedAccuracy(Object newValue)
 	{
 		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean legacyModeEnabled = false;
-		if (legacyModeActive && (!getManualMode()) && (numLocationListeners > 0)) {
-			legacyModeEnabled = true;
-		}
 
 		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean simpleModeEnabled = false;
@@ -415,23 +412,18 @@ public class GeolocationModule extends KrollModule
 			// has the value changed from the last known good value?
 			if (accuracyProperty != legacyLocationAccuracyProperty) {
 				legacyLocationAccuracyProperty = accuracyProperty;
+				legacyLocationAccuracyLookupResult = accuracyLookupResult;
 
 				for (String providerKey : legacyLocationProviders.keySet()) {
 					LocationProviderProxy locationProvider = legacyLocationProviders.get(providerKey);
-					locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_DISTANCE, accuracyLookupResult);
+					locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
 				}
-
-				if (legacyModeEnabled) {
-					enableLocationProviders(legacyLocationProviders);
-				}
+				
+				for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
+                    locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
+	            }
 			}
-
-			if (simpleModeEnabled) {
-				enableLocationProviders(legacyLocationProviders);
-			}
-
-			legacyModeActive = true;
-
+			enableLocationProviders();
 		// is this a simple accuracy property?
 		} else if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
 			// has the value changed from the last known good value?
@@ -444,11 +436,6 @@ public class GeolocationModule extends KrollModule
 					simpleLocationProviders.put(PROVIDER_GPS, gpsProvider);
 					simpleLocationRules.add(simpleLocationNetworkRule);
 					simpleLocationRules.add(simpleLocationGpsRule);
-
-					if (simpleModeEnabled) {
-						registerLocationProvider(gpsProvider);
-					}
-
 				} else if ((accuracyProperty == ACCURACY_LOW) && (gpsProvider != null)) {
 					simpleLocationProviders.remove(PROVIDER_GPS);
 					simpleLocationRules.remove(simpleLocationNetworkRule);
@@ -459,12 +446,8 @@ public class GeolocationModule extends KrollModule
 					}
 				}
 			}
-
-			if (legacyModeEnabled) {
-				enableLocationProviders(simpleLocationProviders);
-			}
-
 			legacyModeActive = false;
+            enableLocationProviders();
 		}
 	}
 
@@ -475,11 +458,6 @@ public class GeolocationModule extends KrollModule
 	 */
 	private void propertyChangedFrequency(Object newValue)
 	{
-		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-		boolean legacyModeEnabled = false;
-		if (legacyModeActive && !getManualMode() && (numLocationListeners > 0)) {
-			legacyModeEnabled = true;
-		}
 
 		double frequencyProperty = TiConvert.toDouble(newValue) * 1000;
 		if (frequencyProperty != legacyLocationFrequency) {
@@ -488,12 +466,14 @@ public class GeolocationModule extends KrollModule
 			Iterator<String> iterator = legacyLocationProviders.keySet().iterator();
 			while(iterator.hasNext()) {
 				LocationProviderProxy locationProvider = legacyLocationProviders.get(iterator.next());
-				locationProvider.setProperty(TiC.PROPERTY_MIN_UPDATE_TIME, legacyLocationFrequency);
+				locationProvider.defaultMinUpdateTime = legacyLocationFrequency;
 			}
+			
+			for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
+                locationProvider.defaultMinUpdateTime = legacyLocationFrequency;
+            }
 
-			if (legacyModeEnabled) {
-				enableLocationProviders(legacyLocationProviders);
-			}
+			enableLocationProviders();
 		}
 	}
 

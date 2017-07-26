@@ -27,7 +27,8 @@
 	},
 	"gmsDependencies":
 	{
-		"network": ["gcm"]
+		"network": ["gcm"],
+		"geolocation": ["base", "basement","location"]
 	},
 	"required": ["ui", "design", "android", "app", "locale", "analytics"],
 	"libraries": {
