@@ -867,7 +867,7 @@ properties:
                 </ListView>
             </Alloy>
 
-    type: Titanium.UI.SearchBar | Titanium.UI.SearchView | Dictionary<Titanium.UI.SearchBar> | Dictionary<Titanium.UI.SearchView>
+    type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView, Dictionary<Titanium.UI.SearchBar>, Dictionary<Titanium.UI.Android.SearchView>]
     platforms: [android, iphone, ipad]
     since: 3.2.0
 
