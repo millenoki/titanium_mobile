@@ -30,6 +30,7 @@ public class TiC
 	public static final int PERMISSION_CODE_LOCATION= 104;
 //	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
     public static final int PERMISSION_CODE_CALL= 106;
+    public static final int PERMISSION_CODE_GOOGLE_API_LOCATION= 107;
 
 
 	public static final String PERMISSION_CALENDAR = "calendar";
