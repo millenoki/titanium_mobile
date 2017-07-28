@@ -3456,6 +3456,14 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
             }
         }, this);
 
+        depMap.gms
+
+        depMap.gmsDependencies[namespace] && depMap.gmsDependencies[namespace].forEach(function (keep) {
+            if (googlePlayServicesKeep.indexOf(keep) == -1) {
+                googlePlayServicesKeep.push(keep);
+            }
+            this.needsGooglePlayServices = true;
+        }, this);
         depMap.dependencies[namespace] && depMap.dependencies[namespace].forEach(addTitaniumLibrary, this);
     }
 
