@@ -15,6 +15,7 @@
 #import "TiSVGImage.h"
 #import "UIImage+UserInfo.h"
 #import "NSDictionary+Merge.h"
+#import "TiImageHelper.h"
 
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
@@ -292,8 +293,11 @@
         }
         if (value != nil)
         {
-            NSURL* url = [self sanitizeURL:value];
-            UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url withSize:[self imageSize]];
+            UIImage *image = [TiImageHelper convertToUIImage:value withProxy:self];
+            if (image == nil) {
+                NSURL* url = [self sanitizeURL:value];
+                image = [[ImageLoader sharedLoader] loadImmediateImage:url withSize:[self imageSize]];
+            }
             if (image) {
                 CGSize result = CGSizeZero;
                 UIImage* imageToUse = nil;
