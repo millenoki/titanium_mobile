@@ -7,6 +7,7 @@
 package ti.modules.titanium.network;
  
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -54,11 +55,19 @@ public class TiNetworkListener {
             	Log.w(TAG, "Network receiver is active but no handler has been set.");
             	return;
             }
+            NetworkInfo networkInfo = null;
  
-           boolean noConnectivity =
-            	intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-            NetworkInfo networkInfo = (NetworkInfo)
-            	intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+            ConnectivityManager cm = (ConnectivityManager) TiApplication
+                    .getAppSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm != null) {
+                networkInfo = cm.getActiveNetworkInfo();
+            }
+            if  (networkInfo == null) {
+                networkInfo = (NetworkInfo)
+                        intent.getParcelableExtra(ConnectivityManager.EXTRA_NETWORK_INFO);
+            }
+            boolean noConnectivity =
+                    intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
             NetworkInfo otherNetworkInfo = (NetworkInfo)
                 intent.getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);
  
