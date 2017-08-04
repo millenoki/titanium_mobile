@@ -988,6 +988,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	/**
 	 * @return number of entries within section
 	 */
+    @Kroll.method
+    @Kroll.getProperty(enumerable=false)
     public int getItemCount() {
 		return mCurrentItemCount;
 	}

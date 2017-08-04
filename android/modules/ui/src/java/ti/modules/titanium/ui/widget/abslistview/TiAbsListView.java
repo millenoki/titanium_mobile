@@ -861,6 +861,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	}
 	
 	protected void notifyDataSetChanged() {
+	    if (!TiApplication.isUIThread()) {
+	        proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notifyDataSetChanged();
+                }
+            });
+            return;
+	    }
 	    if (adapter != null) {
 	        adapter.notifyDataSetChanged();
 	    }
@@ -1630,11 +1639,29 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         return null;
     }
     
-    public void showPullView(boolean animated) {
+    public void showPullView(final boolean animated) {
+        if (!TiApplication.isUIThread()) {
+            proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showPullView(animated);
+                }
+            });
+            return;
+        }
         ((RefreshableListView) listView).showHeaderPullView(animated);
     }
     
-    public void closePullView(boolean animated) {
+    public void closePullView(final boolean animated) {
+        if (!TiApplication.isUIThread()) {
+            proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    closePullView(animated);
+                }
+            });
+            return;
+        }
         ((RefreshableListView) listView).closeHeaderPullView(animated);
     }
     
