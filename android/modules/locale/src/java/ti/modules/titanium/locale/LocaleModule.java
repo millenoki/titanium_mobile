@@ -33,7 +33,7 @@ public class LocaleModule extends KrollModule
 	@Kroll.method @Kroll.getProperty
 	public String getCurrentLanguage()
 	{
-		return Locale.getDefault().getLanguage();
+	    return Locale.getDefault().getLanguage();
 	}
 
 	@Kroll.method @Kroll.getProperty
