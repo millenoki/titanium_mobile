@@ -261,7 +261,8 @@ public class NetworkModule extends KrollModule {
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) 
+	@Kroll.method
 	public boolean getOnline()
 	{
 		boolean result = false;
@@ -297,7 +298,8 @@ public class NetworkModule extends KrollModule {
 		return type;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) 
+	@Kroll.method
 	public int getNetworkType() {
 		int type = NETWORK_UNKNOWN;
 
@@ -319,13 +321,15 @@ public class NetworkModule extends KrollModule {
 		return type;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) 
+	@Kroll.method
 	public String getNetworkTypeName()
 	{
 		return networkTypeToTypeName(getNetworkType());
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) 
+	@Kroll.method
 	public String getCarrierName()
 	{
 		TelephonyManager manager = (TelephonyManager)TiApplication.getInstance().getRootActivity().getSystemService(Context.TELEPHONY_SERVICE);
@@ -335,7 +339,8 @@ public class NetworkModule extends KrollModule {
 		return null;
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false)
+	@Kroll.method
 	public Boolean getWifiEnabled()
 	{
 		Boolean result = false;
@@ -1129,12 +1134,14 @@ public class NetworkModule extends KrollModule {
 	}
 	
 
-    @Kroll.getProperty @Kroll.method
+    @Kroll.getProperty(enumerable=false)
+    @Kroll.method
     public String getAddress() {
         return TiPlatformHelper.getInstance().getIpAddress();
     }
 
-    @Kroll.getProperty @Kroll.method
+    @Kroll.getProperty(enumerable=false) 
+    @Kroll.method
     public String getNetmask() {
         return TiPlatformHelper.getInstance().getNetmask();
     }
@@ -1148,7 +1155,8 @@ public class NetworkModule extends KrollModule {
     }
 
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty (enumerable=false)
+	@Kroll.method
     public KrollDict getNetworkInfo()
     {
 	    KrollDict result = new KrollDict();
@@ -1177,7 +1185,8 @@ public class NetworkModule extends KrollModule {
         return result;
     }
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false)
+	@Kroll.method
     public KrollDict getNetworkStats()
     {
         long currentTime = java.lang.System.currentTimeMillis();
