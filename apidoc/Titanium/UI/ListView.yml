@@ -778,7 +778,7 @@ properties:
     description: |
         In Alloy you can specify this property with a `<FooterView>` child element of a `<ListView>`
         element (see Examples). On Android, this is a creation only property.
-    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
+    type: [Titanium.UI.View, Dictionary<Titanium.UI.View>]
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -801,7 +801,7 @@ properties:
         In Alloy you can specify this property with a `<HeaderView>` child element of a `<ListView>`
         element (see Examples).
 
-    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
+    type: [Titanium.UI.View ,Dictionary<Titanium.UI.View>]
     since: 3.2.0
     platforms: [android, iphone, ipad]
 
@@ -833,7 +833,7 @@ properties:
             </Alloy>
 
         See the code example on `pullView` to  see how it may be utilized.
-    type: Titanium.UI.View | Dictionary<Titanium.UI.View>
+    type: [Titanium.UI.View ,Dictionary<Titanium.UI.View>]
     platforms: [iphone, ipad]
     since: 3.2.0
 
@@ -1324,6 +1324,24 @@ methods:
         summary: Animation properties. (iOS only.)
         type: ListViewAnimationProperties
         optional: true
+  
+  - name: getSectionAt
+    parameters:
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+    platforms: [iphone, ipad, android]
+    returns:
+      - type: Titanium.UI.ListSection
+  
+  - name: getSectionItemsCount
+    parameters:
+      - name: sectionIndex
+        summary: numbe of items in section.
+        type: Number
+    platforms: [iphone, ipad, android]
+    returns:
+      - type: Number
 
   - name: setContentInsets
     summary: Sets this list view's content insets.

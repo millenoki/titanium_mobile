@@ -250,6 +250,10 @@ properties:
     type: Boolean
     default: false
 
+  - name: scaleType
+    summary: the image scale type
+    type: [String, Number]
+
   - name: tintColor
     summary: The view's tintColor.
     type: String

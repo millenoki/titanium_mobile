@@ -1686,15 +1686,19 @@ properties:
   - name: success
     summary: Function to call when the camera is closed after a successful capture/selection.
     type: Callback<CameraMediaItemType>
+    optional: true
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
+    optional: true
   - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
+    optional: true
   - name: autohide
     summary: Specifies if the camera should be hidden automatically after the media capture is completed.
     type: Boolean
+    optional: true
     default: true
     platforms: [iphone, ipad, android]
     since: {android: "3.2.0"}
@@ -1707,13 +1711,16 @@ properties:
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
+    optional: true
     platforms: [iphone, ipad]
   - name: saveToPhotoGallery
     summary: Specifies if the media should be saved to the photo gallery upon successful capture.
+    optional: true
     type: Boolean
     default: false
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
+    optional: true
     type: Boolean
     platforms: [iphone, ipad]
     default: false
@@ -1725,24 +1732,28 @@ properties:
     constants: [Titanium.Media.MEDIA_TYPE_PHOTO, Titanium.Media.MEDIA_TYPE_LIVEPHOTO, Titanium.Media.MEDIA_TYPE_VIDEO]
     type: Array<String>
     default: Both photo and video allowed.
+    optional: true
     platforms: [android, iphone, ipad]
     since:
         android: 5.4.0
   - name: videoMaximumDuration
     summary: Maximum duration (in milliseconds) to allow video capture before completing.
     type: Number
+    optional: true
     platforms: [android, iphone, ipad]
     since:
         android: 5.4.0
   - name: videoQuality
     summary: Constant to indicate the video quality during capture.
     type: Number
+    optional: true
     platforms: [android, iphone, ipad]
     constants: Titanium.Media.QUALITY_*
     since:
         android: 5.4.0
   - name: whichCamera
     summary: Opens the camera with the specified camera direction.
+    optional: true
     type: Number
     constants: [Titanium.Media.CAMERA_FRONT, Titanium.Media.CAMERA_REAR]
     platforms: [android]
@@ -1751,10 +1762,12 @@ properties:
   - name: showControls
     summary: Indicates if the built-in camera controls should be displayed.
     type: Boolean
+    optional: true
     default: true
     platforms: [iphone, ipad]
   - name: overlay
     summary: View to added as an overlay to the camera UI (on top).
+    optional: true
     description: |
         On iOS, the overlay view is usually used in conjunction with `showControls: false`.
         The `transform` property can be used to scale and position the camera preview inside
@@ -1769,6 +1782,7 @@ properties:
         that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.2DMatrix
     default: identity matrix
+    optional: true
     platforms: [iphone, ipad]
   - name: inPopOver
     summary: Show the camera in a popover.
@@ -1776,6 +1790,7 @@ properties:
         Use `inPopOver: true` on iPad to display the camera view in a popover.
     type: Boolean
     default: false
+    optional: true
     platforms: [ipad]
   - name: popoverView
     summary: View to position the camera or photo gallery popover on top of.
@@ -1783,6 +1798,7 @@ properties:
         This property is only used if the camera is displayed in a
         popover (`inPopOver` is `true`).
     type: Titanium.UI.View
+    optional: true
     platforms: [ipad]
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
@@ -1791,6 +1807,7 @@ properties:
         popover (`inPopOver` is `true`).
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
+    optional: true
     platforms: [ipad]
   - name: autorotate
     summary: Determines if the camera preview should rotate or not.
@@ -1803,6 +1820,7 @@ properties:
     type: Boolean
     default: true
     since: "3.4.0"
+    optional: true
     platforms: [ipad]
 
 # Photo Gallery options pseudo-type. Much like the camera one.
@@ -1814,12 +1832,15 @@ summary: |
 properties:
   - name: success
     summary: Function to call when the photo gallery is closed after a successful selection.
+    optional: true
     type: Callback<CameraMediaItemType>
   - name: error
     summary: Function to call upon receiving an error.
+    optional: true
     type: Callback<FailureResponse>
   - name: cancel
     summary: Function to call if the user presses the cancel button.
+    optional: true
     type: Callback<FailureResponse>
   - name: autohide
     summary: |
@@ -1827,15 +1848,18 @@ properties:
         selection is completed.
     type: Boolean
     default: true
+    optional: true
     platforms: [iphone, ipad]
   - name: animated
     summary: Specifies if the dialog should be animated upon showing and hiding.
     type: Boolean
     default: true
+    optional: true
     platforms: [iphone, ipad]
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
+    optional: true
     platforms: [iphone, ipad]
   - name: mediaTypes
     summary: |
@@ -1846,21 +1870,25 @@ properties:
     type: Array<String>
     constants: Titanium.Media.MEDIA_TYPE_*
     default: Only photo and video allowed.
+    optional: true
     platforms: [iphone, ipad]
   - name: popoverView
     summary: View to position the photo gallery popover on top of.
     type: Titanium.UI.View
+    optional: true
     platforms: [ipad]
   - name: arrowDirection
     summary: Controls the type of arrow and position of the popover.
     type: Number
     constants: Titanium.UI.iPad.POPOVER_ARROW_DIRECTION*
+    optional: true
     platforms: [ipad]
   - name: allowMultiple
     summary: Specifies if the user should be able to select multiple photos.
     description: |
         The allowMultiple property is only available on Android API 18 and above.
     type: Boolean
+    optional: true
     platforms: [android]
     since: "6.0.0"
 

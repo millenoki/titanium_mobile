@@ -1557,6 +1557,22 @@ properties:
     permission: read-only
     since: "2.0.0"
 
+  - name: absoluteRect
+    summary: |
+        The absolute bounding box of the view, in system units.
+    description: |
+        The view's bounding box is defined by its size and position. 
+        
+        The view's size is `rect.width` x `rect.height`. The view's top-left position relative to 
+        the window is (`rect.x` , `rect.y`). 
+        
+        The correct values will only be available when layout is complete.
+        To determine when layout is complete, add a listener for the 
+        [postlayout](Titanium.UI.View.postlayout) event.
+    type: Dimension
+    permission: read-only
+    since: "2.0.0"
+
   - name: rotation
     summary: Clockwise 2D rotation of the view in degrees.
     description: Translation values are applied to the static post layout value.
