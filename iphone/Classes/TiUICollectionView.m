@@ -1616,7 +1616,9 @@ static TiProxyTemplate* sDefaultItemTemplate;
     TiUICollectionItem* item = (TiUICollectionItem*)cell;
     NSDictionary *data = item.dataItem;
     
-    if (hasOnDisplayCell) {
+    BOOL firesOnDisplay = [data objectForKey:@"fireOnDisplay"] && [TiUtils boolValue: [data objectForKey:@"fireOnDisplay"] def:NO];
+    
+    if (hasOnDisplayCell || firesOnDisplay) {
         TiUICollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUICollectionItem*)cell).proxy,
@@ -1627,7 +1629,12 @@ static TiProxyTemplate* sDefaultItemTemplate;
                                           @"sectionIndex":NUMINTEGER(indexPath.section),
                                           @"itemIndex":NUMINTEGER(indexPath.row)
         };
-        [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
+        if (hasOnDisplayCell) {
+            [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
+        }
+        if (firesOnDisplay) {
+            [self.proxy fireEvent:@"onDisplayItem" withObject:propertiesDict  propagate:NO checkForListener:NO];
+        }
     }
     
     if (_useAppearAnimation) {
