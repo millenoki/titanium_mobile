@@ -163,7 +163,7 @@ static NSDictionary* listViewKeysToReplace;
 
 -(void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated
 {
-    [self dispatchUpdateAction:block animated:YES maintainPosition:YES];
+    [self dispatchUpdateAction:block animated:animated maintainPosition:YES];
 }
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block maintainPosition:(BOOL)maintain
