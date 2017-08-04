@@ -18,14 +18,6 @@ public class AnimatableReusableProxy extends AnimatableProxy implements KrollPro
         super();
         setModelListener(this);
     }
-    
-    @Override
-   public void handleCreationDict(HashMap dict) {
-        super.handleCreationDict(dict);
-        if (modelListener != null) {
-            internalApplyModelProperties(dict);
-        }
-   }
 
     @Override
     public void setReusing(boolean reusing) {
