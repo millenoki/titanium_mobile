@@ -3722,8 +3722,11 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
         for (var i = 0; i < googlePlayServicesKeep.length; i++) {
             var gmsModuleName = googlePlayServicesKeep[i].replace('com.google.android.gms.', '').replace('.*', '');
             var jarPath = path.join(_t.platformPath, 'modules', 'gms', gmsModuleName + '.jar');
-            jarLibraries[jarPath] = 1;
-            externalLibDependencies.push(jarPath);
+            if (!jarLibraries.hasOwnProperty(jarPath)) {
+                jarLibraries[jarPath] = 1;
+                externalLibDependencies.push(jarPath);
+            }
+            
             // googlePlayServicesKeep[i] = "keep " + googlePlayServicesKeep[i];
         }
         next();
