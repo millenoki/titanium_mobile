@@ -1945,7 +1945,9 @@ static NSDictionary* replaceKeysForRow;
     TiUIListItem* item = (TiUIListItem*)cell;
     NSDictionary *data = item.dataItem;
     
-    if (hasOnDisplayCell) {
+    BOOL firesOnDisplay = [data objectForKey:@"fireOnDisplay"] && [TiUtils boolValue: [data objectForKey:@"fireOnDisplay"] def:NO];
+    
+    if (hasOnDisplayCell || firesOnDisplay) {
         TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUIListItem*)cell).proxy,
@@ -1956,7 +1958,12 @@ static NSDictionary* replaceKeysForRow;
                                           @"sectionIndex":NUMINTEGER(indexPath.section),
                                           @"itemIndex":NUMINTEGER(indexPath.row)
         };
-        [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
+        if (hasOnDisplayCell) {
+            [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
+        }
+        if (firesOnDisplay) {
+            [self.proxy fireEvent:@"onDisplayItem" withObject:propertiesDict  propagate:NO checkForListener:NO];
+        }
     }
     if (_useAppearAnimation) {
         if (!_shownIndexes) {
