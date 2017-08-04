@@ -123,7 +123,9 @@ public class TiUIButton extends TiUINonViewGroupView
 	private void updateImage(){
 		Button btn = (Button) getNativeView();
 		if (btn != null) {
-		    imageDrawable.setBounds(0, 0, imageDrawable.getMinimumWidth(), imageDrawable.getMinimumHeight());
+		    if (imageDrawable != null) {
+		        imageDrawable.setBounds(0, 0, imageDrawable.getMinimumWidth(), imageDrawable.getMinimumHeight());
+		    }
 			switch(imageGravity) {
 				case Gravity.LEFT:
 				default:
