@@ -3892,6 +3892,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
     copyTemplate(path.join(this.templatesDir, 'project.properties'), path.join(this.buildDir, 'project.properties'), {
         customModules: this.customModules,
         tiNamespaces: this.tiNamespaces,
+        targetSDK:this.realTargetSDK,
         androidDevPath: path.relative(this.buildDir, this.config.get('android.devPath') || ''),
         androidModulesDevPath: path.relative(this.buildDir, this.config.get('android.devModulesPath') || '')
     });
