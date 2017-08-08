@@ -1149,7 +1149,7 @@ methods:
     parameters:
       - name: section
         summary: Section or sections to add to the list.
-        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>]
+        type: [Titanium.UI.ListSection, Array<Titanium.UI.ListSection>, Dictionary<Titanium.UI.ListSection>, Array<Dictionary<Titanium.UI.ListSection>>]
 
       - name: animation
         summary: Animation properties. (iOS only.)

@@ -186,7 +186,7 @@ module Generator {
 	} & Object;
 	type PropertiesT<T> ={
 		[P in keyof T]?: T[P]
-	}
+	} & Properties;
 	type DictionaryT<T> = {
 		bindId?: string;
 		properties?: PropertiesT<T>;
