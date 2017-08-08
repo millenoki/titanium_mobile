@@ -27,6 +27,8 @@
 #import "TiUIView.h"
 #import "TiApp.h"
 
+#import "TiAnimation.h"
+
 #import "DDMathEvaluator.h"
 
 // for checking version
@@ -1889,6 +1891,23 @@ If the new path starts with / and the base url is app://..., we have to massage 
     }
 
     return inset;
+}
+
++(id)curveValue:(id)value
+{
+    if ([value isKindOfClass:[NSNumber class]])
+    {
+        return [TiAnimation timingFunctionForCurve:[value intValue]];
+    }
+    else if ([value isKindOfClass:[NSArray class]])
+    {
+        NSArray* array = (NSArray*)value;
+        NSUInteger count = [array count];
+        if (count == 4)
+        {
+            return [CAMediaTimingFunction functionWithControlPoints: [[array objectAtIndex:0] doubleValue] : [[array objectAtIndex:1] doubleValue] : [[array objectAtIndex:2] doubleValue] : [[array objectAtIndex:3] doubleValue]];
+        }
+    }
 }
 
 +(TiScriptError*) scriptErrorValue:(id)value;

@@ -573,6 +573,7 @@ typedef enum
 +(WebFont*)fontValue:(id)value;
 
 +(UIEdgeInsets)insetValue:(id)value;
++(id)curveValue:(id)value;
 
 +(TiScriptError*) scriptErrorValue:(id)value;
 

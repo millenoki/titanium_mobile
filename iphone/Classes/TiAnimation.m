@@ -231,6 +231,7 @@ static NSArray *animProps;
 }
 
 -(void)internalApplyOptions:(NSDictionary*)options onProxy:(TiProxy*)theProxy fromProps:(BOOL)fromProps isFake:(BOOL)fake reverse:(BOOL)reverse {
+    
     NSString* prop = fromProps?@"from":@"to";
     NSMutableDictionary* realOptions = [NSMutableDictionary dictionaryWithDictionary:options];
     if (fake) {
@@ -276,7 +277,38 @@ static NSArray *animProps;
         if (IS_OF_CLASS(obj, NSDictionary) && bindedProxy) {
             if (IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy*)bindedProxy animationClassType] isSubclassOfClass:animationClassType] ) {
             } else {
-                [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+                if ([obj objectForKey:@"delay"]) {
+                    void (^bindedAnimation)() = ^{
+                        [CATransaction begin];
+                        if ([obj objectForKey:@"duration"]) {
+                            [CATransaction setAnimationDuration:[TiUtils floatValue:[obj objectForKey:@"duration"]]/1000];
+                        }
+                        if ([obj objectForKey:@"curve"]) {
+                            [CATransaction setAnimationTimingFunction:[TiUtils curveValue:[obj objectForKey:@"curve"]]];
+                        }
+                        [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+                        [CATransaction commit];
+                    };
+                    
+                    void (^complete)(BOOL) = ^(BOOL finished) {
+                    };
+                    [UIView animateWithDuration:[TiUtils floatValue:@"duration" properties:obj def:duration]/1000
+                                          delay:[TiUtils floatValue:[obj objectForKey:@"delay"]]/1000
+                                        options:UIViewAnimationOptionAllowUserInteraction
+                                     animations:bindedAnimation
+                                     completion:complete];
+                } else {
+                    [CATransaction begin];
+                    if ([obj objectForKey:@"duration"]) {
+                        [CATransaction setAnimationDuration:[TiUtils floatValue:[obj objectForKey:@"duration"]]/1000];
+                    }
+                    if ([obj objectForKey:@"curve"]) {
+                        [CATransaction setAnimationTimingFunction:[TiUtils curveValue:[obj objectForKey:@"curve"]]];
+                    }
+                    [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+                    [CATransaction commit];
+                }
+                
             }
             [realOptions removeObjectForKey:key];
         }
@@ -515,38 +547,15 @@ static NSArray *animProps;
 -(void)setCurve:(id)value
 {
     RELEASE_TO_NIL(_curve);
-    if ([value isKindOfClass:[NSNumber class]])
-    {
-        _curve = [[TiAnimation timingFunctionForCurve:[value intValue]] retain];
-    }
-    else if ([value isKindOfClass:[NSArray class]])
-    {
-        NSArray* array = (NSArray*)value;
-        NSUInteger count = [array count];
-        if (count == 4)
-        {
-            _curve = [[CAMediaTimingFunction functionWithControlPoints: [[array objectAtIndex:0] doubleValue] : [[array objectAtIndex:1] doubleValue] : [[array objectAtIndex:2] doubleValue] : [[array objectAtIndex:3] doubleValue]] retain];
-        }
-    }
+    _curve = [[TiUtils curveValue:value] retain];
+
     [self replaceValue:value forKey:@"curve" notification:NO];
 }
 
 -(void)setReverseCurve:(id)value
 {
     RELEASE_TO_NIL(_curve);
-    if ([value isKindOfClass:[NSNumber class]])
-    {
-        _reverseCurve = [[TiAnimation timingFunctionForCurve:[value intValue]] retain];
-    }
-    else if ([value isKindOfClass:[NSArray class]])
-    {
-        NSArray* array = (NSArray*)value;
-        NSUInteger count = [array count];
-        if (count == 4)
-        {
-            _reverseCurve = [[CAMediaTimingFunction functionWithControlPoints: [[array objectAtIndex:0] doubleValue] : [[array objectAtIndex:1] doubleValue] : [[array objectAtIndex:2] doubleValue] : [[array objectAtIndex:3] doubleValue]] retain];
-        }
-    }
+    _reverseCurve = [[TiUtils curveValue:value] retain];
     [self replaceValue:value forKey:@"reverseCurve" notification:NO];
 }
 

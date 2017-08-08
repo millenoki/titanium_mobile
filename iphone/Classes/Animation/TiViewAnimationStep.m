@@ -54,7 +54,7 @@
         void (^animation)() = ^{
             if (self.curve) {
                 [CATransaction begin];
-                [CATransaction setAnimationDuration:self.duration];
+                [CATransaction setAnimationDuration:animationDuration];
                 [CATransaction setAnimationTimingFunction:self.curve];
                 [viewAnimation applyOnView:view forStep:self];
                 [CATransaction commit];
