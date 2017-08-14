@@ -933,7 +933,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = false;
             this.allowProfiling = false;
             this.includeAllTiModules = false;
-            this.googlePlayServicesProp = false;
             this.proguard = false;
             break;
 
@@ -944,7 +943,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = true;
             this.allowProfiling = true;
             this.includeAllTiModules = false;
-            this.googlePlayServicesProp = false;
             this.proguard = false;
             break;
 
@@ -956,7 +954,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = true;
             this.allowProfiling = true;
             this.includeAllTiModules = false;
-            this.googlePlayServicesProp = false;
             this.proguard = false;
     }
 
@@ -1879,7 +1876,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.currentBuildManifest.mergeCustomAndroidManifest = this.config.get('android.mergeCustomAndroidManifest', true),
     this.currentBuildManifest.minSDK                     = this.minSDK;
     this.currentBuildManifest.targetSDK                  = this.targetSDK;
-    this.currentBuildManifest.useBabel                   = this.useBabel = (this.tiapp['use-babel'] === true);
+    this.currentBuildManifest.useBabel                   = this.useBabel = !!this.tiapp.properties['use-babel'];
 
     //we test the package.json hash in case babel settings changed
     this.currentBuildManifest.packageJSONHash            = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')): '';
@@ -1938,11 +1935,6 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
     if (includeAllTiModulesProp !== undefined) {
         this.includeAllTiModules = includeAllTiModulesProp.value;
-    }
-
-    var googlePlayServicesProp = this.tiapp.properties['ti.android.google_play_services'];
-    if (googlePlayServicesProp !== undefined) {
-        this.googlePlayServices = googlePlayServicesProp.value;
     }
 
     // directories
@@ -2721,12 +2713,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                 contents = null,
                                 hash = null,
                                 fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = _t.hash(contents = fs.readFileSync(from)));
+                            _t.currentBuildManifest.files[relativeFilePath] = {
+                                hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
+                                mtime: contents === null && prev ? prev.mtime : fromMtime,
+                                size:  contents === null && prev ? prev.size  : fromStat.size
+                            };
                             if (fileChanged) {
-                                _t.currentBuildManifest.files[relativeFilePath] = {
-                                    hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
-                                    mtime: contents === null && prev ? prev.mtime : fromMtime,
-                                    size:  contents === null && prev ? prev.size  : fromStat.size
-                                };
+                                
                                 tsFiles.push(tsRealPath);
                                 copyFile.call(_t, info.src, tsRealPath);
                             } else {
@@ -2949,7 +2942,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     tsFiles.unshift(tiTsDef);
 
                     //we need to make sure that babel is used in that case 
-                    this.currentBuildManifest.useBabel = useBabel = this.useBabel = true;
+                    useBabel = this.useBabel = true;
                     if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
                         this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
                             if (/\.d\.ts$/.test(file)) {
@@ -3050,10 +3043,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                 });
                                 return;
                             }
-
                             try {
                                 this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-                                    if (useBabel && fileChanged) {
+                                    if (useBabel) {
                                         this.cli.createHook('build.android.compileJsFile', this, function (from, to, cb2) {
                                             var inSourceMap = null;
                                             if (fs.existsSync(from + '.map')) {
@@ -5154,6 +5146,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
         dest.finalize();
     } catch (ex) {
         console.error = origConsoleError;
+        console.error('test', ex);
         throw ex;
     }
 };

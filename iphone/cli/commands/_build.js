@@ -2371,7 +2371,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
 
-	this.currentBuildManifest.useBabel = this.useBabel = (this.tiapp['use-babel'] === true);
+	this.currentBuildManifest.useBabel = this.useBabel = !!this.tiapp.properties['use-babel'];
     //we test the package.json hash in case babel settings changed
     this.currentBuildManifest.packageJSONHash            = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')): '';
 
