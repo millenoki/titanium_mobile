@@ -1468,6 +1468,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 				this.encryptJS = this.minifyJS = !!compileJSProp.value;
 			}
+			this.currentBuildManifest.encryptJS = !!this.encryptJS;
 		}
 		// check if we are running from Xcode
 		if (cli.argv.xcode) {
@@ -5230,10 +5231,28 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							jsFiles[info.relPath] = info;
 							break;
 						case 'ts':
-						var tsRealPath = path.join(that.buildTsDir, path.relative(info.origSrc, info.src));
-                            that.copyFileSync.call(that, info.src, tsRealPath);
-                            tsFiles.push(tsRealPath);
+						{
+							var relativeFilePath = path.relative(info.origSrc, info.src),
+								tsRealPath = path.join(that.buildTsDir, relativeFilePath),
+								fromStat = fs.statSync(from),
+								fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
+								prev = that.previousBuildManifest.files && that.previousBuildManifest.files[relativeFilePath]
+								contents = null,
+								hash = null,
+								fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = that.hash(contents = fs.readFileSync(from)));
+							if (fileChanged) {
+								that.currentBuildManifest.files[relativeFilePath] = {
+									hash:  contents === null && prev ? prev.hash  : hash || that.hash(contents || ''),
+									mtime: contents === null && prev ? prev.mtime : fromMtime,
+									size:  contents === null && prev ? prev.size  : fromStat.size
+								};
+								that.copyFileSync.call(that, info.src, tsRealPath);
+								tsFiles.push(tsRealPath);
+							} else {
+								that.logger.trace(__('No change, skipping %s', from.cyan));
+							}
 							break;
+						}
 						case 'css':
 							cssFiles[info.relPath] = info;
 							break;
@@ -5259,9 +5278,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							break;
 
 						case 'html':
-							jsanalyze.analyzeHtmlFile(from, info.relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
+						console.log('html', info);
+							jsanalyze.analyzeHtmlFile(info.src, info.relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
 								htmlJsFiles[file] = 1;
 							});
+							break;
 						case 'json': 
 						case 'map': 
 						{
@@ -6252,7 +6273,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.debug(__('Compiling TS files: %s', tsFiles));
 
 			//we need to make sure that babel is used in that case 
-			this.useBabel = true;
+			this.currentBuildManifest.useBabel = this.useBabel = true;
 
 			fs.existsSync(path.join(this.projectDir, 'typings')) && this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
                 if (/\.d\.ts$/.test(file)) {

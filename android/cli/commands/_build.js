@@ -2721,17 +2721,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                 contents = null,
                                 hash = null,
                                 fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = _t.hash(contents = fs.readFileSync(from)));
-                                if (fileChanged) {
-                                    _t.currentBuildManifest.files[relativeFilePath] = {
-                                        hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
-                                        mtime: contents === null && prev ? prev.mtime : fromMtime,
-                                        size:  contents === null && prev ? prev.size  : fromStat.size
-                                    };
-                                    tsFiles.push(tsRealPath);
-                                    copyFile.call(_t, info.src, tsRealPath);
-                                } else {
-                                    _t.logger.trace(__('No change, skipping %s', from.cyan));
-                                }
+                            if (fileChanged) {
+                                _t.currentBuildManifest.files[relativeFilePath] = {
+                                    hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
+                                    mtime: contents === null && prev ? prev.mtime : fromMtime,
+                                    size:  contents === null && prev ? prev.size  : fromStat.size
+                                };
+                                tsFiles.push(tsRealPath);
+                                copyFile.call(_t, info.src, tsRealPath);
+                            } else {
+                                _t.logger.trace(__('No change, skipping %s', from.cyan));
+                            }
                             
                             break;
                         }
