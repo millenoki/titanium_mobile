@@ -101,7 +101,7 @@ function AndroidBuilder() {
 
     this.targets = ['emulator', 'device', 'dist-playstore', 'dist-adhoc'];
 
-    this.validABIs = ['armeabi', 'armeabi-v7a', 'x86'];
+    this.validABIs = ['armeabi-v7a', 'x86'];
 
     this.xmlMergeRegExp = /^(strings|attrs|styles|bools|colors|dimens|ids|integers|arrays)\.xml$/;
 
