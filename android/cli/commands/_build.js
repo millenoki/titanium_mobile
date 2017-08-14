@@ -2712,9 +2712,27 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         }
                         case 'ts':
                         {
-                            var tsRealPath = path.join(_t.buildTsDir, path.relative(info.origSrc, info.src));
-                            tsFiles.push(tsRealPath);
-                            copyFile.call(_t, info.src, tsRealPath);
+                            var relativeFilePath = path.relative(info.origSrc, info.src),
+                                tsRealPath = path.join(_t.buildTsDir, relativeFilePath),
+                                from = info.src,
+                                fromStat = fs.statSync(from),
+                                fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
+                                prev = _t.previousBuildManifest.files && _t.previousBuildManifest.files[relativeFilePath]
+                                contents = null,
+                                hash = null,
+                                fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = _t.hash(contents = fs.readFileSync(from)));
+                                if (fileChanged) {
+                                    _t.currentBuildManifest.files[relativeFilePath] = {
+                                        hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
+                                        mtime: contents === null && prev ? prev.mtime : fromMtime,
+                                        size:  contents === null && prev ? prev.size  : fromStat.size
+                                    };
+                                    tsFiles.push(tsRealPath);
+                                    copyFile.call(_t, info.src, tsRealPath);
+                                } else {
+                                    _t.logger.trace(__('No change, skipping %s', from.cyan));
+                                }
+                            
                             break;
                         }
                         case 'js':
@@ -5066,7 +5084,7 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
                     // check that we found the desired abi, otherwise we abort the build
                     if (!fs.existsSync(abiDir) || !fs.statSync(abiDir).isDirectory()) {
-                        throw this.abis[i];
+                        continue;
                     }
 
                     // copy all the .so files into the archive
