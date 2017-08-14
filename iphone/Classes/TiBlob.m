@@ -526,7 +526,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     if (image!=nil)
     {
 //        NSDictionary* realOptions = [NSDictionary dictionaryByMerging:@{@"crop":dict} with:options];
-        TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[TiImageHelper imageFiltered:image withOptions:args]];
+        TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[TiImageHelper imageFiltered:image withOptions:options]];
         return [blob autorelease];
     }
     return nil;
