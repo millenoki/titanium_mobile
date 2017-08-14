@@ -1932,6 +1932,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
             }
             this.encryptJS = this.minifyJS = !!compileJSProp.value;
         }
+        this.currentBuildManifest.encryptJS = !!this.encryptJS;
     }
 
     var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
@@ -2930,8 +2931,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     tsFiles.unshift(tiTsDef);
 
                     //we need to make sure that babel is used in that case 
-                    useBabel = this.useBabel = true;
-                    
+                    this.currentBuildManifest.useBabel = useBabel = this.useBabel = true;
                     if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
                         this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
                             if (/\.d\.ts$/.test(file)) {
