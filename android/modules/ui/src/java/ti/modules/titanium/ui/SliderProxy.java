@@ -17,6 +17,7 @@ import android.app.Activity;
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
     TiC.PROPERTY_MIN, TiC.PROPERTY_MAX, "minRange",
 	"maxRange", "thumbImage",
+	TiC.PROPERTY_SPLIT_TRACK,
 	"leftTrackImage","rightTrackImage",
 	TiC.PROPERTY_VALUE
 })
@@ -28,6 +29,7 @@ public class SliderProxy extends ViewProxy
 		//there seems to be a bug with the latest appcompat. Without a background the
         //switch is not showing
         defaultValues.put(TiC.PROPERTY_BACKGROUND_COLOR, "transparent");
+		defaultValues.put(TiC.PROPERTY_SPLIT_TRACK, false);
 	}
 
 	@Override

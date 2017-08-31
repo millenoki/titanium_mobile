@@ -29,6 +29,8 @@
 @property(nonatomic,assign) UIEdgeInsets padding;
 
 -(void)updateCaretPosition;
+-(void)checkLinkForTouch:(UITouch *)touch;
+
 @end
 
 #endif

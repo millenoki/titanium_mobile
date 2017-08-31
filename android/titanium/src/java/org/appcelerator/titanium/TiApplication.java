@@ -167,7 +167,7 @@ public abstract class TiApplication extends Application implements
 
     public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
     protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
-    protected static TiWeakList<Activity> activityStack = new TiWeakList<Activity>();
+    protected static TiWeakList<TiBaseActivity> activityStack = new TiWeakList<TiBaseActivity>();
 
     public static interface ActivityTransitionListener {
         public void onActivityTransition(boolean state);
@@ -229,8 +229,8 @@ public abstract class TiApplication extends Application implements
         return null;
     }
 
-    public static void addToActivityStack(Activity activity) {
-        activityStack.add(new WeakReference<Activity>(activity));
+    public static void addToActivityStack(TiBaseActivity activity) {
+        activityStack.add(new WeakReference<TiBaseActivity>(activity));
     }
 
     public static void removeFromActivityStack(Activity activity) {
@@ -276,7 +276,7 @@ public abstract class TiApplication extends Application implements
         }
         getInstance().fireAppEvent(TiC.EVENT_CLOSE, null);
 
-        WeakReference<Activity> activityRef;
+        WeakReference<TiBaseActivity> activityRef;
         Activity currentActivity;
 
         for (int i = activityStack.size() - 1; i >= 0; i--) {
@@ -302,7 +302,7 @@ public abstract class TiApplication extends Application implements
         if (activityStack == null || activityStack.size() == 0) {
             return false;
         }
-        for (WeakReference<Activity> activityRef : activityStack) {
+        for (WeakReference<TiBaseActivity> activityRef : activityStack) {
             if (activityRef != null
                     && activityRef.get() instanceof TiLaunchActivity) {
                 return true;
@@ -347,7 +347,7 @@ public abstract class TiApplication extends Application implements
      * @return the current activity
      * @module.api
      */
-    public static Activity getAppCurrentActivity() {
+    public static TiBaseActivity getAppCurrentActivity() {
         TiApplication tiApp = getInstance();
         if (tiApp == null) {
             return null;
@@ -389,11 +389,11 @@ public abstract class TiApplication extends Application implements
      *         for a valid activity to be visible.
      * @module.api
      */
-    public Activity getCurrentActivity() {
+    public TiBaseActivity getCurrentActivity() {
         int activityStackSize;
 
         while ((activityStackSize = activityStack.size()) > 0) {
-            Activity activity = (activityStack.get(activityStackSize - 1))
+            TiBaseActivity activity = (activityStack.get(activityStackSize - 1))
                     .get();
 
             // Skip and remove any activities which are dead or in the process

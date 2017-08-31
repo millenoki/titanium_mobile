@@ -496,12 +496,15 @@ public class TiImageHelper {
                     ExifInterface.ORIENTATION_NORMAL);
             switch (orientationConst) {
             case ExifInterface.ORIENTATION_ROTATE_270:
-                orientation = 270;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+               orientation = 270;
                 break;
             case ExifInterface.ORIENTATION_ROTATE_180:
-                orientation = 180;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+               orientation = 180;
                 break;
             case ExifInterface.ORIENTATION_ROTATE_90:
+            case ExifInterface.ORIENTATION_TRANSPOSE:
                 orientation = 90;
                 break;
             }

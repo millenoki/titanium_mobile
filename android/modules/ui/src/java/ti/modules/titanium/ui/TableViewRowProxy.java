@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel;
@@ -90,7 +91,7 @@ public class TableViewRowProxy extends ViewProxy
 		}
 		if (!options.containsKey(TiC.PROPERTY_COLOR)) {
 			if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-				int color = Color.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));
+				int color = TiColorHelper.parseColor((String) options.get(TiC.PROPERTY_BACKGROUND_COLOR));
 				if (Math.abs(color - Color.WHITE) < Math.abs(color - Color.BLACK)) {
 					options.put(TiC.PROPERTY_COLOR, "black");
 				} else {

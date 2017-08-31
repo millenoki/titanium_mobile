@@ -1027,6 +1027,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         case TiC.PROPERTY_IMAGE:
             boolean changeImage = true;
             TiDrawableReference source = makeImageSource(newValue);
+            Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
+            if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
+                view.setOrientation(source.getOrientation());
+            }
+            if (proxy.hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
+                source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES));
+            }
             if (firedLoad && imageSources != null && imageSources.size() == 1) {
                 if (imageSources.get(0).equals(source)) {
                     changeImage = false;
@@ -1168,15 +1175,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         } else if (currentDrawable instanceof TiNinePatchDrawable) {
             TiBitmapPool.decrementRefCount(((TiNinePatchDrawable) currentDrawable).getBitmap());
         }
+        handleStop();
         super.release();
-        if (loader != null) {
-            synchronized (loader) {
-                loader.notify();
-            }
-            loader = null;
-        }
-        animating.set(false);
-        isStopping.set(true);
+
         TiApplication.getPicassoInstance().cancelRequest(this);
         synchronized (releasedLock) {
             if (imageSources != null) {

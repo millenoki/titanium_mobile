@@ -169,24 +169,60 @@ public class TitaniumBlob extends TiBaseFile
 	    return "com.android.providers.media.documents".equals(uri.getAuthority());
 	}
 	protected void init() {
-	    final Uri uri = Uri.parse(url);
-	    path = getPath(TiApplication.getInstance(), uri);
-		String [] projection = {
+		String[] projection = {
 			MediaStore.Images.ImageColumns.DISPLAY_NAME,
-//			MediaStore.Images.ImageColumns.DATA
+			MediaStore.Images.ImageColumns.DATA
 		};
 		Cursor c = null;
-		try {
-			c = TiApplication.getInstance().getContentResolver().query(uri, projection, null, null, null);
-			int column_index_name = c.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME);
-//			int column_index_path = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-			if (c.moveToNext()) {
-				name = c.getString(column_index_name);
-//				path = c.getString(column_index_path);
-			}
-		} finally {
-			if (c != null) {
+
+		if (url.startsWith("content://com.android.providers.media.documents")) {
+			try {
+				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), null, null, null, null);
+				c.moveToFirst();
+				String id = c.getString(0);
+				id = id.substring(id.lastIndexOf(":") + 1);
 				c.close();
+
+				c = TiApplication.getInstance().getContentResolver().query(
+					android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+					projection, MediaStore.Images.Media._ID + " = ? ", new String[]{id}, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		}  else if (url.startsWith("content://com.android.providers.downloads.documents")) {
+			try {
+				String id = DocumentsContract.getDocumentId(Uri.parse(url));
+				Uri uri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+				c = TiApplication.getInstance().getContentResolver().query(uri, projection, null, null, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
+			}
+		} else {
+			try {
+				c = TiApplication.getInstance().getContentResolver().query(Uri.parse(url), projection, null, null, null);
+
+				if (c.moveToNext()) {
+					name = c.getString(0);
+					path = c.getString(1);
+				}
+			} finally {
+				if (c != null) {
+					c.close();
+				}
 			}
 		}
 	}

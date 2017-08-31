@@ -50,6 +50,9 @@ public class TiUIScrollView extends TiUIView
     private float mZoomScale = 1.0f;
 	private float mMinZoomScale = 1.0f;
 	private float mMaxZoomScale = 1.0f;
+	private boolean isScrolling = false;
+	private boolean isTouching = false;
+
 	
     private boolean mAutoCenter = true;
     private boolean animating = false;
@@ -378,6 +381,16 @@ public class TiUIScrollView extends TiUIView
 			    handled |= mScaleGestureDetector.onTouchEvent(event);
             }
 			
+			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+				isTouching = true;
+			}
+			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
+				isScrolling = false;
+				isTouching = false;
+				KrollDict data = new KrollDict();
+				data.put("decelerate", true);
+				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
 			//Link: http://code.google.com/p/android/issues/detail?id=18990
 			try {
@@ -414,6 +427,11 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				KrollDict data = new KrollDict();			
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
 			mCurrentOffset.set(l , t);
 			if (hasListeners(TiC.EVENT_SCROLL)) {
 				getProxy().fireEvent(TiC.EVENT_SCROLL, getContentOffset(), false, false);

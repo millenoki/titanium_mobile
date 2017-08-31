@@ -940,9 +940,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return module;
 	}
 
-	NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
-    [contents release];
+	NSString* contents = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+	NSURL *url_ = [TiHost resourceBasedURL:path baseURL:NULL];
+	KrollWrapper *wrapper = (id) [self loadCommonJSModule:contents withSourceURL:url_];
+
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
 	// are accessible. We store the exports object and then put references to its properties on the toplevel
 	// object.
@@ -1069,7 +1070,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 - (NSString *)loadFile:(NSString *)path
 {
 	NSURL *url_ = [NSURL URLWithString:path relativeToURL:[[self host] baseURL]];
-	NSData *data = [TiUtils loadAppResource:url_];
+	NSData *data = [TiUtils loadAppResource:url_]; // try to load encrypted file
 
 	if (data == nil) {
 		data = [NSData dataWithContentsOfURL:url_];

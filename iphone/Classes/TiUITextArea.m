@@ -5,13 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UITEXTAREA
-
 #import "TiUITextArea.h"
 #import "TiUITextAreaProxy.h"
 
 #import "TiUtils.h"
 #import "Webcolor.h"
 #import "TiApp.h"
+
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+#import "TiUIAttributedStringProxy.h"
+#endif
 
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 #define is_iOS7 SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")
@@ -83,6 +86,10 @@
     //propagated. If it is dragging do not do anything.
     //The reason we are not checking tracking (like in scrollview) is because for some
     //reason UITextView always returns true for tracking after the initial focus
+    
+    UITouch *touch = [touches anyObject];
+    [(TiUITextArea *)touchHandler checkLinkForTouch:touch];
+    
     if (!self.dragging && self.userInteractionEnabled && (touchedContentView == nil) ) {
         [touchHandler processTouchesBegan:touches withEvent:event];
  	}
@@ -373,6 +380,88 @@
 	[[self textWidgetView] setExclusiveTouch:value];
 }
 
+-(void)checkLinkForTouch:(UITouch *)touch
+{
+    // TIMOB-23887: This is similar to UILabel implementation, rather native link recognizer of UITextView, to support TIMOB-19165.
+    BOOL testLink = (textWidgetView != nil) && ([(TiViewProxy *)[self proxy] _hasListeners:@"link" checkParent:NO]);
+    BOOL isEditable =  ((UITextView *)[self textWidgetView]).isEditable;
+    BOOL isLinkEnabled = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"handleLinks"] def:YES];
+    if (testLink && isLinkEnabled && !isEditable)
+    {
+        UITextView *textView = (UITextView *)[self textWidgetView];
+        CGPoint tapPoint = [touch locationInView:textView];
+        [self checkLinkAttributeForString:[textView attributedText] atPoint:tapPoint];
+    }
+}
+
+- (NSUInteger)characterIndexAtPoint:(NSAttributedString *)theString atPoint:(CGPoint)point
+{
+    UITextView *textView = ((UITextView *)[self textWidgetView]);
+    NSTextContainer *textContainer = textView.textContainer;
+    NSLayoutManager *layoutManager = textView.layoutManager;
+    
+    // Manage point with respect to padding
+    point.x -= textView.textContainerInset.left;
+    point.y -= textView.textContainerInset.top;
+
+    NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
+    CGRect wholeTextRect = [layoutManager boundingRectForGlyphRange:glyphRange
+                                                    inTextContainer:textContainer];
+    // Bail early if point outside the whole text bounding rect
+    if (!CGRectContainsPoint(wholeTextRect, point))
+    {
+        return NSNotFound;
+    }
+    
+    // ask the layoutManager which glyph is under this tapped point
+    NSUInteger glyphIdx = [layoutManager glyphIndexForPoint:point
+                                            inTextContainer:textContainer
+                             fractionOfDistanceThroughGlyph:NULL];
+    
+    // as explained in Apple's documentation the previous method returns the nearest glyph
+    // if no glyph was present at that point. So if we want to ensure the point actually
+    // lies on that glyph, we should check that explicitly
+    CGRect glyphRect = [layoutManager boundingRectForGlyphRange:NSMakeRange(glyphIdx, 1)
+                                                inTextContainer:textContainer];
+    if (CGRectContainsPoint(glyphRect, point))
+    {
+        NSUInteger index = [layoutManager characterIndexForGlyphAtIndex:glyphIdx];
+        return index;
+    }
+    else
+    {
+        return NSNotFound;
+    }
+}
+
+-(BOOL)checkLinkAttributeForString:(NSAttributedString *)theString atPoint:(CGPoint)p
+{
+    NSUInteger idx = [self characterIndexAtPoint:theString atPoint:p];
+    
+    if (idx == NSNotFound)
+    {
+        return NO;
+    }
+    
+    NSRange theRange = NSMakeRange(0, 0);
+    NSString *url = nil;
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+    TiUIAttributedStringProxy *tempString = [[self proxy] valueForKey:@"attributedString"];
+    url = [tempString getLink:idx];
+#endif
+    
+    if (url == nil || url.length == 0)
+    {
+        return NO;
+    }
+    
+    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                               url, @"url",
+                               [NSArray arrayWithObjects:NUMUINTEGER(theRange.location), NUMUINTEGER(theRange.length),nil],@"range",
+                               nil];
+    [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO reportSuccess:NO errorCode:0 message:nil];
+    return YES;
+}
 #pragma mark Public APIs
 
 -(void)setShowUndoRedoActions_:(id)value

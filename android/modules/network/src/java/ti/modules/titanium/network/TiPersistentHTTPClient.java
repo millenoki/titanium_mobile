@@ -7,11 +7,10 @@
 package ti.modules.titanium.network;
 
 import ti.modules.titanium.network.TiHTTPClient;
-import org.appcelerator.kroll.KrollProxy;
 
 public class TiPersistentHTTPClient extends TiHTTPClient
 {
-	public TiPersistentHTTPClient(KrollProxy proxy)
+	public TiPersistentHTTPClient(HTTPClientProxy proxy)
 	{
 		super(proxy);
 

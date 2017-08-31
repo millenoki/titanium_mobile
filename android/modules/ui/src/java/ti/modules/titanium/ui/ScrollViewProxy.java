@@ -20,11 +20,13 @@ import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import java.util.HashMap;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_CONTENT_HEIGHT, 
@@ -67,15 +69,20 @@ public class ScrollViewProxy extends ViewProxy
 	}
 
 	@Kroll.method
-	public void scrollTo(int x, int y) {
+	public void scrollTo(int x, int y, @Kroll.argument(optional=true) HashMap args) {
+		boolean animated = false;
+		if (args != null) {
+			animated = TiConvert.toBoolean(args.get("animated"), false);
+		}
+		
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO, x, y), getActivity());
-
-
-			//TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO, x, y), getActivity());
-			//sendBlockingUiMessage(MSG_SCROLL_TO, getActivity(), x, y);
+			HashMap msgArgs = new HashMap();
+			msgArgs.put("x", x);
+			msgArgs.put("y", y);
+			msgArgs.put("animated", animated);
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO), msgArgs);
 		} else {
-			handleScrollTo(x,y);
+			handleScrollTo(x, y, animated);
 		}
 	}
 
@@ -143,9 +150,6 @@ public class ScrollViewProxy extends ViewProxy
 	public void scrollToBottom() {
 		if (!TiApplication.isUIThread()) {
 			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM), getActivity());
-
-			//TiApplication.getInstance().getMessageQueue().sendBlockingMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_BOTTOM), getActivity());
-			//sendBlockingUiMessage(MSG_SCROLL_TO_BOTTOM, getActivity());
 		} else {
 			handleScrollToBottom();
 		}
@@ -154,8 +158,9 @@ public class ScrollViewProxy extends ViewProxy
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
-			handleScrollTo(msg.arg1, msg.arg2);
 			AsyncResult result = (AsyncResult) msg.obj;
+			HashMap args = (HashMap)result.getArg();
+			handleScrollTo(TiConvert.toInt(args.get("x"), 0), TiConvert.toInt(args.get("y"), 0), TiConvert.toBoolean(args.get("animated"), false));
 			result.setResult(null); // signal scrolled
 			return true;
 		} else if (msg.what == MSG_SET_CONTENT_OFFSET) {
@@ -170,8 +175,12 @@ public class ScrollViewProxy extends ViewProxy
 		return super.handleMessage(msg);
 	}
 
-	public void handleScrollTo(int x, int y) {
-		getScrollView().scrollTo(x, y);
+	public void handleScrollTo(int x, int y, boolean smoothScroll) {
+	    if (smoothScroll) {
+            getScrollView().smoothScrollTo(x, y);
+	    } else {
+	        getScrollView().scrollTo(x, y);
+	    }
 	}
 	
 	public void handleSetContentOffset(Object offset, boolean animated) {

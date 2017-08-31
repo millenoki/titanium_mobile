@@ -137,7 +137,7 @@ timodule.xml.
 	</path>
 
 	<target name="python.set.exec">
-		<property name="python.bat" location="${titanium.platform}/../python.bat"/>
+		<property name="python.bat" location="${titanium.platform}/../win32/python.bat"/>
 		<condition property="python.exec" value="${python.bat}" else="python">
 			<os family="windows"/>
 		</condition>

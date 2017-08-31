@@ -1,5 +1,4 @@
-var exec = require('child_process').exec,
-	spawn = require('child_process').spawn,
+var spawn = require('child_process').spawn,
 	fs = require('fs'),
 	path = require('path'),
 	async = require('async'),
@@ -12,12 +11,8 @@ function Documentation(outputDir) {
 }
 
 Documentation.prototype.prepare = function(next) {
-	exec('npm install', {cwd: DOC_DIR}, function (err, stdout, stderr) {
-		if (err) {
-			return next(err);
-		}
-		next();
-	});
+	// no-op now...
+	next();
 };
 
 Documentation.prototype.generateParityReport = function (next) {
@@ -29,13 +24,14 @@ Documentation.prototype.generateParityReport = function (next) {
 	}
 
 	console.log('Generating parity report...');
+
 	prc = spawn('node', args, {cwd: DOC_DIR});
 
 	prc.stdout.on('data', function (data) {
-		console.log(data.toString());
+		console.log(data.toString().trim());
 	});
 	prc.stderr.on('data', function (data) {
-		console.error(data.toString());
+		console.error(data.toString().trim());
 	});
 	prc.on('close', function (code) {
 		if (code != 0) {
@@ -58,10 +54,10 @@ Documentation.prototype.generateJSCA = function (next) {
 	prc = spawn('node', args, {cwd: DOC_DIR});
 
 	prc.stdout.on('data', function (data) {
-		console.log(data.toString());
+		console.log(data.toString().trim());
 	});
 	prc.stderr.on('data', function (data) {
-		console.error(data.toString());
+		console.error(data.toString().trim());
 	});
 	prc.on('close', function (code) {
 		if (code != 0) {

@@ -35,6 +35,12 @@
 		<activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" 
 			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 
+		<provider
+			android:name="org.appcelerator.titanium.io.TiFileProvider"
+			android:authorities="<%- appid %>.tifileprovider"
+			android:exported="false"
+			android:grantUriPermissions="true"/>
+
 	</application>
 
 </manifest>

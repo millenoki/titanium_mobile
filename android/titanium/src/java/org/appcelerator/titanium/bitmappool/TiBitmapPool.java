@@ -26,7 +26,7 @@ public class TiBitmapPool {
         opts.inPurgeable = true;
         opts.inInputShareable = true;
         opts.inMutable = true;
-        opts.inPreferredConfig = Bitmap.Config.RGB_565;
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
         return opts;
     }
     public static Bitmap tryFindBitmap(final BitmapFactory.Options options) {

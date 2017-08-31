@@ -371,6 +371,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	// to execute on the runtime, and we can therefore dispose of it.
 	public static void incrementActivityRefCount()
 	{
+		waitForInit();
+
 		activityRefCount++;
 		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
 			syncInit();
@@ -398,6 +400,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	// Similar to {@link #incrementActivityRefCount} but for a Titanium Service.
 	public static void incrementServiceReceiverRefCount()
 	{
+		waitForInit();
+		
 		serviceReceiverRefCount++;
 		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
 			syncInit();

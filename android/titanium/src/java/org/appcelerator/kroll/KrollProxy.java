@@ -2199,7 +2199,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (krollObjectSupported) {
             return;
         }
-         if (krollObject != null) {
+        if (eventListeners != null) {
+            eventListeners.clear();
+            eventListeners = null;
+        }
+        if (properties != null) {
+            properties.clear();
+            properties = null;
+        }
+        if (defaultValues != null) {
+            defaultValues.clear();
+            defaultValues = null;
+        }
+        if (krollObject != null) {
             krollObject.release();
             krollObject = null;
         }

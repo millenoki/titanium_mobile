@@ -14,7 +14,7 @@
 var appc = require('node-appc'),
 	async = require('async'),
 	bufferEqual = require('buffer-equal'),
-	Builder = require('titanium-sdk/lib/builder'),
+	Builder = require('node-titanium-sdk/lib/builder'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
@@ -25,14 +25,14 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	humanize = require('humanize'),
 	ioslib = require('ioslib'),
-	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	minimatch = require("minimatch"),
+	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
 	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
-	ti = require('titanium-sdk'),
+	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
@@ -207,6 +207,8 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		}
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
+
+		this.initTiappSettings();
 
 		// build the list of simulators
 		Object
@@ -1294,6 +1296,378 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
 };
 
 /**
+ * Validates and initializes settings from the tiapp.xml. This function can be
+ * invoked when trying to build the list of iOS Simulators for --device-id
+ * prompting, otherwise it'll be called from the iOS build's validate().
+ *
+ * It's critical that this function ONLY logs output in the event of a fatal
+ * error.
+ */
+iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
+	if (this._tiappSettingsInitialized) {
+		return;
+	}
+
+	var cli = this.cli;
+	var logger = this.logger;
+
+	// redundant, but we need it earlier than validate()
+	this.projectDir = cli.argv['project-dir'];
+
+	var tiapp = cli.tiapp;
+	tiapp.ios || (tiapp.ios = {});
+	tiapp.ios.capabilities || (tiapp.ios.capabilities = {});
+	Array.isArray(tiapp.ios.extensions) || (tiapp.ios.extensions = []);
+
+	// the existance of an app id was already checked in cli/commands/build.js,
+	// but now we need to check for underscores
+	if (!this.config.get('app.skipAppIdValidation') && !tiapp.properties['ti.skipAppIdValidation']) {
+		if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(tiapp.id)) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', tiapp.id));
+			logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
+			logger.error(__('Note: iOS does not allow underscores.'));
+			logger.error(__('The first character must be a letter or underscore.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
+
+		if (tiapp.id.indexOf('_') !== -1) {
+			logger.error(__('tiapp.xml contains an invalid app id "%s"', tiapp.id));
+			logger.error(__('The app id must consist of letters, numbers, and dashes.'));
+			logger.error(__('The first character must be a letter.'));
+			logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
+			process.exit(1);
+		}
+	}
+
+	// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
+	if (this.blacklistDirectories.indexOf(tiapp.name.toLowerCase()) !== -1 || tiapp.name.toLowerCase() === 'frameworks') {
+		logger.error(__('The app name conflicts with a reserved file.'));
+		logger.error(__('You must change the name of the app in the tiapp.xml.') + '\n');
+		process.exit(1);
+	}
+
+	// make sure we have an app icon
+	if (!tiapp.icon || !['Resources', 'Resources/iphone', 'Resources/ios'].some(function (p) { return fs.existsSync(this.projectDir, p, tiapp.icon); }, this)) {
+		tiapp.icon = 'appicon.png';
+	}
+
+	if (!/\.png$/.test(tiapp.icon)) {
+		logger.error(__('Application icon must be a PNG formatted image.') + '\n');
+		process.exit(1);
+	}
+
+	// validate the log server port
+	var logServerPort = tiapp.ios['log-server-port'];
+	if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1024 || logServerPort > 65535)) {
+		logger.error(__('Invalid <log-server-port> found in the tiapp.xml'));
+		logger.error(__('Port must be a positive integer between 1024 and 65535') + '\n');
+		process.exit(1);
+	}
+
+	// process min ios version
+	this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
+	if (this.hasWatchAppV2orNewer && appc.version.lt(this.minIosVersion, '9.0')) {
+		this.minIosVersion = '9.0';
+	} else if (tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(this.minIosVersion, '8.0')) {
+		this.minIosVersion = '8.0';
+	}
+
+	// process device family
+	var deploymentTargets = tiapp['deployment-targets'];
+	this.deviceFamily = cli.argv['device-family'];
+	if (!this.deviceFamily && deploymentTargets) {
+		if (deploymentTargets.ipad && (!deploymentTargets.iphone || cli.argv.$originalPlatform === 'ipad')) {
+			this.deviceFamily = 'ipad';
+		} else if (deploymentTargets.iphone && !deploymentTargets.ipad) {
+			this.deviceFamily = 'iphone';
+		} else {
+			this.deviceFamily = 'universal';
+		}
+	}
+
+	if (cli.argv.$originalPlatform === 'ipad') {
+		logger.warn(__('--platform ipad has been deprecated and will be removed in Titanium SDK 7.0.0'));
+		logger.warn(__('See %s for more details', 'https://jira.appcelerator.org/browse/TIMOB-24228'));
+	}
+
+	// init the extensions
+	tiapp.ios.extensions.forEach(function (ext) {
+		if (!ext.projectPath) {
+			logger.error(__('iOS extensions must have a "projectPath" attribute that points to a folder containing an Xcode project.') + '\n');
+			process.exit(1);
+		}
+
+		// projectPath could be either the path to a project directory or the actual .xcodeproj
+		ext.origProjectPath = ext.projectPath;
+		ext.projectPath = ext.projectPath[0] === '/' ? appc.fs.resolvePath(ext.projectPath) : appc.fs.resolvePath(this.projectDir, ext.projectPath);
+
+		var xcodeprojRegExp = /\.xcodeproj$/;
+		if (!xcodeprojRegExp.test(ext.projectPath)) {
+			// maybe we're the parent dir?
+			ext.projectPath = path.join(ext.projectPath, path.basename(ext.projectPath) + '.xcodeproj');
+		}
+
+		var projectName = path.basename(ext.projectPath.replace(xcodeprojRegExp, ''));
+
+		if (!fs.existsSync(ext.projectPath)) {
+			logger.error(__('iOS extension "%s" Xcode project not found: %s', projectName, ext.projectPath) + '\n');
+			process.exit(1);
+		}
+
+		var projFile = path.join(ext.projectPath, 'project.pbxproj');
+		if (!fs.existsSync(projFile)) {
+			logger.error(__('iOS extension "%s" project missing Xcode project file: %s', projectName, projFile) + '\n');
+			process.exit(1);
+		}
+
+		if (!Array.isArray(ext.targets) || !ext.targets.length) {
+			// logger.warn(__('iOS extension "%s" has no targets, skipping.', projectName));
+			return;
+		}
+
+		var proj = xcode.project(path.join(ext.projectPath, 'project.pbxproj')).parseSync();
+
+		// flag each target we care about
+		var tiappTargets = {};
+		ext.targets.forEach(function (target) { tiappTargets[target.name] = target; });
+
+		// augment the ext entry with some extra details that we'll use later when constructing the Xcode project
+		ext.objs        = proj.hash.project.objects;
+		ext.project     = ext.objs.PBXProject[proj.hash.project.rootObject];
+		ext.projectName = path.basename(ext.projectPath).replace(/\.xcodeproj$/, ''),
+		ext.basePath    = path.dirname(ext.projectPath),
+		ext.relPath     = 'extensions/' + path.basename(path.dirname(ext.projectPath)),
+		ext.targetInfo  = {};
+
+		var globalCfg = ext.objs.XCConfigurationList[ext.project.buildConfigurationList];
+		var globalCfgId = globalCfg.buildConfigurations
+			.filter(function (c) { return c.comment.toLowerCase() === (globalCfg.defaultConfigurationName ? globalCfg.defaultConfigurationName.toLowerCase() : 'release'); })
+			.map(function (c) { return c.value; })
+			.shift();
+		var globalBuildSettings = ext.objs.XCBuildConfiguration[globalCfgId].buildSettings;
+
+		// check that the PP UUID is correct
+		var pps = [];
+		if (cli.argv.target === 'device') {
+			pps = this.iosInfo.provisioning.development;
+		} else if (cli.argv.target === 'dist-appstore') {
+			pps = this.iosInfo.provisioning.distribution;
+		} else if (cli.argv.target === 'dist-adhoc') {
+			pps = [].concat(this.iosInfo.provisioning.adhoc, this.iosInfo.provisioning.enterprise).filter(function (p) { return p; });
+		}
+
+		function getPPbyUUID(ppuuid) {
+			return pps
+				.filter(function (p) {
+					if (!p.expired && !p.managed && p.uuid === ppuuid) {
+						return true;
+					}
+				})
+				.shift();
+		}
+
+		// find our targets
+		ext.project.targets.forEach(function (t) {
+			var targetName = t.comment;
+
+			if (!tiappTargets[targetName]) {
+				// not a target we care about
+				return;
+			}
+
+			// we have found our target!
+
+			var nativeTarget = ext.objs.PBXNativeTarget[t.value];
+
+			var cfg = ext.objs.XCConfigurationList[nativeTarget.buildConfigurationList];
+			var cfgid = cfg.buildConfigurations
+				.filter(function (c) { return c.comment.toLowerCase() === (cfg.defaultConfigurationName ? cfg.defaultConfigurationName.toLowerCase() : 'release'); })
+				.map(function (c) { return c.value; })
+				.shift();
+
+			var buildSettings = ext.objs.XCBuildConfiguration[cfgid].buildSettings;
+			var sourcesBuildPhase = nativeTarget.buildPhases.filter(function (p) { return /^Sources$/i.test(p.comment); });
+
+			var productType = nativeTarget.productType.replace(/^"/, '').replace(/"$/, '');
+			var containsExtension = productType.indexOf('extension') !== -1;
+			var containsWatchApp = productType.indexOf('watchapp') !== -1;
+			var containsWatchKit = productType.indexOf('watchkit') !== -1;
+
+			var targetInfo = ext.targetInfo[targetName] = {
+				productType:           productType,
+				isWatchAppV1Extension: productType === 'com.apple.product-type.watchkit-extension',
+				isExtension:           containsExtension && (!containsWatchKit || productType === 'com.apple.product-type.watchkit-extension'),
+				isWatchAppV1:          productType === 'com.apple.product-type.application.watchapp',
+				isWatchAppV2orNewer:   containsWatchApp && productType !== 'com.apple.product-type.application.watchapp',
+				sdkRoot:               productType === 'com.apple.product-type.application.watchapp' ? 'watchos' : (buildSettings.SDKROOT || globalBuildSettings.SDKROOT || null),
+				watchOS:               productType === 'com.apple.product-type.application.watchapp' ? '1.0' : (buildSettings.WATCHOS_DEPLOYMENT_TARGET || globalBuildSettings.WATCHOS_DEPLOYMENT_TARGET || null),
+				infoPlist:             null
+			};
+
+			if (targetInfo.isWatchAppV1Extension || targetInfo.isWatchAppV1) {
+				logger.error(__('WatchOS1 app detected.'));
+				logger.error(__('Titanium %s does not support WatchOS1 apps.', this.titaniumSdkVersion) + '\n');
+				process.exit(1);
+			}
+
+			// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
+			if (targetInfo.isWatchAppV2orNewer
+					&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
+					&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
+				this.watchMinOSVersion = targetInfo.watchOS;
+			}
+
+			if (targetInfo.isWatchAppV2orNewer) {
+				this.hasWatchAppV2orNewer = true;
+			}
+
+			// find this target's Info.plist
+			ext.objs.PBXGroup[ext.project.mainGroup].children.some(function (child) {
+				if (child.comment !== targetName) {
+					return;
+				}
+
+				(function walkGroup(uuid, basePath) {
+					if (ext.objs.PBXGroup[uuid].path) {
+						basePath = path.join(basePath, ext.objs.PBXGroup[uuid].path.replace(/^"/, '').replace(/"$/, ''));
+					}
+
+					ext.objs.PBXGroup[uuid].children.some(function (child) {
+						if (ext.objs.PBXGroup[child.value]) {
+							return walkGroup(child.value, basePath);
+						} else if (ext.objs.PBXFileReference[child.value] && child.comment === 'Info.plist') {
+							var infoPlistFile = path.join(basePath, 'Info.plist');
+							if (!fs.existsSync(infoPlistFile)) {
+								logger.error(__('Unable to find "%s" iOS extension\'s "%s" target\'s Info.plist: %s', ext.projectName, targetName, infoPlistFile) + '\n');
+								process.exit(1);
+							}
+
+							var plist = ext.targetInfo[targetName].infoPlist = ioslib.utilities.readPlist(infoPlistFile);
+							if (!plist) {
+								logger.error(__('Failed to parse "%s" iOS extension\'s "%s" target\'s Info.plist: %s', ext.projectName, targetName, infoPlistFile) + '\n');
+								process.exit(1);
+							}
+
+							if (plist.WKWatchKitApp) {
+								var CFBundleIdentifier = plist.CFBundleIdentifier.replace('$(PRODUCT_BUNDLE_IDENTIFIER)', buildSettings.PRODUCT_BUNDLE_IDENTIFIER);
+								if (CFBundleIdentifier.indexOf(tiapp.id) !== 0) {
+									logger.error(__('iOS extension "%s" WatchKit App bundle identifier is "%s", but must be prefixed with "%s".', ext.projectName, plist.CFBundleIdentifier, tiapp.id) + '\n');
+									process.exit(1);
+								}
+
+								if (CFBundleIdentifier.toLowerCase() === tiapp.id.toLowerCase()) {
+									logger.error(__('iOS extension "%s" WatchKit App bundle identifier must be different from the Titanium app\'s id "%s".', ext.projectName, tiapp.id) + '\n');
+									process.exit(1);
+								}
+							} else if (targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer) {
+								logger.error(__('The "%s" iOS extension "%s" target\'s Info.plist is missing the WKWatchKitApp property, yet the product type is of a watch: %s', ext.projectName, targetName, productType) + '\n');
+								process.exit(1);
+							}
+
+							ext.targetInfo.id = plist.CFBundleIdentifier.replace(/^\$\((.*)\)$/, function (s, m) {
+								return buildSettings[m] || s;
+							});
+
+							return true;
+						}
+					});
+				}(child.value, ext.basePath));
+
+				return true;
+			});
+
+			if (cli.argv.target !== 'simulator') {
+				// check that all target provisioning profile uuids are valid
+				if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
+					if (cli.argv['pp-uuid']) {
+						if (!tiappTargets[targetName].ppUUIDs) {
+							tiappTargets[targetName].ppUUIDs = {};
+						}
+						tiappTargets[targetName].ppUUIDs[cli.argv.target] = cli.argv['pp-uuid'];
+						// logger.warn(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+						// logger.warn(__('Using the iOS app provisioning profile UUID "%s"', cli.argv['pp-uuid']));
+					} else {
+						logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log('        <extensions>'.grey);
+						logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
+						logger.log(('                <target name="' + targetName + '">').grey);
+						logger.log('                    <provisioning-profiles>'.grey);
+						logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
+						logger.log('                    </provisioning-profiles>'.grey);
+						logger.log('                </target>'.grey);
+						logger.log('            </extension>'.grey);
+						logger.log('        </extensions>'.grey);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
+						process.exit(1);
+					}
+				}
+
+				// find the selected provisioning profile
+				var ppuuid = tiappTargets[targetName].ppUUIDs[cli.argv.target];
+				var pp = getPPbyUUID(ppuuid);
+
+				if (!pp) {
+					logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
+					logger.error(__('Unable to find a valid provisioning profile matching the UUID "%s".', ppuuid) + '\n');
+					process.exit(1);
+				}
+
+				if (ext.targetInfo.id && !(new RegExp('^' + pp.appId.replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id)) {
+					logger.error(__('iOS extension "%s" target "%s" has invalid provisioning profile UUID in tiapp.xml.', projectName, targetName));
+					logger.error(__('The provisioning profile "%s" is tied to the application identifier "%s", however the extension\'s identifier is "%s".', ppuuid, pp.appId, ext.targetInfo.id));
+					logger.log();
+
+					var matches = pps.filter(function (p) { return !p.expired && !p.managed && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
+					if (matches.length) {
+						logger.log(__('Did you mean?'));
+						var max = 0;
+						matches.forEach(function (m) {
+							if (m.appId.length > max) {
+								max = m.appId.length;
+							}
+						});
+						matches.forEach(function (m) {
+							var expires = m.expirationDate && moment(m.expirationDate),
+								day = expires && expires.format('D'),
+								hour = expires && expires.format('h');
+							logger.log('  ' + String(m.uuid).cyan + ' '
+								+ appc.string.rpad(m.appId, max + 1)
+								+ (m.expirationDate ? (' (' + __('expires %s', expires.format('MMM') + ' '
+								+ (day.length === 1 ? ' ' : '') + day + ', ' + expires.format('YYYY') + ' '
+								+ (hour.length === 1 ? ' ' : '') + hour + ':' + expires.format('mm:ss a'))
+								+ ')').grey : ''));
+						});
+						logger.log();
+					}
+
+					process.exit(1);
+				}
+			}
+
+			// we don't need the tiapp target lookup anymore
+			delete tiappTargets[targetName];
+		}, this);
+
+		// check if we're missing any targets
+		tiappTargets = Object.keys(tiappTargets);
+		if (tiappTargets.length) {
+			logger.error(__n('iOS extension "%%s" does not contain a target named "%%s".', 'iOS extension "%%s" does not contain the following targets: "%%s".', tiappTargets.length, projectName, tiappTargets.join(', ')) + '\n');
+			process.exit(1);
+		}
+
+		this.extensions.push(ext);
+	}, this);
+
+	this._tiappSettingsInitialized = true;
+};
+
+/**
  * Validates the iOS build-specific arguments, tiapp.xml settings, and environment.
  *
  * @param {Object} logger - The logger instance.
@@ -1387,28 +1761,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			this.showErrorController = false;
 		}
 
-		var appId = this.tiapp.id;
-
-		// at this point we've validated everything except underscores in the app id
-		if (!config.get('app.skipAppIdValidation') && !this.tiapp.properties['ti.skipAppIdValidation']) {
-			if (!/^([a-zA-Z_]{1}[a-zA-Z0-9_-]*(\.[a-zA-Z0-9_-]*)*)$/.test(appId)) {
-				logger.error(__('tiapp.xml contains an invalid app id "%s"', appId));
-				logger.error(__('The app id must consist only of letters, numbers, dashes, and underscores.'));
-				logger.error(__('Note: iOS does not allow underscores.'));
-				logger.error(__('The first character must be a letter or underscore.'));
-				logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-				process.exit(1);
-			}
-
-			if (appId.indexOf('_') !== -1) {
-				logger.error(__('tiapp.xml contains an invalid app id "%s"', appId));
-				logger.error(__('The app id must consist of letters, numbers, and dashes.'));
-				logger.error(__('The first character must be a letter.'));
-				logger.error(__("Usually the app id is your company's reversed Internet domain name. (i.e. com.example.myapp)") + '\n');
-				process.exit(1);
-			}
-		}
-
+		// this may have already been called in an option validate() callback
+		this.initTiappSettings();
+		
 		// make sure the app doesn't have any blacklisted directories or files in the Resources directory and warn about graylisted names
 		var platformsRegExp = /^(android|ios|iphone|ipad|mobileweb|blackberry|windows|tizen)$/;
 		this.blacklistDirectories.push(this.tiapp.name);
@@ -3247,7 +3602,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/* \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			shellScript: '"cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -4029,7 +4384,7 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 			if (target === 'device') {
 				return getPP(provisioning.development, uuid);
 			} else if (target === 'dist-appstore' || target === 'dist-adhoc') {
-				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid);
+				return getPP(provisioning.distribution, uuid) || getPP(provisioning.adhoc, uuid) || getPP(provisioning.enterprise, uuid);
 			}
 		}(this.iosInfo.provisioning, this.target, this.provisioningProfileUUID));
 

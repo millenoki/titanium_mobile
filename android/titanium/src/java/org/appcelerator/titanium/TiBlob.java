@@ -691,7 +691,7 @@ public class TiBlob extends KrollProxy {
         if (image == null && (width > 0 && height > 0)) {
             if (opts == null) {
                 opts = new BitmapFactory.Options();
-                opts.inPreferredConfig = Bitmap.Config.RGB_565;
+                opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 opts.outWidth = width;
                 opts.outHeight = height;
             }
@@ -858,7 +858,7 @@ public class TiBlob extends KrollProxy {
 
             opts = new BitmapFactory.Options();
             opts.inSampleSize = sampleSize;
-            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
         }
 
         Bitmap img = getImage(opts);

@@ -22,20 +22,20 @@ var appc = require('node-appc'),
         'application': /^(activity|activity-alias|meta-data|provider|receiver|service|uses\-library)$/
     },
 
-    tagAttrs = {
-        'application': /^(allowTaskReparenting|allowBackup|backupAgent|debuggable|description|enabled|hasCode|hardwareAccelerated|icon|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|permission|persistent|process|restoreAnyVersion|requiredAccountType|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|vmSafeMode)$/,
-        'activity': /^(allowTaskReparenting|alwaysRetainTaskState|clearTaskOnLaunch|configChanges|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|multiprocess|name|noHistory|parentActivityName|permission|process|screenOrientation|stateNotNeeded|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
-        'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
-        'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
-        'intent-filter': /^(icon|label|priority)$/,
-        'meta-data': /^(name|resource|value)$/,
-        'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
-        'provider': /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
-        'receiver': /^(enabled|exported|icon|label|name|permission|process)$/,
-        'service': /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
-        'uses-library': /^(name|required)$/,
-        'uses-sdk': /^(name|required)$/
-    };
+	tagAttrs = {
+		'application': /^(allowTaskReparenting|allowBackup|backupAgent|debuggable|description|enabled|hasCode|hardwareAccelerated|icon|roundIcon|killAfterRestore|largeHeap|label|logo|manageSpaceActivity|name|permission|persistent|process|restoreAnyVersion|requiredAccountType|restrictedAccountType|supportsRtl|taskAffinity|testOnly|theme|uiOptions|vmSafeMode)$/,
+		'activity': /^(allowTaskReparenting|alwaysRetainTaskState|clearTaskOnLaunch|configChanges|enabled|excludeFromRecents|exported|finishOnTaskLaunch|hardwareAccelerated|icon|label|launchMode|multiprocess|name|noHistory|parentActivityName|permission|process|screenOrientation|stateNotNeeded|taskAffinity|theme|uiOptions|windowSoftInputMode)$/,
+		'activity-alias': /^(enabled|exported|icon|label|name|permission|targetActivity)$/,
+		'data': /^(host|mimeType|path|pathPattern|pathPrefix|port|scheme)$/,
+		'intent-filter': /^(icon|label|priority)$/,
+		'meta-data': /^(name|resource|value)$/,
+		'path-permission': /^(path|pathPrefix|pathPattern|permission|readPermissions|writePermissions)$/,
+		'provider': /^(authorities|enabled|exported|grantUriPermissions|icon|initOrder|label|multiprocess|name|permission|process|readPermission|syncable|writePermission)$/,
+		'receiver': /^(enabled|exported|icon|label|name|permission|process)$/,
+		'service': /^(enabled|exported|icon|isolatedProcess|label|name|permission|process)$/,
+		'uses-library': /^(name|required)$/,
+		'uses-sdk': /^(name|required)$/
+	};
 
 module.exports = AndroidManifest;
 

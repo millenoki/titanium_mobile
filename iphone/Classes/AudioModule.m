@@ -290,6 +290,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
 
+#ifdef USE_TI_AUDIOHASAUDIOPERMISSIONS
 -(NSNumber*)hasAudioPermissions
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -300,8 +301,31 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     
     [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
 }
+#endif
 
+#if defined(USE_TI_AUDIOHASAUDIORECORDERPERMISSIONS) || defined(USE_TI_AUDIOHASAUDIOPERMISSIONS)
+-(id)hasAudioRecorderPermissions:(id)unused
+{
+    NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+    
+    return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized);
+}
+#endif
+
+#ifdef USE_TI_MEDIAREQUESTAUDIOPERMISSIONS
 -(void)requestAudioPermissions:(id)args
+{
+    DEPRECATED_REPLACED(@"Audio.requestAudioPermissions", @"6.1.0", @"Audio.requestAudioRecorderPermissions");
+    [self requestAudioRecorderPermissions:args];
+}
+#endif
+
+#if defined(USE_TI_AUDIOREQUESTAUDIORECORDERPERMISSIONS) || defined(USE_TI_AUDIOREQUESTAUDIOPERMISSIONS) || defined(USE_TI_AUDIOREQUESTAUTHORIZATION)
+-(void)requestAudioRecorderPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;
@@ -323,6 +347,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         return;
     }
 }
+#endif
 
 -(void)startMicrophoneMonitor:(id)args
 {

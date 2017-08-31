@@ -36,6 +36,7 @@ public class TiNetworkListener {
  
     private IntentFilter connectivityIntentFilter;
     private ConnectivityBroadcastReceiver receiver;
+    private boolean init;
  
     private Handler messageHandler;
     private Context context; // null on release, might need to be softRef.
@@ -45,6 +46,10 @@ public class TiNetworkListener {
         @Override
         public void onReceive(Context context, Intent intent)
         {
+            if (!init) {
+                init = true;
+                return;
+            }
             String action = intent.getAction();
  
             if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {

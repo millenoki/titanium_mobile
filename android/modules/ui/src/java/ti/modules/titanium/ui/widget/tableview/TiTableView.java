@@ -33,6 +33,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.support.v4.view.ViewPager;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -205,6 +206,18 @@ public class TiTableView extends FrameLayout
 					TableViewRowProxy row = (TableViewRowProxy)newProxy;
 					if (row.getTableViewRowProxyItem() != null) {
 						sameView = row.getTableViewRowProxyItem().equals(convertView);
+					}
+					// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
+					if (Build.VERSION.SDK_INT > 23) {
+						ArrayList<Item> models = viewModel.getViewModel();
+						for (Item model : models) {
+							TableViewRowProxy proxy = (TableViewRowProxy) model.proxy;
+							if (proxy.getTableViewRowProxyItem().equals(convertView)) {
+								sameView = true;
+								v = null;
+								break;
+							}
+						}
 					}
 				}
 				if (!sameView) {

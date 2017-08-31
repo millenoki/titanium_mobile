@@ -73,6 +73,25 @@
     [self makeViewPerformSelector:@selector(closePullView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
+-(void)scrollTo:(id)args
+{
+    TiPoint * offset = [[TiPoint alloc] initWithPoint:CGPointMake([TiUtils floatValue:[args objectAtIndex:0]], [TiUtils floatValue:[args objectAtIndex:1]])];
+
+    if ([args count] == 3) {
+        id options = [args objectAtIndex:2];
+        ENSURE_TYPE(options, NSDictionary);
+                
+        TiThreadPerformBlockOnMainThread(^{
+            [self setContentOffset:offset withObject:options];
+        }, NO);
+    } else {
+        TiThreadPerformBlockOnMainThread(^{
+            [self setContentOffset:offset withObject:nil];
+        }, NO);
+    }
+
+    [offset release];
+}
 
 -(void)scrollToTop:(id)args
 {

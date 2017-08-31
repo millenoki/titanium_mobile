@@ -892,6 +892,8 @@ public class TiUIText extends TiUINonViewGroupView
 //			realtv.setSingleLine(false);
 //		}
 
+		disableChangeEvent = false;
+
 	}
 
 	public void setSelection(int start, int end) 

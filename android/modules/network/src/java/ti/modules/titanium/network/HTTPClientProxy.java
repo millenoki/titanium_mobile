@@ -16,6 +16,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -39,6 +40,7 @@ public class HTTPClientProxy extends KrollProxy
 	@Kroll.constant public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
+	private static final String TAG = "TiHTTPClientProxy";
 	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	protected TiHTTPClient client;
@@ -49,6 +51,12 @@ public class HTTPClientProxy extends KrollProxy
 		super();
 		this.client = new TiHTTPClient(this);
 	}
+    
+    @Override
+    public void release() {
+        this.client = null;
+        super.release();
+    }
 	
 	@Override
     public void handleCreationDict(HashMap dict, KrollProxy rootProxy)

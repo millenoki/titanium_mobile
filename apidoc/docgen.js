@@ -459,7 +459,16 @@ function processAPIs (api) {
 					'__subtype': 'method'
 				};
 				api.__creatable = true;
-				'methods' in doc[cls] ? doc[cls].methods.push(createMethod) : doc[cls].methods = [createMethod];
+				if ('methods' in doc[cls]) {
+					if (!doc[cls].methods) {
+						common.log(common.LOG_WARN, 'Empty \'methods\' listing for class: %s', cls);
+						doc[cls].methods = [createMethod];
+					} else {
+						doc[cls].methods.push(createMethod);
+					}
+				} else {
+					doc[cls].methods = [createMethod];
+				}
 			}
 		}
 	}
@@ -641,11 +650,13 @@ function addOnMerge(baseObj, addObj) {
 function mkdirDashP(path) {
 	var p = path.replace(/\\/g, '/');
 	p = p.substring(0, path.lastIndexOf('/'));
-	if (!fs.existsSync(p)) {
-		mkdirDashP(p);
-	}
-	if (!fs.existsSync(path)) {
-		fs.mkdirSync(path);
+	if (p.length) {
+		if (!fs.existsSync(p)) {
+			mkdirDashP(p);
+		}
+		if (!fs.existsSync(path)) {
+			fs.mkdirSync(path);
+		}
 	}
 }
 
@@ -918,7 +929,7 @@ formats.forEach(function (format) {
 			}
 			output = pathMod.join(output, 'changes_' + exportData.startVersion.replace(/\./g, '_') + '.html');
 			templateStr = fs.readFileSync(pathMod.join(templatePath, 'changes.ejs'), 'utf8');
-			render = ejs.render(templateStr, {data: exportData, filename: true, assert: common.assertObjectKey});
+			render = ejs.render(templateStr, {data: exportData, filename: 'changes.ejs', assert: common.assertObjectKey});
 			break;
 		case 'html' :
 		case 'modulehtml' :
@@ -953,7 +964,7 @@ formats.forEach(function (format) {
 				}
 				templateStr = fs.readFileSync(templatePath + 'htmlejs/' + type + '.html', 'utf8');
 				exportData[type].forEach(function (member) {
-					render = ejs.render(templateStr, {data: member, filename: true, assert: common.assertObjectKey, css: cssFile});
+					render = ejs.render(templateStr, {data: member, filename: templatePath + 'htmlejs/' + type + '.html', assert: common.assertObjectKey, css: cssFile});
 					if (fs.writeFileSync(output + member.filename + '.html', render) <= 0) {
 						common.log(common.LOG_ERROR, 'Failed to write to file: %s', output + member.filename + '.html');
 					}

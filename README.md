@@ -2,13 +2,12 @@
 Akylas Fork Titanium Mobile
 ============================
 
-[![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium-sdk/titanium_mobile/master)](https://jenkins.appcelerator.org/job/titanium-sdk/job/titanium_mobile/job/master/)
+Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build 
+completely native cross-platform mobile applications using JavaScript.
 
 Welcome to the Akylas for of the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
 using JavaScript.
-
-Currently, Titanium supports mobile smartphone operating systems such as Apple iPhone, Google's Android, and Mobile Web. Other platforms, such as Windows Phone, are currently in development.
 
 Titanium is licensed under the OSI approved Apache Public License (version 2). Please
 see the LICENSE file for specific details.

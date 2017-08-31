@@ -856,8 +856,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     CGRect oldBounds = [[self webview] bounds];
     BOOL oldVal = webview.scalesPageToFit;
     [webview setScalesPageToFit:NO];
-    [webview setBounds:CGRectMake(0, 0, 10, 1)];
-    CGSize ret = [webview sizeThatFits:CGSizeMake(10, 1)];
+    [webview setBounds:CGRectMake(0, 0, size.width, 1)];
+    CGSize ret = [webview sizeThatFits:CGSizeMake(size.width, 1)];
     [webview setBounds:oldBounds];
     [webview setScalesPageToFit:oldVal];
     return ret;

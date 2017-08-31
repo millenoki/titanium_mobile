@@ -35,7 +35,6 @@ import android.webkit.WebView;
 	TiC.PROPERTY_DATA,
 	TiC.PROPERTY_ON_CREATE_WINDOW,
 	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_REQUEST_HEADERS,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
 	TiC.PROPERTY_OVER_SCROLL_MODE,
@@ -81,6 +80,7 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_BORDER_RADIUS, 0);
+		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
 	}
 
 	@Override

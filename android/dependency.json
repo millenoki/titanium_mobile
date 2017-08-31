@@ -38,6 +38,7 @@
 			"ti-commons-codec-1.3.jar",
 			"titanium.jar",
 			"android-support-multidex.jar",
+            "filesystem.jar",
 			"gifdrawable.jar"
 		],
 		"xml": ["jaxen-1.1.1.jar"],
@@ -52,8 +53,8 @@
 			"picasso.jar"
 		],
 		"network": ["thirdparty.jar"],
-        "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
-		"cardview":["cardview-v7-23.0.1.jar"],
+        "appcompat":["android-support-v4.jar", "android-support-v4-internal_impl.jar", "android-support-v7-appcompat.jar"],
+        "cardview":["cardview-v7-23.4.0.jar"],
 		"design":["android-support-design.jar"],
         "analytics":["aps-analytics.jar"]
 	},
