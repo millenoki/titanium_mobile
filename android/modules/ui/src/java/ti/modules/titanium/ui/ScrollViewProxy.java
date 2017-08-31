@@ -84,8 +84,8 @@ public class ScrollViewProxy extends ViewProxy
 	public void setContentOffset(Object offset, @Kroll.argument(optional = true) Object obj)
 	{
 		Boolean animated = true;
-		if (obj instanceof KrollDict) {
-			animated = ((KrollDict)obj).optBoolean("animated", animated);
+		if (obj instanceof HashMap) {
+			animated = TiConvert.toBoolean(((HashMap)obj), "animated", animated);
 		}
 		if (!TiApplication.isUIThread()) {
 			getMainHandler().removeMessages(MSG_SET_CONTENT_OFFSET);
