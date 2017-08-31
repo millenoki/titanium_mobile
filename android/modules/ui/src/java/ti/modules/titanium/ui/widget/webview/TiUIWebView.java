@@ -348,8 +348,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
-		settings.setSupportMultipleWindows(true);
-		settings.setJavaScriptCanOpenWindowsAutomatically(true);
+		settings.setSupportMultipleWindows(false);
+		settings.setJavaScriptCanOpenWindowsAutomatically(false);
 		settings.setAllowFileAccess(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
 		File path = TiApplication.getInstance().getFilesDir();
