@@ -7,7 +7,7 @@ tar -zxf eclipse-SDK-4.5.1-macosx-cocoa-x86_64.tar.gz
 echo "Installing ADT into Eclipse"
 java_home=`/usr/libexec/java_home`
 echo $java_home
-./Eclipse.app/Contents/MacOS/eclipse -application org.eclipse.equinox.p2.director -repository https://dl-ssl.google.com/android/eclipse/ -installIU com.android.ide.eclipse.adt.feature.feature.group -vm $java_home/jre/lib/server/libjvm.dylib -nosplash
+./Eclipse.app/Contents/MacOS/eclipse -application org.eclipse.equinox.p2.director -repository https://dl-ssl.google.com/android/eclipse/ -installIU org.eclipse.andmore.feature.feature.group -vm $java_home/jre/lib/server/libjvm.dylib -nosplash
 
 echo "Installing Eclipse into Applications folder"
 mv Eclipse.app /Applications/Eclipse.app
