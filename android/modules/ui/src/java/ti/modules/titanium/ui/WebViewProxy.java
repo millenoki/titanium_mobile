@@ -392,7 +392,7 @@ public class WebViewProxy extends ViewProxy
 		getMainHandler().sendEmptyMessage(MSG_STOP_LOADING);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getPluginState()
 	{
 		int pluginState = TiUIWebView.PLUGIN_STATE_OFF;
@@ -410,10 +410,10 @@ public class WebViewProxy extends ViewProxy
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean getDisableContextMenu()
 	{
-		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU));
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU), false);
 	}
 
 	@Kroll.method @Kroll.setProperty
