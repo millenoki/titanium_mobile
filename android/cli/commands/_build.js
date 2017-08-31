@@ -1987,8 +1987,8 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 
     this.logger.debug(__('App ID: %s', this.appid.cyan));
     this.logger.debug(__('Classname: %s', this.classname.cyan));
-    this.logger.debug(__('minifyJS: %s', this.minifyJS.cyan));
-    this.logger.debug(__('encryptJS: %s', this.encryptJS.cyan));
+    this.logger.debug(__('minifyJS: %s', (!!this.minifyJS?'true':'false').cyan));
+    this.logger.debug(__('encryptJS: %s', (!!this.encryptJS?'true':'false').cyan));
 
     if (this.allowDebugging && this.debugPort) {
         this.logger.info(__('Debugging enabled via debug port: %s', String(this.debugPort).cyan));
