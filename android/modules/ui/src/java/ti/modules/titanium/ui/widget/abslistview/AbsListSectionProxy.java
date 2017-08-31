@@ -315,11 +315,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	@Kroll.method
-	public void appendItems(final Object data) {
+	public void appendItems(final Object data, @Kroll.argument(optional = true) Object options) {
 //		runInUiThread(new CommandNoReturn() {
 //            @Override
 //            public void execute() {
-                insertItemsAt(mItemCount, data);
+                insertItemsAt(mItemCount, data, options);
 //            }
 //        }, true);
 	}
@@ -329,52 +329,71 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	@Kroll.method
-	public void insertItemsAt(final int index, final Object data) {
+	public void insertItemsAt(final int index, final Object data,
+            @Kroll.argument(optional = true) final Object options) {
+	    
 		if (!isIndexValid(index)) {
 			return;
 		}
+		boolean animated = true;
+        if (options instanceof HashMap) {
+            animated = TiConvert.toBoolean(((HashMap)options), "animated", animated);
+        }
+		final boolean fanimated = animated;
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
                 int itemCount = insertItemsData(index, data);
                 if (itemCount > 0) {
-                    notifyItemRangeInserted(index, itemCount);
+                    notifyItemRangeInserted(index, itemCount, fanimated);
                 }
             }
         }, true);
 	}
 	
-	protected void notifyItemRangeRemoved(int childPositionStart, int itemCount) {
+	protected void notifyItemRangeRemoved(int childPositionStart, int itemCount, final boolean animated) {
 	    notifyDataChange();
 	}
 	
-	protected void notifyItemRangeChanged(int childPositionStart, int itemCount) {
+	protected void notifyItemRangeChanged(int childPositionStart, int itemCount, final boolean animated) {
         notifyDataChange();
     }
-	protected void notifyItemRangeInserted(int childPositionStart, int itemCount) {
+	protected void notifyItemRangeInserted(int childPositionStart, int itemCount, final boolean animated) {
         notifyDataChange();
     }
     
 
 	@Kroll.method
-	public void deleteItemsAt(final int index, final int count) {
+	public void deleteItemsAt(final int index, final int count,
+            @Kroll.argument(optional = true) final Object options) {
 		if (!isIndexValid(index)) {
 			return;
 		}
+		boolean animated = true;
+        if (options instanceof HashMap) {
+            animated = TiConvert.toBoolean(((HashMap)options), "animated", animated);
+        }
+        final boolean fanimated = animated;
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
                 int deletedCount = deleteItemsData(index, count);
-                notifyItemRangeRemoved(index, deletedCount);
+                notifyItemRangeRemoved(index, deletedCount, fanimated);
             }
         }, true);
 	}
 
 	@Kroll.method
-	public void replaceItemsAt(final int index, final int count, final Object data) {
+	public void replaceItemsAt(final int index, final int count, final Object data,
+            @Kroll.argument(optional = true) final Object options) {
 		if (!isIndexValid(index)) {
 			return;
 		}
+		boolean animated = true;
+        if (options instanceof HashMap) {
+            animated = TiConvert.toBoolean(((HashMap)options), "animated", animated);
+        }
+        final boolean fanimated = animated;
 		runInUiThread(new CommandNoReturn() {
             
             @Override
@@ -384,9 +403,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                     deletedCount = deleteItemsData(index, count);
                 }
                 if (deletedCount > 0) {
-                    notifyItemRangeRemoved(index, deletedCount);
+                    notifyItemRangeRemoved(index, deletedCount, fanimated);
                 }
-                notifyItemRangeInserted(index, insertItemsData(index, data));
+                notifyItemRangeInserted(index, insertItemsData(index, data), fanimated);
             }
         }, true);
 	}
@@ -493,12 +512,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         final Object newItem = currentItem;
         
         final boolean visible = updateVisibleState(newItem, index);
-        
+        boolean animated = true;
+        if (options instanceof HashMap) {
+            animated = TiConvert.toBoolean(((HashMap)options), "animated", animated);
+        }
+        final boolean fanimated = animated;
         if (!wasVisible && visible) {
             runInUiThread(new CommandNoReturn() {
                 @Override
                 public void execute() {
-                    notifyItemRangeInserted(index, 1);
+                    notifyItemRangeInserted(index, 1, fanimated);
                 }
             }, false);
             return;
@@ -530,7 +553,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                         return;
                     }
                 } else {
-                    notifyItemRangeChanged(index, 1);
+                    notifyItemRangeChanged(index, 1, fanimated);
                 }
             }
         }, false);

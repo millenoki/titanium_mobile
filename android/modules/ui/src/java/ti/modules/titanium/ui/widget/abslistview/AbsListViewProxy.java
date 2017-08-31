@@ -67,7 +67,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	//indicate if user attempts to add/modify/delete sections before TiListView is created 
 	private boolean preload = false;
 	private ArrayList<AbsListSectionProxy> preloadSections;
-	private HashMap<String, Integer> preloadMarker;
+	private HashMap preloadMarker;
 	
 	public AbsListViewProxy() {
 		super();
@@ -106,7 +106,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		//Adding sections to preload sections, so we can handle appendSections/insertSection
 		//accordingly if user call these before TiListView is instantiated.
 		if (options.containsKey(TiC.PROPERTY_SECTIONS)) {
-		    preload = true;
 			Object obj = options.get(TiC.PROPERTY_SECTIONS);
 			if (obj instanceof Object[]) {
 				addPreloadSections((Object[]) obj, -1, true);
@@ -135,7 +134,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		preload = pload;
 	}
 	
-	public HashMap<String, Integer> getPreloadMarker()
+	public HashMap getPreloadMarker()
 	{
 		return preloadMarker;
 	}
@@ -164,6 +163,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		if (section instanceof AbsListSectionProxy) {
 		    if (preloadSections == null) {
 		        preloadSections = new ArrayList<AbsListSectionProxy>();
+	            preload = true;
 		    }
 			if (index == -1) {
 				preloadSections.add((AbsListSectionProxy) section);
@@ -269,7 +269,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
     @Kroll.setProperty
 	public void setMarker(Object marker) {
 		if (marker instanceof HashMap) {
-			HashMap<String, Integer> m = (HashMap<String, Integer>) marker;
+			HashMap m = (HashMap) marker;
 			TiUIView listView = peekView();
 	        if (listView instanceof TiCollectionViewInterface) {
 	            ((TiCollectionViewInterface) listView).setMarker(m);
@@ -319,7 +319,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         if (listView instanceof TiCollectionViewInterface) {
             ((TiCollectionViewInterface) listView).appendSection(section);
         } else {
-            preload = true;
             addPreloadSections(section, -1, false);
         }
 	}
@@ -335,8 +334,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
                 Log.e(TAG, "Invalid index to delete section");
                 return;
             }
-            preload = true;
             preloadSections.remove(index);
+            if (preloadSections.size() == 0) {
+                clearPreloadSections();
+            }
         }
 	}
 	
@@ -350,7 +351,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
                 Log.e(TAG, "Invalid index to insertSection");
                 return;
             }
-            preload = true;
             addPreloadSections(section, index, false);
         }
 	}
@@ -396,7 +396,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		//Preload sections if listView is not opened.
 		if (listView == null) {
 			clearPreloadSections();
-            preload = true;
 			addPreloadSections(sectionsArray, -1, true);
 		}
 		else {
@@ -405,10 +404,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-	public void appendItems(int sectionIndex, Object data) {
+	public void appendItems(int sectionIndex, Object data, @Kroll.argument(optional = true) Object options) {
 		AbsListSectionProxy section = getSectionAt(sectionIndex);
 		if (section != null){
-			section.appendItems(data);
+			section.appendItems(data, options);
 		}
 		else {
 			Log.e(TAG, "appendItems wrong section index");
@@ -416,10 +415,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-	public void insertItemsAt(int sectionIndex, int index, Object data) {
+	public void insertItemsAt(int sectionIndex, int index, Object data, @Kroll.argument(optional = true) Object options) {
 		AbsListSectionProxy section = getSectionAt(sectionIndex);
 		if (section != null){
-			section.insertItemsAt(index, data);
+			section.insertItemsAt(index, data, options);
 		}
 		else {
 			Log.e(TAG, "insertItemsAt wrong section index");
@@ -427,10 +426,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 
 	@Kroll.method
-	public void deleteItemsAt(int sectionIndex, int index, int count) {
+	public void deleteItemsAt(int sectionIndex, int index, int count, @Kroll.argument(optional = true) Object options) {
 		AbsListSectionProxy section = getSectionAt(sectionIndex);
 		if (section != null){
-			section.deleteItemsAt(index, count);
+			section.deleteItemsAt(index, count, options);
 		}
 		else {
 			Log.e(TAG, "deleteItemsAt wrong section index");
@@ -438,10 +437,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 
 	@Kroll.method
-	public void replaceItemsAt(int sectionIndex, int index, int count, Object data) {
+	public void replaceItemsAt(int sectionIndex, int index, int count, Object data, @Kroll.argument(optional = true) Object options) {
 		AbsListSectionProxy section = getSectionAt(sectionIndex);
 		if (section != null){
-			section.replaceItemsAt(index, count, data);
+			section.replaceItemsAt(index, count, data, options);
 		}
 		else {
 			Log.e(TAG, "replaceItemsAt wrong section index");

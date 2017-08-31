@@ -567,7 +567,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		ignoreExactMatch = false;
 		
 		//handling marker
-		HashMap<String, Integer> preloadMarker = ((AbsListViewProxy)proxy).getPreloadMarker();
+		HashMap preloadMarker = ((AbsListViewProxy)proxy).getPreloadMarker();
 		if (preloadMarker != null) {
 			setMarker(preloadMarker);
 		} else {
@@ -853,10 +853,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		registerForTouch(listView);
 	}
 	
-	public void setMarker(HashMap<String, Integer> markerItem) 
+	public void setMarker(HashMap markerItem) 
 	{
-		marker[0] = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
-		marker[1] = markerItem.get(TiC.PROPERTY_ITEM_INDEX);
+		marker[0] = TiConvert.toInt(markerItem, TiC.PROPERTY_SECTION_INDEX, -1);
+		marker[1] = TiConvert.toInt(markerItem, TiC.PROPERTY_ITEM_INDEX, -1);
 		
 	}
 	

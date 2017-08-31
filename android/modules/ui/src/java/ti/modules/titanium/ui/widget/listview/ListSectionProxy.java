@@ -32,21 +32,25 @@ public class ListSectionProxy extends AbsListSectionProxy {
     }
     
     protected void notifyItemRangeRemoved(int childPositionStart,
-            int itemCount) {
+            int itemCount, final boolean animated) {
         TiCollectionViewInterface listView = getListView();
-        if (listView instanceof TiListView) {
+        if (animated && listView instanceof TiListView) {
             ((TiListView) listView).remove(childPositionStart, itemCount);
+        } else {
+            notifyDataChange();
         }
     }
     
-    protected void notifyItemRangeChanged(int childPositionStart, int itemCount) {
+    protected void notifyItemRangeChanged(int childPositionStart, int itemCount, final boolean animated) {
         notifyDataChange();
     }
-    protected void notifyItemRangeInserted(int childPositionStart, int itemCount) {
+    protected void notifyItemRangeInserted(int childPositionStart, int itemCount, final boolean animated) {
         TiCollectionViewInterface listView = getListView();
-        if (listView instanceof TiListView) {
+        if (animated && listView instanceof TiListView) {
             ((TiListView) listView).insert(childPositionStart,
                     new Object[itemCount]);
+        } else {
+            notifyDataChange();
         }
     }
 }

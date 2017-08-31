@@ -62,12 +62,12 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             if (newBool != hasHeader) {
                 hasHeader = newBool;
                 if (newBool) {
-                    notifyItemRangeInserted(getItemCount() - 1, 1);
+                    notifyItemRangeInserted(getItemCount() - 1, 1, false);
                 } else {
-                    notifyItemRangeRemoved(getItemCount() - 1, 1);
+                    notifyItemRangeRemoved(getItemCount() - 1, 1, false);
                 }
             } else {
-                notifyItemRangeChanged(getItemCount() - 1, 1);
+                notifyItemRangeChanged(getItemCount() - 1, 1, false);
             }
             break;
         }
@@ -93,12 +93,12 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             if (newBool != hasFooter) {
                 hasFooter = newBool;
                 if (newBool) {
-                    notifyItemRangeInserted(getItemCount() - 1, 1);
+                    notifyItemRangeInserted(getItemCount() - 1, 1, false);
                 } else {
-                    notifyItemRangeRemoved(getItemCount() - 1, 1);
+                    notifyItemRangeRemoved(getItemCount() - 1, 1, false);
                 }
             } else {
-                notifyItemRangeChanged(getItemCount() - 1, 1);
+                notifyItemRangeChanged(getItemCount() - 1, 1, false);
             }
             break;
         }
@@ -248,7 +248,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
 
     @Override
     protected void notifyItemRangeRemoved(int childPositionStart,
-            int itemCount) {
+            int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeRemoved(
                     this.sectionIndex, childPositionStart, itemCount);
@@ -257,7 +257,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
 
     @Override
     protected void notifyItemRangeChanged(int childPositionStart,
-            int itemCount) {
+            int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeChanged(
                     this.sectionIndex, childPositionStart, itemCount);
@@ -266,7 +266,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
 
     @Override
     protected void notifyItemRangeInserted(int childPositionStart,
-            int itemCount) {
+            int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeInserted(
                     this.sectionIndex, childPositionStart, itemCount);
