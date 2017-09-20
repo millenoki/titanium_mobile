@@ -1274,7 +1274,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	fs.existsSync(this.buildGenJsDir) || wrench.mkdirSyncRecursive(this.buildGenJsDir);
 	// Limit to 5 instances of Java in parallel at max, to be careful/conservative
-	async.eachLimit(jsFilesToEncrypt, 5, function(file, next) {
+	async.eachLimit(jsFilesToEncrypt, 5, function(info, next) {
 
 			var file = info.file,
 				dest = path.join(this.buildGenJsDir, file),
@@ -1364,7 +1364,6 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				}.bind(this));
 
 			}.bind(this))(src, dest, next);
-		}.bind(this));
 
 	}.bind(this), function() {
 		var uniqueMetaData = this.metaData.filter(function(elem, pos) {

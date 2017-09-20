@@ -30,7 +30,9 @@ var ADB = require('node-titanium-sdk/lib/adb'),
 	fields = require('fields'),
 	fs = require('fs'),
 	i18n = require('node-titanium-sdk/lib/i18n'),
-	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
+    jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
+    latenize = require('latenize'),
+    minimatch = require("minimatch"),
 	path = require('path'),
 	temp = require('temp'),
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
@@ -39,6 +41,8 @@ var ADB = require('node-titanium-sdk/lib/adb'),
 	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
+    babel = require('babel-core'),
+    ts = require('typescript'),
 
     afs = appc.fs,
     i18nLib = appc.i18n(__dirname),
@@ -1785,9 +1789,9 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
         function (next) {
             if (!cli.argv.ide) {
                 appc.async.series(this, [
-                    'generateRClasses',
                     'packageApp',
-
+                    'generateRClasses',
+                    
                     // provide a hook event before javac
                     function (next) {
                         cli.emit('build.pre.build', this, next);
@@ -2074,7 +2078,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 
     // check if the build manifest file was read
     if (!Object.keys(this.previousBuildManifest).length) {
-        this.logger.info(__('Forcing clean build: %s does not exist', cyan(this.buildManifestFile)));
+        this.logger.info(__('Forcing clean build: %s does not exist', this.buildManifestFile.cyan));
         return true;
     }
 
@@ -3788,7 +3792,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
     var _t = this;
     var isProduction = this.deployType == 'production';
 
-	function copy(src, dest) {
+	function copy(src, dest, ignore) {
 		fs.readdirSync(src).forEach(function (filename) {
 			var from = path.join(src, filename),
 				to = path.join(dest, filename);
@@ -3820,22 +3824,22 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
                 }
 
                 if (!fs.existsSync(resFile)) return done();
-                this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+                done();
+                // this.logger.info(__('Extracting module resources: %s', resFile.cyan));
+                // var tmp = temp.path();
+                // fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
+                // wrench.mkdirSyncRecursive(tmp);
 
-                var tmp = temp.path();
-                fs.existsSync(tmp) && wrench.rmdirSyncRecursive(tmp);
-                wrench.mkdirSyncRecursive(tmp);
+                // appc.zip.unzip(resFile, tmp, {}, function (ex) {
+                //     if (ex) {
+                //         this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
+                //         process.exit(1);
+                //     }
 
-                appc.zip.unzip(resFile, tmp, {}, function (ex) {
-                    if (ex) {
-                        this.logger.error(__('Failed to extract module resource zip: %s', resFile.cyan) + '\n');
-                        process.exit(1);
-                    }
-
-                    // copy the files from the temp folder into the build dir
-                    copy(tmp, this.buildDir);
-                    done();
-                }.bind(this));
+                //     // copy the files from the temp folder into the build dir
+                //     copy(tmp, this.buildDir);
+                //     done();
+                // }.bind(this));
             };
         });
 
@@ -3849,16 +3853,16 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
         }
     }, this);
 
-	this.androidLibraries.forEach(function (libraryInfo) {
-		var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
-		var buildResPath = path.join(this.buildDir, 'res');
-		if (fs.existsSync(libraryResPath)) {
-			tasks.push(function (done) {
-				copy(libraryResPath, buildResPath);
-				done();
-			});
-		}
-	}, this);
+	// this.androidLibraries.forEach(function (libraryInfo) {
+	// 	var libraryResPath = path.join(libraryInfo.explodedPath, 'res');
+	// 	var buildResPath = path.join(this.buildDir, 'res');
+	// 	if (fs.existsSync(libraryResPath)) {
+	// 		tasks.push(function (done) {
+	// 			copy(libraryResPath, buildResPath);
+	// 			done();
+	// 		});
+	// 	}
+	// }, this);
 
 	// for each jar library, if it has a companion resource zip file, extract
 	// all of its files into the build dir, and yes, this is stupidly dangerous
@@ -4634,7 +4638,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 
     this.logger.debug(__('namespaces: %s', namespaces.cyan) + '\n');
     args.push('--extra-packages', namespaces);
-
+    // runAapt();
     appc.async.series(this, Object.keys(this.resPackages).map(function (resFile) {
         return function (cb) {
             this.logger.debug(__('handling res package: %s', resFile.cyan) + '\n');
@@ -4655,53 +4659,52 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
     }), runAapt);
 };
 
-                                 
-        /**
-         * Regenerates all R classes from modules and their contained Android Libraries
-         *
-         * To do so this method regenerates the R class from the R.txt that is contained
-         * in every .aar file which has resources (adopted from Android Gradle plugin).
-         * In addition, if a Titanium module itself has resources defined it will also
-         * contain a R.txt just like Android Libraries.
-         *
-         * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
-         *
-         * @param {Function} next Function to call once all R classes have been regenerated
-         */
-                                 AndroidBuilder.prototype.generateRClasses = function generateRClasses(next) {
-                                 var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
-                                 var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
-                                 var fullSymbolValues = null;
-                                 var generateRClass = function generateRClass(packageName, librarySymbolFile) {
-                                 if (!fs.existsSync(librarySymbolFile)) {
-                                 return;
-                                 }
-                                 
-                                 if (fullSymbolValues === null) {
-                                 fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
-                                 fullSymbolValues.load();
-                                 }
-                                 
-                                 var librarySymbols = new SymbolLoader(librarySymbolFile);
-                                 librarySymbols.load();
-                                 
-                                 // TODO: Support multiple symbol files for the same package name like gradle?
-                                 this.logger.trace('Generating R.class for package: ' + packageName);
-                                 var symbolWriter = new SymbolWriter(this.buildGenDir, packageName, fullSymbolValues);
-                                 symbolWriter.addSymbolsToWrite(librarySymbols);
-                                 symbolWriter.write();
-                                 }.bind(this);
-                                 
-                                 this.androidLibraries.forEach(function (libraryInfo) {
-                                                               generateRClass(libraryInfo.packageName, path.join(libraryInfo.explodedPath, 'R.txt'));
-                                                               }, this);
-                                 
-                                 this.modules.forEach(function(moduleInfo) {
-                                                      generateRClass(moduleInfo.id, path.join(moduleInfo.modulePath, 'R.txt'));
-                                                      }, this);
-                                 
-                                 next();
-                                 };
+/**
+ * Regenerates all R classes from modules and their contained Android Libraries
+ *
+ * To do so this method regenerates the R class from the R.txt that is contained
+ * in every .aar file which has resources (adopted from Android Gradle plugin).
+ * In addition, if a Titanium module itself has resources defined it will also
+ * contain a R.txt just like Android Libraries.
+ *
+ * @see https://android.googlesource.com/platform/tools/build/+/android-7.1.1_r28/builder/src/main/java/com/android/builder/AndroidBuilder.java#728
+ *
+ * @param {Function} next Function to call once all R classes have been regenerated
+ */
+AndroidBuilder.prototype.generateRClasses = function generateRClasses(next) {
+    var bundlesPath = path.join(this.buildIntermediatesDir, 'bundles');
+    var symbolOutputPathAndFilename = path.join(bundlesPath, 'R.txt');
+    var fullSymbolValues = null;
+    var generateRClass = function generateRClass(packageName, librarySymbolFile) {
+        if (!fs.existsSync(librarySymbolFile)) {
+            return;
+        }
+
+        if (fullSymbolValues === null) {
+            fullSymbolValues = new SymbolLoader(symbolOutputPathAndFilename);
+            fullSymbolValues.load();
+        }
+
+        var librarySymbols = new SymbolLoader(librarySymbolFile);
+        librarySymbols.load();
+
+        // TODO: Support multiple symbol files for the same package name like gradle?
+        this.logger.trace('Generating R.class for package: ' + packageName);
+        var symbolWriter = new SymbolWriter(this.buildGenDir, packageName, fullSymbolValues);
+        symbolWriter.addSymbolsToWrite(librarySymbols);
+        symbolWriter.write();
+    }.bind(this);
+
+    this.androidLibraries.forEach(function (libraryInfo) {
+        generateRClass(libraryInfo.packageName, path.join(libraryInfo.explodedPath, 'R.txt'));
+    }, this);
+
+    this.modules.forEach(function (moduleInfo) {
+        generateRClass(moduleInfo.id, path.join(moduleInfo.modulePath, 'R.txt'));
+    }, this);
+
+    next();
+};
 
 
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
