@@ -61,10 +61,10 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
     // pre-cache a few modules we always use
     TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
     if (ui)
-      [self addModule:@"UI" module:ui];
+    [self addModule:@"UI" module:ui];
     TiModule *api = [host moduleNamed:@"API" context:pageContext_];
     if (api)
-      [self addModule:@"API" module:api];
+    [self addModule:@"API" module:api];
 
     if (TI_APPLICATION_ANALYTICS) {
       APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
@@ -452,7 +452,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
       NSArray *lines = [jcode componentsSeparatedByString:@"\n"];
       if (lineNb < [lines count]) {
         error.sourceLine = [[lines objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-      }
+  }
     }
 
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:error];
@@ -992,7 +992,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // object.
   if (data) {
     return [self loadJavascriptText:[NSString stringWithUTF8String:[data bytes]] fromFile:topLevel ? [fullPath stringByAppendingFormat:@"/%@", moduleID] : fullPath withContext:context];
-  }
+}
   //	TiContextRef jsContext = [[self krollContext] context];
   //	TiObjectRef jsObject = [wrapper jsobject];
   //	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
@@ -1096,12 +1096,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // cache the module by filename
   if (![modules objectForKey:filename]) {
-    [modules setObject:module forKey:filename];
-    if (filename != nil && module != nil) {
-      // uri is optional but we point it to where we loaded it
-      [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-      [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
-    }
+  [modules setObject:module forKey:filename];
+  if (filename != nil && module != nil) {
+    // uri is optional but we point it to where we loaded it
+    [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
+    [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
+  }
   }
 
   return module;
@@ -1298,105 +1298,105 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSURL *oldURL = [self currentURL];
   NSString *workingPath = [oldURL relativePath];
   NSMutableString *pathCacheKey;
-  // First let's check if we cached the resolved path for this require string
-  // and if we did, try and load a cached module for this path
-  if (pathCache != nil && modules != nil) {
-    // We generate a path resolution cache key, first part is the requested module id/path
-    pathCacheKey = [path stringByAppendingString:@"|"];
-    // If request is not-absolute and we're not at the top-level dir, then append current dir as second part of cache key
-    if (workingPath != nil && ![path hasPrefix:@"/"]) {
-      pathCacheKey = [pathCacheKey stringByAppendingString:workingPath];
-    }
-    NSString *resolvedPath = [pathCache objectForKey:pathCacheKey];
-    if (resolvedPath != nil) {
-      TiModule *module = [modules objectForKey:resolvedPath];
-      if (module != nil) {
-        return module;
+    // First let's check if we cached the resolved path for this require string
+    // and if we did, try and load a cached module for this path
+    if (pathCache != nil && modules != nil) {
+      // We generate a path resolution cache key, first part is the requested module id/path
+      pathCacheKey = [[path stringByAppendingString:@"|"] mutableCopy];
+      // If request is not-absolute and we're not at the top-level dir, then append current dir as second part of cache key
+      if (workingPath != nil && ![path hasPrefix:@"/"]) {
+        pathCacheKey = [[pathCacheKey stringByAppendingString:workingPath] mutableCopy];
+      }
+      NSString *resolvedPath = [pathCache objectForKey:pathCacheKey];
+      if (resolvedPath != nil) {
+        TiModule *module = [modules objectForKey:resolvedPath];
+        if (module != nil) {
+          return module;
+        }
       }
     }
-  }
 
-  id module; // may be TiModule* if it was a core module with no hybrid JS, or KrollWrapper* in all other cases
-  @try {
+    id module; // may be TiModule* if it was a core module with no hybrid JS, or KrollWrapper* in all other cases
+    @try {
 
     // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
     module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
     if (module) {
       return module;
     }
-    // 1. If X is a core module,
-    module = [self loadCoreModule:path withContext:kroll];
-    if (module) {
-      // a. return the core module
-      // b. STOP
-      return module;
-    }
-
-    // 2. If X begins with './' or '/' or '../'
-    if ([path hasPrefix:@"./"] || [path hasPrefix:@"../"]) {
-      // Need base path to work from for relative modules...
-      NSString *relativePath = (workingPath == nil) ? path : [workingPath stringByAppendingPathComponent:path];
-      module = [self loadAsFileOrDirectory:[relativePath stringByStandardizingPath] withContext:context];
+      // 1. If X is a core module,
+      module = [self loadCoreModule:path withContext:kroll];
       if (module) {
+        // a. return the core module
+        // b. STOP
         return module;
       }
-      // Treat '/' special as absolute, drop the leading '/'
-    } else if ([path hasPrefix:@"/"]) {
-      module = [self loadAsFileOrDirectory:[[path substringFromIndex:1] stringByStandardizingPath] withContext:context];
-      if (module) {
-        return module;
-      }
-    } else {
-      // TODO Grab the first path segment and see if it's a node module or commonJS module
-      // We should be able to organize the modules in folder to determine if the user is attempting to
-      // load one of them!
 
-      // Look for CommonJS module
-      if (![path containsString:@"/"]) {
-        // For CommonJS we need to look for module.id/module.id.js first...
-        // Only look for this _exact file_. DO NOT APPEND .js or .json to it!
-        NSString *filename = [[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"];
-        module = [self cachedLoadAsFile:filename asJSON:NO withContext:context];
+      // 2. If X begins with './' or '/' or '../'
+      if ([path hasPrefix:@"./"] || [path hasPrefix:@"../"]) {
+        // Need base path to work from for relative modules...
+        NSString *relativePath = (workingPath == nil) ? path : [workingPath stringByAppendingPathComponent:path];
+        module = [self loadAsFileOrDirectory:[relativePath stringByStandardizingPath] withContext:context];
         if (module) {
           return module;
         }
-
-        // Then try module.id as directory
-        module = [self loadAsDirectory:path withContext:context];
+        // Treat '/' special as absolute, drop the leading '/'
+      } else if ([path hasPrefix:@"/"]) {
+        module = [self loadAsFileOrDirectory:[[path substringFromIndex:1] stringByStandardizingPath] withContext:context];
         if (module) {
           return module;
         }
-      }
+      } else {
+        // TODO Grab the first path segment and see if it's a node module or commonJS module
+        // We should be able to organize the modules in folder to determine if the user is attempting to
+        // load one of them!
 
-      // Need base path to work from for determining the node_modules search paths.
-      module = [self loadNodeModules:path withDir:workingPath withContext:context];
-      if (module) {
-        return module;
+        // Look for CommonJS module
+        if (![path containsString:@"/"]) {
+          // For CommonJS we need to look for module.id/module.id.js first...
+          // Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+          NSString *filename = [[path stringByAppendingPathComponent:path] stringByAppendingPathExtension:@"js"];
+          module = [self cachedLoadAsFile:filename asJSON:NO withContext:context];
+          if (module) {
+            return module;
+          }
+
+          // Then try module.id as directory
+          module = [self loadAsDirectory:path withContext:context];
+          if (module) {
+            return module;
+          }
+        }
+
+        // Need base path to work from for determining the node_modules search paths.
+        module = [self loadNodeModules:path withDir:workingPath withContext:context];
+        if (module) {
+          return module;
+        }
+        }
       }
-    }
-  }
-  @finally {
-    // Cache the resolved path for this request if we got a module
-    if (module != nil && pathCache != nil && pathCacheKey != nil) {
-      // I cannot find a nicer way of grabbing the filepath out of the "id" or "uri" properties for the module!
-      NSArray *keys = [modules allKeysForObject:module];
-      if (keys != nil) {
-        NSString *filename = keys[0];
-        if (filename) { // native modules may have no value
-          [pathCache setObject:filename forKey:pathCacheKey];
+    @finally {
+      // Cache the resolved path for this request if we got a module
+      if (module != nil && pathCache != nil && pathCacheKey != nil) {
+        // I cannot find a nicer way of grabbing the filepath out of the "id" or "uri" properties for the module!
+        NSArray *keys = [modules allKeysForObject:module];
+        if (keys != nil) {
+          NSString *filename = keys[0];
+          if (filename) { // native modules may have no value
+            [pathCache setObject:filename forKey:pathCacheKey];
+          }
         }
       }
     }
   }
-}
 @finally
 {
-  [self setCurrentURL:oldURL];
-}
+    [self setCurrentURL:oldURL];
+  }
 
-// 4. THROW "not found"
-NSString *arch = [TiUtils currentArchitecture];
-@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+  // 4. THROW "not found"
+  NSString *arch = [TiUtils currentArchitecture];
+  @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil]; // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy

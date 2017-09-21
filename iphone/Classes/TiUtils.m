@@ -214,6 +214,15 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
 #endif
 }
 
++ (BOOL)isIOS11OrGreater
+{
+#if IS_XCODE_9
+  return [TiUtils isIOSVersionOrGreater:@"11.0"];
+#else
+  return NO;
+#endif
+}
+
 + (BOOL)isIOSVersionOrGreater:(NSString *)version
 {
   static NSString *systemVersion;

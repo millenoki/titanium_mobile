@@ -39,6 +39,7 @@ apidoc/node_modules/*
 support/ti_mocha_script/testApp
 
 /titanium-mobile-mocha-suite
+junit.*.xml
 
 # intelliJ Android User-specific configurations
 android/.idea/libraries/
