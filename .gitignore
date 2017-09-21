@@ -55,3 +55,4 @@ android/.idea/vcs.xml
 *.iml
 
 /android/thirdparties/local.properties
+/.vscode
