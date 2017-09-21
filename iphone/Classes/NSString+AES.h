@@ -4,9 +4,8 @@
 
 //
 
-#import <Foundation/Foundation.h>
 #import "NSData+AES.h"
-
+#import <Foundation/Foundation.h>
 
 @interface NSString (AES)
 - (NSString *)AES128EncryptWithKey:(NSString *)key;

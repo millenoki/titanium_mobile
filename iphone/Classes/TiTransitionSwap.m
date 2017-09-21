@@ -3,9 +3,9 @@
 
 @implementation TiTransitionSwap
 
--(Class) adTransitionClass {
-    return [ADSwapTransition class];
+- (Class)adTransitionClass
+{
+  return [ADSwapTransition class];
 }
-
 
 @end

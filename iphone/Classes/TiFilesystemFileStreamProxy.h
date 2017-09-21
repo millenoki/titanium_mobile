@@ -5,15 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM)
+#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
 
 #import "TiStreamProxy.h"
 
-@interface TiFilesystemFileStreamProxy : TiStreamProxy<TiStreamInternal> {
+@interface TiFilesystemFileStreamProxy : TiStreamProxy <TiStreamInternal> {
 
-@private
-	NSFileHandle *fileHandle;
-	TiStreamMode mode;
+  @private
+  NSFileHandle *fileHandle;
+  TiStreamMode mode;
 }
 
 @end

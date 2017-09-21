@@ -14,90 +14,94 @@
 
 @implementation TiUIRefreshControlProxy
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.RefreshControl";
+  return @"Ti.UI.RefreshControl";
 }
 
--(void) dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_refreshControl);
-    RELEASE_TO_NIL(_attributedString);
-    [super dealloc];
+  RELEASE_TO_NIL(_refreshControl);
+  RELEASE_TO_NIL(_attributedString);
+  [super dealloc];
 }
 
 #pragma mark - Internal Use
--(UIRefreshControl*)control
+- (UIRefreshControl *)control
 {
-    //Must be called on main thread
-    if (_refreshControl == nil) {
-        _refreshControl = [UIRefreshControl new];
-        [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
-    }
-    
-    return _refreshControl;
+  //Must be called on main thread
+  if (_refreshControl == nil) {
+    _refreshControl = [UIRefreshControl new];
+    [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
+  }
+
+  return _refreshControl;
 }
 
--(void)refreshingDidStart
+- (void)refreshingDidStart
 {
-    if ([self _hasListeners:@"refreshstart"]) {
-        [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if ([self _hasListeners:@"refreshstart"]) {
+    [self fireEvent:@"refreshstart" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
 }
 
--(void)refreshingDidEnd
+- (void)refreshingDidEnd
 {
-    if ([self _hasListeners:@"refreshend"]) {
-        [self fireEvent:@"refreshend" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if ([self _hasListeners:@"refreshend"]) {
+    [self fireEvent:@"refreshend" withObject:nil propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
 }
 
 #pragma mark - Public APIs
 
--(void)setTitle:(id)args
+- (void)setTitle:(id)args
 {
 
-    [self replaceValue:args forKey:@"title" notification:NO];
-	ENSURE_SINGLE_ARG_OR_NIL(args, NSObject);
-    RELEASE_TO_NIL(_attributedString);
-#if defined (USE_TI_UIATTRIBUTEDSTRING)
-    if (IS_OF_CLASS(args, TiUIAttributedStringProxy)) {
-        _attributedString = [[args attributedString] copy];
-    } else
+  [self replaceValue:args forKey:@"title" notification:NO];
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSObject);
+  RELEASE_TO_NIL(_attributedString);
+#if defined(USE_TI_UIATTRIBUTEDSTRING)
+  if (IS_OF_CLASS(args, TiUIAttributedStringProxy)) {
+    _attributedString = [[args attributedString] copy];
+  } else
 #endif
-    if (IS_OF_CLASS(args, NSString)) {
-       _attributedString = [[NSAttributedString alloc] initWithString:args];
-    }
-	TiThreadPerformOnMainThread(^{
-		[[self control] setAttributedTitle:_attributedString];
-	}, NO);
+      if (IS_OF_CLASS(args, NSString)) {
+    _attributedString = [[NSAttributedString alloc] initWithString:args];
+  }
+  TiThreadPerformOnMainThread(^{
+    [[self control] setAttributedTitle:_attributedString];
+  },
+      NO);
 }
 
--(void)setTintColor:(id)value
+- (void)setTintColor:(id)value
 {
-    ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
-    [self replaceValue:value forKey:@"tintColor" notification:NO];
-    
-    TiThreadPerformOnMainThread(^{
-        [[self control] setTintColor:[[TiUtils colorValue:value] color]];
-    }, NO);
+  ENSURE_SINGLE_ARG_OR_NIL(value, NSString);
+  [self replaceValue:value forKey:@"tintColor" notification:NO];
+
+  TiThreadPerformOnMainThread(^{
+    [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+  },
+      NO);
 }
 
--(void)beginRefreshing:(id)unused
+- (void)beginRefreshing:(id)unused
 {
-    TiThreadPerformOnMainThread(^{
-        [(UIScrollView*)[[self control] superview] setContentOffset:CGPointMake(0, -([[self control] frame].size.height)) animated:YES];
-        [[self control] beginRefreshing];
-        [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
-    }, NO);
+  TiThreadPerformOnMainThread(^{
+    [(UIScrollView *)[[self control] superview] setContentOffset:CGPointMake(0, -([[self control] frame].size.height)) animated:YES];
+    [[self control] beginRefreshing];
+    [[self control] sendActionsForControlEvents:UIControlEventValueChanged];
+  },
+      NO);
 }
 
--(void)endRefreshing:(id)unused
+- (void)endRefreshing:(id)unused
 {
-    TiThreadPerformOnMainThread(^{
-        [[self control] endRefreshing];
-        [self refreshingDidEnd];
-    }, NO);
+  TiThreadPerformOnMainThread(^{
+    [[self control] endRefreshing];
+    [self refreshingDidEnd];
+  },
+      NO);
 }
 
 @end

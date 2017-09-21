@@ -14,31 +14,30 @@
 
 @class TiUITableViewRowProxy;
 @class TiUITableViewSectionProxy;
-@interface TiUITableViewProxy : TiScrollingViewProxy
-{
-	NSMutableArray *sections;
-    id dataToSetOnCreation;
-    
-    BOOL needsReloadOnAttach;
+@interface TiUITableViewProxy : TiScrollingViewProxy {
+  NSMutableArray *sections;
+  id dataToSetOnCreation;
+
+  BOOL needsReloadOnAttach;
 }
--(void)setData:(id)args withObject:(id)properties;
--(NSArray*)data;
+- (void)setData:(id)args withObject:(id)properties;
+- (NSArray *)data;
 //Sections and Data are the sanitized version.
-@property(nonatomic,readwrite,copy) NSArray *sections;
--(NSUInteger)sectionCount;
+@property (nonatomic, readwrite, copy) NSArray *sections;
+- (NSUInteger)sectionCount;
 
 #pragma mark NON-JS functionality
 //internalSections is until TODO: Stop JS from using ValueForKey
-@property(nonatomic,readwrite,retain) NSMutableArray *internalSections;
+@property (nonatomic, readwrite, retain) NSMutableArray *internalSections;
 
--(NSInteger)indexForRow:(TiUITableViewRowProxy*)row;
--(NSInteger)sectionIndexForIndex:(NSInteger)theindex;
--(TiUITableViewRowProxy*)rowForIndex:(NSInteger)index section:(NSInteger*)section;
--(NSIndexPath *)indexPathFromInt:(NSInteger)index;
--(NSInteger)indexForIndexPath:(NSIndexPath *)path;
--(TiUITableViewSectionProxy*)sectionForIndex:(NSInteger)index row:(TiUITableViewRowProxy**)rowOut;
--(void)rememberSection:(TiUITableViewSectionProxy *)section;
--(void)forgetSection:(TiUITableViewSectionProxy *)section;
+- (NSInteger)indexForRow:(TiUITableViewRowProxy *)row;
+- (NSInteger)sectionIndexForIndex:(NSInteger)theindex;
+- (TiUITableViewRowProxy *)rowForIndex:(NSInteger)index section:(NSInteger *)section;
+- (NSIndexPath *)indexPathFromInt:(NSInteger)index;
+- (NSInteger)indexForIndexPath:(NSIndexPath *)path;
+- (TiUITableViewSectionProxy *)sectionForIndex:(NSInteger)index row:(TiUITableViewRowProxy **)rowOut;
+- (void)rememberSection:(TiUITableViewSectionProxy *)section;
+- (void)forgetSection:(TiUITableViewSectionProxy *)section;
 
 @end
 

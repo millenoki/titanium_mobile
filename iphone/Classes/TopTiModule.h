@@ -8,8 +8,7 @@
 #import "TiModule.h"
 
 @interface TopTiModule : TiModule {
-
 }
--(NSDictionary*)prepareErrorArgs:(NSDictionary*)args;
+- (NSDictionary *)prepareErrorArgs:(NSDictionary *)args;
 
 @end

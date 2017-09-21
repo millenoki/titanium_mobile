@@ -8,11 +8,11 @@
 #import "TiUIView.h"
 
 @interface TiUIiOSBlurView : TiUIView {
-//    
-//    TiDimension width;
-//    TiDimension height;
-//    CGFloat autoHeight;
-//    CGFloat autoWidth;
+  //
+  //    TiDimension width;
+  //    TiDimension height;
+  //    CGFloat autoHeight;
+  //    CGFloat autoWidth;
 }
 
 @end

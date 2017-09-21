@@ -15,11 +15,8 @@ import java.io.OutputStream;
 import org.appcelerator.titanium.TiApplication;
 
 import android.content.ContentUris;
-import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
@@ -36,7 +33,7 @@ public class TitaniumBlob extends TiBaseFile
 			init();
 		}
 	}
-	
+
 	/**
 	 * Get a file path from a Uri. This will get the the path for Storage Access
 	 * Framework Documents, as well as the _data field for the MediaStore and

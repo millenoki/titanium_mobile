@@ -9,21 +9,21 @@
 #import "TiViewProxy.h"
 
 typedef enum {
-    kContentTypeText,
-    kContentTypeHTML
+  kContentTypeText,
+  kContentTypeHTML
 } ContentType;
 
 @interface TiUILabelProxy : TiViewProxy {
-    id _realLabelContent;
-    NSString * contentString;
-    ContentType _contentType;
-    
-    NSMutableDictionary * options;
-    BOOL attributeTextNeedsUpdate;
-    BOOL configSet;
+  id _realLabelContent;
+  NSString *contentString;
+  ContentType _contentType;
+
+  NSMutableDictionary *options;
+  BOOL attributeTextNeedsUpdate;
+  BOOL configSet;
 }
--(id)getLabelContent;
--(void)updateAttributeText;
+- (id)getLabelContent;
+- (void)updateAttributeText;
 
 @end
 

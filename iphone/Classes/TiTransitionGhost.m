@@ -3,8 +3,9 @@
 
 @implementation TiTransitionGhost
 
--(Class) adTransitionClass {
-    return [ADGhostTransition class];
+- (Class)adTransitionClass
+{
+  return [ADGhostTransition class];
 }
 
 @end

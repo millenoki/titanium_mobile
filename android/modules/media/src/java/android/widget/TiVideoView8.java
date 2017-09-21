@@ -119,6 +119,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
 	private float mVolume = 1.0f;
+	private int mLoop = 0;
 
 	public TiVideoView8(Context context)
 	{
@@ -403,6 +404,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			mMediaPlayer.setScreenOnWhilePlaying(true);
 			mMediaPlayer.prepareAsync();
 			mMediaPlayer.setVolume(mVolume, mVolume);
+			if (mLoop == 0) {
+				mMediaPlayer.setLooping(false);
+			} else {
+				mMediaPlayer.setLooping(true);
+			}
 			// we don't set the target state here either, but preserve the
 			// target state that was there before.
 			mCurrentState = STATE_PREPARING;
@@ -876,6 +882,23 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	public void setScalingMode(int scalingMode)
 	{
 		mScalingMode = scalingMode;
+	}
+
+	public void setRepeatMode(int repeatMode)
+	{
+		mLoop = repeatMode;
+		if (mMediaPlayer != null) {
+			if (mLoop == 0) {
+				mMediaPlayer.setLooping(false);
+			} else {
+				mMediaPlayer.setLooping(true);
+			}
+		}
+	}
+
+	public int getRepeatMode()
+	{
+		return mLoop;
 	}
 
 	@Override

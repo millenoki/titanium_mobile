@@ -10,14 +10,15 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 
 @interface TiAppiOSSearchableItemAttributeSetProxy : TiProxy {
-@private
-//    NSArray *dateFieldTypes;
-//    NSArray *urlFieldTypes;
-//    NSArray *unsupportedFieldTypes;
+  @private
+  //    NSArray *dateFieldTypes;
+  //    NSArray *urlFieldTypes;
+  //    NSArray *unsupportedFieldTypes;
 }
 
-@property(nonatomic,retain) CSSearchableItemAttributeSet *attributes;
-+(CSSearchableItemAttributeSet*)setFromDict:(NSDictionary*)dict;
++ (CSSearchableItemAttributeSet *)setFromDict:(NSDictionary *)dict;
+
+@property (nonatomic, retain) CSSearchableItemAttributeSet *attributes;
 
 @end
 #endif

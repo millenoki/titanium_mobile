@@ -9,7 +9,7 @@
 #import "TouchDelegate_Views.h"
 
 @interface TiCollectionView : TDUICollectionView
--(BOOL)shouldHighlightCurrentCollectionItem;
--(CGPoint) touchPoint;
+- (BOOL)shouldHighlightCurrentCollectionItem;
+- (CGPoint)touchPoint;
 @end
 #endif

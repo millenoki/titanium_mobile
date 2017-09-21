@@ -9,19 +9,18 @@
 #import "TiViewProxy.h"
 #import <libkern/OSAtomic.h>
 
-@interface TiUIScrollableViewProxy : TiViewProxy 
-{
-	pthread_rwlock_t viewsLock;
-	NSMutableArray *viewProxies;
+@interface TiUIScrollableViewProxy : TiViewProxy {
+  pthread_rwlock_t viewsLock;
+  NSMutableArray *viewProxies;
 }
 
-@property(nonatomic,readonly)	NSArray * viewProxies;
-@property(nonatomic,assign)	BOOL  verticalLayout;
--(TiViewProxy *)viewAtIndex:(NSInteger)index;
--(void)lockViews;
--(void)unlockViews;
--(NSUInteger)viewCount;
--(NSArray *)views;
+@property (nonatomic, readonly) NSArray *viewProxies;
+@property (nonatomic, assign) BOOL verticalLayout;
+- (TiViewProxy *)viewAtIndex:(NSInteger)index;
+- (void)lockViews;
+- (void)unlockViews;
+- (NSUInteger)viewCount;
+- (NSArray *)views;
 @end
 
 #endif

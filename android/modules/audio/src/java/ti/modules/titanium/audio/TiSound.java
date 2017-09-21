@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.media.AudioManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
@@ -38,6 +37,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -61,93 +62,32 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener, TiDrawableTarget, MusicFocusable, FocusableAudioWidget {
     private static final String TAG = "TiSound";
 
-    public static final int STATE_BUFFERING = 0; // current playback is in the
-                                                 // buffering from the network
-                                                 // state
-    public static final int STATE_INITIALIZED = 1; // current playback is in the
-                                                   // initialization state
-    public static final int STATE_PAUSED = 2; // current playback is in the
-                                              // paused state
-    public static final int STATE_PLAYING = 3; // current playback is in the
-                                               // playing state
-    public static final int STATE_STARTING = 4; // current playback is in the
-                                                // starting playback state
-    public static final int STATE_STOPPED = 5; // current playback is in the
-                                               // stopped state
-    public static final int STATE_STOPPING = 6; // current playback is in the
-                                                // stopping state
-    public static final int STATE_WAITING_FOR_DATA = 7; // current playback is
-                                                        // in the waiting for
-                                                        // audio data from the
-                                                        // network state
-    public static final int STATE_WAITING_FOR_QUEUE = 8; // current playback is
-                                                         // in the waiting for
-                                                         // audio data to fill
-                                                         // the queue state
+    public static final int STATE_BUFFERING	= 0;	// current playback is in the buffering from the network state
+	public static final int STATE_INITIALIZED = 1;	// current playback is in the initialization state
+	public static final int STATE_PAUSED = 2;	// current playback is in the paused state
+	public static final int STATE_PLAYING = 3;	// current playback is in the playing state
+	public static final int STATE_STARTING = 4;	// current playback is in the starting playback state
+	public static final int STATE_STOPPED = 5; // current playback is in the stopped state
+	public static final int STATE_STOPPING = 6; // current playback is in the stopping state
+	public static final int STATE_WAITING_FOR_DATA = 7;  // current playback is in the waiting for audio data from the network state
+	public static final int STATE_WAITING_FOR_QUEUE	= 8; //	current playback is in the waiting for audio data to fill the queue state
 
-    public static final String STATE_BUFFERING_DESC = "buffering"; // current
-                                                                   // playback
-                                                                   // is in the
-                                                                   // buffering
-                                                                   // from the
-                                                                   // network
-                                                                   // state
-    public static final String STATE_INITIALIZED_DESC = "initialized"; // current
-                                                                       // playback
-                                                                       // is in
-                                                                       // the
-                                                                       // initialization
-                                                                       // state
-    public static final String STATE_PAUSED_DESC = "paused"; // current playback
-                                                             // is in the paused
-                                                             // state
-    public static final String STATE_PLAYING_DESC = "playing"; // current
-                                                               // playback is in
-                                                               // the playing
-                                                               // state
-    public static final String STATE_STARTING_DESC = "starting"; // current
-                                                                 // playback is
-                                                                 // in the
-                                                                 // starting
-                                                                 // playback
-                                                                 // state
-    public static final String STATE_STOPPED_DESC = "stopped"; // current
-                                                               // playback is in
-                                                               // the stopped
-                                                               // state
-    public static final String STATE_STOPPING_DESC = "stopping"; // current
-                                                                 // playback is
-                                                                 // in the
-                                                                 // stopping
-                                                                 // state
-    public static final String STATE_WAITING_FOR_DATA_DESC = "waiting for data"; // current
-                                                                                 // playback
-                                                                                 // is
-                                                                                 // in
-                                                                                 // the
-                                                                                 // waiting
-                                                                                 // for
-                                                                                 // audio
-                                                                                 // data
-                                                                                 // from
-                                                                                 // the
-                                                                                 // network
-                                                                                 // state
-    // current
-    // playback
-    // is
-    // in
-    // the
-    // waiting
-    // for
-    // audio
-    // data
-    // to
-    // fill
-    // the
-    // queue
-    // state
-    public static final String STATE_WAITING_FOR_QUEUE_DESC = "waiting for queue";
+	public static final String STATE_BUFFERING_DESC = "buffering";	// current playback is in the buffering from the network state
+	public static final String STATE_INITIALIZED_DESC = "initialized";	// current playback is in the initialization state
+	public static final String STATE_PAUSED_DESC = "paused";	// current playback is in the paused state
+	public static final String STATE_PLAYING_DESC = "playing";	// current playback is in the playing state
+	public static final String STATE_STARTING_DESC = "starting";	// current playback is in the starting playback state
+	public static final String STATE_STOPPED_DESC = "stopped"; // current playback is in the stopped state
+	public static final String STATE_STOPPING_DESC = "stopping"; // current playback is in the stopping state
+	public static final String STATE_WAITING_FOR_DATA_DESC = "waiting for data";  // current playback is in the waiting for audio data from the network state
+	public static final String STATE_WAITING_FOR_QUEUE_DESC = "waiting for queue"; //	current playback is in the waiting for audio data to fill the queue state
+
+	public static final int AUDIO_TYPE_MEDIA = 0;
+	public static final int AUDIO_TYPE_ALARM = 1;
+	public static final int AUDIO_TYPE_SIGNALLING = 2;
+	public static final int AUDIO_TYPE_RING = 3;
+	public static final int AUDIO_TYPE_VOICE = 4;
+	public static final int AUDIO_TYPE_NOTIFICATION = 5;
 
     public static final String EVENT_COMPLETE = "complete";
     public static final String EVENT_BUFFERING = "buffering";
@@ -347,6 +287,68 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         AudioModule.widgetAbandonsFocused(this);
     }
 
+    void setAudioType() {
+        int audioType = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_TYPE));
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            int streamType = -1;
+            switch (audioType) {
+                case AUDIO_TYPE_ALARM:
+                    streamType = AudioManager.STREAM_ALARM;
+                    break;
+                case AUDIO_TYPE_SIGNALLING:
+                    streamType = AudioManager.STREAM_DTMF;
+                    break;
+                case AUDIO_TYPE_RING:
+                    streamType = AudioManager.STREAM_RING;
+                    break;
+                case AUDIO_TYPE_VOICE:
+                    streamType = AudioManager.STREAM_VOICE_CALL;
+                    break;
+                case AUDIO_TYPE_NOTIFICATION:
+                    streamType = AudioManager.STREAM_NOTIFICATION;
+                    break;
+                case AUDIO_TYPE_MEDIA:
+                default:
+                    streamType = AudioManager.STREAM_MUSIC;
+
+            }
+            if (streamType != -1) {
+                mp.setAudioStreamType(streamType);
+            } else {
+                Log.w(TAG, "unable to set setAudioStreamType()");
+            }
+        } else {
+            int usage = -1;
+            switch (audioType) {
+                case AUDIO_TYPE_ALARM:
+                    usage = AudioAttributes.USAGE_ALARM;
+                    break;
+                case AUDIO_TYPE_SIGNALLING:
+                    usage = AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
+                    break;
+                case AUDIO_TYPE_RING:
+                    usage = AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+                    break;
+                case AUDIO_TYPE_VOICE:
+                    usage = AudioAttributes.USAGE_VOICE_COMMUNICATION;
+                    break;
+                case AUDIO_TYPE_NOTIFICATION:
+                    usage = AudioAttributes.USAGE_NOTIFICATION;
+                    break;
+                case AUDIO_TYPE_MEDIA:
+                default:
+                    usage = AudioAttributes.USAGE_MEDIA;
+
+            }
+            if (usage != -1) {
+                AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
+                mp.setAudioAttributes(attributes);
+            } else {
+                Log.w(TAG, "unable to set setAudioAttributes()");
+            }
+        }
+    }
+
     /**
      * Makes sure the media player exists and has been reset. This will create
      * the media player if needed, or reset the existing media player if one
@@ -354,9 +356,8 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
      */
     void createMediaPlayerIfNeeded() {
         if (mp == null) {
-            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mp = new MediaPlayer();
-
+            setAudioType();
             // Make sure the media player will acquire a wake-lock while
             // playing. If we don't do
             // that, the CPU might go to sleep while the song is playing,
@@ -429,7 +430,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                     // Why mp.setDataSource(afd) doesn't work is a problem for
                     // another day.
                     // http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-                    mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    setAudioType();
                     mp.setDataSource(afd.getFileDescriptor(),
                             afd.getStartOffset(), afd.getLength());
                 } catch (IOException e) {
@@ -473,7 +474,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                     }
                 } else {
                     remote = true;
-                    mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    setAudioType();
                     mp.setDataSource(url);
                 }
             }

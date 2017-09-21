@@ -24,14 +24,14 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#import <Foundation/Foundation.h>
 #import "TiCacheObject.h"
+#import <Foundation/Foundation.h>
 
 @class TiMemoryCache;
 
 typedef enum : short {
-    TiCachePurgeStrategyLRU,
-    TiCachePurgeStrategyFIFO,
+  TiCachePurgeStrategyLRU,
+  TiCachePurgeStrategyFIFO,
 } TiCachePurgeStrategy;
 
 #pragma mark -
@@ -45,8 +45,7 @@ typedef enum : short {
  *   @param aKey the key.
  *   @param cacheKey The key representing a certain cache.
  *   @return An image of the tile that can be used to draw a portion of the map. */
-- (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey;
-
+- (UIImage *)cachedImage:(NSNumber *)aKey withCacheKey:(NSString *)cacheKey;
 
 - (void)didReceiveMemoryWarning;
 
@@ -58,13 +57,13 @@ typedef enum : short {
  *   @param image An image to be cached.
  *   @param aKey The key
  *   @param cacheKey The key representing a certain cache. */
-- (void)addImage:(UIImage *)image forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey;
+- (void)addImage:(UIImage *)image forKey:(NSNumber *)aKey withCacheKey:(NSString *)aCacheKey;
 
 /** Adds image data to the specified cache, bypassing the memory cache and only writing to disk. This is useful for instances where many images are downloaded directly to disk for later use offline.
  *   @param data The image data to be cached.
  *   @param aKey The key
  *   @param cacheKey The key representing a certain cache. */
-- (void)addDiskCachedImageData:(NSData *)data forKey:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey;
+- (void)addDiskCachedImageData:(NSData *)data forKey:(NSNumber *)aKey withCacheKey:(NSString *)cacheKey;
 
 /** @name Clearing the Cache */
 
@@ -91,22 +90,22 @@ typedef enum : short {
  *
  *   @param period A period of time after which images should be expunged from the cache.
  *   @return An initialized cache object or `nil` if the object couldn't be created. */
-- (id)initWithConfig:(NSArray*)cacheCfg expiryPeriod:(NSTimeInterval)period;
+- (id)initWithConfig:(NSArray *)cacheCfg expiryPeriod:(NSTimeInterval)period;
 
 /** @name Adding Caches to the Cache Manager */
 
 /** Adds a given cache to the cache management system.
  *
  *   @param cache A memory-based or disk-based cache. */
-- (void)addCache:(id <TiCache>)cache;
-- (void)insertCache:(id <TiCache>)cache atIndex:(NSUInteger)index;
+- (void)addCache:(id<TiCache>)cache;
+- (void)insertCache:(id<TiCache>)cache atIndex:(NSUInteger)index;
 
 /** Returns an image from the cache if it exists.
  *   @param aKey the key.
  *   @param cacheKey The key representing a certain cache.
  *   @param shouldBypassMemoryCache Whether to only consult disk-based caches.
  *   @return An image of the tile that can be used to draw a portion of the map. */
-- (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey bypassingMemoryCache:(BOOL)shouldBypassMemoryCache;
+- (UIImage *)cachedImage:(NSNumber *)aKey withCacheKey:(NSString *)cacheKey bypassingMemoryCache:(BOOL)shouldBypassMemoryCache;
 
 /** The list of caches managed by a cache manager. This could include memory-based, disk-based, or other types of caches. */
 @property (nonatomic, readonly, strong) NSArray *caches;

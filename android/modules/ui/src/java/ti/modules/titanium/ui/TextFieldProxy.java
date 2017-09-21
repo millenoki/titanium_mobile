@@ -35,7 +35,9 @@ import android.os.Message;
 	TiC.PROPERTY_FONT,
 	TiC.PROPERTY_FULLSCREEN,
 	TiC.PROPERTY_HINT_TEXT,
+	TiC.PROPERTY_HINT_TEXT_ID,
 	TiC.PROPERTY_HINT_TEXT_COLOR,
+	TiC.PROPERTY_HINT_TYPE,
 	TiC.PROPERTY_INPUT_TYPE,
 	TiC.PROPERTY_KEYBOARD_TYPE,
 	TiC.PROPERTY_MAX_LENGTH,
@@ -45,7 +47,7 @@ import android.os.Message;
 	TiC.PROPERTY_VERTICAL_ALIGN,
 	TiC.PROPERTY_LEFT_BUTTON,
 	TiC.PROPERTY_RIGHT_BUTTON,
-    TiC.PROPERTY_RETURN_KEY_TYPE,
+	TiC.PROPERTY_RETURN_KEY_TYPE,
     TiC.PROPERTY_MASK,
     TiC.PROPERTY_MASK_CHAR
 })
@@ -60,8 +62,7 @@ public class TextFieldProxy extends ViewProxy
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
-		defaultValues.put(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS, TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS);
-
+		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
 	@Override
@@ -74,6 +75,13 @@ public class TextFieldProxy extends ViewProxy
 	public TiUIView createView(Activity activity)
 	{
 		return new TiUIText(this, true);
+	}
+	
+	@Override
+	protected KrollDict getLangConversionTable() {
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Kroll.method
@@ -162,6 +170,6 @@ public class TextFieldProxy extends ViewProxy
         if (!oldNullEmpty && !newNullEmpty) return (!oldValue.equals(newValue));
         return oldNullEmpty != newNullEmpty;
         
-    }
+}
 
 }

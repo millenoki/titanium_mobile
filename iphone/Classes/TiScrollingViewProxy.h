@@ -2,6 +2,6 @@
 
 @class TiScrollingView;
 @interface TiScrollingViewProxy : TiViewProxy
--(TiScrollingView*)scrollingView;
+- (TiScrollingView *)scrollingView;
 
 @end

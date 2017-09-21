@@ -47,12 +47,12 @@ import android.widget.ImageView;
 public class ActionBarProxy extends AnimatableReusableProxy {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 
-    private static final String TAG = "ActionBarProxy";
+	private static final String TAG = "ActionBarProxy";
 
-    private ActionBar actionBar;
+	private ActionBar actionBar;
     private Drawable themeBackgroundDrawable;
     private Drawable themeIconDrawable = null;
-    private boolean showTitleEnabled = true;
+	private boolean showTitleEnabled = true;
     private int defaultColor = 0;
     private boolean customBackgroundSet = false;
     private Drawable mActionBarBackgroundDrawable;
@@ -62,38 +62,38 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         @Override
         public void invalidateDrawable(Drawable who) {
             actionBar.setBackgroundDrawable(who);
-        }
+	}
 
         @Override
         public void scheduleDrawable(Drawable who, Runnable what, long when) {
-        }
+		}
 
         @Override
         public void unscheduleDrawable(Drawable who, Runnable what) {
-        }
+	}
     };
 
     private void setActionBarDrawable(final Drawable drawable) {
         if (drawable == mActionBarBackgroundDrawable) {
             return;
-        }
+		}
         if (mActionBarBackgroundDrawable != null) {
             if (!JELLY_BEAN_MR1_OR_GREATER) {
                 mActionBarBackgroundDrawable.setCallback(null);
-            }
+	}
             mActionBarBackgroundDrawable = null;
-        }
+		}
         if (drawable == themeBackgroundDrawable) {
             actionBar.setBackgroundDrawable(themeBackgroundDrawable);
             return;
-        }
+	}
         mActionBarBackgroundDrawable = drawable;
         if (mActionBarBackgroundDrawable != null) {
             if (!JELLY_BEAN_MR1_OR_GREATER) {
                 mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
-            }
+		}
             mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
-        }
+	}
         actionBar.setBackgroundDrawable(mActionBarBackgroundDrawable);
         actionBar.setStackedBackgroundDrawable(mActionBarBackgroundDrawable);
     }
@@ -102,6 +102,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         super();
         setActivity(activity);
         actionBar = TiActivityHelper.getActionBar(activity);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
 
         // try {
         // actionBar = activity.getSupportActionBar();
@@ -128,20 +129,20 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                             .findViewById(resourceId);
                     if (view != null) {
                         themeBackgroundDrawable = view.getBackground();
-                    }
-                }
+		}
+	}
                 themeIconDrawable = getActionBarIcon(activity);
-            }
+		}
         } catch (ResourceNotFoundException e) {
-        }
-    }
-
+	}
+		}
+		
     @Override
     public void release() {
         actionBar = null;
         super.release();
-    }
-
+		}
+	
     protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context,
             int[] styleAttrs) throws ResourceNotFoundException {
         // Need to get resource id of style pointed to from the theme attr
@@ -152,8 +153,8 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         final int styleResId = outValue.resourceId;
 
         return context.obtainStyledAttributes(styleResId, styleAttrs);
-    }
-
+		}
+		
     protected Drawable getActionBarBackground(Context context) {
         TypedArray values = null;
         try {
@@ -167,10 +168,10 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         } finally {
             if (values != null) {
                 values.recycle();
-            }
-        }
+		}
+	}
     }
-
+	
     public static int getActionBarSize(Context context) {
         TypedArray values = null;
         try {
@@ -184,10 +185,10 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         } finally {
             if (values != null) {
                 values.recycle();
-            }
-        }
+		}
+	}
     }
-
+	
     protected Drawable getActionBarIcon(Context context) {
         int[] android_styleable_ActionBar = { android.R.attr.icon };
 
@@ -203,13 +204,13 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             return context.getApplicationInfo().loadIcon(
                     context.getPackageManager());
         } catch (ResourceNotFoundException e) {
-            return null;
+			return null;
         } finally {
             if (abStyle != null)
                 abStyle.recycle();
-        }
-    }
-
+		}
+	}
+	
     public void setBackgroundImage(final Object value) {
         actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
@@ -217,26 +218,26 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         if (value instanceof Drawable) {
             setActionBarDrawable((Drawable) value);
 
-        } else {
+		} else {
             setActionBarDrawable(TiUIHelper.getResourceDrawable(value));
-        }
+		}
         customBackgroundSet = (mActionBarBackgroundDrawable != null);
-    }
+	}
 
     public void setBackgroundColor(final int color) {
         resetTitleEnabled();
         setActionBarDrawable(new ColorDrawable(color));
         customBackgroundSet = (mActionBarBackgroundDrawable != null)
                 && color != defaultColor;
-    }
+		}
 
     public <T> T getInUiThread(final Command<T> command, T defaultValue) {
         if (actionBar == null) {
             Log.w(TAG, "ActionBar is not enabled");
             return defaultValue;
-        }
+		}
         return super.getInUiThread(command);
-    }
+	}
 
     @Override
     public void runInUiThread(final CommandNoReturn command,
@@ -244,15 +245,15 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         if (actionBar == null) {
             Log.w(TAG, "ActionBar is not enabled");
             return;
-        }
+		}
         super.runInUiThread(command, blocking);
-    }
+	}
 
     public void setCustomView(final Object view, final boolean shouldHold) {
-        if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
         KrollProxy viewProxy = null;
         // the customView can come from the window titleView. In that case don't
         // hold it
@@ -262,7 +263,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         } else if (view instanceof KrollProxy) {
             viewProxy = (KrollProxy) view;
             viewProxy.setActivity(getActivity());
-        }
+		} 
         if (viewProxy instanceof TiViewProxy) {
             viewProxy.setActivity(getActivity());
             View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView()
@@ -272,28 +273,28 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 actionBar.setCustomView(viewToAdd);
                 showTitleEnabled = false;
                 actionBar.setDisplayShowCustomEnabled(true);
-            }
-        } else {
+	}
+		} else {
             actionBar.setCustomView(null);
             showTitleEnabled = true;
             actionBar.setDisplayShowCustomEnabled(false);
-        }
+		}
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-    }
+	}
 
     public void setIcon(final Object value) {
         if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, "ActionBar is not enabled");
             return;
-        }
+		}
         Drawable icon = TiUIHelper.getResourceDrawable(value);
         if (icon == null) {
             actionBar.setIcon(themeIconDrawable);
         } else {
             actionBar.setIcon(icon);
-        }
+	}
     }
-
+	
     @Kroll.method
     @Kroll.getProperty(enumerable=false)
     public double getHeight() {
@@ -320,24 +321,24 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     public void show() {
         runInUiThread(new CommandNoReturn() {
             public void execute() {
-                actionBar.show();
-            }
+			actionBar.show();
+		}
         }, false);
-    }
+	}
 
     @Kroll.method
     public void hide() {
         runInUiThread(new CommandNoReturn() {
             public void execute() {
-                actionBar.hide();
-            }
+			actionBar.hide();
+		}
         }, false);
-    }
+	}
 
     private void resetTitleEnabled() {
-        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-    }
+			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+		}
 
     private static final ArrayList<String> KEY_SEQUENCE;
     static {
@@ -347,12 +348,12 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         tmp.add(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
         tmp.add(TiC.PROPERTY_DISPLAY_HOME_AS_UP);
         KEY_SEQUENCE = tmp;
-    }
+	}
 
     @Override
     protected ArrayList<String> keySequence() {
         return KEY_SEQUENCE;
-    }
+		}
 
     private static final HashMap<String, String> BAR_PROPERTIES_MAP;
     static {
@@ -362,11 +363,11 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         tmp.put(TiC.PROPERTY_BAR_OPACITY, TiC.PROPERTY_BACKGROUND_OPACITY);
         tmp.put(TiC.PROPERTY_BAR_GRADIENT, TiC.PROPERTY_BACKGROUND_GRADIENT);
         BAR_PROPERTIES_MAP = tmp;
-    }
+	}
 
     public static HashMap<String, String> propsToReplace() {
         return BAR_PROPERTIES_MAP;
-    }
+                }
 
     private static final ArrayList<String> BAR_PROPERTIES;
     static {
@@ -388,16 +389,16 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         tmp.add(TiC.PROPERTY_TITLE_VIEW);
         tmp.add(TiC.PROPERTY_CUSTOM_VIEW);
         BAR_PROPERTIES = tmp;
-    }
+        }
 
     public static ArrayList<String> windowProps() {
         return BAR_PROPERTIES;
-    }
+	}
 
     private boolean getActionBarDisplayOption(final int option) {
-        if (actionBar == null) {
+		if (actionBar == null) {
             return false;
-        }
+		}
         // Determine which display options are enabled
         return (actionBar.getDisplayOptions() & option) != 0;
     }
@@ -409,19 +410,19 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 @Override
                 public void execute() {
                     handleProperties(d, changed);
-                }
+		}
             }, true);
             return;
-        }
+	}
         super.handleProperties(d, changed);
-    }
+	}
 
-    @Override
+	@Override
     public void propertySet(String key, final Object newValue, Object oldValue,
             boolean changedProperty) {
         if (actionBar == null) {
             return;
-        }
+				}
         switch (key) {
         case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
             actionBar.setHomeButtonEnabled((newValue instanceof KrollFunction));
@@ -449,7 +450,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 setBackgroundColor(defaultColor);
             } else {
                 setBackgroundColor(TiConvert.toColor(newValue));
-            }
+			}
             break;
         case TiC.PROPERTY_BACKGROUND_GRADIENT:
             resetTitleEnabled();
@@ -464,7 +465,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 setBackgroundColor(defaultColor);
             } else {
                 mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
-            }
+				}
             break;
         case TiC.PROPERTY_CUSTOM_VIEW:
             setCustomView(newValue, true);
@@ -498,10 +499,10 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                     view.setImageDrawable(drawable);
                 } else {
                     view.setImageDrawable(view.getDrawable());
-                }
-            }
+			}
+		}
             break;
-        }
+	}
         case TiC.PROPERTY_ICON:
             setIcon(newValue);
             break;
@@ -516,7 +517,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         }
     }
 
-    @Override
+	@Override
     protected void didProcessProperties() {
         super.didProcessProperties();
         if (customBackgroundSet
@@ -525,18 +526,18 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 && properties.get(TiC.PROPERTY_BACKGROUND_GRADIENT) == null) {
             if (defaultColor != 0) {
                 setBackgroundColor(defaultColor);
-            } else {
+			} else {
                 setBackgroundImage(themeBackgroundDrawable);
-            }
+			}
 
             customBackgroundSet = false;
-        }
-    }
+		}
+	}
 
-    @Override
+	@Override
     public String getApiName() {
-        return "Ti.Android.ActionBar";
-    }
+		return "Ti.Android.ActionBar";
+	}
 
     private ImageView getUpIndicatorView() {
         String appPackage = getActivity().getPackageName();
@@ -551,7 +552,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                     "id", appPackage);
             if (parent != null) {
                 return (ImageView) parent.findViewById(upId);
-            }
+}
         }
         return null;
     }

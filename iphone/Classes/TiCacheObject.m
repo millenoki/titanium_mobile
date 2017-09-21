@@ -28,13 +28,12 @@
 #import "TiCacheObject.h"
 #import "TiCache.h"
 
-@implementation TiCacheObject
-{
-    id _cachedObject;
-    NSString *_cacheKey;
-    
-    NSNumber *_key;
-    NSDate *_timestamp;
+@implementation TiCacheObject {
+  id _cachedObject;
+  NSString *_cacheKey;
+
+  NSNumber *_key;
+  NSDate *_timestamp;
 }
 
 @synthesize cachedObject = _cachedObject;
@@ -42,45 +41,44 @@
 @synthesize key = _key;
 @synthesize timestamp = _timestamp;
 
-+ (instancetype)cacheObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey
++ (instancetype)cacheObject:(id)anObject forKey:(NSNumber *)aKey withCacheKey:(NSString *)aCacheKey
 {
-    return [[[self alloc] initWithObject:anObject forKey:aKey withCacheKey:aCacheKey] autorelease];
+  return [[[self alloc] initWithObject:anObject forKey:aKey withCacheKey:aCacheKey] autorelease];
 }
 
-- (id)initWithObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey
+- (id)initWithObject:(id)anObject forKey:(NSNumber *)aKey withCacheKey:(NSString *)aCacheKey
 {
-    if (!(self = [super init]))
-        return nil;
-    
-    _cachedObject = [anObject retain];
-    _cacheKey = [aCacheKey retain];
-    _key = [aKey retain];
-    _timestamp = [[NSDate new] retain];
-    
-    return self;
+  if (!(self = [super init]))
+    return nil;
+
+  _cachedObject = [anObject retain];
+  _cacheKey = [aCacheKey retain];
+  _key = [aKey retain];
+  _timestamp = [[NSDate new] retain];
+
+  return self;
 }
 
 - (void)dealloc
 {
-    [_cachedObject release];
-    [_cacheKey release];
-    [_key release];
-    [_timestamp release];
-    [super dealloc];
+  [_cachedObject release];
+  [_cacheKey release];
+  [_key release];
+  [_timestamp release];
+  [super dealloc];
 }
-
 
 - (void)touch
 {
-    @synchronized (self)
-    {
-        _timestamp = [NSDate new];
-    }
+  @synchronized(self)
+  {
+    _timestamp = [NSDate new];
+  }
 }
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@: key='%@', cache key='%@'>", NSStringFromClass([self class]), _key, _cacheKey];
+  return [NSString stringWithFormat:@"<%@: key='%@', cache key='%@'>", NSStringFromClass([self class]), _key, _cacheKey];
 }
 
 @end

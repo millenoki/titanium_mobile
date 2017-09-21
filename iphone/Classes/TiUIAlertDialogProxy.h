@@ -9,18 +9,18 @@
 @class TiAlertController;
 
 @interface TiUIAlertDialogProxy : TiViewProxy <UIAlertViewDelegate> {
-@private
-    UIAlertView *alert;
-    TiAlertController* alertController;
-    BOOL persistentFlag;
-    BOOL hideOnClick;
-    NSInteger cancelIndex;
-    NSInteger destructiveIndex;
-    int preferredIndex;
-    NSInteger style;
+  @private
+  UIAlertView *alert;
+  TiAlertController *alertController;
+  BOOL persistentFlag;
+  BOOL hideOnClick;
+  NSInteger cancelIndex;
+  NSInteger destructiveIndex;
+  int preferredIndex;
+  NSInteger style;
 }
 
--(void)show:(id)args;
--(void)hide:(id)args;
+- (void)show:(id)args;
+- (void)hide:(id)args;
 
 @end

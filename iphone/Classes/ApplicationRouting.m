@@ -6,19 +6,19 @@
  *
  * WARNING: This is generated code. Do not modify. Your changes *will* be lost.
  */
-#import <Foundation/Foundation.h>
 #import "ApplicationRouting.h"
+#import <Foundation/Foundation.h>
 
 @implementation ApplicationRouting
 
-+ (NSData*) resolveAppAsset:(NSString*)path;
++ (NSData *)resolveAppAsset:(NSString *)path;
 {
-    return nil;
+  return nil;
 }
 
-+ (NSArray*) getDirectoryListing:(NSString*)path
++ (NSArray *)getDirectoryListing:(NSString *)path
 {
-    return nil;
+  return nil;
 }
 
 @end

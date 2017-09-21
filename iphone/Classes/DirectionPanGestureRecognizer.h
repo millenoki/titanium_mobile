@@ -9,28 +9,25 @@
 #import "TiBase.h"
 
 typedef enum {
-    DirectionPangestureRecognizerAll,
-    DirectionPangestureRecognizerVertical,
-    DirectionPanGestureRecognizerHorizontal
+  DirectionPangestureRecognizerAll,
+  DirectionPangestureRecognizerVertical,
+  DirectionPanGestureRecognizerHorizontal
 } DirectionPangestureRecognizerDirection;
 
-@interface DirectionPanGestureRecognizer : UIPanGestureRecognizer 
+@interface DirectionPanGestureRecognizer : UIPanGestureRecognizer
 @property (nonatomic, assign) DirectionPangestureRecognizerDirection direction;
 
 @end
 
 TI_INLINE DirectionPangestureRecognizerDirection PanDirectionFromObject(id object)
 {
-    if ([object isKindOfClass:[NSString class]])
-    {
-        if ([object caseInsensitiveCompare:@"vertical"]==NSOrderedSame)
-        {
-            return DirectionPangestureRecognizerVertical;
-        }
-        if ([object caseInsensitiveCompare:@"horizontal"]==NSOrderedSame)
-        {
-            return DirectionPanGestureRecognizerHorizontal;
-        }
+  if ([object isKindOfClass:[NSString class]]) {
+    if ([object caseInsensitiveCompare:@"vertical"] == NSOrderedSame) {
+      return DirectionPangestureRecognizerVertical;
     }
-    return DirectionPangestureRecognizerAll;
+    if ([object caseInsensitiveCompare:@"horizontal"] == NSOrderedSame) {
+      return DirectionPanGestureRecognizerHorizontal;
+    }
+  }
+  return DirectionPangestureRecognizerAll;
 }

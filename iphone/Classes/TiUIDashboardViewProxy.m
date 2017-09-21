@@ -7,86 +7,83 @@
 #ifdef USE_TI_UIDASHBOARDVIEW
 
 #import "TiUIDashboardViewProxy.h"
+#import "LauncherButton.h"
+#import "LauncherItem.h"
+#import "LauncherView.h"
 #import "TiUIDashboardItemProxy.h"
 #import "TiUIDashboardView.h"
 #import "TiUtils.h"
-#import "LauncherItem.h"
-#import "LauncherButton.h"
-#import "LauncherView.h"
 
 @implementation TiUIDashboardViewProxy
 
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-    static NSArray *keySequence = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"rowCount",@"columnCount"]] retain];;
-    });
-    return keySequence;
+  static NSArray *keySequence = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"rowCount", @"columnCount" ]] retain];
+    ;
+  });
+  return keySequence;
 }
 
--(id)init
+- (id)init
 {
-    if (self = [super init]) {
-        [self setValue:@YES forUndefinedKey:@"editable"];
-    }
-    return self;
+  if (self = [super init]) {
+    [self setValue:@YES forUndefinedKey:@"editable"];
+  }
+  return self;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.DashboardView";
+  return @"Ti.UI.DashboardView";
 }
 
--(void)startEditing:(id)args
+- (void)startEditing:(id)args
 {
-    [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(startEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
--(void)stopEditing:(id)args
+- (void)stopEditing:(id)args
 {
-    [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];    
+  [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
 //TODO: Remove when deprication is done.
--(void)fireEvent:(NSString*)type withObject:(id)obj;
+- (void)fireEvent:(NSString *)type withObject:(id)obj;
 {
-	if ([type isEqual:@"click"])
-	{
-		TiUIDashboardView *v = (TiUIDashboardView*)[self view];
-		LauncherView *launcher = [v launcher];
-		if (launcher.editing)
-		{
-			return;
-		}
-	}
-	[super fireEvent:type withObject:obj];
-}
-
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
-{
-	if ([type isEqual:@"click"])
-	{
-		TiUIDashboardView *v = (TiUIDashboardView*)[self view];
-		LauncherView *launcher = [v launcher];
-		if (launcher.editing)
-		{
-			return;
-		}
-	}
-	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
-}
-
--(void)setData:(id)data
-{
-    for (TiViewProxy* proxy in data) {
-        ENSURE_TYPE(proxy, TiUIDashboardItemProxy)
-        [self rememberProxy:proxy];
+  if ([type isEqual:@"click"]) {
+    TiUIDashboardView *v = (TiUIDashboardView *)[self view];
+    LauncherView *launcher = [v launcher];
+    if (launcher.editing) {
+      return;
     }
-    
-    [self replaceValue:data forKey:@"data" notification:NO];
-    [self replaceValue:data forKey:@"viewData" notification:YES];
+  }
+  [super fireEvent:type withObject:obj];
+}
+
+- (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message;
+{
+  if ([type isEqual:@"click"]) {
+    TiUIDashboardView *v = (TiUIDashboardView *)[self view];
+    LauncherView *launcher = [v launcher];
+    if (launcher.editing) {
+      return;
+    }
+  }
+  [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+- (void)setData:(id)data
+{
+  for (TiViewProxy *proxy in data) {
+    ENSURE_TYPE(proxy, TiUIDashboardItemProxy)
+        [self rememberProxy:proxy];
+  }
+
+  [self replaceValue:data forKey:@"data" notification:NO];
+  [self replaceValue:data forKey:@"viewData" notification:YES];
 }
 
 @end

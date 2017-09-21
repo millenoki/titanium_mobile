@@ -37,7 +37,7 @@
 /**
  * Returns the call stack as a static string. May or may not include the most recent function.
  */
-@property (nonatomic, readonly)	NSString *backtrace;
+@property (nonatomic, readonly) NSString *backtrace;
 
 @property (nonatomic, readonly) NSString *scriptLocation;
 
@@ -78,7 +78,7 @@
 /**
  * The Exception Handler class. Singleton instance accessed via <defaultExceptionHandler>
  */
-@interface TiExceptionHandler : NSObject < TiExceptionHandlerDelegate >
+@interface TiExceptionHandler : NSObject <TiExceptionHandlerDelegate>
 
 /**
  * Delegate for error/exception handling
@@ -101,4 +101,3 @@
 - (void)reportScriptError:(TiScriptError *)error;
 
 @end
-

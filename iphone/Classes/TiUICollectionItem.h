@@ -7,27 +7,24 @@
 
 #ifdef USE_TI_UICOLLECTIONVIEW
 
-#import <UIKit/UIKit.h>
-#import "TiUICollectionView.h"
-#import "TiUICollectionItemProxy.h"
 #import "MGSwipeCollectionViewCell.h"
+#import "TiUICollectionItemProxy.h"
+#import "TiUICollectionView.h"
+#import <UIKit/UIKit.h>
 
 typedef enum {
-    TiUICollectionItemTemplateStyleCustom = -1,
-    TiUICollectionItemTemplateStyleListView = 0
+  TiUICollectionItemTemplateStyleCustom = -1,
+  TiUICollectionItemTemplateStyleListView = 0
 } TiUICollectionItemTemplateStyle;
 
-typedef enum
-{
-    TiGroupedCollectionItemPositionTop,
-    TiGroupedCollectionItemPositionMiddle,
-    TiGroupedCollectionItemPositionBottom,
-	TiGroupedCollectionItemPositionSingleLine
+typedef enum {
+  TiGroupedCollectionItemPositionTop,
+  TiGroupedCollectionItemPositionMiddle,
+  TiGroupedCollectionItemPositionBottom,
+  TiGroupedCollectionItemPositionSingleLine
 } TiGroupedCollectionItemPosition;
 
-
-@interface TiUICollectionItem : MGSwipeCollectionViewCell<TiProxyDelegate>
-{
+@interface TiUICollectionItem : MGSwipeCollectionViewCell <TiProxyDelegate> {
 }
 
 @property (nonatomic, readonly) NSInteger templateStyle;
@@ -38,10 +35,10 @@ typedef enum
 - (id)prepareWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
--(void)configurationStart;
--(void)configurationSet;
--(BOOL)canSwipeLeft;
--(BOOL)canSwipeRight;
+- (void)configurationStart;
+- (void)configurationSet;
+- (BOOL)canSwipeLeft;
+- (BOOL)canSwipeRight;
 @end
 
 #endif

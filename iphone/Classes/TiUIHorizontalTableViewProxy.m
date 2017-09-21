@@ -15,9 +15,8 @@
 #import "TiUIHorizontalTableViewProxy.h"
 #import "TiUIHorizontalTableView.h"
 
-
 @implementation TiUIHorizontalTableViewProxy
 
-@end 
+@end
 
 #endif

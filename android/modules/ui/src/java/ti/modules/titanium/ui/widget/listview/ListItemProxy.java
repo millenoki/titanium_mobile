@@ -19,12 +19,12 @@ public class ListItemProxy extends AbsListItemProxy
 	{
 	    super();
 	}
-	
 
-    @Override
-    public String getApiName()
-    {
-        return "Ti.UI.ListItem";
-    }
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ListItem";
+	}
     
 }

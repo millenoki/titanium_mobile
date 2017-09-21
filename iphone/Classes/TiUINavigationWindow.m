@@ -10,10 +10,10 @@
 
 @implementation TiUINavigationWindow
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [(TiUINavigationWindowProxy*)[self proxy] setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+  [(TiUINavigationWindowProxy *)[self proxy] setFrame:bounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
 
 @end

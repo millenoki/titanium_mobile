@@ -10,20 +10,19 @@
 #import "TiUICollectionView.h"
 
 @class TiUICollectionWrapperViewProxy;
-@interface TiUICollectionWrapperView : UICollectionReusableView<TiProxyDelegate>
-{
+@interface TiUICollectionWrapperView : UICollectionReusableView <TiProxyDelegate> {
 }
 
-@property (nonatomic,readwrite,retain) TiUICollectionWrapperViewProxy *proxy;
+@property (nonatomic, readwrite, retain) TiUICollectionWrapperViewProxy *proxy;
 @property (nonatomic, retain) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
 - (id)prepareWithProxy:(TiUICollectionWrapperViewProxy *)proxy;
--(void)updateProxy:(TiUICollectionWrapperViewProxy *)viewProxy forIndexPath:(NSIndexPath*)indexPath;
+- (void)updateProxy:(TiUICollectionWrapperViewProxy *)viewProxy forIndexPath:(NSIndexPath *)indexPath;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
--(void)configurationStart;
--(void)configurationSet;
+- (void)configurationStart;
+- (void)configurationSet;
 @end
 
 #endif

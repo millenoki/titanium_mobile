@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,7 +41,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
     private Object mAppearAnimation = null;
     private boolean mUseAppearAnimation = false;
     private Animator mAppearAnimators = null;
-    
+
     private SwipeMenuAdapter mSwipeMenuAdapater;
     private boolean mNeedsSwipeMenu = true;
 //    private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
@@ -74,59 +74,59 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
     public TiListView(TiViewProxy proxy, Activity activity) {
         super(proxy, activity);
-    }
+		}
 
-    @Override
+		@Override
     protected CustomListView createListView(final Activity activity) {
         CustomListView result = new CustomListView(activity) {
 
-            @Override
+		@Override
             protected void onLayout(boolean changed, int left, int top,
                     int right, int bottom) {
 
-                super.onLayout(changed, left, top, right, bottom);
-                if (changed) {
+			super.onLayout(changed, left, top, right, bottom);
+				if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiListView.this);
-                }
-            }
+					}
+				}
 
-            @Override
+		@Override
             public boolean dispatchTouchEvent(MotionEvent event) {
                 boolean touchPassThrough = touchPassThrough(this, event);
                 if (touchPassThrough) return false;
-                
-                return super.dispatchTouchEvent(event);
-            }
 
-            @Override
+                return super.dispatchTouchEvent(event);
+		}
+
+		@Override
             protected void dispatchDraw(Canvas canvas) {
                 try {
                     super.dispatchDraw(canvas);
                 } catch (IndexOutOfBoundsException e) {
                     // samsung error
-                }
-            }
-            @Override 
+		}
+		}
+		@Override
             public void setClipChildren(final boolean clip) {
                 super.setClipChildren(clip);
                 getWrappedList().setClipChildren(clip);
-            }
+			}
         };
 
         return result;
-    }
+				}
 
-    @Override
+			@Override
     protected void setListViewAdapter(TiBaseAdapter adapter) {
-        
+
         SingleAnimationAdapter animationAdapter = null;
         BaseAdapter currentAdapter = adapter;
         if (mUseAppearAnimation) {
             currentAdapter = animationAdapter = new SingleAnimationAdapter(adapter) {
-                @Override
+	@Override
                 protected Animator getAnimator(int position, View view, ViewGroup parent) {
-                    
-                    
+
+
                     if (mAppearAnimators != null) {
                         Animator anim = mAppearAnimators.clone();
                         anim.setTarget(view);
@@ -136,25 +136,25 @@ public class TiListView extends TiAbsListView<CustomListView> {
                         Object anim = null;
                         if (data instanceof HashMap) {
                             anim = ((HashMap) data).get("appearAnimation");
-                        }
+		}
                         if (anim == null) {
                             anim = mAppearAnimation;
-                        }
+	}
                         if (anim != null) {
                             TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view.findViewById(listContentId);
                             AbsListItemProxy proxy = itemContent.getProxy();
                             Animator animator = proxy.getAnimatorSetForAnimation(anim);
                             return animator;
-                        }
-                    }
-                    return null;
-                }
+		}
+		}
+			return null;
+		}
             };
-        }
+			}
         if (mNeedsSwipeMenu) {
             currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(currentAdapter, getProxy()
                     .getActivity(), null);
-        }
+		}
 
         StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
                 currentAdapter);
@@ -163,9 +163,9 @@ public class TiListView extends TiAbsListView<CustomListView> {
                         listView));
         if (animationAdapter != null) {
             animationAdapter.getViewAnimator().setAnimationDurationMillis(0);
-        }
+	}
         listView.setAdapter(stickyListHeadersAdapterDecorator);
-    }
+	}
 
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
@@ -178,18 +178,18 @@ public class TiListView extends TiAbsListView<CustomListView> {
             if (newValue instanceof HashMap || newValue instanceof TiAnimation) {
                 mAppearAnimation = newValue;
                 mUseAppearAnimation = mAppearAnimation != null;
-            } else {
+		} else {
                 int id = TiConvert.toInt(newValue);
                 if (id != 0) {
                     mAppearAnimators = AnimatorInflater.loadAnimator(getProxy().getActivity(), id) ;
-                } else {
+		} else {
                     mAppearAnimators = null;
-                }
+		}
                 mUseAppearAnimation = mAppearAnimators != null;
-            }
+	}
             mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
-           
-            break;
+
+				break;
         case "useAppearAnimation":
             mUseAppearAnimation = TiConvert.toBoolean(newValue, false);
             mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
@@ -197,41 +197,41 @@ public class TiListView extends TiAbsListView<CustomListView> {
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
+			}
+		}
 
     public void closeSwipeMenu(boolean animated) {
         if (mSwipeMenuAdapater != null) {
-            if (animated) {
+			if (animated) {
                 mSwipeMenuAdapater.closeMenusAnimated();
-            } else {
+			} else {
                 mSwipeMenuAdapater.closeMenus();
-            }
-        }
-    }
-    
+					}
+			}
+		}
+
     public void insert(final int position, final Object item) {
         if (listView != null) {
             listView.insert(position, item);
-        }
-    }
-    
-    public void insert(final int position, final Object... items) {
-        if (listView != null) {
-            listView.insert(position, items);
-        }
-    }
+		}
+		}
 
-    
+    public void insert(final int position, final Object... items) {
+		if (listView != null) {
+            listView.insert(position, items);
+		}
+		}
+
+
     public void remove(final int position) {
         if (listView != null) {
             listView.remove(position - listView.getHeaderViewsCount());
-        }
-    }
+	}
+	}
 
     public void remove( final int position, final int count) {
         if (listView != null) {
             listView.remove(position - listView.getHeaderViewsCount(), count);
-        }
+}
     }
 }

@@ -12,7 +12,7 @@
 
 @class TiTableView;
 @class TiUICollectionItemProxy;
-@interface TiUICollectionViewProxy : TiScrollingViewProxy < TiUICollectionViewDelegate >
+@interface TiUICollectionViewProxy : TiScrollingViewProxy <TiUICollectionViewDelegate>
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;
@@ -22,15 +22,15 @@
 @property (nonatomic, readonly) NSDictionary *templates;
 
 - (TiUICollectionSectionProxy *)sectionForIndex:(NSUInteger)index;
-- (void) deleteSectionAtIndex:(NSUInteger)index;
-- (void) setMarker:(id)args;
--(BOOL)shouldHighlightCurrentCollectionItem;
-- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
--(TiTableView*)tableView;
--(void)didOverrideEvent:(NSString*)type forItem:(TiUICollectionItemProxy*)item;
+- (void)deleteSectionAtIndex:(NSUInteger)index;
+- (void)setMarker:(id)args;
+- (BOOL)shouldHighlightCurrentCollectionItem;
+- (NSIndexPath *)nextIndexPath:(NSIndexPath *)indexPath;
+- (TiTableView *)tableView;
+- (void)didOverrideEvent:(NSString *)type forItem:(TiUICollectionItemProxy *)item;
 @end
 
 @interface TiUICollectionViewProxy (internal)
--(void)willDisplayCell:(NSIndexPath*)indexPath;
+- (void)willDisplayCell:(NSIndexPath *)indexPath;
 @end
 #endif

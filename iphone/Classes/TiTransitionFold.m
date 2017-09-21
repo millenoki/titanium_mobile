@@ -3,18 +3,17 @@
 
 @implementation TiTransitionFold
 
-
--(Class) adTransitionClass {
-    return [ADFoldTransition class];
+- (Class)adTransitionClass
+{
+  return [ADFoldTransition class];
 }
 
--(void)transformView:(UIView*)view withPosition:(CGFloat)position adjustTranslation:(BOOL)adjust size:(CGSize)size
+- (void)transformView:(UIView *)view withPosition:(CGFloat)position adjustTranslation:(BOOL)adjust size:(CGSize)size
 {
 }
 
--(BOOL)needsReverseDrawOrder
+- (BOOL)needsReverseDrawOrder
 {
-    return [self isTransitionPush];
+  return [self isTransitionPush];
 }
 @end
-

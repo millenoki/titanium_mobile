@@ -25,8 +25,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#import <UIKit/UIKit.h>
 #import "TiCache.h"
+#import <UIKit/UIKit.h>
 
 /** An TiDatabaseCache object represents disk-based caching of map tile images. This cache is meant for longer-term storage than TiMemoryCache, potentially for long periods of time, allowing completely offline use of map view.
  *
@@ -38,7 +38,7 @@
 /** The path to the SQLite database on disk that backs the cache. */
 @property (nonatomic, strong) NSString *databasePath;
 
-+ (NSString *)dbPath:(NSString*)name usingCacheDir:(BOOL)useCacheDir;
++ (NSString *)dbPath:(NSString *)name usingCacheDir:(BOOL)useCacheDir;
 
 /** @name Initializing Database Caches */
 
@@ -50,7 +50,7 @@
 /** Initializes and returns a newly allocated database cache object.
  *   @param useCacheDir If YES, use the temporary cache space for the application, meaning that the cache files can be removed when the system deems it necessary to free up space. If NO, use the application's document storage space, meaning that the cache will not be automatically removed and will be backed up during device backups. The default value is NO.
  *   @return An initialized cache object or `nil` if the object couldn't be created. */
-- (id)initWithName:(NSString*)name usingCacheDir:(BOOL)useCacheDir;
+- (id)initWithName:(NSString *)name usingCacheDir:(BOOL)useCacheDir;
 
 /** @name Configuring Cache Behavior */
 

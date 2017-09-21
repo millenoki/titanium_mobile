@@ -200,17 +200,17 @@ public class TiConvert
 	{
 		return toColorDrawable(TiConvert.toString(hashMap.get(key)));
 	}
-	
+
 	private static final int DEFAULT_FLAG_RETURN =  TiUIView.TIFLAG_NEEDS_LAYOUT;
 	
 	public static int fillLayout(String key, Object value, LayoutParams layoutParams, boolean withMatrix)
-    {
+	{
         switch (key) {
         case TiC.PROPERTY_TRANSFORM:
             if (withMatrix) {
                 layoutParams.matrix = TiConvert.toMatrixWithReuse(value, layoutParams.matrix);
                 return TiUIView.TIFLAG_NEEDS_INVALIDATE;
-            }
+			}
             break;
         case TiC.PROPERTY_LEFT:
             layoutParams.optionLeft = toTiDimension(value, TiDimension.TYPE_LEFT);
@@ -253,22 +253,22 @@ public class TiConvert
             String sValue = TiConvert.toString(value);
             layoutParams.widthDefined = true;
             if (value == null) {
-                layoutParams.optionWidth = null;
-                layoutParams.sizeOrFillWidthEnabled = false;
+				layoutParams.optionWidth = null;
+				layoutParams.sizeOrFillWidthEnabled = false;
                 layoutParams.widthDefined = false;
 
             }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
-                // fill
-                layoutParams.optionWidth = null;
-                layoutParams.sizeOrFillWidthEnabled = true;
-                layoutParams.autoFillsWidth = true;
+				// fill
+				layoutParams.optionWidth = null;
+				layoutParams.sizeOrFillWidthEnabled = true;
+				layoutParams.autoFillsWidth = true;
                 layoutParams.width = LayoutParams.MATCH_PARENT;
 
             } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
-                // size
-                layoutParams.optionWidth = null;
-                layoutParams.sizeOrFillWidthEnabled = true;
-                layoutParams.autoFillsWidth = false;
+				// size
+				layoutParams.optionWidth = null;
+				layoutParams.sizeOrFillWidthEnabled = true;
+				layoutParams.autoFillsWidth = false;
                 layoutParams.width = LayoutParams.WRAP_CONTENT;
             } else if (TiC.LAYOUT_MATCH_PARENT.equalsIgnoreCase(sValue)) {
                 // parent
@@ -286,31 +286,31 @@ public class TiConvert
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
 
-            } else {
+			} else {
                 layoutParams.optionWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
-                layoutParams.sizeOrFillWidthEnabled = false;
-            }
+				layoutParams.sizeOrFillWidthEnabled = false;
+			}
             return DEFAULT_FLAG_RETURN;
-        }
+		}
         case TiC.PROPERTY_HEIGHT: {
             String sValue = TiConvert.toString(value);
             layoutParams.heightDefined = true;
             if (value == null) {
-                layoutParams.optionHeight = null;
-                layoutParams.sizeOrFillHeightEnabled = false;
+				layoutParams.optionHeight = null;
+				layoutParams.sizeOrFillHeightEnabled = false;
                 layoutParams.heightDefined = false;
             }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
-                // fill
-                layoutParams.optionHeight = null;
-                layoutParams.sizeOrFillHeightEnabled = true;
-                layoutParams.autoFillsHeight = true;
+				// fill
+				layoutParams.optionHeight = null;
+				layoutParams.sizeOrFillHeightEnabled = true;
+				layoutParams.autoFillsHeight = true;
                 layoutParams.height = LayoutParams.MATCH_PARENT;
 
             } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
-                // size
-                layoutParams.optionHeight = null;
-                layoutParams.sizeOrFillHeightEnabled = true;
-                layoutParams.autoFillsHeight = false;
+				// size
+				layoutParams.optionHeight = null;
+				layoutParams.sizeOrFillHeightEnabled = true;
+				layoutParams.autoFillsHeight = false;
                 layoutParams.height = LayoutParams.WRAP_CONTENT;
             } else if (TiC.LAYOUT_MATCH_PARENT.equalsIgnoreCase(sValue)) {
                 // parent
@@ -328,12 +328,12 @@ public class TiConvert
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = true;
 
-            } else {
+			} else {
                 layoutParams.optionHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
-                layoutParams.sizeOrFillHeightEnabled = false;
-            }
+				layoutParams.sizeOrFillHeightEnabled = false;
+			}
             return DEFAULT_FLAG_RETURN;
-        }
+		}
         case TiC.PROPERTY_ZINDEX:
             layoutParams.optionZIndex = toInt(value, 0);
             return DEFAULT_FLAG_RETURN | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
@@ -343,14 +343,14 @@ public class TiConvert
                 layoutParams.anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
                 layoutParams.anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
                 return DEFAULT_FLAG_RETURN;
-            }
+			}
             break;
         default:
             break;
-        }
+		}
         return 0;
     }
-	
+
 	
 	private static Set<String> sLayoutKeys;
 	// Layout
@@ -375,17 +375,17 @@ public class TiConvert
             sLayoutKeys.add(TiC.PROPERTY_ANCHOR_POINT);
             sLayoutKeys.add(TiC.PROPERTY_CENTER);
             sLayoutKeys.add(TiC.PROPERTY_TRANSFORM);
-        }
+		}
 //        Set<String> intersection = new HashSet(hashMap.keySet());
 //        intersection.retainAll(sLayoutKeys);
         int updateFlags = 0;
         for (String key : sLayoutKeys) {
             if (hashMap.containsKey(key) && (key != TiC.PROPERTY_TRANSFORM || withMatrix) ) {
-                
+
                 int result = fillLayout(key, hashMap.get(key), layoutParams, withMatrix);
                 if (result != 0) {
                     updateFlags |= result;
-                }
+	}
                 hashMap.remove(key);
             }
         }
@@ -453,14 +453,14 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(Object value, boolean def)
 	{
-	    if (value == null) {
-	        return def;
-	    }
-		try {
-			return toBoolean(value);
-		} catch (IllegalArgumentException e) {
-			return def;
+		boolean result = def;
+		if (value != null) {
+			try {
+				result = toBoolean(value);
+			} catch (Exception e) {
+			}
 		}
+		return result;
 	}
 
 	/**
@@ -476,12 +476,12 @@ public class TiConvert
 			return (Boolean) value;
 
 		} else if (value instanceof String) {
-            return Boolean.parseBoolean(((String) value));
+			return Boolean.parseBoolean(((String) value));
 
         }  else if (value instanceof Number) {
             return ((Number) value).intValue() > 0;
 
-        } else {
+		} else {
 			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
 	}
@@ -551,11 +551,14 @@ public class TiConvert
 	 */
 	public static int toInt(Object value, int def)
 	{
-		try {
-			return toInt(value);
-		} catch (NumberFormatException e) {
-			return def;
+		int result = def;
+		if (value != null) {
+			try {
+				result = toInt(value);
+			} catch (Exception e) {
+			}
 		}
+		return result;
 	}
 
 	/**
@@ -692,11 +695,14 @@ public class TiConvert
 	 */
 	public static float toFloat(Object value, float def)
 	{
-		try {
-			return toFloat(value);
-		} catch (NumberFormatException e) {
-			return def;
+		float result = def;
+		if (value != null) {
+			try {
+				result = toFloat(value);
+			} catch (Exception e) {
+			}
 		}
+		return result;
 	}
 
 	/**
@@ -722,7 +728,7 @@ public class TiConvert
 	public static float toFloat(HashMap<String, Object> hashMap, String key, float def)
 	{
 		if (hashMap != null)
-			return toFloat(hashMap.get(key), def);
+		return toFloat(hashMap.get(key), def);
 		return def;
 	}
 
@@ -748,7 +754,7 @@ public class TiConvert
 			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value.getClass().getName()));
 		}
 	}
-	
+
 	/**
 	 * If value is a Float, Integer, Long or String, converts it to Double. Otherwise
 	 * returns default value.
@@ -777,7 +783,7 @@ public class TiConvert
 	{
 		return toDouble(hashMap.get(key));
 	}
-	
+
 
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toDouble(Object)} for more details.
@@ -833,7 +839,7 @@ public class TiConvert
 	{
 		return toString(hashMap.get(key));
 	}
-	
+
 	/**
 	 * Takes a value out of a hash table then attempts to convert it using {@link #toString(Object)} for more details.
 	 * @param hashMap the hash map to search.
@@ -866,7 +872,7 @@ public class TiConvert
 
 		return sparts;
 	}
-	
+
 	public static String[] toStringArray(Object value)
     {
         if (value instanceof Object[]) {
@@ -1042,7 +1048,7 @@ public class TiConvert
 	{
 		return toBlob(object.get(property));
 	}
-	
+
 	public static Object fromJSON(Object value) {
         try {
             if (value instanceof JSONObject) {
@@ -1189,7 +1195,7 @@ public class TiConvert
             JSONObject  object = toJSON((HashMap<String, Object>) value);
             if (object != null) {
                 return object.toString();
-            } else {
+		} else {
                 return null;
             }
         } else if (value instanceof Object[]){
@@ -1200,8 +1206,8 @@ public class TiConvert
                 return null;
             }
         } else {
-            return toString(value);
-        }
+			return toString(value);
+		}
 	}
 
 	/**
@@ -1236,7 +1242,7 @@ public class TiConvert
 	{
 		return toDate(hashMap.get(key));
 	}
-	
+
 	
 	public static KrollDict toRectDict(int x, int y, int width, int height)
     {
@@ -1253,8 +1259,8 @@ public class TiConvert
         dim.setValueType(TiDimension.TYPE_TOP);
         dict.put(TiC.PROPERTY_Y, (int)Math.round(dim.getAsDefault()));
         return dict;
-    }
-	
+}
+
 	public static KrollDict toPointDict(int x, int y)
     {
         KrollDict dict = new KrollDict();
@@ -1265,7 +1271,7 @@ public class TiConvert
         dict.put(TiC.PROPERTY_Y, (int)Math.round(dim.getAsDefault()));
         return dict;
     }
-	
+
 	/**
 	 * Converts HashMap into Rect object and returns it.
 	 * @param value the HashMap to convert.

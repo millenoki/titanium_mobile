@@ -5,23 +5,21 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-
 #ifdef USE_TI_UINAVIGATIONWINDOW
-#import "TiWindowProxy.h"
 #import "ADTransitionController.h"
+#import "TiWindowProxy.h"
 
 #define AD_SYSTEM_VERSION_GREATER_THAN_7 ([[[UIDevice currentDevice] systemVersion] compare:@"7" options:NSNumericSearch] == NSOrderedDescending)
 
-
-@interface TiUINavigationWindowProxy : TiWindowProxy<UINavigationControllerDelegate, ADTransitionControllerDelegate,TiOrientationController,TiTab> {
-@private
-    id navController;
-    TiWindowProxy *rootWindow;
-    TiWindowProxy *current;
+@interface TiUINavigationWindowProxy : TiWindowProxy <UINavigationControllerDelegate, ADTransitionControllerDelegate, TiOrientationController, TiTab> {
+  @private
+  id navController;
+  TiWindowProxy *rootWindow;
+  TiWindowProxy *current;
 }
-@property (nonatomic, readwrite, retain) KrollCallback* onstackchange;
+@property (nonatomic, readwrite, retain) KrollCallback *onstackchange;
 
 //Private API
--(void)setFrame:(CGRect)bounds;
+- (void)setFrame:(CGRect)bounds;
 @end
 #endif

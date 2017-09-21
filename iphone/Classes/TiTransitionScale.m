@@ -3,7 +3,8 @@
 
 @implementation TiTransitionScale
 
--(Class) adTransitionClass {
-    return [ADScaleTransition class];
+- (Class)adTransitionClass
+{
+  return [ADScaleTransition class];
 }
 @end

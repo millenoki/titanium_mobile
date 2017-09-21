@@ -9,30 +9,30 @@
 @end
 @interface TDUITableView : UITableView
 
-@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+@property (nonatomic, unsafe_unretained) id<TouchDelegate> touchDelegate;
 
 @end
 
 @interface TDTTTAttributedLabel : TTTAttributedLabel
 
-@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+@property (nonatomic, unsafe_unretained) id<TouchDelegate> touchDelegate;
 
 @end
 
 @interface TDUIView : UIView
 
-@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+@property (nonatomic, unsafe_unretained) id<TouchDelegate> touchDelegate;
 
 @end
 
 @interface TDUICollectionView : UICollectionView
 
-@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+@property (nonatomic, unsafe_unretained) id<TouchDelegate> touchDelegate;
 
 @end
 
 @interface TDUIScrollView : UIScrollView
 
-@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+@property (nonatomic, unsafe_unretained) id<TouchDelegate> touchDelegate;
 
 @end

@@ -6,34 +6,34 @@
 //
 //
 
-#import "TiProxy.h"
 #import "ActivityProxy.h"
+#import "TiProxy.h"
 
 @class TiActivity;
 
 @interface TiUIiOSActivityProxy : TiProxy <TiActivityProxy>
 
-@property(retain, nonatomic) NSNumber* category;
-@property(retain, nonatomic) NSString* type;
-@property(retain, nonatomic) NSString* title;
-@property(retain, nonatomic) id        image;
-@property(retain, nonatomic) KrollCallback* onPerformActivity;
+@property (retain, nonatomic) NSNumber *category;
+@property (retain, nonatomic) NSString *type;
+@property (retain, nonatomic) NSString *title;
+@property (retain, nonatomic) id image;
+@property (retain, nonatomic) KrollCallback *onPerformActivity;
 
-+(TiUIiOSActivityProxy*)activityFromArg:(id)args context:(id<TiEvaluator>)context;
--(UIImage*)imageOrDefault;
--(BOOL)performActivity:(TiActivity*)activity withItems:(NSArray*)items;
++ (TiUIiOSActivityProxy *)activityFromArg:(id)args context:(id<TiEvaluator>)context;
+- (UIImage *)imageOrDefault;
+- (BOOL)performActivity:(TiActivity *)activity withItems:(NSArray *)items;
 
 @end
 
 @interface TiActivity : UIActivity {
-    NSArray* _activityItems;
-    TiUIiOSActivityProxy* _proxy;
+  NSArray *_activityItems;
+  TiUIiOSActivityProxy *_proxy;
 }
 
--(TiUIiOSActivityProxy*)proxy;
-- (instancetype) initWithProxy:(TiUIiOSActivityProxy *)proxy;
+- (TiUIiOSActivityProxy *)proxy;
+- (instancetype)initWithProxy:(TiUIiOSActivityProxy *)proxy;
 
-+ (TiActivity*) activityWithProxy:(TiUIiOSActivityProxy *)proxy ofCategory:(UIActivityCategory)category;
++ (TiActivity *)activityWithProxy:(TiUIiOSActivityProxy *)proxy ofCategory:(UIActivityCategory)category;
 
 @end
 

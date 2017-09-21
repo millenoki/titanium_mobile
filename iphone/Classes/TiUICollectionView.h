@@ -9,14 +9,13 @@
 
 #define DEFAULT_TEMPLATE_STYLE @"TiUICollectionView__internal_template"
 #define HEADER_VIEW_STYLE @"TiUICollectionView__internal_headerView"
-#import "TiScrollingView.h"
-#import "TiUICollectionViewProxy.h"
-#import "TiUICollectionViewFlowLayout.h"
 #import "MGSwipeCollectionViewCell.h"
+#import "TiScrollingView.h"
+#import "TiUICollectionViewFlowLayout.h"
+#import "TiUICollectionViewProxy.h"
 @class TiCollectionView;
-@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
-{
-    BOOL allowsSelection;
+@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate> {
+  BOOL allowsSelection;
 }
 #pragma mark - Private APIs
 
@@ -28,11 +27,11 @@
 - (void)deselectAll:(BOOL)animated;
 - (void)updateIndicesForVisibleRows;
 
-+ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
--(BOOL)shouldHighlightCurrentCollectionItem;
-- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
-- (void)selectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
-- (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
++ (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary *)properties;
+- (BOOL)shouldHighlightCurrentCollectionItem;
+- (NSIndexPath *)nextIndexPath:(NSIndexPath *)indexPath;
+- (void)selectItem:(NSIndexPath *)indexPath animated:(BOOL)animated;
+- (void)deselectItem:(NSIndexPath *)indexPath animated:(BOOL)animated;
 
 @end
 

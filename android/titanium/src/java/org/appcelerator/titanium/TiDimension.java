@@ -89,7 +89,7 @@ public class TiDimension
 		this.valueType = valueType;
 		this.units = COMPLEX_UNIT_UNDEFINED;
 	}
-	
+
 	/**
 	 * Creates a TiDimension object.
 	 * @param value the value to set.
@@ -116,7 +116,7 @@ public class TiDimension
 	{
 		this.valueType = valueType;
 		if (svalue != null) {
-			this.units = TypedValue.COMPLEX_UNIT_PX;
+		this.units = TypedValue.COMPLEX_UNIT_PX;
 			Matcher m = DIMENSION_PATTERN.matcher(svalue.trim());
 			if (m.matches()) {
 				value = Float.parseFloat(m.group(1));
@@ -152,14 +152,14 @@ public class TiDimension
 			} else {
 			    String toCompare = svalue.trim().toLowerCase();
 			    if (toCompare.equals(UNIT_AUTO) || toCompare.equalsIgnoreCase(TiC.LAYOUT_SIZE)) {
-			        this.value = Integer.MIN_VALUE;
-	                this.units = COMPLEX_UNIT_AUTO;
+				this.value = Integer.MIN_VALUE;
+				this.units = COMPLEX_UNIT_AUTO;
 			    } else if (toCompare.equalsIgnoreCase(TiC.LAYOUT_FILL)) {
                     this.value = Integer.MIN_VALUE;
                     this.units = COMPLEX_UNIT_FILL;
-                }
 			}
 		}
+	}
 		else {
 			this.units = COMPLEX_UNIT_UNDEFINED;
 		}
@@ -172,7 +172,7 @@ public class TiDimension
 	{
 		return value;
 	}
-	
+
 	/**
 	 * @return the TiDimension's valueType.
 	 */
@@ -225,7 +225,7 @@ public class TiDimension
 	{
 		this.units = units;
 	}
-	
+
 	/**
 	 * Set TiDimension's valueType.
 	 * @param type the type to set.
@@ -299,7 +299,7 @@ public class TiDimension
 
 		return ((getPixels(width, height) / getDPIForType()) * MM_INCH);
 	}
-	
+
 	public double getAsMillimeters(View parent)
 	{
 	    if (parent != null)
@@ -319,7 +319,7 @@ public class TiDimension
 
 		return ((getPixels(width, height) / getDPIForType()) * CM_INCH);
 	}
-	
+
 	public double getAsCentimeters(View parent)
 	{
 	    if (parent != null)
@@ -345,9 +345,9 @@ public class TiDimension
             return getAsInches(parent.getMeasuredWidth(), parent.getMeasuredHeight());
         return getAsInches(0, 0);
 	}
-	
+
 	public double getAsInches()
-    {
+	{
         return getAsInches(null);
     }
     
@@ -403,9 +403,9 @@ public class TiDimension
             return getAsDefault(parent.getMeasuredWidth(), parent.getMeasuredHeight());
         return getAsDefault(0, 0);
 	}
-	
+
 	public double getAsDefault()
-    {
+	{
         return getAsDefault(null);
     }
     
@@ -447,7 +447,7 @@ public class TiDimension
 		}
 		return metrics;
 	}
-	
+
 	protected static DisplayMetrics getDisplayMetrics(View parent)
 	{
 		return getDisplayMetrics();
@@ -496,7 +496,7 @@ public class TiDimension
 	{
 		return getDPIForType(valueType);
 	}
-	
+		
 	protected double getSizePixels(int width, int height)
 	{
 		double dpi = getDPIForType();
@@ -512,7 +512,7 @@ public class TiDimension
 		}
 		return -1;
 	}
-	
+
 	protected double getSizePixels(View parent)
 	{
 		return getSizePixels(parent.getMeasuredWidth(), parent.getMeasuredHeight());
@@ -533,7 +533,7 @@ public class TiDimension
 	{
 		return units == COMPLEX_UNIT_PERCENT;
 	}
-	
+
 	public boolean isUnitFill()
     {
         return units == COMPLEX_UNIT_FILL;
@@ -543,7 +543,7 @@ public class TiDimension
 	{
 		return units == COMPLEX_UNIT_AUTO;
 	}
-	
+
 	public boolean isUnitFixed()
     {
         return units != COMPLEX_UNIT_AUTO && units != COMPLEX_UNIT_PERCENT && units != COMPLEX_UNIT_UNDEFINED;

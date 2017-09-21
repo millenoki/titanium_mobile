@@ -9,8 +9,8 @@
 #import "TouchDelegate_Views.h"
 
 @interface TiTableView : TDUITableView
--(BOOL)shouldHighlightCurrentListItem;
--(CGPoint) touchPoint;
--(void)processBlock:(void(^)(UITableView * tableView))block animated:(BOOL)animated;
+- (BOOL)shouldHighlightCurrentListItem;
+- (CGPoint)touchPoint;
+- (void)processBlock:(void (^)(UITableView *tableView))block animated:(BOOL)animated;
 @end
 #endif

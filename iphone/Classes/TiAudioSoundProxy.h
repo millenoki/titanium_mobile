@@ -6,33 +6,30 @@
  */
 #ifdef USE_TI_AUDIOSOUND
 
-#import "TiProxy.h"
 #import "TiFile.h"
 #import <AVFoundation/AVAudioPlayer.h>
 
-@interface TiAudioSoundProxy : TiProxy<AVAudioPlayerDelegate> 
-{
-@private
-	NSURL *url;
-	TiFile *tempFile;
-	AVAudioPlayer * player;
-	BOOL paused;
-	BOOL looping;
-	CGFloat volume;
-	CGFloat resumeTime;
+@interface TiAudioSoundProxy : TiProxy <AVAudioPlayerDelegate> {
+  @private
+  NSURL *url;
+  TiFile *tempFile;
+  AVAudioPlayer *player;
+  BOOL paused;
+  BOOL looping;
+  CGFloat volume;
+  CGFloat resumeTime;
 }
 
-@property (nonatomic,readwrite,assign) NSNumber *volume;
-@property (nonatomic,readonly) NSURL *url;
+@property (nonatomic, readwrite, assign) NSNumber *volume;
+@property (nonatomic, readonly) NSURL *url;
 
-@property (nonatomic,readwrite,assign) NSNumber *looping;
-@property (nonatomic,readwrite,assign)  NSNumber *paused;
-@property (nonatomic,readonly) NSNumber *playing;
+@property (nonatomic, readwrite, assign) NSNumber *looping;
+@property (nonatomic, readwrite, assign) NSNumber *paused;
+@property (nonatomic, readonly) NSNumber *playing;
 
-@property (nonatomic,readonly) NSNumber *duration;
-@property (nonatomic,readwrite,assign) NSNumber *time;
+@property (nonatomic, readonly) NSNumber *duration;
+@property (nonatomic, readwrite, assign) NSNumber *time;
 
 @end
-
 
 #endif

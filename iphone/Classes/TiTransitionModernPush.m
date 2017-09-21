@@ -3,9 +3,9 @@
 
 @implementation TiTransitionModernPush
 
--(Class) adTransitionClass {
-    return [ADModernPushTransition class];
+- (Class)adTransitionClass
+{
+  return [ADModernPushTransition class];
 }
-
 
 @end

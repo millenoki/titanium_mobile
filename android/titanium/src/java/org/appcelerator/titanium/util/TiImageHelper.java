@@ -58,7 +58,7 @@ import android.util.Pair;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TiImageHelper {
-    private static final String TAG = "TiImageHelper";
+	private static final String TAG = "TiImageHelper";
     private static GPUImage mGPUImage;
 
     public enum FilterType {
@@ -73,23 +73,23 @@ public class TiImageHelper {
         return mGPUImage;
     }
 
-    /**
-     * Add an alpha channel to the given image if it does not already have one.
-     * 
-     * @param image
-     *            the image to add an alpha channel to.
+	/**
+	 * Add an alpha channel to the given image if it does not already have one.
+	 * 
+	 * @param image
+	 *            the image to add an alpha channel to.
      * @return a copy of the given image with an alpha channel. If the image
      *         already have the alpha channel, return the image itself.
-     */
+	 */
     public static Bitmap imageWithAlpha(Bitmap image) {
-        if (image == null) {
-            return null;
-        }
-        if (image.hasAlpha()) {
-            return image;
-        }
-        return image.copy(Bitmap.Config.ARGB_8888, true);
-    }
+		if (image == null) {
+			return null;
+		}
+		if (image.hasAlpha()) {
+			return image;
+		}
+		return image.copy(Bitmap.Config.ARGB_8888, true);
+	}
 
     public static Bitmap imageWithAlpha(Bitmap src, float alpha) {
         int width = src.getWidth();
@@ -105,99 +105,99 @@ public class TiImageHelper {
         return transBitmap;
     }
 
-    /**
+	/**
      * Create a copy of the given image with rounded corners and a transparent
      * border around its edges.
-     * 
-     * @param image
-     *            the image to add rounded corners to.
-     * @param cornerRadius
-     *            the radius of the rounded corners.
-     * @param borderSize
-     *            the size of the border to be added.
+	 * 
+	 * @param image
+	 *            the image to add rounded corners to.
+	 * @param cornerRadius
+	 *            the radius of the rounded corners.
+	 * @param borderSize
+	 *            the size of the border to be added.
      * @return a copy of the given image with rounded corners and a transparent
      *         border. If the cornerRadius <= 0 or borderSize < 0, return the
      *         image itself.
-     */
+	 */
     public static Bitmap imageWithRoundedCorner(Bitmap image,
             float cornerRadius, float borderSize) {
-        if (image == null) {
-            return null;
-        }
-        if (cornerRadius <= 0 || borderSize < 0) {
+		if (image == null) {
+			return null;
+		}
+		if (cornerRadius <= 0 || borderSize < 0) {
             Log.w(TAG,
                     "Unable to add rounded corners. Invalid corner radius or borderSize for imageWithRoundedCorner");
-            return image;
-        }
+			return image;
+		}
 
-        int width = image.getWidth();
-        int height = image.getHeight();
+		int width = image.getWidth();
+		int height = image.getHeight();
         Bitmap imageRoundedCorner = Bitmap.createBitmap(
                 width + (int) (borderSize * 2), height + (int) (borderSize * 2),
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(imageRoundedCorner);
+			Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas(imageRoundedCorner);
 
-        Path clipPath = new Path();
+		Path clipPath = new Path();
         RectF imgRect = new RectF(borderSize, borderSize, width + borderSize,
                 height + borderSize);
 
-        float radii[] = new float[8];
-        Arrays.fill(radii, cornerRadius);
-        clipPath.addRoundRect(imgRect, radii, Direction.CW);
+		float radii[] = new float[8];
+		Arrays.fill(radii, cornerRadius);
+		clipPath.addRoundRect(imgRect, radii, Direction.CW);
 
-        // This still happens sometimes when hw accelerated so, catch and warn
-        try {
-            canvas.clipPath(clipPath);
-        } catch (Exception e) {
+		// This still happens sometimes when hw accelerated so, catch and warn
+		try {
+			canvas.clipPath(clipPath);
+		} catch (Exception e) {
             Log.e(TAG,
                     "Unable to create the image with rounded corners. clipPath failed on canvas: "
                             + e.getMessage());
-            canvas.clipRect(imgRect);
-        }
+			canvas.clipRect(imgRect);
+		}
 
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        paint.setDither(true);
-        canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
-        return imageRoundedCorner;
-    }
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		paint.setDither(true);
+		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
+		return imageRoundedCorner;
+	}
 
-    /**
-     * Add a transparent border to the given image around its edges.
-     * 
-     * @param image
-     *            the image to add a transparent border to.
-     * @param borderSize
-     *            the size of the border to be added.
+	/**
+	 * Add a transparent border to the given image around its edges.
+	 * 
+	 * @param image
+	 *            the image to add a transparent border to.
+	 * @param borderSize
+	 *            the size of the border to be added.
      * @return a copy of the given image with a transparent border. If the
      *         borderSize <= 0, return the image itself.
-     */
+	 */
     public static Bitmap imageWithTransparentBorder(Bitmap image,
             int borderSize) {
-        if (image == null) {
-            return null;
-        }
-        if (borderSize <= 0) {
+		if (image == null) {
+			return null;
+		}
+		if (borderSize <= 0) {
             Log.w(TAG,
                     "Unable to add a transparent border. Invalid border size for imageWithTransparentBorder.");
-            return image;
-        }
+			return image;
+		}
 
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
-        paint.setDither(true);
+		Paint paint = new Paint();
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);
+		paint.setDither(true);
 
-        int width = image.getWidth();
-        int height = image.getHeight();
+		int width = image.getWidth();
+		int height = image.getHeight();
         Bitmap imageBorder = Bitmap.createBitmap(width + borderSize * 2,
                 height + borderSize * 2, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(imageBorder);
-        canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
-        return imageBorder;
-    }
-
+		Canvas canvas = new Canvas(imageBorder);
+		canvas.drawBitmap(imageWithAlpha(image), borderSize, borderSize, paint);
+		return imageBorder;
+	}
+	
     private static Bitmap getFilteredBitmap(Bitmap bitmap,
             FilterType filterType, HashMap options) {
         GPUImageFilter filter = getFilter(filterType, options);
@@ -468,71 +468,71 @@ public class TiImageHelper {
         return new Pair<Bitmap, KrollDict>(result, infoData);
     }
 
-    private static final String FILE_PREFIX = "file://";
-
-    /**
-     * Find the orientation of the image.
+	private static final String FILE_PREFIX = "file://";
+	
+	/**
+	 * Find the orientation of the image.
      * 
      * @param file
      *            image file
-     * @return return the orientation in degrees, -1 for error
-     */
-    public static int getOrientation(String path) {
-        int orientation = 0;
-        try {
-            if (path == null) {
-                Log.e(TAG,
-                        "Path of image file could not determined. Could not create an exifInterface from an invalid path.");
-                return 0;
-            }
-            // Remove path prefix
-            if (path.startsWith(FILE_PREFIX)) {
-                path = path.replaceFirst(FILE_PREFIX, "");
-            }
-
-            ExifInterface ei = new ExifInterface(path);
+	 * @return return the orientation in degrees, -1 for error
+	 */
+	public static int getOrientation(String path) {
+		int orientation = 0;
+		try {
+			if (path == null) {
+				Log.e(TAG,
+					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
+				return 0;
+			}
+			// Remove path prefix
+			if (path.startsWith(FILE_PREFIX)) {
+				path = path.replaceFirst(FILE_PREFIX, "");
+			}
+			
+			ExifInterface ei = new ExifInterface(path);
             int orientationConst = ei.getAttributeInt(
                     ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_NORMAL);
-            switch (orientationConst) {
-            case ExifInterface.ORIENTATION_ROTATE_270:
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-               orientation = 270;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-               orientation = 180;
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                orientation = 90;
-                break;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to find orientation " + e.getMessage());
-        }
-        return orientation;
-    }
-
-    /**
-     * Rotate the image
+			switch (orientationConst) {
+				case ExifInterface.ORIENTATION_ROTATE_270:
+				case ExifInterface.ORIENTATION_TRANSVERSE:
+					orientation = 270;
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_180:
+				case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+					orientation = 180;
+					break;
+				case ExifInterface.ORIENTATION_ROTATE_90:
+				case ExifInterface.ORIENTATION_TRANSPOSE:
+					orientation = 90;
+					break;
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to find orientation " + e.getMessage());
+		}
+		return orientation;
+	}
+	
+	/**
+	 * Rotate the image
      * 
      * @param bm
      *            source bitmap
      * @param rotation
      *            degree of rotation
-     * @return return the rotated bitmap
-     */
-    public static Bitmap rotateImage(Bitmap bm, int rotation) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotation);
+	 * @return return the rotated bitmap
+	 */
+	public static Bitmap rotateImage(Bitmap bm, int rotation) {
+		Matrix matrix = new Matrix();
+	    matrix.postRotate(rotation);
         return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(),
                 matrix, true);
-    }
+	}
 
     public interface TiDrawableTarget extends Target {
         public void onDrawableLoaded(Drawable drawable, LoadedFrom from);
-    }
+}
 
     private static class LoadLocalDrawableTask
             extends AsyncTask<TiDrawableReference, Void, Drawable> {

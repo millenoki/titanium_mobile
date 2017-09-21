@@ -1009,6 +1009,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             ((RefreshableListView) listView).setHeaderPullView(setPullView(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
+		case TiC.PROPERTY_REFRESH_CONTROL:
+			if (newValue instanceof RefreshControlProxy) {
+				((RefreshControlProxy)newValue).assignTo(this.wrapper);
+			} else {
+				RefreshControlProxy.unassignFrom(this.wrapper);
+			}
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -1553,6 +1559,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     		sections.clear();
         }
         templatesByBinding.clear();
+
+		// If a refresh control is currently assigned, then detach it.
+		RefreshControlProxy.unassignFrom(this.wrapper);
 		
 		if (handledProxies != null) {
 		    for (TiViewProxy viewProxy : handledProxies) {

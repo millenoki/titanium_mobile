@@ -25,8 +25,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#import <Foundation/Foundation.h>
 #import "TiCache.h"
+#import <Foundation/Foundation.h>
 
 /** An RMMemoryCache object represents memory-based caching of map tile images. Since memory is constrained in the iOS environment, this cache is relatively small, but useful for increasing performance. */
 @interface TiMemoryCache : NSObject <TiCache>
@@ -37,7 +37,7 @@
  *   @param aCapacity The maximum number of tiles to be held in the cache.
  *   @return An initialized memory cache object or `nil` if the object couldn't be created. */
 - (id)initWithCapacity:(NSUInteger)aCapacity;
-- (id)initWithCapacity:(NSUInteger)aCapacity queue:(NSString*)queue;
+- (id)initWithCapacity:(NSUInteger)aCapacity queue:(NSString *)queue;
 
 /** @name Cache Capacity */
 

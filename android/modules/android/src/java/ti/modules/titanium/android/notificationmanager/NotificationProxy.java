@@ -26,6 +26,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import ti.modules.titanium.android.AndroidModule;
 import ti.modules.titanium.android.PendingIntentProxy;
 import ti.modules.titanium.android.RemoteViewsProxy;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -36,16 +37,17 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
-@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
+@Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
 public class NotificationProxy extends ReusableProxy implements TiDrawableTarget {
-    private static final String TAG = "TiNotification";
+	private static final String TAG = "TiNotification";
 
     private int currentId = -1;
 	protected Builder notificationBuilder;
 	private int flags, ledARGB, ledOnMS, ledOffMS;
 	private Uri sound;
 	private int audioStreamType;
+	private HashMap wakeParams;
 
     private RemoteViewsProxy contentView = null;
     private RemoteViewsProxy bigContentView = null;
@@ -64,17 +66,17 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         return null;
     }
 	
-	public NotificationProxy() 
+	public NotificationProxy()
 	{
 		super();
 		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppContext())
-        .setSmallIcon(android.R.drawable.stat_sys_warning)
-        .setWhen(System.currentTimeMillis());
-		
+		.setSmallIcon(android.R.drawable.stat_sys_warning)
+		.setWhen(System.currentTimeMillis());
+
 		//set up default values
 		flags = Notification.FLAG_AUTO_CANCEL;
 		audioStreamType = Notification.STREAM_DEFAULT;
-		
+		wakeParams = new HashMap();
 	}
 
 	@Override
@@ -86,9 +88,9 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                 Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
                 manager.notify(this.currentId, getNotification());
                 mProcessUpdateFlags &= ~TIFLAG_NEEDS_UPDATE;
-            }
-        }
-    }
+		}
+		}
+		}
 
 
     @Override
@@ -116,13 +118,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                 notificationBuilder.setWhen(((Date)newValue).getTime());
             } else {
                 notificationBuilder.setWhen(((Double) TiConvert.toDouble(newValue)).longValue());
-            }
+		}
             break;
         case TiC.PROPERTY_AUDIO_STREAM_TYPE:
             audioStreamType = TiConvert.toInt(newValue);
             if (sound != null) {
                 notificationBuilder.setSound(this.sound, audioStreamType);
-            }
+		}
             break;
         case TiC.PROPERTY_CONTENT_VIEW:
             if (TiC.JELLY_BEAN_OR_GREATER) {
@@ -130,13 +132,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                     contentView.didHide();
                     contentView.setNotification(null);
                     contentView.setParentForBubbling(null);
-                }
+		}
                 contentView = RemoteViewsProxy.fromObject(newValue);
                 if (contentView != null) {
                     contentView.setNotification(this);
                     contentView.setParentForBubbling(this);
-                }
-            }
+		}
+		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_BIG_CONTENT_VIEW:
@@ -145,13 +147,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                     bigContentView.didHide();
                     bigContentView.setNotification(null);
                     bigContentView.setParentForBubbling(null);
-                }
+		}
                 bigContentView = RemoteViewsProxy.fromObject(newValue);
                 if (bigContentView != null) {
                     bigContentView.setNotification(this);
                     bigContentView.setParentForBubbling(this);
-                }
-            }
+		}
+		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_CONTENT_INTENT:
@@ -192,9 +194,9 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         case TiC.PROPERTY_SOUND:
             String url = TiConvert.toString(newValue);
             if (url == null) {
-                Log.e(TAG, "Url is null");
-                return;
-            }
+				Log.e(TAG, "Url is null");
+				return;
+			}
             sound = Uri.parse(resolveUrl(null, url));
             notificationBuilder.setSound(sound, audioStreamType);
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
@@ -205,9 +207,9 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                 long[] vibrate = new long[pattern.length];
                 for (int i = 0; i < pattern.length; i++) {
                     vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
-                }
+		}
                 notificationBuilder.setVibrate(vibrate);
-            }
+	}
             break;
         case TiC.PROPERTY_VISIBILITY:
             notificationBuilder.setVisibility(TiConvert.toInt(newValue));
@@ -221,11 +223,27 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             notificationBuilder.setPriority(TiConvert.toInt(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
+        case TiC.PROPERTY_GROUP_KEY: {
+            setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_GROUP_ALERT_BEHAVIOR:
+            setGroupAlertBehavior(TiConvert.toInt(newValue));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_GROUP_SUMMARY:
+            setGroupSummary(TiConvert.toBoolean(newValue));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_WAKE_LOCK:
+            setWakeLock(TiConvert.toHashMap(newValue));
+            break;
+    break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
+			}
+		}
 
 	public void setCurrentId(final int currentId) {
         if (this.currentId != currentId) {
@@ -233,13 +251,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             // about to be shown, let register for delete
 
             this.currentId = currentId;
-        }
-
-    }
+	}
+	
+	}
 
 	public void update() {
         update(null);
-    }
+		}
 
     public void willShow() {
         // if (notification.deleteIntent == null) {
@@ -252,41 +270,41 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         // }
         if (contentView != null) {
             contentView.willShow();
-        }
+		}
         if (bigContentView != null) {
             bigContentView.willShow();
-        }
-    }
+	}
+	}
 
     public void didHide() {
         // TiApplication.getAppContext().unregisterReceiver(deleteReceiver);
         if (contentView != null) {
             contentView.didHide();
-        }
+	}
         if (bigContentView != null) {
             bigContentView.didHide();
-        }
+	}
         currentId = 0;
-    }
+	}
 
     private NotificationManager getManager() {
         return (NotificationManager) TiApplication.getInstance()
                 .getSystemService(Activity.NOTIFICATION_SERVICE);
-    }
+	}
 
 	@Kroll.method
     public boolean update(@Kroll.argument(optional = true) HashMap args) {
         if (args != null) {
             applyProperties(args);
-        }
+	}
         if (this.currentId >= 0) {
             NotificationManager manager = getManager();
             Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
             manager.notify(this.currentId, getNotification());
             return true;
-        }
+	}
         return false;
-    }
+	}
 
 	public void handleSetLargeIcon(final Bitmap bitmap) {
         notificationBuilder.setLargeIcon(bitmap);
@@ -332,6 +350,28 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 		notificationBuilder.setProgress(max, progress, indeterminate);
 	}
 
+	@Kroll.method
+	public void addAction(Object icon, String title, PendingIntentProxy pendingIntent)
+	{
+		int iconId = -1;
+		if (icon instanceof Number) {
+			iconId = ((Number)icon).intValue();
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			iconId = TiUIHelper.getResourceId(iconFullUrl);
+		}
+		if (pendingIntent == null) {
+			Log.e(TAG, "a pending intent for the action button must be provided");
+			return;
+		}
+		notificationBuilder.addAction(iconId, title, pendingIntent.getPendingIntent());
+	}
+
 	@Kroll.method @Kroll.setProperty
 	public void setStyle(StyleProxy style) {
 		notificationBuilder.setStyle(style.getStyle());
@@ -339,16 +379,20 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 	}
 
 	public Notification getNotification()
-	{ 
-	    Notification notification = notificationBuilder.build();
-        notification.flags = this.flags;
-        if (this.contentView != null) {
-            notification.contentView = this.contentView.getRemoteViews();
-        }
-        if (TiC.JELLY_BEAN_OR_GREATER && this.bigContentView != null) {
-            notification.bigContentView = this.bigContentView.getRemoteViews();
-        }
+	{
+		Notification notification = notificationBuilder.build();
+		
+		if (hasProperty(TiC.PROPERTY_GROUP_KEY)) {
+			// remove FLAG_AUTO_CANCEL as this will prevent group notifications
+			this.flags &= ~Notification.FLAG_AUTO_CANCEL;
+		}
+		notification.flags |= this.flags;
+
 		return notification;
+	}
+
+	public HashMap getWakeParams() {
+		return wakeParams;
 	}
 
 	@Override
@@ -362,7 +406,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         TiDrawableReference imageref = TiDrawableReference
                 .fromObject(this, obj);
         TiImageHelper.downloadDrawable(this, imageref, true, this);
-    }
+}
 
 	@Override
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {

@@ -10,50 +10,47 @@
 #import "TiUtils.h"
 #import "WebFont.h"
 
-@implementation TiUIProgressBar
-{
-    float currentValue;
+@implementation TiUIProgressBar {
+  float currentValue;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoSize];
-    [self setDefaultWidth:TiDimensionAutoFill];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoSize];
+  [self setDefaultWidth:TiDimensionAutoFill];
 }
 #endif
 
--(id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
+- (id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
 {
-	if (self = [super initWithFrame:CGRectZero])
-	{
-        currentValue = 0;
-		style = _style;
-		min = _min;
-		max = _max;
-		[self setHidden:YES];
-        
+  if (self = [super initWithFrame:CGRectZero]) {
+    currentValue = 0;
+    style = _style;
+    min = _min;
+    max = _max;
+    [self setHidden:YES];
+
 #ifdef TI_USE_AUTOLAYOUT
-        backgroundView = [[UIView alloc] init];
-        [backgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [self addSubview:backgroundView];
+    backgroundView = [[UIView alloc] init];
+    [backgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self addSubview:backgroundView];
 #endif
-        
-	}
-	return self;
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(progress);
-//	RELEASE_TO_NIL(messageLabel);
-	[super dealloc];
+  RELEASE_TO_NIL(progress);
+  //	RELEASE_TO_NIL(messageLabel);
+  [super dealloc];
 }
 
--(UIView*)viewForHitTest
+- (UIView *)viewForHitTest
 {
-    return progress;
+  return progress;
 }
 
 //-(CGSize)sizeForFont:(CGFloat)suggestedWidth
@@ -66,40 +63,38 @@
 //    return CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
 //}
 
--(CGSize)contentSizeForSize:(CGSize)size
+- (CGSize)contentSizeForSize:(CGSize)size
 {
-//    CGSize fontSize = [self sizeForFont:size.width];
-	return [progress sizeThatFits:size];
-//    return CGSizeMake(fontSize.width, fontSize.height + progressSize.height);
+  //    CGSize fontSize = [self sizeForFont:size.width];
+  return [progress sizeThatFits:size];
+  //    return CGSizeMake(fontSize.width, fontSize.height + progressSize.height);
 }
 
 - (id)accessibilityElement
 {
-    return [self progress];
+  return [self progress];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [progress setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+  [progress setFrame:bounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
-
 
 #pragma mark Accessors
 
--(UIProgressView*)progress
+- (UIProgressView *)progress
 {
-	if (progress==nil)
-	{
-		progress = [[UIProgressView alloc] initWithProgressViewStyle:style];
+  if (progress == nil) {
+    progress = [[UIProgressView alloc] initWithProgressViewStyle:style];
 #ifdef TI_USE_AUTOLAYOUT
-        [progress setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [backgroundView addSubview:progress];
+    [progress setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [backgroundView addSubview:progress];
 #else
-        [self addSubview:progress];
+    [self addSubview:progress];
 #endif
-	}
-	return progress;
+  }
+  return progress;
 }
 
 //-(UILabel *)messageLabel
@@ -108,7 +103,7 @@
 //	{
 //		messageLabel=[[UILabel alloc] init];
 //		[messageLabel setBackgroundColor:[UIColor clearColor]];
-//		
+//
 //		[self setNeedsLayout];
 //		[self addSubview:messageLabel];
 //	}
@@ -130,7 +125,7 @@
 //	}
 //
 //	CGRect boundsRect = [self bounds];
-//	
+//
 //	CGSize barSize = [progress sizeThatFits:boundsRect.size];
 //
 //	CGPoint centerPoint = CGPointMake(boundsRect.origin.x + (boundsRect.size.width/2),
@@ -145,9 +140,9 @@
 //	}
 //
 //	CGSize messageSize = [messageLabel sizeThatFits:boundsRect.size];
-//	
+//
 //	float fittingHeight = barSize.height + messageSize.height + 5;
-//	
+//
 //	[progress setCenter:CGPointMake(centerPoint.x,
 //			centerPoint.y + (fittingHeight - barSize.height)/2)];
 //
@@ -158,28 +153,28 @@
 
 #pragma mark Properties
 
--(void)setMin_:(id)value
+- (void)setMin_:(id)value
 {
-	min = [TiUtils floatValue:value];
-    [self updateValue];
+  min = [TiUtils floatValue:value];
+  [self updateValue];
 }
 
--(void)setMax_:(id)value
+- (void)setMax_:(id)value
 {
-	max = [TiUtils floatValue:value];
-    [self updateValue];
+  max = [TiUtils floatValue:value];
+  [self updateValue];
 }
 
--(void)setValue_:(id)value
+- (void)setValue_:(id)value
 {
-	currentValue = [TiUtils floatValue:value];
-    [self updateValue];
+  currentValue = [TiUtils floatValue:value];
+  [self updateValue];
 }
 
--(void)updateValue {
-    [[self progress] setProgress:(currentValue - min) / (max-min)];
+- (void)updateValue
+{
+  [[self progress] setProgress:(currentValue - min) / (max - min)];
 }
-
 
 //-(void)setFont_:(id)value
 //{
@@ -187,7 +182,6 @@
 //	[[self messageLabel] setFont:[newFont font]];
 //	[self setNeedsLayout];
 //}
-
 
 //-(void)setColor_:(id)value
 //{
@@ -213,30 +207,30 @@
 //	[self setNeedsLayout];
 //}
 
--(void)setTrackTintColor_:(id)value
+- (void)setTrackTintColor_:(id)value
 {
-    UIColor * newColor = [[TiUtils colorValue:value] _color];
-    [[self progress] setTrackTintColor:newColor];
+  UIColor *newColor = [[TiUtils colorValue:value] _color];
+  [[self progress] setTrackTintColor:newColor];
 }
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)updateConstraints
+- (void)updateConstraints
 {
-    if (!_constraintsAdded) {
-        _constraintsAdded = YES;
-        messageLabel = [self messageLabel];
-        progress = [self progress];
-        [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
-        [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
-        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
-                                                                   attribute:NSLayoutAttributeCenterX
-                                                                   relatedBy:NSLayoutRelationEqual
-                                                                      toItem:backgroundView
-                                                                   attribute:NSLayoutAttributeCenterX
-                                                                  multiplier:1
-                                                                    constant:0]];
-    }
-        [super updateConstraints];
+  if (!_constraintsAdded) {
+    _constraintsAdded = YES;
+    messageLabel = [self messageLabel];
+    progress = [self progress];
+    [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+    [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+    [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                               attribute:NSLayoutAttributeCenterX
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:backgroundView
+                                                               attribute:NSLayoutAttributeCenterX
+                                                              multiplier:1
+                                                                constant:0]];
+  }
+  [super updateConstraints];
 }
 #endif
 

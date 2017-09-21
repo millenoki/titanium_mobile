@@ -4,18 +4,19 @@
 * @module cli/_buildModule
 *
 * @copyright
-* Copyright (c) 2014-2016 by Appcelerator, Inc. All Rights Reserved.
+* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
 *
 * @license
 * Licensed under the terms of the Apache Public License
 * Please see the LICENSE included with this distribution for details.
 */
 
-var appc = require('node-appc'),
+'use strict';
+
+const appc = require('node-appc'),
 	AdmZip = require('adm-zip'),
 	archiver = require('archiver'),
 	async = require('async'),
-	crypto = require('crypto'),
 	Builder = require('node-titanium-sdk/lib/builder'),
 	ioslib = require('ioslib'),
 	iosPackageJson = appc.pkginfo.package(module),
@@ -24,17 +25,14 @@ var appc = require('node-appc'),
 	fs = require('fs'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
-	spawn = require('child_process').spawn,
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	temp = require('temp'),
-	ti = require('node-titanium-sdk'),
 	util = require('util'),
 	babel = require('babel-core')
 	ts = require('typescript')
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
-	parallel = appc.async.parallel,
-	series = appc.async.series,
-	version = appc.version;
+	series = appc.async.series;
 
 function iOSModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -59,7 +57,7 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.buildOnly = cli.argv['build-only'];
 	this.xcodeEnv = null;
 
-	return function(finished) {
+	return function (finished) {
 		ioslib.detect({
 			// env
 			xcodeSelect: config.get('osx.executables.xcodeSelect'),
@@ -148,8 +146,7 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 };
 
 iOSModuleBuilder.prototype.doAnalytics = function doAnalytics() {
-	var cli = this.cli,
-		manifest = this.manifest,
+	const cli = this.cli,
 		eventName = 'ios.' + cli.argv.type;
 
 	cli.addAnalyticsEvent(eventName, {
@@ -167,9 +164,15 @@ iOSModuleBuilder.prototype.doAnalytics = function doAnalytics() {
 };
 
 iOSModuleBuilder.prototype.initialize = function initialize() {
-	this.moduleIdAsIdentifier = this.moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function(s) {
-		return s.substring(0, 1).toUpperCase() + s.substring(1);
-	}).join('');
+	this.moduleIdAsIdentifier
+		= this.moduleId
+			.replace(/[\s-]/g, '_')
+			.replace(/_+/g, '_')
+			.split(/\./)
+			.map(function (s) {
+				return s.substring(0, 1).toUpperCase() + s.substring(1);
+			}).join('');
+	this.tiSymbols = {};
 	this.metaData = [];
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
 	this.manifestFile = path.join(this.projectDir, 'manifest');
@@ -180,7 +183,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.buildAssetsDir = path.join(this.universalBinaryDir, 'assets');
 	this.documentationBuildDir = path.join(this.universalBinaryDir, 'doc');
 
-	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function(folder) {
+	[ 'assets', 'documentation', 'example', 'platform', 'Resources' ].forEach(function (folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
 		this[dirName] = path.join(this.projectDir, folder);
 		if (!fs.existsSync(this[dirName])) {
@@ -191,7 +194,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.hooksDir = path.join(this.projectDir, 'hooks');
 	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
 
-	this.licenseDefault = "TODO: place your license here and we'll include it in the module distribution";
+	this.licenseDefault = 'TODO: place your license here and we\'ll include it in the module distribution';
 	this.licenseFile = path.join(this.projectDir, 'license.json');
 	if (!fs.existsSync(this.licenseFile)) {
 		this.licenseFile = path.join(this.projectDir, '..', 'license.json');
@@ -243,21 +246,19 @@ iOSModuleBuilder.prototype.processLicense = function processLicense() {
 };
 
 iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) {
-	var re = /^(\S+)\s*=\s*(.*)$/,
-		bindingReg = /\$\(([^$]+)\)/g,
-		match,
-		bindingMatch;
+	const re = /^(\S+)\s*=\s*(.*)$/,
+		bindingReg = /\$\(([^$]+)\)/g;
 
 	if (fs.existsSync(this.tiXcconfigFile)) {
-		fs.readFileSync(this.tiXcconfigFile).toString().split('\n').forEach(function(line) {
-			match = line.match(re);
+		fs.readFileSync(this.tiXcconfigFile).toString().split('\n').forEach(function (line) {
+			const match = line.match(re);
 			if (match) {
-				var keyList = [],
-					value = match[2].trim();
+				const keyList = [];
+				let value = match[2].trim();
 
-				bindingMatch = bindingReg.exec(value);
-				if (bindingMatch !== null) {
-					while (bindingMatch !== null) {
+				let bindingMatch = bindingReg.exec(value);
+				if (bindingMatch) {
+					while (bindingMatch) {
 						keyList.push(bindingMatch[1]);
 						bindingMatch = bindingReg.exec(value);
 					}
@@ -514,7 +515,7 @@ iOSModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFi
 iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 	this.jsFilesToEncrypt = [];
 
-	var moduleJS = this.moduleId + '.js',
+	const moduleJS = this.moduleId + '.js',
 		moduleTS = this.moduleId + '.ts',
 		renderData = {
 			'moduleIdAsIdentifier': this.moduleIdAsIdentifier,
@@ -524,10 +525,10 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				'\n\t\treturn filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
 		titaniumPrepHook = this.cli.createHook('build.ios.titaniumprep', this, function(exe, args, opts, done) {
-			var tries = 0,
-				completed = false,
-				jsFilesToEncrypt = opts.jsFiles,
+			const jsFilesToEncrypt = opts.jsFiles,
 				placeHolderName = opts.placeHolder;
+			let tries = 0,
+				completed = false;
 
 			this.logger.info('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan);
 			jsFilesToEncrypt.forEach(function(file) {
@@ -544,11 +545,11 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 					}
 					return !completed;
 				},
-				function(cb) {
-					var child = spawn(exe, args, opts),
-						out = '',
+				function (cb) {
+					const child = spawn(exe, args, opts),
 						relativePaths = [],
 						basepath = args[1];
+					let out = '';
 
 					// titanium_prep is dumb and assumes all paths are relative to the assets dir we passed in as an argument
 					// So we *must* chop the paths down to relative paths
@@ -586,7 +587,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			);
 		});
 
-	var tasks = [
+	const tasks = [
 		// 1. compile module ts
 		function(cb) {
 			if (fs.existsSync(this.buildAssetsDir)) {
@@ -652,13 +653,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 2. compile all other js files in assets dir
 		function(cb) {
-				if (!fs.existsSync(this.assetsDir)) {
-                    renderData.allEncryptedAssets = '';
-                    renderData.allEncryptedAssetsReturn = 'return nil;';
-                    return cb();
-				}
-
-				var jsFilesCount = this.jsFilesToEncrypt.length;
+				const jsFilesCount = this.jsFilesToEncrypt.length;
 
 				if (jsFilesCount === 0) {
                     renderData.allEncryptedAssets = '';
@@ -668,8 +663,8 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 				fs.existsSync(this.buildAssetsDir) || wrench.mkdirSyncRecursive(this.buildAssetsDir);
 
-				var jsFiles = [];
-				var tsFiles = [];
+				let jsFiles = [];
+				let tsFiles = [];
 				this.dirWalker(this.assetsDir, function(file) {
 					if (path.extname(file) === '.js') {
 						jsFiles.push({
@@ -721,7 +716,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 3. write encrypted data to template
 		function(cb) {
-			var data = ejs.render(fs.readFileSync(this.assetsTemplateFile).toString(), renderData),
+			const data = ejs.render(fs.readFileSync(this.assetsTemplateFile).toString(), renderData),
 				moduleAssetsDir = path.join(this.projectDir, 'Classes'),
 				moduleAssetsFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier+'ModuleAssets.m'),
                 moduleAssetsHeaderFile = path.join(moduleAssetsDir, this.moduleIdAsIdentifier + 'ModuleAssets.h');
@@ -739,8 +734,8 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 4. generate exports
 		function (cb) {
-			this.jsFilesToEncrypt.forEach(function(file) {
-				var r = jsanalyze.analyzeJsFile(file, { minify: true });
+			this.jsFilesToEncrypt.forEach(function (file) {
+				const r = jsanalyze.analyzeJsFile(file, { minify: true });
 				this.tiSymbols[file] = r.symbols;
 				this.metaData.push.apply(this.metaData, r.symbols);
 			}.bind(this));
@@ -759,7 +754,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 };
 
 iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
-	var opts = {
+	const opts = {
 		cwd: this.projectDir,
 		env: {}
 	};
@@ -768,18 +763,18 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 	});
 	opts.env.DEVELOPER_DIR = this.xcodeEnv.path;
 
-	var xcodebuildHook = this.cli.createHook('build.module.ios.xcodebuild', this, function (exe, args, opts, type, done) {
+	const xcodebuildHook = this.cli.createHook('build.module.ios.xcodebuild', this, function (exe, args, opts, type, done) {
 		this.logger.debug(__('Running: %s', ('DEVELOPER_DIR=' + opts.env.DEVELOPER_DIR + ' ' + exe + ' ' + args.join(' ')).cyan));
-		var p = spawn(exe, args, opts),
+		const p = spawn(exe, args, opts),
 			out = [],
-			err = [],
-			stopOutputting = false;
+			err = [];
+		let stopOutputting = false;
 
 		p.stdout.on('data', function (data) {
 			data.toString().split('\n').forEach(function (line) {
 				if (line.length) {
 					out.push(line);
-					if (line.indexOf('Failed to minify') != -1) {
+					if (line.indexOf('Failed to minify') !== -1) {
 						stopOutputting = true;
 					}
 					if (!stopOutputting) {
@@ -797,7 +792,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			}, this);
 		}.bind(this));
 
-		p.on('close', function (code, signal) {
+		p.on('close', function (code) {
 			if (code) {
 				// just print the entire error buffer
 				err.forEach(function (line) {
@@ -812,7 +807,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 		}.bind(this));
 	}.bind(this));
 
-	var count = 0;
+	let count = 0;
 
 	function done() {
 		if (++count === 2) {
@@ -841,8 +836,8 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 };
 
 iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinary(next) {
-	var findLib = function (dest) {
-		var lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleId + '.a');
+	const findLib = function (dest) {
+		let lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleId + '.a');
 		if (!fs.existsSync(lib)) {
 			// unfortunately the initial module project template incorrectly
 			// used the camel-cased module id
@@ -859,9 +854,9 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 	}.bind(this);
 
 	// Create a universal build by merging the all builds to a single binary
-	var args = [];
+	const args = [];
 
-	var lib = findLib('iphoneos');
+	let lib = findLib('iphoneos');
 	if (lib instanceof Error) {
 		return next(lib);
 	}
@@ -894,7 +889,7 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 };
 
 iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
-	var args = ['-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a')];
+	const args = [ '-info', path.join(this.projectDir, 'build', 'lib' + this.moduleId + '.a') ];
 
 	this.logger.info(__('Verifying universal library'));
 	this.logger.debug(__('Running: %s', (this.xcodeEnv.executables.lipo + ' ' + args.join(' ')).cyan));
@@ -906,7 +901,7 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 			process.exit(1);
 		}
 
-		var manifestArchs = this.manifest.architectures && this.manifest.architectures.split(' '),
+		const manifestArchs = this.manifest.architectures && this.manifest.architectures.split(' '),
 			buildArchs = out.substr(out.lastIndexOf(':') + 1).trim().split(' '),
 			buildDiff = manifestArchs && manifestArchs.filter(function(i) {
 				return buildArchs.indexOf(i) < 0;
@@ -929,16 +924,14 @@ iOSModuleBuilder.prototype.verifyBuildArch = function verifyBuildArch(next) {
 	}.bind(this));
 };
 
-iOSModuleBuilder.prototype.packageModule = function packageModule() {
-	var dest = archiver('zip', {
+iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
+	const dest = archiver('zip', {
 			forceUTC: true
 		}),
-		zipStream,
 		origConsoleError = console.error,
-		name = this.moduleName,
 		moduleId = this.moduleId,
 		version = this.moduleVersion,
-		moduleZipName = [moduleId, '-iphone-', version, '.zip'].join(''),
+		moduleZipName = [ moduleId, '-iphone-', version, '.zip' ].join(''),
 		moduleZipFullPath = path.join(this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : path.join(this.projectDir, 'dist'),
 			moduleZipName),
 		moduleFolder = path.join('modules', 'iphone', moduleId, version),
@@ -957,9 +950,10 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
             fs.mkdirSync(distDir);
         }
 		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
-		zipStream = fs.createWriteStream(moduleZipFullPath);
-		zipStream.on('close', function() {
+		const zipStream = fs.createWriteStream(moduleZipFullPath);
+		zipStream.on('close', function () {
 			console.error = origConsoleError;
+			next();
 		});
 		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(zipStream);
@@ -967,18 +961,22 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		this.logger.info(__('Creating module zip'));
 
 		// 1. documentation folder
-		var mdRegExp = /\.md$/;
+		const mdRegExp = /\.md$/;
 		(function walk(dir, parent) {
-			if (!fs.existsSync(dir)) return;
+			if (!fs.existsSync(dir)) {
+				return;
+			}
 
-			fs.readdirSync(dir).forEach(function(name) {
-				var file = path.join(dir, name);
-				if (!fs.existsSync(file)) return;
+			fs.readdirSync(dir).forEach(function (name) {
+				const file = path.join(dir, name);
+				if (!fs.existsSync(file)) {
+					return;
+				}
 				if (fs.statSync(file).isDirectory()) {
 					return walk(file, path.join(parent, name));
 				}
 
-				var contents = fs.readFileSync(file).toString();
+				let contents = fs.readFileSync(file).toString();
 
 				if (mdRegExp.test(name)) {
 					contents = markdown.toHTML(contents);
@@ -1007,10 +1005,10 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		}
 
 		// 4. hooks folder
-		var hookFiles = {};
+		const hookFiles = {};
 		if (fs.existsSync(this.hooksDir)) {
 			this.dirWalker(this.hooksDir, function (file) {
-				var relFile = path.relative(this.hooksDir, file);
+				const relFile = path.relative(this.hooksDir, file);
 				hookFiles[relFile] = 1;
 				dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', relFile) });
 			}.bind(this));
@@ -1038,7 +1036,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			this.dirWalker(this.assetsDir, function(file) {
                 if (/\.js\.map$/.test(file)) {
                     dest.file(file,  {name:path.join(moduleFolder, 'assets', moduleId, path.relative(this.assetsDir, file))});
-                } else if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
+                } else if (path.extname(file) !== '.js' && path.extname(file) !== '.ts') {
                     dest.file(file,  {name:path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))});
 				}
 			}.bind(this));
@@ -1088,7 +1086,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 		return next();
 	}
 
-	var tmpDir = temp.path('ti-ios-module-build-'),
+	const tmpDir = temp.path('ti-ios-module-build-'),
 		tmpProjectDir = path.join(tmpDir, this.moduleName),
 		logger = this.logger;
 
@@ -1102,7 +1100,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 
 	function runTiCommand(args, callback) {
 		logger.debug(__('Running: %s', ('titanium ' + args.join(' ')).cyan));
-		var child = spawn('titanium', args);
+		const child = spawn('titanium', args);
 
 		child.stdout.on('data', log);
 		child.stderr.on('data', log);
@@ -1144,8 +1142,8 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
 
 			// 3. patch tiapp.xml with module id
-			var data = fs.readFileSync(path.join(tmpProjectDir, 'tiapp.xml')).toString();
-			var result = data.replace(/<modules>/g, '<modules>\n\t\t<module platform="iphone">' + this.moduleId + '</module>');
+			const data = fs.readFileSync(path.join(tmpProjectDir, 'tiapp.xml')).toString();
+			const result = data.replace(/<modules>/g, '<modules>\n\t\t<module platform="iphone">' + this.moduleId + '</module>');
 			fs.writeFileSync(path.join(tmpProjectDir, 'tiapp.xml'), result);
 
 			// 4. copy files in example to Resource
@@ -1158,7 +1156,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			);
 
 			// 5. unzip module to the tmp dir
-			var zip = new AdmZip(this.moduleZipPath);
+			const zip = new AdmZip(this.moduleZipPath);
 			zip.extractAllTo(tmpProjectDir, true);
 
 			cb();

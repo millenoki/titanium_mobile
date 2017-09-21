@@ -20,6 +20,9 @@ CFLAGS += -DTI_DEBUG=1 -g
 endif
 
 CFLAGS += -Wno-conversion-null -Wno-format-security -Wno-format -Wno-tautological-compare -Wno-unused-result -Wno-deprecated-register
+# Limitting the stack protector to functions with buffer larger than 4 bytes instead of the default 8
+# This is neccessary due to TIMOB-24940
+CFLAGS += -fstack-protector --param=ssp-buffer-size=4
 
 ifeq ($(TARGET_ARCH_ABI),x86)
     LOCAL_CFLAGS += -mtune=atom -mssse3 -mfpmath=sse

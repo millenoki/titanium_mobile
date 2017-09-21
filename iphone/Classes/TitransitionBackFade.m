@@ -3,7 +3,8 @@
 
 @implementation TitransitionBackFade
 
--(Class) adTransitionClass {
-    return [ADBackFadeTransition class];
+- (Class)adTransitionClass
+{
+  return [ADBackFadeTransition class];
 }
 @end

@@ -113,7 +113,7 @@ public class V8Object extends KrollObject
 			release();
 		}
 	}
-	
+
 	@Override
 	public void updateNativeProperties(HashMap<String, Object> properties)
 	{

@@ -51,10 +51,10 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			setPadding(0, 0, 0, 0);
 			setMinimumHeight((int) TiUIHelper.getRawDIPSize(18, context));
 			setVerticalFadingEdgeEnabled(false);
-			TiUIHelper.styleText(textView, (HashMap)null); // TODO font
-			textView.setBackgroundColor(Color.DKGRAY);
-			textView.setTextColor(Color.LTGRAY);
-			TiUIHelper.setTextViewDIPPadding(textView, 4, 2);
+			TiUIHelper.styleText(textView, "", "14sp", "normal"); // TODO font
+			textView.setBackgroundColor(Color.rgb(169, 169, 169));
+			textView.setTextColor(Color.WHITE);
+			TiUIHelper.setTextViewDIPPadding(textView, 5, 0);
 		}
 
 		public void setRowData(Item item)
@@ -72,7 +72,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 			return item;
 		}
 	}
-	
+
 	@Override
 	public View getView() {
 		return headerView.getNativeView();
@@ -125,7 +125,7 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		}
 		setMeasuredDimension(resolveSize(w, widthMeasureSpec), resolveSize(h, heightMeasureSpec));
 
-	}
+}
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)

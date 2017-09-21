@@ -3,8 +3,9 @@
 
 @implementation TiTransitionCross
 
--(Class) adTransitionClass {
-    return [ADCrossTransition class];
+- (Class)adTransitionClass
+{
+  return [ADCrossTransition class];
 }
 
 @end

@@ -8,18 +8,17 @@
 
 #import "TiUIView.h"
 
+@interface TiUISlider : TiUIView <LayoutAutosizing> {
+  @private
+  UISlider *sliderView;
+  NSDate *lastTouchUp;
+  NSTimeInterval lastTimeInterval;
 
-@interface TiUISlider : TiUIView<LayoutAutosizing> {
-@private
-	UISlider *sliderView;
-	NSDate* lastTouchUp;
-	NSTimeInterval lastTimeInterval;
-	
-	UIControlState thumbImageState;
-	UIControlState rightTrackImageState;
-	UIControlState leftTrackImageState;
-    TiCap leftTrackCap;
-    TiCap rightTrackCap;
+  UIControlState thumbImageState;
+  UIControlState rightTrackImageState;
+  UIControlState leftTrackImageState;
+  TiCap leftTrackCap;
+  TiCap rightTrackCap;
 }
 
 - (IBAction)sliderChanged:(id)sender;

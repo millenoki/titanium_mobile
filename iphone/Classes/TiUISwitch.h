@@ -6,10 +6,9 @@
  */
 #import "TiUIView.h"
 
+@interface TiUISwitch : TiUIView <LayoutAutosizing>
 
-@interface TiUISwitch : TiUIView<LayoutAutosizing> 
-
-- (NSNumber*)value;
+- (NSNumber *)value;
 
 - (IBAction)switchChanged:(id)sender;
 

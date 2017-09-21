@@ -1,318 +1,324 @@
 #import "TiProperties.h"
+#import "TiApp.h"
 #import "TiHost.h"
 #import "TiUtils.h"
-#import "TiApp.h"
 
-@implementation TiProperties
-{
-    NSData *_defaultsNull;
+@implementation TiProperties {
+  NSData *_defaultsNull;
 }
 @synthesize changedProperty;
 
-+ (TiProperties*)sharedInstance
++ (TiProperties *)sharedInstance
 {
-    static TiProperties* sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[self alloc] init];
-    });
-    return sharedInstance;
+  static TiProperties *sharedInstance = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[self alloc] init];
+  });
+  return sharedInstance;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-	RELEASE_TO_NIL(_defaultsNull);
-	RELEASE_TO_NIL(changedProperty);
-    
-	[super dealloc];
+  RELEASE_TO_NIL(_defaultsNull);
+  RELEASE_TO_NIL(changedProperty);
+
+  [super dealloc];
 }
 
--(NSUserDefaults*)userDefaults
+- (NSUserDefaults *)userDefaults
 {
-    static NSUserDefaults* userDefaults;
-    
-    if(userDefaults == nil) {
-        userDefaults = [[TiApp app] userDefaults];
-    }
-    return userDefaults;
+  static NSUserDefaults *userDefaults;
+
+  if (userDefaults == nil) {
+    userDefaults = [[TiApp app] userDefaults];
+  }
+  return userDefaults;
 }
 
--(id)init
+- (id)init
 {
-    if (self = [super init]) {
-        _defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
-    }
-	return self;
+  if (self = [super init]) {
+    _defaultsNull = [[NSData alloc] initWithBytes:"NULL" length:4];
+  }
+  return self;
 }
 
--(BOOL)propertyExists: (NSString *)key
+- (BOOL)propertyExists:(NSString *)key
 {
-	if (![key isKindOfClass:[NSString class]]) return NO;
-	[[self userDefaults] synchronize];
-	return ([[self userDefaults] objectForKey:key] != nil);
+  if (![key isKindOfClass:[NSString class]])
+    return NO;
+  [[self userDefaults] synchronize];
+  return ([[self userDefaults] objectForKey:key] != nil);
 }
 
-#define GETPROP \
-id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
-if(appProp) { \
-return appProp; \
-} \
-if (![self propertyExists:key]) return defaultValue; \
-
--(id)getBool:(NSString*)key defaultValue:(id)defaultValue
-{
-	GETPROP
-    //    return [[self userDefaults] boolForKey:key];
-    id theObject = [self getObject:key defaultValue:defaultValue];
-	return @([TiUtils boolValue:theObject]);
-}
-
--(id)getDouble:(NSString*)key defaultValue:(id)defaultValue
-{
-	GETPROP
-//	return [NSNumber numberWithDouble:[[self userDefaults] doubleForKey:key]];
-    id theObject = [self getObject:key defaultValue:defaultValue];
-    return @([TiUtils doubleValue:theObject]);
-}
-
--(id)getInt:(NSString*)key defaultValue:(id)defaultValue
-{
-	GETPROP
-//	return [NSNumber numberWithInteger:[[self userDefaults] integerForKey:key]];
-    id theObject = [self getObject:key defaultValue:defaultValue];
-    return @([TiUtils intValue:theObject]);
-}
-
--(id)getString:(NSString*)key defaultValue:(id)defaultValue
-{
-	GETPROP
-//	return [[self userDefaults] stringForKey:key];
-    id theObject = [self getObject:key defaultValue:defaultValue];
-    return [TiUtils stringValue:theObject];
-}
-
--(id)getList:(NSString*)key defaultValue:(id)defaultValue
-{
-	GETPROP
-    id theObject = [self getObject:key defaultValue:defaultValue];
-    if (IS_OF_CLASS(theObject, NSArray)) {
-        return theObject;
-    }
+#define GETPROP                                            \
+  id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+  if (appProp) {                                           \
+    return appProp;                                        \
+  }                                                        \
+  if (![self propertyExists:key])                          \
     return defaultValue;
-}
 
--(id)getObject:(NSString*)key defaultValue:(id)defaultValue
+- (id)getBool:(NSString *)key defaultValue:(id)defaultValue
 {
-    GETPROP
-    id theObject = [[self userDefaults] objectForKey:key];
-    if ([theObject isKindOfClass:[NSData class]]) {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
-    }
-    else {
-        return theObject;
-    }
-    
+  GETPROP
+  //    return [[self userDefaults] boolForKey:key];
+  id theObject = [self getObject:key defaultValue:defaultValue];
+  return @([TiUtils boolValue:theObject]);
 }
 
-#define SETPROP \
-id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
-if(appProp) { \
-DebugLog(@"[ERROR] Property \"%@\" already exist and cannot be overwritten", key); \
-return; \
-} \
-if (value==nil || value==[NSNull null]) {\
-[[self userDefaults] removeObjectForKey:key];\
-[[self userDefaults] synchronize]; \
-return;\
-}\
-if ([self propertyExists:key] && [ [[self userDefaults] objectForKey:key] isEqual:value]) {\
-return;\
-}\
-
--(void)setBool:(id)value forKey:(NSString*)key
+- (id)getDouble:(NSString *)key defaultValue:(id)defaultValue
 {
-	SETPROP
-//    self.changedProperty = key;
-//	[[self userDefaults] setBool:[TiUtils boolValue:value] forKey:key];
-//	[[self userDefaults] synchronize];
-    [self setObject:@([TiUtils boolValue:value]) forKey:key];
+  GETPROP
+  //	return [NSNumber numberWithDouble:[[self userDefaults] doubleForKey:key]];
+  id theObject = [self getObject:key defaultValue:defaultValue];
+  return @([TiUtils doubleValue:theObject]);
 }
 
--(void)setDouble:(id)value forKey:(NSString*)key
+- (id)getInt:(NSString *)key defaultValue:(id)defaultValue
 {
-	SETPROP
-//    self.changedProperty = key;
-//	[[self userDefaults] setDouble:[TiUtils doubleValue:value] forKey:key];
-//	[[self userDefaults] synchronize];
-    [self setObject:@([TiUtils doubleValue:value]) forKey:key];
+  GETPROP
+  //	return [NSNumber numberWithInteger:[[self userDefaults] integerForKey:key]];
+  id theObject = [self getObject:key defaultValue:defaultValue];
+  return @([TiUtils intValue:theObject]);
 }
 
--(void)setInt:(id)value forKey:(NSString*)key
+- (id)getString:(NSString *)key defaultValue:(id)defaultValue
 {
-	SETPROP
-//    self.changedProperty = key;
-//	[[self userDefaults] setInteger:[TiUtils intValue:value] forKey:key];
-//	[[self userDefaults] synchronize];
-    [self setObject:@([TiUtils intValue:value]) forKey:key];
+  GETPROP
+  //	return [[self userDefaults] stringForKey:key];
+  id theObject = [self getObject:key defaultValue:defaultValue];
+  return [TiUtils stringValue:theObject];
 }
 
--(void)setString:(id)value forKey:(NSString*)key
+- (id)getList:(NSString *)key defaultValue:(id)defaultValue
 {
-	SETPROP
-//    self.changedProperty = key;
-//	[[self userDefaults] setObject:[TiUtils stringValue:value] forKey:key];
-//	[[self userDefaults] synchronize];
-    [self setObject:[TiUtils stringValue:value] forKey:key];
+  GETPROP
+  id theObject = [self getObject:key defaultValue:defaultValue];
+  if (IS_OF_CLASS(theObject, NSArray)) {
+    return theObject;
+  }
+  return defaultValue;
 }
 
--(void)setList:(id)value forKey:(NSString*)key
+- (id)getObject:(NSString *)key defaultValue:(id)defaultValue
 {
-	SETPROP
-//	if ([value isKindOfClass:[NSArray class]]) {
-//		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
-//		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//			if ([obj isKindOfClass:[NSNull class]]) {
-//				obj = _defaultsNull;
-//			}
-//			[array addObject:obj];
-//		}];
-//		value = array;
-//	}
-//    self.changedProperty = key;
-//	[[self userDefaults] setObject:value forKey:key];
-//	[[self userDefaults] synchronize];
-    [self setObject:value forKey:key];
+  GETPROP
+  id theObject = [[self userDefaults] objectForKey:key];
+  if ([theObject isKindOfClass:[NSData class]]) {
+    return [NSKeyedUnarchiver unarchiveObjectWithData:theObject];
+  } else {
+    return theObject;
+  }
 }
 
--(void)setObject:(id)value forKey:(NSString*)key
+#define SETPROP                                                                              \
+  id appProp = [[TiApp tiAppProperties] objectForKey:key];                                   \
+  if (appProp) {                                                                             \
+    DebugLog(@"[ERROR] Property \"%@\" already exist and cannot be overwritten", key);       \
+    return;                                                                                  \
+  }                                                                                          \
+  if (value == nil || value == [NSNull null]) {                                              \
+    [[self userDefaults] removeObjectForKey:key];                                            \
+    [[self userDefaults] synchronize];                                                       \
+    return;                                                                                  \
+  }                                                                                          \
+  if ([self propertyExists:key] && [[[self userDefaults] objectForKey:key] isEqual:value]) { \
+    return;                                                                                  \
+  }
+
+- (void)setBool:(id)value forKey:(NSString *)key
 {
-	SETPROP
-	NSData* encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
-    self.changedProperty = key;
-	[[self userDefaults] setObject:encoded forKey:key];
-	[[self userDefaults] synchronize];
+  SETPROP
+      //    self.changedProperty = key;
+      //	[[self userDefaults] setBool:[TiUtils boolValue:value] forKey:key];
+      //	[[self userDefaults] synchronize];
+      [self setObject:@([TiUtils boolValue:value])
+               forKey:key];
 }
 
--(void)removeProperty:(NSString*)key
+- (void)setDouble:(id)value forKey:(NSString *)key
 {
-    if([[TiApp tiAppProperties] objectForKey:key] != nil) {
-        DebugLog(@"[ERROR] Cannot remove property \"%@\", it is read-only.", key);
-        return;
-    }
-    self.changedProperty = key;
-	[[self userDefaults] removeObjectForKey:key];
-	[[self userDefaults] synchronize];
+  SETPROP
+      //    self.changedProperty = key;
+      //	[[self userDefaults] setDouble:[TiUtils doubleValue:value] forKey:key];
+      //	[[self userDefaults] synchronize];
+      [self setObject:@([TiUtils doubleValue:value])
+               forKey:key];
 }
 
--(void)removeAllProperties {
-	NSArray *keys = [[[self userDefaults] dictionaryRepresentation] allKeys];
-	for(NSString *key in keys) {
-		[[self userDefaults] removeObjectForKey:key];
-	}
-}
-
--(BOOL)hasProperty:(NSString*)key
+- (void)setInt:(id)value forKey:(NSString *)key
 {
-    BOOL inUserDefaults = [self propertyExists:[TiUtils stringValue:key]];
-    BOOL inTiAppProperties = [[TiApp tiAppProperties] objectForKey:key] != nil;
-    return inUserDefaults || inTiAppProperties;
+  SETPROP
+      //    self.changedProperty = key;
+      //	[[self userDefaults] setInteger:[TiUtils intValue:value] forKey:key];
+      //	[[self userDefaults] synchronize];
+      [self setObject:@([TiUtils intValue:value])
+               forKey:key];
 }
 
--(NSMutableArray*)listProperties
+- (void)setString:(id)value forKey:(NSString *)key
 {
-    NSMutableArray *array = [NSMutableArray array];
-    [array addObjectsFromArray:[[[self userDefaults] dictionaryRepresentation] allKeys]];
-    [array addObjectsFromArray:[[TiApp tiAppProperties] allKeys]];
-    return array;
+  SETPROP
+      //    self.changedProperty = key;
+      //	[[self userDefaults] setObject:[TiUtils stringValue:value] forKey:key];
+      //	[[self userDefaults] synchronize];
+      [self setObject:[TiUtils stringValue:value]
+               forKey:key];
 }
 
-+(NSUserDefaults*)userDefaults
+- (void)setList:(id)value forKey:(NSString *)key
 {
-    return [[TiProperties sharedInstance] userDefaults];
+  SETPROP
+      //	if ([value isKindOfClass:[NSArray class]]) {
+      //		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+      //		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      //			if ([obj isKindOfClass:[NSNull class]]) {
+      //				obj = _defaultsNull;
+      //			}
+      //			[array addObject:obj];
+      //		}];
+      //		value = array;
+      //	}
+      //    self.changedProperty = key;
+      //	[[self userDefaults] setObject:value forKey:key];
+      //	[[self userDefaults] synchronize];
+      [self setObject:value
+               forKey:key];
 }
 
-+(BOOL)propertyExists: (NSString *)key
+- (void)setObject:(id)value forKey:(NSString *)key
 {
-    return [[TiProperties sharedInstance] propertyExists:key];
+  SETPROP
+  NSData *encoded = [NSKeyedArchiver archivedDataWithRootObject:value];
+  self.changedProperty = key;
+  [[self userDefaults] setObject:encoded forKey:key];
+  [[self userDefaults] synchronize];
 }
 
-+(id)getBool:(NSString*)key defaultValue:(id)defaultValue
+- (void)removeProperty:(NSString *)key
 {
-    return [[TiProperties sharedInstance] getBool:key defaultValue:defaultValue];
+  if ([[TiApp tiAppProperties] objectForKey:key] != nil) {
+    DebugLog(@"[ERROR] Cannot remove property \"%@\", it is read-only.", key);
+    return;
+  }
+  self.changedProperty = key;
+  [[self userDefaults] removeObjectForKey:key];
+  [[self userDefaults] synchronize];
 }
 
-+(id)getDouble:(NSString*)key defaultValue:(id)defaultValue
+- (void)removeAllProperties
 {
-    return [[TiProperties sharedInstance] getDouble:key defaultValue:defaultValue];
+  NSArray *keys = [[[self userDefaults] dictionaryRepresentation] allKeys];
+  for (NSString *key in keys) {
+    [[self userDefaults] removeObjectForKey:key];
+  }
 }
 
-+(id)getInt:(NSString*)key defaultValue:(id)defaultValue
+- (BOOL)hasProperty:(NSString *)key
 {
-    return [[TiProperties sharedInstance] getInt:key defaultValue:defaultValue];
+  BOOL inUserDefaults = [self propertyExists:[TiUtils stringValue:key]];
+  BOOL inTiAppProperties = [[TiApp tiAppProperties] objectForKey:key] != nil;
+  return inUserDefaults || inTiAppProperties;
 }
 
-+(id)getString:(NSString*)key defaultValue:(id)defaultValue
+- (NSMutableArray *)listProperties
 {
-    return [[TiProperties sharedInstance] getString:key defaultValue:defaultValue];
+  NSMutableArray *array = [NSMutableArray array];
+  [array addObjectsFromArray:[[[self userDefaults] dictionaryRepresentation] allKeys]];
+  [array addObjectsFromArray:[[TiApp tiAppProperties] allKeys]];
+  return array;
 }
 
-+(id)getList:(NSString*)key defaultValue:(id)defaultValue
++ (NSUserDefaults *)userDefaults
 {
-    return [[TiProperties sharedInstance] getList:key defaultValue:defaultValue];
+  return [[TiProperties sharedInstance] userDefaults];
 }
 
-+(id)getObject:(NSString*)key defaultValue:(id)defaultValue
++ (BOOL)propertyExists:(NSString *)key
 {
-    return [[TiProperties sharedInstance] getObject:key defaultValue:defaultValue];
+  return [[TiProperties sharedInstance] propertyExists:key];
 }
 
-+(void)setBool:(id)value forKey:(NSString*)key
++ (id)getBool:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setBool:value forKey:key];
+  return [[TiProperties sharedInstance] getBool:key defaultValue:defaultValue];
 }
 
-+(void)setDouble:(id)value forKey:(NSString*)key
++ (id)getDouble:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setDouble:value forKey:key];
+  return [[TiProperties sharedInstance] getDouble:key defaultValue:defaultValue];
 }
 
-+(void)setInt:(id)value forKey:(NSString*)key
++ (id)getInt:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setInt:value forKey:key];
+  return [[TiProperties sharedInstance] getInt:key defaultValue:defaultValue];
 }
 
-+(void)setString:(id)value forKey:(NSString*)key
++ (id)getString:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setString:value forKey:key];
+  return [[TiProperties sharedInstance] getString:key defaultValue:defaultValue];
 }
 
-+(void)setList:(id)value forKey:(NSString*)key
++ (id)getList:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setList:value forKey:key];
+  return [[TiProperties sharedInstance] getList:key defaultValue:defaultValue];
 }
 
-+(void)setObject:(id)value forKey:(NSString*)key
++ (id)getObject:(NSString *)key defaultValue:(id)defaultValue
 {
-    [[TiProperties sharedInstance] setObject:value forKey:key];
+  return [[TiProperties sharedInstance] getObject:key defaultValue:defaultValue];
 }
 
-+(void)removeProperty:(NSString*)key
++ (void)setBool:(id)value forKey:(NSString *)key
 {
-    [[TiProperties sharedInstance] removeProperty:key];
+  [[TiProperties sharedInstance] setBool:value forKey:key];
 }
 
-+(void)removeAllProperties {
-    return [[TiProperties sharedInstance] removeAllProperties];
-}
-
-+(BOOL)hasProperty:(NSString*)key
++ (void)setDouble:(id)value forKey:(NSString *)key
 {
-    return [[TiProperties sharedInstance] hasProperty:key];
+  [[TiProperties sharedInstance] setDouble:value forKey:key];
 }
 
-+(NSMutableArray*)listProperties
++ (void)setInt:(id)value forKey:(NSString *)key
 {
-    return [[TiProperties sharedInstance] listProperties];
+  [[TiProperties sharedInstance] setInt:value forKey:key];
+}
+
++ (void)setString:(id)value forKey:(NSString *)key
+{
+  [[TiProperties sharedInstance] setString:value forKey:key];
+}
+
++ (void)setList:(id)value forKey:(NSString *)key
+{
+  [[TiProperties sharedInstance] setList:value forKey:key];
+}
+
++ (void)setObject:(id)value forKey:(NSString *)key
+{
+  [[TiProperties sharedInstance] setObject:value forKey:key];
+}
+
++ (void)removeProperty:(NSString *)key
+{
+  [[TiProperties sharedInstance] removeProperty:key];
+}
+
++ (void)removeAllProperties
+{
+  return [[TiProperties sharedInstance] removeAllProperties];
+}
+
++ (BOOL)hasProperty:(NSString *)key
+{
+  return [[TiProperties sharedInstance] hasProperty:key];
+}
+
++ (NSMutableArray *)listProperties
+{
+  return [[TiProperties sharedInstance] listProperties];
 }
 
 @end

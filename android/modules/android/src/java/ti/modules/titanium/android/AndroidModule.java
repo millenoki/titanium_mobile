@@ -46,6 +46,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.AudioManager;
 import android.view.MenuItem;
+import android.os.PowerManager;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -280,6 +281,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int NAVIGATION_MODE_STANDARD = ActionBar.NAVIGATION_MODE_STANDARD;
 	@Kroll.constant public static final int NAVIGATION_MODE_TABS = ActionBar.NAVIGATION_MODE_TABS;
 
+	@Kroll.constant public static final int WAKE_LOCK_PARTIAL = PowerManager.PARTIAL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_FULL = PowerManager.FULL_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_DIM = PowerManager.SCREEN_DIM_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_SCREEN_BRIGHT = PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
+	@Kroll.constant public static final int WAKE_LOCK_ACQUIRE_CAUSES_WAKEUP = PowerManager.ACQUIRE_CAUSES_WAKEUP;
+	@Kroll.constant public static final int WAKE_LOCK_ON_AFTER_RELEASE = PowerManager.ON_AFTER_RELEASE;
+
 	protected RProxy r;
 	private static String _AppActivityClassName = null;
 	private static final int REQUEST_CODE = 99;
@@ -325,10 +333,10 @@ public class AndroidModule extends KrollModule
 	    Intent targetIntent = IntentProxy.intentFromObject(target);
 	    if (targetIntent != null) {
 	        return new IntentProxy(Intent.createChooser(targetIntent, title));
-	    }
+	}
 	    return null;
 	}
-	
+
 
     @Kroll.method
     public IntentProxy createlabelIntent(String packagename, String label, int icon)
@@ -356,7 +364,7 @@ public class AndroidModule extends KrollModule
 		}
 		return r;
 	}
-	
+
 	@Kroll.getProperty(name="appActivityClassName")
 	public String getAppActivityClassName() {
 		if (_AppActivityClassName == null) {
@@ -365,20 +373,9 @@ public class AndroidModule extends KrollModule
 		return _AppActivityClassName;
 	}
 	
-	@Kroll.method
-    public void showMainActivity()
-    {
-        TiApplication app = TiApplication.getInstance();
-	    Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
-        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        i.setAction(Intent.ACTION_MAIN);
-        app.startActivity(i);
-    }
-
 	@Kroll.method @Kroll.getProperty
 	public ActivityProxy getCurrentActivity() {
-		TiBaseActivity resultBaseActivity = TiApplication.getAppCurrentActivity();
+		TiBaseActivity resultBaseActivity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
 		if (resultBaseActivity != null) {
 			return resultBaseActivity.getActivityProxy();
 		} else {
@@ -386,6 +383,17 @@ public class AndroidModule extends KrollModule
 			return null;
 		}
 	}
+
+	@Kroll.method
+    public void showMainActivity()
+	{
+		TiApplication app = TiApplication.getInstance();
+	    Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setAction(Intent.ACTION_MAIN);
+        app.startActivity(i);
+    }
 
 	@Kroll.method
 	public void startService(Object intentValue)
@@ -439,7 +447,7 @@ public class AndroidModule extends KrollModule
 		}
 		return true;
 	}
-	
+
 	@Kroll.method
 	public void requestPermissions(Object permissionObject, @Kroll.argument(optional=true)KrollFunction permissionCallback) {
 		if (Build.VERSION.SDK_INT >= 23) {
@@ -466,7 +474,7 @@ public class AndroidModule extends KrollModule
 				currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]), REQUEST_CODE);
 				return;
 			}
-		}
+			}
 		KrollDict response = new KrollDict();
 		response.putCodeAndMessage(0, null);
 		if (permissionCallback != null) {
@@ -476,7 +484,7 @@ public class AndroidModule extends KrollModule
 
 	@Kroll.method
 	public boolean isServiceRunning(Object intentValue)
-    {
+	{
         IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
         if (intentProxy == null) { 
             return false;
@@ -541,7 +549,7 @@ public class AndroidModule extends KrollModule
 	 */
 	@Kroll.method
 	public ServiceProxy createService(Object intentValue)
-    {
+	{
         IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
         if (intentProxy == null) { 
             return null;
@@ -561,7 +569,7 @@ public class AndroidModule extends KrollModule
 	    Intent intent = new Intent(action);
 	    intent.setType(type);
         return TiIntentHelper.queryIntentActivities(intent);
-    }
+}
 	
 	@Kroll.method
     @Kroll.getProperty(enumerable = false)

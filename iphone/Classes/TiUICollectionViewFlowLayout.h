@@ -7,7 +7,7 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol TiUICollectionViewFlowLayoutDelegate<UICollectionViewDelegateFlowLayout>
+@protocol TiUICollectionViewFlowLayoutDelegate <UICollectionViewDelegateFlowLayout>
 @optional
 - (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section;
 - (void)onStickyHeaderChange:(NSInteger)sectionIndex;

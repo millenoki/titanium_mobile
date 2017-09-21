@@ -10,15 +10,15 @@
 
 @class TiUIView;
 
-@interface TiUINavBarButton : UIBarButtonItem<TiProxyDelegate> {
-@private
-	TiViewProxy *proxy;
-	TiUIView *activityDelegate;
+@interface TiUINavBarButton : UIBarButtonItem <TiProxyDelegate> {
+  @private
+  TiViewProxy *proxy;
+  TiUIView *activityDelegate;
 }
-@property(nonatomic,readonly) TiViewProxy* proxy;
+@property (nonatomic, readonly) TiViewProxy *proxy;
 
--(id)initWithProxy:(TiProxy*)proxy;
--(void)detachProxy;
+- (id)initWithProxy:(TiProxy *)proxy;
+- (void)detachProxy;
 
 @end
 

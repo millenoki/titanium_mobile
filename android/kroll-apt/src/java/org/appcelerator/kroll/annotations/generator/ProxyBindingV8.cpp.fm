@@ -212,11 +212,11 @@ Local<FunctionTemplate> ${className}::getProxyTemplate(Isolate* isolate)
 		</#if>
 			Local<Value>(), DEFAULT,
 		<#if property.enumerable>
-			<#if property.set>
+		<#if property.set>
 				static_cast<v8::PropertyAttribute>(v8::DontDelete | v8::None)
-			<#else>
+		<#else>
 				static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete | v8::None)
-			</#if>
+		</#if>
 		<#else>
 			<#if property.set>
 				static_cast<v8::PropertyAttribute>(v8::DontDelete | v8::DontEnum)
@@ -304,8 +304,8 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
-    
-    
+
+
 	Local<Object> holder = args.Holder();
     // If holder isn't the JavaObject wrapper we expect, look up the prototype chain
     if (!JavaObject::isJavaObject(holder)) {

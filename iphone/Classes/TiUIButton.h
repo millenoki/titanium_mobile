@@ -9,20 +9,20 @@
 #import "TiUIView.h"
 
 @interface TiUIButton : TiUIView {
-@private
-	UIButton *button;
-	
-//	UIImage * backgroundImageCache;
-//	UIImage * backgroundImageUnstretchedCache;
+  @private
+  UIButton *button;
 
-	NSInteger style;
-	
-    BOOL touchStarted;    
+  //	UIImage * backgroundImageCache;
+  //	UIImage * backgroundImageUnstretchedCache;
+
+  NSInteger style;
+
+  BOOL touchStarted;
 }
 
--(UIButton*)button;
+- (UIButton *)button;
 
--(void)setPadding:(UIEdgeInsets)inset;
+- (void)setPadding:(UIEdgeInsets)inset;
 
 @end
 

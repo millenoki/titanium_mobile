@@ -12,20 +12,20 @@
 
 #ifdef USE_TI_UISEARCHBAR
 
-#import "TiUITextWidgetProxy.h"
 #import "TiUISearchBar.h"
+#import "TiUITextWidgetProxy.h"
 
 @interface TiUISearchBarProxy : TiUITextWidgetProxy {
-	BOOL showsCancelButton;
+  BOOL showsCancelButton;
 }
 @property BOOL canHaveSearchDisplayController;
 
--(void)setDelegate:(id<UISearchBarDelegate>)delegate;
--(UISearchBar*)searchBar;
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate;
+- (UISearchBar *)searchBar;
 
 #pragma mark - Titanium Internal Use
--(void)ensureSearchBarHeirarchy;
--(TiSearchDisplayController*)searchController;
+- (void)ensureSearchBarHeirarchy;
+- (TiSearchDisplayController *)searchController;
 @end
 
 #endif

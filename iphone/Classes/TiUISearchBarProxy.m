@@ -15,120 +15,122 @@
 #import "TiUISearchBarProxy.h"
 #import "TiUISearchBar.h"
 
-@interface TiViewProxy(Private)
--(UIViewController*)getContentController;
+@interface TiViewProxy (Private)
+- (UIViewController *)getContentController;
 @end
 
-@interface TiUISearchBar()
--(void)setShowCancel_:(id)value withObject:(id)object;
+@interface TiUISearchBar ()
+- (void)setShowCancel_:(id)value withObject:(id)object;
 @end
 
 @implementation TiUISearchBarProxy
 @synthesize canHaveSearchDisplayController;
 
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-    static NSArray *keySequence = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];;
-    });
-    return keySequence;
+  static NSArray *keySequence = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"barColor" ]] retain];
+    ;
+  });
+  return keySequence;
 }
-
 
 #pragma mark Method forwarding
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.SearchBar";
+  return @"Ti.UI.SearchBar";
 }
 
--(void)_configure
+- (void)_configure
 {
-    canHaveSearchDisplayController = NO;
-	[super _configure];
+  canHaveSearchDisplayController = NO;
+  [super _configure];
 }
 
--(void)viewDidDetach
+- (void)viewDidDetach
 {
-    canHaveSearchDisplayController = NO;
+  canHaveSearchDisplayController = NO;
 }
 
-
--(void)blur:(id)args
+- (void)blur:(id)args
 {
-	[self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(blur:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
--(void)focus:(id)args
+- (void)focus:(id)args
 {
-	[self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
 - (void)windowWillClose
 {
-    if([self viewInitialized])
-    {
-        [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  if ([self viewInitialized]) {
+    [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+  }
+  [super windowWillClose];
+}
+
+- (void)setShowCancel:(id)value withObject:(id)object
+{
+  //ViewAttached gives a false negative when not attached to a window.
+  TiThreadPerformOnMainThread(^{
+    [(TiUISearchBar *)[self view] setShowCancel_:value withObject:object];
+  },
+      NO);
+}
+
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate
+{
+  [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate != nil) waitUntilDone:YES];
+}
+
+- (UISearchBar *)searchBar
+{
+  return [(TiUISearchBar *)[self view] searchBar];
+}
+
+- (void)setSearchBar:(UISearchBar *)searchBar
+{
+  // In UISearchController searchbar is readonly. We have to replace that search bar with existing search bar of proxy.
+  [(TiUISearchBar *)[self view] setSearchBar:searchBar];
+}
+
+- (void)ensureSearchBarHierarchy
+{
+  WARN_IF_BACKGROUND_THREAD;
+  if ([self viewAttached]) {
+    UISearchBar *searchBar = [self searchBar];
+    if ([searchBar superview] != view) {
+      [view addSubview:searchBar];
+      [searchBar setFrame:[view bounds]];
     }
-    [super windowWillClose];
+  }
 }
 
--(void)setShowCancel:(id)value withObject:(id)object
+- (NSMutableDictionary *)langConversionTable
 {
-	//ViewAttached gives a false negative when not attached to a window.
-	TiThreadPerformOnMainThread(^{
-		[(TiUISearchBar*)[self view] setShowCancel_:value withObject:object];
-	}, NO);
+  return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt", @"promptid", @"hintText", @"hinttextid", nil];
 }
 
-
--(void)setDelegate:(id<UISearchBarDelegate>)delegate
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    [self makeViewPerformSelector:@selector(setDelegate:) withObject:delegate createIfNeeded:(delegate!=nil) waitUntilDone:YES];
+  return TiDimensionAutoFill;
 }
 
--(UISearchBar*)searchBar
+- (TiSearchDisplayController *)searchController
 {
-	return [(TiUISearchBar*)[self view] searchBar];
+  return [(TiUISearchBar *)[self view] searchController];
 }
 
--(void)ensureSearchBarHeirarchy
+- (UIViewController *)getContentController
 {
-    WARN_IF_BACKGROUND_THREAD;
-    if ([self viewAttached]) {
-        UISearchBar* searchBar = [self searchBar];
-        if ([searchBar superview] != view) {
-            [view addSubview:searchBar];
-            [searchBar setFrame:[view bounds]];
-        }
-    }
-    
-}
-
-
--(NSMutableDictionary*)langConversionTable
-{
-    return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
-}
-
--(TiDimension)defaultAutoWidthBehavior:(id)unused
-{
-    return TiDimensionAutoFill;
-}
-
--(TiSearchDisplayController*)searchController {
-    return [(TiUISearchBar*)[self view] searchController];
-}
-
-
--(UIViewController*)getContentController
-{
-    if (canHaveSearchDisplayController) {
-        return [super getContentController];
-    }
-    return nil;
+  if (canHaveSearchDisplayController) {
+    return [super getContentController];
+  }
+  return nil;
 }
 
 USE_VIEW_FOR_CONTENT_SIZE

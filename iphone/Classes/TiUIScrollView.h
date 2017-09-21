@@ -14,44 +14,41 @@
 
 #import "TiScrollingView.h"
 
+@interface TiUIScrollView : TiScrollingView <TiScrolling> {
 
-
-@interface TiUIScrollView : TiScrollingView<TiScrolling> {
-
-@private
-	TDUIScrollView * scrollView;
+  @private
+  TDUIScrollView *scrollView;
 #ifdef TI_USE_AUTOLAYOUT
-    TiLayoutView* contentView;
+  TiLayoutView *contentView;
 #else
-	UIView * wrapperView;
-	TiDimension contentWidth;
-	TiDimension contentHeight;
+  UIView *wrapperView;
+  TiDimension contentWidth;
+  TiDimension contentHeight;
 #endif
-	CGFloat minimumContentHeight;
-    
+  CGFloat minimumContentHeight;
+
 #if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
-    TiUIRefreshControlProxy* refreshControl;
+  TiUIRefreshControlProxy *refreshControl;
 #endif
 #endif
-	
-	BOOL needsHandleContentSize;
-	
+
+  BOOL needsHandleContentSize;
 }
 
-@property(nonatomic,retain,readonly) TDUIScrollView * scrollView;
+@property (nonatomic, retain, readonly) TDUIScrollView *scrollView;
 
 //@property(nonatomic,readonly) TiDimension contentWidth;
 
--(void)setNeedsHandleContentSize;
--(void)setNeedsHandleContentSizeIfAutosizing;
--(BOOL)handleContentSizeIfNeeded;
--(void)handleContentSize;
+- (void)setNeedsHandleContentSize;
+- (void)setNeedsHandleContentSizeIfAutosizing;
+- (BOOL)handleContentSizeIfNeeded;
+- (void)handleContentSize;
 #ifndef TI_USE_AUTOLAYOUT
--(UIView *)wrapperView;
+- (UIView *)wrapperView;
 #endif
--(BOOL)flexibleContentWidth;
--(BOOL)flexibleContentHeight;
+- (BOOL)flexibleContentWidth;
+- (BOOL)flexibleContentHeight;
 @end
 
 #endif

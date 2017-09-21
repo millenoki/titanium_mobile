@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,6 +28,7 @@ import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.annotation.SuppressLint;
+import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -43,11 +44,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 
-@SuppressLint("DefaultLocale")
-public class TiTableView extends FrameLayout
+public class TiTableView extends TiSwipeRefreshLayout
 	implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
@@ -216,10 +215,20 @@ public class TiTableView extends FrameLayout
 								sameView = true;
 								v = null;
 								break;
-							}
+				}
 						}
 					}
 				}
+
+				// TIMOB-24560: prevent duplicate TableViewRowProxyItem on Android N
+				if (Build.VERSION.SDK_INT > 23) {
+					ArrayList<Item> models = viewModel.getViewModel();
+					if (models != null && models.contains(v.getRowData())) {
+						v = null;
+						sameView = true;
+					}
+				}
+
 				if (!sameView) {
 					if (v.getClassName().equals(TableViewProxy.CLASSNAME_DEFAULT)) {
 						if (v.getRowData() != item) {
@@ -247,7 +256,7 @@ public class TiTableView extends FrameLayout
 					if (oldproxies.length != newproxies.length)
 					{
 						canreproxy = false;
-					}
+			}
 					else
 					{
 						for (int i = 0; i < oldproxies.length; i++) {
@@ -301,7 +310,7 @@ public class TiTableView extends FrameLayout
             }
             if (v.getRowData() != item || sameView == false)
             {
-                v.setRowData(item);
+			v.setRowData(item);
             }
 			return v;
 		}
@@ -340,7 +349,7 @@ public class TiTableView extends FrameLayout
         public long getHeaderId(int arg0) {
             // TODO Auto-generated method stub
             return 0;
-        }
+	}
 
         @Override
         public View getHeaderView(int arg0, View arg1, ViewGroup arg2) {
@@ -354,8 +363,11 @@ public class TiTableView extends FrameLayout
 		super(proxy.getActivity());
 		this.proxy = proxy;
 
+		// Disable pull-down refresh support until a Titanium "RefreshControl" has been assigned.
+		setSwipeRefreshEnabled(false);
+
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-		    maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
+			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
@@ -385,13 +397,13 @@ public class TiTableView extends FrameLayout
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 					scrollValid = false;
 					if (fProxy.hasListeners(TiC.EVENT_SCROLLEND)) {
-						KrollDict eventArgs = new KrollDict();
-						KrollDict size = new KrollDict();
+					KrollDict eventArgs = new KrollDict();
+					KrollDict size = new KrollDict();
 						size.put(TiC.PROPERTY_WIDTH, TiTableView.this.getWidth());
 						size.put(TiC.PROPERTY_HEIGHT, TiTableView.this.getHeight());
 						eventArgs.put(TiC.PROPERTY_SIZE, size);
-						fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
-					}
+					fProxy.fireEvent(TiC.EVENT_SCROLLEND, eventArgs);
+				}
 				}
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
 					scrollValid = true;
@@ -410,17 +422,17 @@ public class TiTableView extends FrameLayout
 				if(fireScroll) {
 					lastValidfirstItem = firstVisibleItem;
 					if (fProxy.hasListeners(TiC.EVENT_SCROLL)) {
-						KrollDict eventArgs = new KrollDict();
-						eventArgs.put("firstVisibleItem", firstVisibleItem);
-						eventArgs.put("visibleItemCount", visibleItemCount);
-						eventArgs.put("totalItemCount", totalItemCount);
-						KrollDict size = new KrollDict();
+					KrollDict eventArgs = new KrollDict();
+					eventArgs.put("firstVisibleItem", firstVisibleItem);
+					eventArgs.put("visibleItemCount", visibleItemCount);
+					eventArgs.put("totalItemCount", totalItemCount);
+					KrollDict size = new KrollDict();
 						size.put(TiC.PROPERTY_WIDTH, TiTableView.this.getWidth());
 						size.put(TiC.PROPERTY_HEIGHT, TiTableView.this.getHeight());
 						eventArgs.put(TiC.PROPERTY_SIZE, size);
-						fProxy.fireEvent(TiC.EVENT_SCROLL, eventArgs);
-					}
+					fProxy.fireEvent(TiC.EVENT_SCROLL, eventArgs);
 				}
+			}
 			}
 		});
 		// get default divider height
@@ -430,7 +442,7 @@ public class TiTableView extends FrameLayout
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
-		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
+			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel, proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -547,7 +559,7 @@ public class TiTableView extends FrameLayout
 		}
 		return viewModel.getViewModel().get(adapter.index.get(position));
 	}
-	
+
 	public int getPositionForView(View view) {
 		int result = -1;
 		try {
@@ -735,7 +747,7 @@ public class TiTableView extends FrameLayout
 		if (proxy != null) {
             if (changed) {
                 TiUIHelper.firePostLayoutEvent(proxy.peekView());
-            }
+		}
 		}
 
 		// Layout is finished, re-enable focus events.

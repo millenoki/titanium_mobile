@@ -61,7 +61,7 @@ public class TiUITimePicker extends TiUIView
 					super.onLayout(changed, left, top, right, bottom);
                     if (changed) {
                         TiUIHelper.firePostLayoutEvent(TiUITimePicker.this);
-                    }
+				}
 				}
 			};
 
@@ -109,7 +109,7 @@ public class TiUITimePicker extends TiUIView
 				}
 				return;
 			}
-            picker = (TimePicker) activity.getLayoutInflater().inflate(timePickerSpinner, null);
+			picker = (TimePicker) activity.getLayoutInflater().inflate(timePickerSpinner, null);
 		};
 		picker.setIs24HourView(false);
 		picker.setOnTimeChangedListener(this);
@@ -122,11 +122,11 @@ public class TiUITimePicker extends TiUIView
 	    updateValue();
 	    super.release();
 	}
-	
+		
 	private TimePicker getPicker() {
 	    return (TimePicker) nativeView;
 	}
-	
+	    
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -138,28 +138,28 @@ public class TiUITimePicker extends TiUIView
         {
             this.minDate = TiConvert.toDate(newValue);
             break;
-        }
+        }   
         case TiC.PROPERTY_MAX_DATE:
         {
             this.maxDate = TiConvert.toDate(newValue);
             break;
-        }
+        }   
         case "minuteInterval":
             int mi = TiConvert.toInt(newValue, 0);
             if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
                 this.minuteInterval = mi; 
-            }
+            }   
             break;
         case "format24":
             ((TimePicker) getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue, false));
             break;
-
+        
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
         }
     }
-	
+        
 	@Override
 	public void processProperties(HashMap d) {
         ((TimePicker) getNativeView()).setIs24HourView(false);
@@ -199,7 +199,7 @@ public class TiUITimePicker extends TiUIView
 		picker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 		suppressChangeEvent = false;
 	}
-	
+
 	public void setValue(Date value, boolean suppressEvent) {
         long millis = (value != null)?value.getTime():Calendar.getInstance().getTimeInMillis();
         setValue(millis, suppressEvent);
@@ -221,7 +221,7 @@ public class TiUITimePicker extends TiUIView
         int minutes = getPicker().getCurrentMinute();
         Date currentDate = (Date) proxy.getProperty(TiC.PROPERTY_VALUE);
         boolean needsUpdate = currentDate == null;
-        Calendar calendar = Calendar.getInstance();
+		Calendar calendar = Calendar.getInstance();
         if (currentDate != null) {
             calendar.setTime(currentDate);
             needsUpdate = calendar.get(Calendar.MINUTE) != minutes ||
@@ -231,14 +231,14 @@ public class TiUITimePicker extends TiUIView
             calendar.set(Calendar.HOUR_OF_DAY, hours);
             calendar.set(Calendar.MINUTE, minutes);
             if (!suppressChangeEvent && hasListeners(TiC.EVENT_CHANGE)) {
-                KrollDict data = new KrollDict();
+			KrollDict data = new KrollDict();
                 data.put(TiC.PROPERTY_VALUE, calendar.getTime());
                 fireEvent(TiC.EVENT_CHANGE, data, false, false);        
-            }
+		}
             // Make sure .value is readable by user
             proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
-        }
 	}
+}
 	
     @Override
     public Object getValue() {

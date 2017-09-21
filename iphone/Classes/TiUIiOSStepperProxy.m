@@ -11,27 +11,26 @@
 @implementation TiUIiOSStepperProxy
 
 USE_VIEW_FOR_CONTENT_SIZE
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.Stepper";
+  return @"Ti.UI.iOS.Stepper";
 }
 
--(NSNumber*)value
+- (NSNumber *)value
 {
-    return NUMDOUBLE([[(TiUIiOSStepper*)[self view] stepper] value]);
+  return NUMDOUBLE([[(TiUIiOSStepper *)[self view] stepper] value]);
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
-
 
 @end
 #endif

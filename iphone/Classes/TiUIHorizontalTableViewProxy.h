@@ -14,9 +14,7 @@
 
 #include "TiUITableViewProxy.h"
 
-
-@interface TiUIHorizontalTableViewProxy : TiUITableViewProxy
-{
+@interface TiUIHorizontalTableViewProxy : TiUITableViewProxy {
 }
 
 @end

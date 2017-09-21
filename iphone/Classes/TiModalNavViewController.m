@@ -16,76 +16,78 @@
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
+  self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
+    // Custom initialization
+  }
+  return self;
 }
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
+  [super viewDidLoad];
+  // Do any additional setup after loading the view.
 }
 
 - (void)didReceiveMemoryWarning
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+  [super didReceiveMemoryWarning];
+  // Dispose of any resources that can be recreated.
 }
 
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
-    return [[self topViewController] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+  return [[self topViewController] shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
 }
 
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
-    return [[self topViewController] shouldAutomaticallyForwardRotationMethods];
+  return [[self topViewController] shouldAutomaticallyForwardRotationMethods];
 }
 
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods
 {
-    return [[self topViewController] shouldAutomaticallyForwardAppearanceMethods];
+  return [[self topViewController] shouldAutomaticallyForwardAppearanceMethods];
 }
 
-- (BOOL)shouldAutorotate{
-    return [[self topViewController] shouldAutorotate];
+- (BOOL)shouldAutorotate
+{
+  return [[self topViewController] shouldAutorotate];
 }
 
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return [[self topViewController] supportedInterfaceOrientations];
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+  return [[self topViewController] supportedInterfaceOrientations];
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-    return [[self topViewController] preferredInterfaceOrientationForPresentation];
+  return [[self topViewController] preferredInterfaceOrientationForPresentation];
 }
 
 - (BOOL)prefersStatusBarHidden
 {
-    return [[self topViewController] prefersStatusBarHidden];
+  return [[self topViewController] prefersStatusBarHidden];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-    return [[self topViewController] preferredStatusBarStyle];
+  return [[self topViewController] preferredStatusBarStyle];
 }
 
--(BOOL) modalPresentationCapturesStatusBarAppearance
+- (BOOL)modalPresentationCapturesStatusBarAppearance
 {
-    return [[self topViewController] modalPresentationCapturesStatusBarAppearance];
+  return [[self topViewController] modalPresentationCapturesStatusBarAppearance];
 }
 
 - (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
 {
-    return [[self topViewController] preferredStatusBarUpdateAnimation];
+  return [[self topViewController] preferredStatusBarUpdateAnimation];
 }
 
 @end

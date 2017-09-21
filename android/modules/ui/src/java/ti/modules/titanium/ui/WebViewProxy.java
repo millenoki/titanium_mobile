@@ -128,7 +128,7 @@ public class WebViewProxy extends ViewProxy
 		}
 		return view.getJSValue(code);
 	}
-	
+
 	@Kroll.method
     public void injectJS(final String code, @Kroll.argument(optional = true) final KrollFunction callback) 
     {
@@ -247,7 +247,7 @@ public class WebViewProxy extends ViewProxy
 		getWebView().setBasicAuthentication(username, password);
 
 	}
-	
+
 	@Kroll.method @Kroll.setProperty
 	public void setUsername(String username)
 	{
@@ -340,10 +340,10 @@ public class WebViewProxy extends ViewProxy
                     @Override
                     public Boolean execute() {
                         return getWebView().canGoBack();
-                    }
+			}
                 });
 //				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_BACK));
-			}
+		}
 		}
 		return false;
 	}
@@ -360,10 +360,10 @@ public class WebViewProxy extends ViewProxy
                     @Override
                     public Boolean execute() {
                         return getWebView().canGoForward();
-                    }
+			}
                 });
 //				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
-			}
+		}
 		}
 		return false;
 	}
@@ -414,6 +414,8 @@ public class WebViewProxy extends ViewProxy
 	public boolean getDisableContextMenu()
 	{
 		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU), false);
+		}
+		return false;
 	}
 
 	@Kroll.method @Kroll.setProperty
@@ -522,7 +524,7 @@ public class WebViewProxy extends ViewProxy
 				// backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
 				// the polling.
                 webView.destroyWebView();
-			}
+	}
 		}
 		else {
 			TiUIWebView view = (TiUIWebView) peekView();
@@ -531,7 +533,7 @@ public class WebViewProxy extends ViewProxy
 			}
 		}
         super.releaseViews(activityFinishing);
-        
+
 	}
 
 	@Kroll.method
@@ -548,7 +550,7 @@ public class WebViewProxy extends ViewProxy
     public void clearHistory()
     {
         runInUiThread(new CommandNoReturn() {
-            @Override
+	@Override
             public void execute() {
                 TiUIWebView view = (TiUIWebView) peekView();
                 if (view != null) {
@@ -602,22 +604,22 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onDestroy(Activity activity) {
-	    TiUIWebView webView = (TiUIWebView) peekView();
-        if (webView == null) {
-            return;
-        }
+		TiUIWebView webView = (TiUIWebView) peekView();
+		if (webView == null) {
+			return;
+		}
 
-        // We allow JS polling to continue until we exit the app. If we want to stop the polling when the app is
-        // backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
-        // the polling.
+		// We allow JS polling to continue until we exit the app. If we want to stop the polling when the app is
+		// backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
+		// the polling.
         webView.destroyWebView();
 
-        WebView nativeWebView = webView.getWebView();
-        if (nativeWebView == null) {
-            return;
-        }
+		WebView nativeWebView = webView.getWebView();
+		if (nativeWebView == null) {
+			return;
+		}
 
-        nativeWebView.stopLoading();
+		nativeWebView.stopLoading();
         super.releaseViews(true);
 	}
 

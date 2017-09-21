@@ -19,15 +19,15 @@
 
 @end
 
-@interface TiUISearchBar : TiUITextWidget<UISearchBarDelegate> {
-@private
-	UISearchBar *searchView;
-	id<UISearchBarDelegate> delegate;
+@interface TiUISearchBar : TiUITextWidget <UISearchBarDelegate> {
+  @private
+  UISearchBar *searchView;
+  id<UISearchBarDelegate> delegate;
 }
 
--(void)setDelegate:(id<UISearchBarDelegate>)delegate;
--(UISearchBar*)searchBar;
--(TiSearchDisplayController*)searchController;
+- (void)setDelegate:(id<UISearchBarDelegate>)delegate;
+- (UISearchBar *)searchBar;
+- (TiSearchDisplayController *)searchController;
 
 @end
 

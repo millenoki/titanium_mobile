@@ -8,12 +8,12 @@
 #import "TiProxy.h"
 
 @interface TiUIRefreshControlProxy : TiProxy {
-    UIRefreshControl* _refreshControl;
-    NSAttributedString* _attributedString;
+  UIRefreshControl *_refreshControl;
+  NSAttributedString *_attributedString;
 }
 
 #pragma mark - Internal Use Only
--(UIRefreshControl*) control;
+- (UIRefreshControl *)control;
 
 @end
 #endif

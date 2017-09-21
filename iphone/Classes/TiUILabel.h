@@ -6,21 +6,21 @@
  */
 #ifdef USE_TI_UILABEL
 
-#import "TiUIView.h"
 #import "TiLabel.h"
+#import "TiUIView.h"
 
-@interface TiUILabel : TiUIView<LayoutAutosizing, TTTAttributedLabelDelegate> {
-@private
-	TiLabel *label;
-    BOOL needsSetText;
+@interface TiUILabel : TiUIView <LayoutAutosizing, TTTAttributedLabelDelegate> {
+  @private
+  TiLabel *label;
+  BOOL needsSetText;
 }
 
--(void)setAttributedTextViewContent;
+- (void)setAttributedTextViewContent;
 - (CGSize)suggestedFrameSizeToFitEntireStringConstraintedToSize:(CGSize)size;
--(TiLabel*)label;
--(void)setPadding:(UIEdgeInsets)inset;
+- (TiLabel *)label;
+- (void)setPadding:(UIEdgeInsets)inset;
 //-(void)setReusing:(BOOL)value;
--(NSInteger)characterIndexAtPoint:(CGPoint)p;
+- (NSInteger)characterIndexAtPoint:(CGPoint)p;
 @end
 
 #endif

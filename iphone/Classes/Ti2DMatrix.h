@@ -11,24 +11,23 @@
  */
 @interface Ti2DMatrix : TiProxy {
 }
-+(Ti2DMatrix*)matrixWithObject:(id)object;
++ (Ti2DMatrix *)matrixWithObject:(id)object;
 
 /**
  Initializes the proxy with properties.
  @param dict_ The properties dictionary.
  */
--(id)initWithProperties:(NSDictionary*)dict_;
+- (id)initWithProperties:(NSDictionary *)dict_;
 
-@property(nonatomic,assign) BOOL ownFrameCoord;
+@property (nonatomic, assign) BOOL ownFrameCoord;
 
--(Ti2DMatrix*)translate:(id)args;
--(Ti2DMatrix*)scale:(id)args;
--(Ti2DMatrix*)rotate:(id)args;
--(Ti2DMatrix*)invert:(id)args;
--(Ti2DMatrix*)multiply:(id)args;
+- (Ti2DMatrix *)translate:(id)args;
+- (Ti2DMatrix *)scale:(id)args;
+- (Ti2DMatrix *)rotate:(id)args;
+- (Ti2DMatrix *)invert:(id)args;
+- (Ti2DMatrix *)multiply:(id)args;
 
--(CGAffineTransform) matrixInViewSize:(CGSize)size andParentSize:(CGSize)parentSize;
--(CGAffineTransform) matrixInViewSize:(CGSize)size andParentSize:(CGSize)parentSize decale:(CGSize)decale;
+- (CGAffineTransform)matrixInViewSize:(CGSize)size andParentSize:(CGSize)parentSize;
+- (CGAffineTransform)matrixInViewSize:(CGSize)size andParentSize:(CGSize)parentSize decale:(CGSize)decale;
 
 @end
-

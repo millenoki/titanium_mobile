@@ -12,18 +12,17 @@
 
 @class TiUIHorizontalContentView;
 // Overloads hilighting to send touchbegin/touchend events
-@interface TiUIHorizontalTableViewCell: TiUITableViewCell
-{
-@private
-//    TiUIHorizontalContentView* customContentview;
+@interface TiUIHorizontalTableViewCell : TiUITableViewCell {
+  @private
+  //    TiUIHorizontalContentView* customContentview;
 }
 @end
 
-@interface TiUIHorizontalTableView: TiUITableView {
-@private
-//    TiDimension rowWidth;
-//	TiDimension minRowWidth;
-//	TiDimension maxRowWidth;
+@interface TiUIHorizontalTableView : TiUITableView {
+  @private
+  //    TiDimension rowWidth;
+  //	TiDimension minRowWidth;
+  //	TiDimension maxRowWidth;
 }
 
 @end

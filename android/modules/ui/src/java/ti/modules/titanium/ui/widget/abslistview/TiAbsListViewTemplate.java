@@ -18,7 +18,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 //import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
-
+	
 public class TiAbsListViewTemplate {
 	
 	protected static final String TAG = "TiTemplate";
@@ -63,8 +63,8 @@ public class TiAbsListViewTemplate {
 
 		
 		public void release() {
+			}
 		}
-	}
 
 	public TiAbsListViewTemplate(String id, KrollDict properties) {
 		//Init our binding hashmaps
@@ -94,16 +94,16 @@ public class TiAbsListViewTemplate {
 			id = itemID;	
 		} else if (properties.containsKey(TiC.PROPERTY_BIND_ID)) {
 			id = TiConvert.toString(properties, TiC.PROPERTY_BIND_ID);
-		} 
-
+		}
+		
 		if (id == null) return;
 
-		if (isRootTemplate) {
+			if (isRootTemplate) {
 			rootItem = item = new DataItem(TiC.PROPERTY_PROPERTIES);
-		} else {
+			} else {
 			item = new DataItem(id);
-		}
-		dataItems.put(id, item);
+			}
+			dataItems.put(id, item);
 
 		if (properties.get(TiC.PROPERTY_PROPERTIES) != null) {
 			props = properties.get(TiC.PROPERTY_PROPERTIES);
@@ -212,7 +212,7 @@ public class TiAbsListViewTemplate {
             result.put(TiC.PROPERTY_TITLE_VIEW, labelDict);
             labelDict.put(TiC.PROPERTY_TEXT, dict);
             return result;
-	    }
+}
 	    return null;
 	            
 //		KrollDict result = (KrollDict)dict.clone();

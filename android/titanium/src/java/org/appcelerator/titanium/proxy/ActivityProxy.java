@@ -26,8 +26,11 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 @Kroll.proxy(propertyAccessors = {
+	TiC.PROPERTY_SUPPORT_TOOLBAR,
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,
 	TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU,
 	TiC.PROPERTY_ON_CREATE,
@@ -57,7 +60,7 @@ public class ActivityProxy extends KrollProxy
 	protected ActionBarProxy actionBarProxy;
 
 	private KrollFunction resultCallback;
-	
+
 	public ActivityProxy()
 	{
 	}
@@ -76,13 +79,13 @@ public class ActivityProxy extends KrollProxy
 		    actionBarProxy.setActivity(this.wrappedActivity);
 		}
 		if (this.wrappedActivity != null) {
-		    Intent intent = activity.getIntent();
-	        if (intent != null) {
-	            intentProxy = new IntentProxy(activity.getIntent());
-	        }
+		Intent intent = activity.getIntent();
+		if (intent != null) {
+			intentProxy = new IntentProxy(activity.getIntent());
+		}
 		} else {
 		    intentProxy = null;
-		}
+	}
 	}
 
 	protected Activity getWrappedActivity()
@@ -103,8 +106,7 @@ public class ActivityProxy extends KrollProxy
 
 				return null;
 			}
-
-			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getTiLayout());
+			DecorViewProxy decorViewProxy = new DecorViewProxy(((TiBaseActivity)activity).getLayout());
 			decorViewProxy.setActivity(activity);
 			savedDecorViewProxy = decorViewProxy;
 		}
@@ -118,12 +120,12 @@ public class ActivityProxy extends KrollProxy
 	{
 	    IntentProxy intent = IntentProxy.fromObject(intentValue);
 	    if (intent != null) {
-	        Activity activity = getWrappedActivity();
-	        if (activity != null) {
-	            activity.startActivity(intent.getIntent());
-	        }
-	    }
-		
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
+			activity.startActivity(intent.getIntent());
+		}
+	}
+
 	}
 
 	@Kroll.method
@@ -210,17 +212,17 @@ public class ActivityProxy extends KrollProxy
 			activity.sendBroadcast(intent.getIntent());
 		}
 	}
-	
 
-    @Kroll.method
+
+	@Kroll.method
     public void sendStickyBroadcast(Object intentValue)
-    {
+	{
         IntentProxy intent = IntentProxy.fromObject(intentValue);
         if (intent == null) { 
             return;
         }
-        Activity activity = getWrappedActivity();
-        if (activity != null) {
+		Activity activity = getWrappedActivity();
+		if (activity != null) {
             activity.sendStickyBroadcast(intent.getIntent());
         }
     }
@@ -327,13 +329,13 @@ public class ActivityProxy extends KrollProxy
     public ActionBarProxy getOrCreateActionBarProxy() {
         if (actionBarProxy == null) {
             TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
-            actionBarProxy = new ActionBarProxy(activity);
-        }
+			actionBarProxy = new ActionBarProxy(activity);
+		}
 
-        return actionBarProxy;
-    }
+		return actionBarProxy;
+	}
 
-    @Kroll.method
+	@Kroll.method
     @Kroll.getProperty(enumerable=false)
     public double getActionBarHeight() {
         return TiActivityHelper.getActionBarHeight(getWrappedActivity());
@@ -353,18 +355,26 @@ public class ActivityProxy extends KrollProxy
 	public void invalidateOptionsMenu()
 	{
 		if (TiApplication.isUIThread()) {
-			handleInvalidateOptionsMenu();
+				handleInvalidateOptionsMenu();
 		} else {
-			getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
+				getMainHandler().obtainMessage(MSG_INVALIDATE_OPTIONS_MENU).sendToTarget();
 		}
 	}
-	
+
 	@Kroll.method
 	public void moveTaskToBack()
 	{
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			activity.moveTaskToBack(true);
+		}
+	}
+
+	@Kroll.method
+	public void setSupportActionBar(TiToolbarProxy tiToolbarProxy) {
+		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
+		if (activity != null) {
+			activity.setSupportActionBar((Toolbar) tiToolbarProxy.getToolbarInstance());
 		}
 	}
 
@@ -417,7 +427,7 @@ public class ActivityProxy extends KrollProxy
 		KrollProxy.releaseProxyFromJava(savedDecorViewProxy);
 		KrollProxy.releaseProxyFromJava(intentProxy);
 		KrollProxy.releaseProxyFromJava(actionBarProxy);
-	}
+		}
 
 	@Override
 	public boolean handleMessage(Message msg)
@@ -434,7 +444,7 @@ public class ActivityProxy extends KrollProxy
 		}
 		return super.handleMessage(msg);
 	}
-	
+
 	public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
 	    switch (key) {
@@ -459,7 +469,7 @@ public class ActivityProxy extends KrollProxy
 	}
 	
 	   
-    @Override
+	@Override
     public void onPropertyChanged(String key, Object newValue, Object oldValue) {
         propertySet(key, newValue, oldValue, true);
     }

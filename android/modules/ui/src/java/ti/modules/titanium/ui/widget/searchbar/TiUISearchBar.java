@@ -12,6 +12,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.graphics.drawable.Drawable;
+import android.support.design.widget.TextInputLayout;
 import android.text.TextUtils.TruncateAt;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -59,6 +61,7 @@ public class TiUISearchBar extends TiUIText
 		cancelBtn.setMinimumHeight((int) (20 * scale));
 		cancelBtn.setOnClickListener(new OnClickListener()
 		{
+			@Override
 			public void onClick(View view)
 			{
 				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
@@ -74,7 +77,7 @@ public class TiUISearchBar extends TiUIText
 				super.onLayout(changed, left, top, right, bottom);
                 if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiUISearchBar.this);
-                }
+			}
 			}
 		};
 
@@ -102,7 +105,7 @@ public class TiUISearchBar extends TiUIText
 		}
 		super.onTextChanged(s, start, before, count);
 	}
-	
+
 	@Override
 	public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -123,15 +126,15 @@ public class TiUISearchBar extends TiUIText
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
-	
-    @Override
+		}
+		}
+
+	@Override
     public void release()
-    {
+	{
         searchChangeListener = null;
         super.release();
-    }
+		}
 
 	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
 		this.searchChangeListener = listener;

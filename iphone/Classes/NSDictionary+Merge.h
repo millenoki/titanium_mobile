@@ -10,13 +10,13 @@
 
 @interface NSDictionary (Merge)
 
-+ (NSDictionary *) dictionaryByMerging: (NSDictionary *) dict1 with: (NSDictionary *) dict2;
-+ (NSDictionary *) dictionaryByMerging: (NSDictionary *) dict1 with: (NSDictionary *) dict2 force:(BOOL)force;
-- (NSDictionary *) dictionaryByMergingWith: (NSDictionary *) dict;
-- (NSDictionary *) dictionaryByMergingWith: (NSDictionary *) dict force:(BOOL)force;
++ (NSDictionary *)dictionaryByMerging:(NSDictionary *)dict1 with:(NSDictionary *)dict2;
++ (NSDictionary *)dictionaryByMerging:(NSDictionary *)dict1 with:(NSDictionary *)dict2 force:(BOOL)force;
+- (NSDictionary *)dictionaryByMergingWith:(NSDictionary *)dict;
+- (NSDictionary *)dictionaryByMergingWith:(NSDictionary *)dict force:(BOOL)force;
 
 @end
 
 @interface NSMutableDictionary (Merge)
-- (void) mergeWithDictionary: (NSDictionary *) dict2;
+- (void)mergeWithDictionary:(NSDictionary *)dict2;
 @end

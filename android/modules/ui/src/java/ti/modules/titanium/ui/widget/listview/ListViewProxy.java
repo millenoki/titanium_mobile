@@ -22,23 +22,23 @@ import android.os.Message;
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class ListViewProxy extends AbsListViewProxy {
 
-    private static final String TAG = "ListViewProxy";
-
+	private static final String TAG = "ListViewProxy";
+	
     private static final int MSG_FIRST_ID = AbsListViewProxy.MSG_LAST_ID + 1;
 
 
     private static final int MSG_CLOSE_SWIPE_MENU = MSG_FIRST_ID + 1;
     protected static final int MSG_LAST_ID = MSG_CLOSE_SWIPE_MENU;
 
-    public ListViewProxy() {
-        super();
-    }
-    
+	public ListViewProxy() {
+		super();
+	}
+
     @Override
     public Class sectionClass() {
         return ListSectionProxy.class;
-    }
-
+	}
+	
     @Override
     public TiUIView createView(Activity activity) {
         TiUIView view = new TiListView(this, activity);
@@ -49,45 +49,45 @@ public class ListViewProxy extends AbsListViewProxy {
         params.autoFillsHeight = true;
         params.autoFillsWidth = true;
         return view;
-    }
+	}
+	
+	@Override
+	public boolean handleMessage(final Message msg) 	{
 
-    @Override
-    public boolean handleMessage(final Message msg) {
-
-        switch (msg.what) {
+	    switch (msg.what) {
         case MSG_CLOSE_SWIPE_MENU: {
             handleCloseSwipeMenu(msg.obj);
-            return true;
-        }
-        default:
-            return super.handleMessage(msg);
-        }
-    }
+	            return true;
+	        }
+	        default:
+	            return super.handleMessage(msg);
+	    }
+	}
 
     @Override
     public String getApiName() {
         return "Ti.UI.ListView";
-    }
-
+		}
+	
     public void handleCloseSwipeMenu(Object obj) {
         Boolean animated = true;
         if (obj != null) {
             animated = TiConvert.toBoolean(obj);
-        }
-        TiUIView listView = peekView();
-        if (listView != null) {
+		}
+		TiUIView listView = peekView();
+		if (listView != null) {
             ((TiListView) listView).closeSwipeMenu(animated);
-        }
-    }
-
+		}
+	}
+	
     @Kroll.method()
     public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj) {
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
                 handleCloseSwipeMenu(obj);                
-            }
+		}
         }, false);
-    }
-
-}
+	}
+	
+			}

@@ -9,22 +9,19 @@
 
 #import "TiUICollectionViewFlowLayout.h"
 
-
-@implementation TiUICollectionViewFlowLayout
-{
-    NSInteger _currentStickySection;
-    NSInteger _passLowerSection;
-    CGFloat _passLowerSectionY;
+@implementation TiUICollectionViewFlowLayout {
+  NSInteger _currentStickySection;
+  NSInteger _passLowerSection;
+  CGFloat _passLowerSectionY;
 }
 
 - (id)init
 {
-    if (self = [super init]) {
-        _currentStickySection = -1;
-    }
-    return self;
+  if (self = [super init]) {
+    _currentStickySection = -1;
+  }
+  return self;
 }
-
 
 //- (BOOL) shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
 //    return YES;
@@ -82,133 +79,136 @@
 //    return [attributes autorelease];
 //}
 
-- (BOOL)stickHeaderEnabled {
-    BOOL shouldStickToTop = NO;
+- (BOOL)stickHeaderEnabled
+{
+  BOOL shouldStickToTop = NO;
+  if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
+    id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate = (id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
+    if ([stickyHeadersDelegate respondsToSelector:@selector(stickHeaderEnabled)]) {
+      shouldStickToTop = [stickyHeadersDelegate stickHeaderEnabled];
+    }
+  }
+  return shouldStickToTop;
+}
+- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section
+{
+  BOOL shouldStickToTop = YES;
+  if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
+    id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate = (id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
+    if ([stickyHeadersDelegate respondsToSelector:@selector(shouldStickHeaderToTopInSection:)]) {
+      shouldStickToTop = [stickyHeadersDelegate shouldStickHeaderToTopInSection:section];
+    }
+  }
+  return shouldStickToTop;
+}
+
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect
+{
+
+  NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
+  if (![self stickHeaderEnabled]) {
+    return attributesArray;
+  }
+  NSMutableArray *modifiedAttributesArray = [attributesArray mutableCopy];
+  NSMutableIndexSet *attributesToRemoveIdxs = [NSMutableIndexSet indexSet];
+
+  NSMutableIndexSet *missingSections = [NSMutableIndexSet indexSet];
+  for (NSUInteger idx = 0; idx < [attributesArray count]; idx++) {
+    UICollectionViewLayoutAttributes *attributes = attributesArray[idx];
+    if (!attributes) {
+      continue;
+    }
+    if (attributes.representedElementCategory == UICollectionElementCategoryCell) {
+      // remember that we need to layout header for this section
+      [missingSections addIndex:attributes.indexPath.section];
+    }
+    if ([attributes.representedElementKind isEqualToString:UICollectionElementKindSectionHeader]) {
+      // remember indexes of header layout attributes, so that we can remove them and add them later
+      [attributesToRemoveIdxs addIndex:idx];
+
+      //add it to the missing sections in case the section is empty
+      //this allow to show header even if section is empty
+      //            [missingSections addIndex:attributes.indexPath.section];
+    }
+  }
+
+  // remove headers layout attributes
+  [modifiedAttributesArray removeObjectsAtIndexes:attributesToRemoveIdxs];
+
+  // layout all headers needed for the rect using self code
+  _passLowerSectionY = -FLT_MAX;
+  _passLowerSection = -1;
+  [missingSections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:idx];
+    UICollectionViewLayoutAttributes *layoutAttributes = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:indexPath];
+    if (layoutAttributes) {
+      [modifiedAttributesArray addObject:layoutAttributes];
+    }
+  }];
+
+  if (_passLowerSection != -1 && _passLowerSection != _currentStickySection) {
+    _currentStickySection = _passLowerSection;
     if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
-        id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate=(id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
-        if ([stickyHeadersDelegate respondsToSelector:@selector(stickHeaderEnabled)]) {
-            shouldStickToTop=[stickyHeadersDelegate stickHeaderEnabled];
-        }
+      id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate = (id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
+      if ([stickyHeadersDelegate respondsToSelector:@selector(onStickyHeaderChange:)]) {
+        [stickyHeadersDelegate onStickyHeaderChange:_currentStickySection];
+      }
     }
-    return shouldStickToTop;
-}
-- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section{
-    BOOL shouldStickToTop=YES;
-    if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
-        id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate=(id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
-        if ([stickyHeadersDelegate respondsToSelector:@selector(shouldStickHeaderToTopInSection:)]) {
-            shouldStickToTop=[stickyHeadersDelegate shouldStickHeaderToTopInSection:section];
-        }
-    }
-    return shouldStickToTop;
+  }
+
+  return [modifiedAttributesArray autorelease];
 }
 
-- (NSArray *) layoutAttributesForElementsInRect:(CGRect)rect {
-    
-    NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
-    if (![self stickHeaderEnabled]) {
-        return attributesArray;
-    }
-    NSMutableArray *modifiedAttributesArray = [attributesArray mutableCopy];
-    NSMutableIndexSet *attributesToRemoveIdxs = [NSMutableIndexSet indexSet];
-    
-    NSMutableIndexSet *missingSections = [NSMutableIndexSet indexSet];
-    for (NSUInteger idx=0; idx<[attributesArray count]; idx++) {
-        UICollectionViewLayoutAttributes *attributes = attributesArray[idx];
-        if (!attributes) {
-            continue;
-        }
-        if (attributes.representedElementCategory == UICollectionElementCategoryCell) {
-            // remember that we need to layout header for this section
-            [missingSections addIndex:attributes.indexPath.section];
-        }
-        if ([attributes.representedElementKind isEqualToString:UICollectionElementKindSectionHeader]) {
-            // remember indexes of header layout attributes, so that we can remove them and add them later
-            [attributesToRemoveIdxs addIndex:idx];
-            
-            //add it to the missing sections in case the section is empty
-            //this allow to show header even if section is empty
-//            [missingSections addIndex:attributes.indexPath.section];
-        }
-    }
-    
-    // remove headers layout attributes
-    [modifiedAttributesArray removeObjectsAtIndexes:attributesToRemoveIdxs];
-    
-    // layout all headers needed for the rect using self code
-    _passLowerSectionY = -FLT_MAX;
-    _passLowerSection = -1;
-    [missingSections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:idx];
-        UICollectionViewLayoutAttributes *layoutAttributes = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:indexPath];
-        if (layoutAttributes) {
-            [modifiedAttributesArray addObject:layoutAttributes];
-        }
-    }];
-    
-    if (_passLowerSection != -1 && _passLowerSection != _currentStickySection) {
-        _currentStickySection = _passLowerSection;
-        if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
-            id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate=(id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
-            if ([stickyHeadersDelegate respondsToSelector:@selector(onStickyHeaderChange:)]) {
-                [stickyHeadersDelegate onStickyHeaderChange:_currentStickySection];
-            }
-        }
-        
-    }
-    
-    return [modifiedAttributesArray autorelease];
-}
-
-- (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewLayoutAttributes *attributes = [super layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
-    if (![self stickHeaderEnabled]) {
-        return attributes;
-    }
-    if ([kind isEqualToString:UICollectionElementKindSectionHeader]&&
-        [self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
-        UICollectionView * const cv = self.collectionView;
-//        UIEdgeInsets const contentEdgeInsets = cv.contentInset;
-//        CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
-        CGPoint const contentOffset = cv.contentOffset;
-        CGPoint nextHeaderOrigin = CGPointMake(INFINITY, INFINITY);
-        
-        if (indexPath.section+1 < [cv numberOfSections]) {
-            UICollectionViewLayoutAttributes *nextHeaderAttributes = [super layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:[NSIndexPath indexPathForItem:0 inSection:indexPath.section+1]];
-            nextHeaderOrigin = nextHeaderAttributes.frame.origin;
-        }
-        
-        CGRect frame = attributes.frame;
-        if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
-            if (frame.origin.y <= contentOffset.y && frame.origin.y > _passLowerSectionY) {
-                _passLowerSection = indexPath.section;
-            }
-            frame.origin.y = MIN(MAX(contentOffset.y, frame.origin.y), nextHeaderOrigin.y - CGRectGetHeight(frame));
-        }
-        else { // UICollectionViewScrollDirectionHorizontal
-            if (frame.origin.x <= contentOffset.x && frame.origin.x > _passLowerSectionY) {
-                _passLowerSection = indexPath.section;
-            }
-            frame.origin.x = MIN(MAX(contentOffset.x, frame.origin.x), nextHeaderOrigin.x - CGRectGetWidth(frame));
-        }
-        attributes.zIndex = 1024;
-        attributes.frame = frame;
-    }
+- (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+  UICollectionViewLayoutAttributes *attributes = [super layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+  if (![self stickHeaderEnabled]) {
     return attributes;
+  }
+  if ([kind isEqualToString:UICollectionElementKindSectionHeader] &&
+      [self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
+    UICollectionView *const cv = self.collectionView;
+    //        UIEdgeInsets const contentEdgeInsets = cv.contentInset;
+    //        CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
+    CGPoint const contentOffset = cv.contentOffset;
+    CGPoint nextHeaderOrigin = CGPointMake(INFINITY, INFINITY);
+
+    if (indexPath.section + 1 < [cv numberOfSections]) {
+      UICollectionViewLayoutAttributes *nextHeaderAttributes = [super layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:[NSIndexPath indexPathForItem:0 inSection:indexPath.section + 1]];
+      nextHeaderOrigin = nextHeaderAttributes.frame.origin;
+    }
+
+    CGRect frame = attributes.frame;
+    if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
+      if (frame.origin.y <= contentOffset.y && frame.origin.y > _passLowerSectionY) {
+        _passLowerSection = indexPath.section;
+      }
+      frame.origin.y = MIN(MAX(contentOffset.y, frame.origin.y), nextHeaderOrigin.y - CGRectGetHeight(frame));
+    } else { // UICollectionViewScrollDirectionHorizontal
+      if (frame.origin.x <= contentOffset.x && frame.origin.x > _passLowerSectionY) {
+        _passLowerSection = indexPath.section;
+      }
+      frame.origin.x = MIN(MAX(contentOffset.x, frame.origin.x), nextHeaderOrigin.x - CGRectGetWidth(frame));
+    }
+    attributes.zIndex = 1024;
+    attributes.frame = frame;
+  }
+  return attributes;
 }
 
-- (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
-    return attributes;
+- (UICollectionViewLayoutAttributes *)initialLayoutAttributesForAppearingSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+  UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+  return attributes;
 }
-- (UICollectionViewLayoutAttributes *)finalLayoutAttributesForDisappearingSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
-    return attributes;
+- (UICollectionViewLayoutAttributes *)finalLayoutAttributesForDisappearingSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+  UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+  return attributes;
 }
 
-
-
-- (BOOL) shouldInvalidateLayoutForBoundsChange:(CGRect)newBound {
-    return YES;
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBound
+{
+  return YES;
 }
 @end

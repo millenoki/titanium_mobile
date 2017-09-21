@@ -6,17 +6,16 @@
  */
 #ifdef USE_TI_UIWEBVIEW
 
-#import "TiScrollingViewProxy.h"
 #import "TiEvaluator.h"
+#import "TiScrollingViewProxy.h"
 
-@interface TiUIWebViewProxy : TiScrollingViewProxy<TiEvaluator> {
-@private
-	NSString *pageToken;
+@interface TiUIWebViewProxy : TiScrollingViewProxy <TiEvaluator> {
+  @private
+  NSString *pageToken;
 }
--(void)setPageToken:(NSString*)pageToken;
+- (void)setPageToken:(NSString *)pageToken;
 #pragma mark - Internal Use Only
--(void)webviewDidFinishLoad;
+- (void)webviewDidFinishLoad;
 @end
-
 
 #endif

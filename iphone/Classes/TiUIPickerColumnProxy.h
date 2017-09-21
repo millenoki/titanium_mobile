@@ -10,15 +10,15 @@
 @class TiUIPickerRowProxy;
 //we inherit TiViewProxy not to duplicate code, especially for windowWillOpen ...
 @interface TiUIPickerColumnProxy : TiViewProxy {
-@private
-//	NSMutableArray *rows;
-	NSInteger column;
+  @private
+  //	NSMutableArray *rows;
+  NSInteger column;
 }
 
 //@property(nonatomic,readonly) NSMutableArray *rows;
 //@property(nonatomic,readonly) NSInteger rowCount;
-@property(nonatomic,readwrite,assign) NSInteger column;
--(TiUIPickerRowProxy*)rowAt:(NSUInteger)index;
+@property (nonatomic, readwrite, assign) NSInteger column;
+- (TiUIPickerRowProxy *)rowAt:(NSUInteger)index;
 
 //-(NSNumber*)addRow:(id)row;
 //-(void)removeRow:(id)row;

@@ -6,374 +6,374 @@
  */
 #ifdef USE_TI_AUDIOSOUND
 
-#import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#import <AudioToolbox/AudioToolbox.h>
 
+#import "TiAudioSession.h"
 #import "TiAudioSoundProxy.h"
-#import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFile.h"
-#import "TiAudioSession.h"
+#import "TiUtils.h"
 
 @implementation TiAudioSoundProxy
 
 #pragma mark Internal
 
--(AVAudioPlayer*)player
+- (AVAudioPlayer *)player
 {
-	if (player==nil && url != nil) {
-        NSError* error = nil;
-        player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:(NSError **)&error];
-        if (error == nil) {
-            [player setDelegate:self];
-            [player prepareToPlay];
-            [player setVolume:volume];
-            [player setNumberOfLoops:(looping?-1:0)];
-            [player setCurrentTime:resumeTime];
-        } else {
-            [self throwException:[error description] subreason:[NSString stringWithFormat:@"error loading sound url: %@",url] location:CODELOCATION];
-        }
-	}
-	return player;
+  if (player == nil && url != nil) {
+    NSError *error = nil;
+    player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:(NSError **)&error];
+    if (error == nil) {
+      [player setDelegate:self];
+      [player prepareToPlay];
+      [player setVolume:volume];
+      [player setNumberOfLoops:(looping ? -1 : 0)];
+      [player setCurrentTime:resumeTime];
+    } else {
+      [self throwException:[error description] subreason:[NSString stringWithFormat:@"error loading sound url: %@", url] location:CODELOCATION];
+    }
+  }
+  return player;
 }
 
--(void)_configure
+- (void)_configure
 {
-	volume = 1.0;
-	resumeTime = 0;
-	
-    TiThreadPerformOnMainThread(^{
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-    }, YES);
+  volume = 1.0;
+  resumeTime = 0;
+
+  TiThreadPerformBlockOnMainThread(^{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+  },
+      YES);
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.Media.Sound";
+  return @"Ti.Media.Sound";
 }
 
--(void)_destroy
+- (void)_destroy
 {
-	if (player != nil) {
-		if ([player isPlaying] || paused) {
-			[player stop];
-			[[TiAudioSession sharedSession] stopAudioSession];
-		}
-		[player setDelegate:nil];
-	}
-    TiThreadPerformOnMainThread(^{
-		[[NSNotificationCenter defaultCenter] removeObserver:self];
-    }, YES);
-	
-	RELEASE_TO_NIL(player);
-	RELEASE_TO_NIL(url);
-	RELEASE_TO_NIL(tempFile);
-	
-	[super _destroy];
+  if (player != nil) {
+    if ([player isPlaying] || paused) {
+      [player stop];
+      [[TiAudioSession sharedSession] stopAudioSession];
+    }
+    [player setDelegate:nil];
+  }
+  TiThreadPerformBlockOnMainThread(^{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+  },
+      YES);
+
+  RELEASE_TO_NIL(player);
+  RELEASE_TO_NIL(url);
+  RELEASE_TO_NIL(tempFile);
+
+  [super _destroy];
 }
 
 #pragma mark Public APIs
 
--(void)play:(id)args
+- (void)play:(id)args
 {
-    [self rememberSelf];
-    TiThreadPerformOnMainThread(^{
-        // indicate we're going to start playback
-        if (![[TiAudioSession sharedSession] canPlayback]) {
-            [self throwException:@"Improper audio session mode for playback"
-                       subreason:[[TiAudioSession sharedSession] sessionMode]
-                        location:CODELOCATION];
-        }
-        
-        if (player == nil || !([player isPlaying] || paused)) {
-            [[TiAudioSession sharedSession] startAudioSession];
-        }
-        [[self player] play];
-        paused = NO;
-    }, NO);
-}
-
--(void)stop:(id)args
-{
-    TiThreadPerformOnMainThread(^{
-        if (player != nil) {
-            if ([player isPlaying] || paused) {
-                [player stop];
-                [player setCurrentTime:0];
-                [[TiAudioSession sharedSession] stopAudioSession];
-            }
-        }
-        resumeTime = 0;
-        paused = NO;
-    }, NO);
-}
-
--(void)pause:(id)args
-{
-    TiThreadPerformOnMainThread(^{
-        if (player != nil) {
-            if ([player isPlaying]) {
-                [player pause];
-                paused = YES;
-            }
-        }
-    }, NO);
-}
-
--(void)reset:(id)args
-{
-    TiThreadPerformOnMainThread(^{
-        if (player != nil) {
-            if (!([player isPlaying] || paused)) {
-                [[TiAudioSession sharedSession] startAudioSession];
-            }
-            
-            [player stop];
-            [player setCurrentTime:0];
-            [player play];
-        }
-        resumeTime = 0;
-        paused = NO;
-    }, NO);
-}
-
--(void)release:(id)args
-{
-    if (player != nil) {
-        resumeTime = 0;
-        paused = NO;
-        TiThreadPerformOnMainThread(^{
-            [player stop];
-            RELEASE_TO_NIL(player);
-        }, YES);
+  [self rememberSelf];
+  TiThreadPerformBlockOnMainThread(^{
+    // indicate we're going to start playback
+    if (![[TiAudioSession sharedSession] canPlayback]) {
+      [self throwException:@"Improper audio session mode for playback"
+                 subreason:[[TiAudioSession sharedSession] sessionMode]
+                  location:CODELOCATION];
     }
-    [self forgetSelf];
-    [self _destroy];
+
+    if (player == nil || !([player isPlaying] || paused)) {
+      [[TiAudioSession sharedSession] startAudioSession];
+    }
+    [[self player] play];
+    paused = NO;
+  },
+      NO);
 }
 
--(NSNumber*)volume
+- (void)stop:(id)args
 {
-	if (player != nil) {
-		return NUMFLOAT(player.volume);
-	}
-	return NUMFLOAT(0);
+  TiThreadPerformBlockOnMainThread(^{
+    if (player != nil) {
+      if ([player isPlaying] || paused) {
+        [player stop];
+        [player setCurrentTime:0];
+        [[TiAudioSession sharedSession] stopAudioSession];
+      }
+    }
+    resumeTime = 0;
+    paused = NO;
+  },
+      NO);
 }
 
--(void)setVolume:(id)value
+- (void)pause:(id)args
 {
-	volume = [TiUtils floatValue:value];
-	if (player != nil) {
-		[player setVolume:volume];
-	}
+  TiThreadPerformBlockOnMainThread(^{
+    if (player != nil) {
+      if ([player isPlaying]) {
+        [player pause];
+        paused = YES;
+      }
+    }
+  },
+      NO);
 }
 
--(NSNumber*)duration
+- (void)reset:(id)args
 {
-	if (player != nil) {
-		return NUMDOUBLE([player duration]);
-	}
-	return NUMDOUBLE(0);
+  TiThreadPerformBlockOnMainThread(^{
+    if (player != nil) {
+      if (!([player isPlaying] || paused)) {
+        [[TiAudioSession sharedSession] startAudioSession];
+      }
+
+      [player stop];
+      [player setCurrentTime:0];
+      [player play];
+    }
+    resumeTime = 0;
+    paused = NO;
+  },
+      NO);
 }
 
--(NSNumber*)time
+- (void)release:(id)args
 {
-	if (player != nil) {
-		return NUMDOUBLE([player currentTime] * 1000.0);
-	}
-	return NUMDOUBLE(resumeTime * 1000.0);
+  if (player != nil) {
+    resumeTime = 0;
+    paused = NO;
+    TiThreadPerformBlockOnMainThread(^{
+      [player stop];
+      RELEASE_TO_NIL(player);
+    },
+        YES);
+  }
+  [self forgetSelf];
+  [self _destroy];
 }
 
--(void)setTime:(NSNumber*)value
+- (NSNumber *)volume
 {
-	if (player != nil) {
-		[player setCurrentTime:([TiUtils doubleValue:(value)] / 1000.0)];
-	} else {
-		resumeTime = [TiUtils doubleValue:value] / 1000.0;
-	}
+  if (player != nil) {
+    return NUMFLOAT(player.volume);
+  }
+  return NUMFLOAT(0);
 }
 
--(NSNumber*)isPaused:(id)args
+- (void)setVolume:(id)value
 {
-	return NUMBOOL(paused);
+  volume = [TiUtils floatValue:value];
+  if (player != nil) {
+    [player setVolume:volume];
+  }
 }
 
--(void)setPaused:(id)value
+- (NSNumber *)duration
 {
-	if ([TiUtils boolValue:value]) {
-		paused = YES;
-	} else {
-		paused = NO;
-	}
-	if (player != nil) {
-		if (paused) {
-			[player pause];
-		} else {
-			[player play];
-		}
-
-	}
+  if (player != nil) {
+    return NUMDOUBLE([player duration]);
+  }
+  return NUMDOUBLE(0);
 }
 
--(NSNumber*)isLooping:(id)args
+- (NSNumber *)time
 {
-	if (player != nil) {
-		return NUMBOOL(player.numberOfLoops!=0);
-	}
-	return NUMBOOL(NO);
+  if (player != nil) {
+    return NUMDOUBLE([player currentTime] * 1000.0);
+  }
+  return NUMDOUBLE(resumeTime * 1000.0);
 }
 
--(void)setLooping:(id)value
+- (void)setTime:(NSNumber *)value
 {
-	looping = [TiUtils boolValue:value];
-	if (player != nil) {
-		player.numberOfLoops = looping ? -1 : 0;
-	}
+  if (player != nil) {
+    [player setCurrentTime:([TiUtils doubleValue:(value)] / 1000.0)];
+  } else {
+    resumeTime = [TiUtils doubleValue:value] / 1000.0;
+  }
 }
 
--(NSNumber*)isPlaying:(id)args
+- (NSNumber *)isPaused:(id)args
 {
-	if (player != nil) {
-		return NUMBOOL([player isPlaying]);
-	}
-	return NUMBOOL(NO);
+  return NUMBOOL(paused);
 }
 
--(NSNumber*)playing
+- (void)setPaused:(id)value
 {
-	return [self isPlaying:nil];
+  if ([TiUtils boolValue:value]) {
+    paused = YES;
+  } else {
+    paused = NO;
+  }
+  if (player != nil) {
+    if (paused) {
+      [player pause];
+    } else {
+      [player play];
+    }
+  }
 }
 
--(NSNumber*)paused
+- (NSNumber *)isLooping:(id)args
 {
-	return [self isPaused:nil];
+  if (player != nil) {
+    return NUMBOOL(player.numberOfLoops != 0);
+  }
+  return NUMBOOL(NO);
 }
 
--(NSNumber*)looping
+- (void)setLooping:(id)value
 {
-	return [self isLooping:nil];
+  looping = [TiUtils boolValue:value];
+  if (player != nil) {
+    player.numberOfLoops = looping ? -1 : 0;
+  }
 }
 
--(void)setUrl:(id)url_
+- (NSNumber *)isPlaying:(id)args
 {
-	if ([url_ isKindOfClass:[NSString class]]) {
-		url = [[TiUtils toURL:url_ proxy:self] retain];
-		if ([url isFileURL]==NO) {
-			// we need to download it and save it off into temp file
-			NSData *data = [NSData dataWithContentsOfURL:url];
-			NSString *ext = [[[url path] lastPathComponent] pathExtension];
-			tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
-			[data writeToFile:[tempFile path] atomically:YES];
-			RELEASE_TO_NIL(url);
-			url = [[NSURL fileURLWithPath:[tempFile path]] retain];
-		}
-	} else if ([url_ isKindOfClass:[TiBlob class]]) {
-		TiBlob *blob = (TiBlob*)url_;
-		//TODO: for now we're only supporting File-type blobs
-		if ([blob type]==TiBlobTypeFile) {
-			url = [[NSURL fileURLWithPath:[blob path]] retain];
-		}
-	} else if ([url_ isKindOfClass:[TiFile class]]) {
-		url = [[NSURL fileURLWithPath:[(TiFile*)url_ path]] retain];
-	}
-    TiThreadPerformOnMainThread(^{
-        [self player];  // instantiate the player
-    }, YES);
+  if (player != nil) {
+    return NUMBOOL([player isPlaying]);
+  }
+  return NUMBOOL(NO);
 }
 
--(NSURL*)url
+- (NSNumber *)playing
 {
-	return url;
+  return [self isPlaying:nil];
+}
+
+- (NSNumber *)paused
+{
+  return [self isPaused:nil];
+}
+
+- (NSNumber *)looping
+{
+  return [self isLooping:nil];
+}
+
+- (void)setUrl:(id)url_
+{
+  if ([url_ isKindOfClass:[NSString class]]) {
+    url = [[TiUtils toURL:url_ proxy:self] retain];
+    if ([url isFileURL] == NO) {
+      // we need to download it and save it off into temp file
+      NSData *data = [NSData dataWithContentsOfURL:url];
+      NSString *ext = [[[url path] lastPathComponent] pathExtension];
+      tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
+      [data writeToFile:[tempFile path] atomically:YES];
+      RELEASE_TO_NIL(url);
+      url = [[NSURL fileURLWithPath:[tempFile path]] retain];
+    }
+  } else if ([url_ isKindOfClass:[TiBlob class]]) {
+    TiBlob *blob = (TiBlob *)url_;
+    //TODO: for now we're only supporting File-type blobs
+    if ([blob type] == TiBlobTypeFile) {
+      url = [[NSURL fileURLWithPath:[blob path]] retain];
+    }
+  } else if ([url_ isKindOfClass:[TiFile class]]) {
+    url = [[NSURL fileURLWithPath:[(TiFile *)url_ path]] retain];
+  }
+  TiThreadPerformBlockOnMainThread(^{
+    [self player]; // instantiate the player
+  },
+      YES);
+}
+
+- (NSURL *)url
+{
+  return url;
 }
 
 #pragma mark Delegate
 
 - (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag
 {
-	if ([self _hasListeners:@"complete"]) {
-		NSString * message = flag?nil:@"could not decode the audio data";
-		[self fireEvent:@"complete" withObject:nil errorCode:(flag?0:-1) message:message];
-	}
-	if (flag) {
-		[[TiAudioSession sharedSession] stopAudioSession];
-	}
-    [self forgetSelf];
+  if ([self _hasListeners:@"complete"]) {
+    NSString *message = flag ? nil : @"could not decode the audio data";
+    [self fireEvent:@"complete" withObject:nil errorCode:(flag ? 0 : -1) message:message];
+  }
+  if (flag) {
+    [[TiAudioSession sharedSession] stopAudioSession];
+  }
+  [self forgetSelf];
 }
 
 - (void)audioPlayerBeginInterruption:(AVAudioPlayer *)player
-{	
-	if ([self _hasListeners:@"interrupted"]) {
-		[self fireEvent:@"interrupted" withObject:nil];
-	}
+{
+  if ([self _hasListeners:@"interrupted"]) {
+    [self fireEvent:@"interrupted" withObject:nil];
+  }
 }
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player
 {
-	if ([self _hasListeners:@"resume"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"interruption",nil];
-		[self fireEvent:@"resume" withObject:event];
-	}
+  if ([self _hasListeners:@"resume"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"interruption", nil];
+    [self fireEvent:@"resume" withObject:event];
+  }
 }
 
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error
 {
-	if ([self _hasListeners:@"error"]) {
-		NSString * message = [TiUtils messageFromError:error];
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message,@"message",nil];
-		[self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
-	}
-    [self forgetSelf];
+  if ([self _hasListeners:@"error"]) {
+    NSString *message = [TiUtils messageFromError:error];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:message, @"message", nil];
+    [self fireEvent:@"error" withObject:event errorCode:[error code] message:message];
+  }
+  [self forgetSelf];
 }
 
 - (void)audioPlayerEndInterruption:(AVAudioPlayer *)player withFlags:(NSUInteger)flags
 {
-	if (flags != AVAudioSessionInterruptionOptionShouldResume) {
-		[self stop:nil];
-	}
-	
-	if ([self _hasListeners:@"resume"]) {
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES),@"interruption",nil];
-		[self fireEvent:@"resume" withObject:event];
-	}
+  if (flags != AVAudioSessionInterruptionOptionShouldResume) {
+    [self stop:nil];
+  }
+
+  if ([self _hasListeners:@"resume"]) {
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(YES), @"interruption", nil];
+    [self fireEvent:@"resume" withObject:event];
+  }
 }
 
-- (void)remoteControlEvent:(NSNotification*)note
+- (void)remoteControlEvent:(NSNotification *)note
 {
-	UIEvent *event = [[note userInfo]objectForKey:@"event"];
-	switch(event.subtype)
-	{
-		case UIEventSubtypeRemoteControlTogglePlayPause:
-		{
-			if (paused) { 
-				[self play:nil];
-			} else {
-				[self pause:nil];
-			}
-			break;
-		}
-		case UIEventSubtypeRemoteControlPause:
-		{
-			[self pause:nil];
-			break;
-		}
-		case UIEventSubtypeRemoteControlStop:
-		{
-			[self stop:nil];
-			break;
-		}
-		case UIEventSubtypeRemoteControlPlay:
-		{
-			[self play:nil];
-			break;
-		}
-        default:
-        {
-            break;
-        }
-	}
+  UIEvent *event = [[note userInfo] objectForKey:@"event"];
+  switch (event.subtype) {
+  case UIEventSubtypeRemoteControlTogglePlayPause: {
+    if (paused) {
+      [self play:nil];
+    } else {
+      [self pause:nil];
+    }
+    break;
+  }
+  case UIEventSubtypeRemoteControlPause: {
+    [self pause:nil];
+    break;
+  }
+  case UIEventSubtypeRemoteControlStop: {
+    [self stop:nil];
+    break;
+  }
+  case UIEventSubtypeRemoteControlPlay: {
+    [self play:nil];
+    break;
+  }
+  default: {
+    break;
+  }
+  }
 }
 
 @end
-
 
 #endif

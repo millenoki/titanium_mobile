@@ -11,13 +11,13 @@
 #import "TiUIiOSAdViewProxy.h"
 #import <iAd/iAd.h>
 
-@interface TiUIiOSAdView : TiUIView<ADBannerViewDelegate> {
+@interface TiUIiOSAdView : TiUIView <ADBannerViewDelegate> {
 
-@private
-	ADBannerView *adview;
+  @private
+  ADBannerView *adview;
 }
 
-@property (nonatomic, readonly) ADBannerView* adview;
+@property (nonatomic, readonly) ADBannerView *adview;
 
 @end
 

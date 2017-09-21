@@ -11,172 +11,167 @@
 #import "TiUINavBarButton.h"
 #import "TiUtils.h"
 
-@implementation TiUIButtonProxy
-{
-    UIEdgeInsets _padding;
+@implementation TiUIButtonProxy {
+  UIEdgeInsets _padding;
 }
 
--(id)init
+- (id)init
 {
-    if (self = [super init]) {
-        _padding = UIEdgeInsetsZero;
-    }
-    return self;
+  if (self = [super init]) {
+    _padding = UIEdgeInsetsZero;
+  }
+  return self;
 }
 
--(void)_destroy
+- (void)_destroy
 {
-	RELEASE_TO_NIL(button);
-    toolbar = nil;
-	[super _destroy];
+  RELEASE_TO_NIL(button);
+  toolbar = nil;
+  [super _destroy];
 }
 
--(void)_configure
-{	
-	[self setValue:NUMBOOL(YES) forKey:@"enabled"];
-	[self setValue:NUMBOOL(NO) forKey:@"selected"];
-	[super _configure];
+- (void)_configure
+{
+  [self setValue:NUMBOOL(YES) forKey:@"enabled"];
+  [self setValue:NUMBOOL(NO) forKey:@"selected"];
+  [super _configure];
 }
 
--(NSMutableDictionary*)langConversionTable
+- (NSMutableDictionary *)langConversionTable
 {
-    return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
+  return [NSMutableDictionary dictionaryWithObject:@"title" forKey:@"titleid"];
 }
 
--(void)setStyle:(id)value
+- (void)setStyle:(id)value
 {
-	styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];
-	[self replaceValue:value forKey:@"style" notification:YES];
+  styleCache = [TiUtils intValue:value def:UIButtonTypeCustom];
+  [self replaceValue:value forKey:@"style" notification:YES];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.Button";
+  return @"Ti.UI.Button";
 }
 
--(UIBarButtonItem*)barButtonItem
+- (UIBarButtonItem *)barButtonItem
 {
-    /*
+  /*
 	id backgroundImageValue = [self valueForKey:@"backgroundImage"];
 	if (!IS_NULL_OR_NIL(backgroundImageValue))
 	{
 		return [super barButtonItem];
 	}
 	*/
-    
-	if (button==nil || !isUsingBarButtonItem)
-	{
-		isUsingBarButtonItem = YES;
-        if (button == nil) {
-            button = [[TiUINavBarButton alloc] initWithProxy:self];
-        }
-	}
-	return button;
-}
 
--(UIButton*)button {
-    return [(TiUIButton*)view button];
-}
-
--(UIViewAutoresizing) verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
-{
-	switch ((int)styleCache)
-	{
-		case UITitaniumNativeItemInfoLight:
-		case UITitaniumNativeItemInfoDark:
-		case UITitaniumNativeItemDisclosure:
-			return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-		default: {
-			break;
-		}
-	}
-	return suggestedResizing;
-}
-
--(BOOL)optimizeSubviewInsertion
-{
-    return YES;
-}
-
--(void)removeBarButtonView
-{
-    // If we remove the button here, it could be the case that the system
-    // sends a message to a released UIControl on the interior of the button,
-    // causing a crash. Very timing-dependent.
-    
-    //	RELEASE_TO_NIL(button);
-    if (button) {
-        [button detachProxy];
+  if (button == nil || !isUsingBarButtonItem) {
+    isUsingBarButtonItem = YES;
+    if (button == nil) {
+      button = [[TiUINavBarButton alloc] initWithProxy:self];
     }
-    [super removeBarButtonView];
+  }
+  return button;
 }
 
--(void)setToolbar:(id<TiToolbar>)toolbar_
+- (UIButton *)button
 {
-	toolbar = toolbar_;
+  return [(TiUIButton *)view button];
 }
 
--(id<TiToolbar>)toolbar
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return [[toolbar retain] autorelease];
+  switch ((int)styleCache) {
+  case UITitaniumNativeItemInfoLight:
+  case UITitaniumNativeItemInfoDark:
+  case UITitaniumNativeItemDisclosure:
+    return suggestedResizing & ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+  default: {
+    break;
+  }
+  }
+  return suggestedResizing;
 }
 
--(BOOL)attachedToToolbar
+- (BOOL)optimizeSubviewInsertion
 {
-	return toolbar!=nil;
+  return YES;
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
+- (void)removeBarButtonView
 {
-	if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])
-	{
-		//Rogue event. We're supposed to be disabled!
-		return;
-	}
-	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
+  // If we remove the button here, it could be the case that the system
+  // sends a message to a released UIControl on the interior of the button,
+  // causing a crash. Very timing-dependent.
+
+  //	RELEASE_TO_NIL(button);
+  if (button) {
+    [button detachProxy];
+  }
+  [super removeBarButtonView];
+}
+
+- (void)setToolbar:(id<TiToolbar>)toolbar_
+{
+  toolbar = toolbar_;
+}
+
+- (id<TiToolbar>)toolbar
+{
+  return [[toolbar retain] autorelease];
+}
+
+- (BOOL)attachedToToolbar
+{
+  return toolbar != nil;
+}
+
+- (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message checkForListener:(BOOL)checkForListener
+{
+  if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES]) {
+    //Rogue event. We're supposed to be disabled!
+    return;
+  }
+  [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 
--(void)setPadding:(id)value
+- (void)setPadding:(id)value
 {
-    _padding = [TiUtils insetValue:value];
-    if (view != nil)
-        [(TiUIButton*)view setPadding:_padding];
-    [self contentsWillChange];
-    [self replaceValue:value forKey:@"padding" notification:NO];
+  _padding = [TiUtils insetValue:value];
+  if (view != nil)
+    [(TiUIButton *)view setPadding:_padding];
+  [self contentsWillChange];
+  [self replaceValue:value forKey:@"padding" notification:NO];
 }
 
--(id)padding {
-    return [self valueForUndefinedKey:@"padding"];
+- (id)padding
+{
+  return [self valueForUndefinedKey:@"padding"];
 }
 
-
--(void)configurationSet
+- (void)configurationSet
 {
-    [super configurationSet];
-    [(TiUIButton*)view setPadding:_padding];
+  [super configurationSet];
+  [(TiUIButton *)view setPadding:_padding];
 }
 
-
--(CGSize)contentSizeForSize:(CGSize)size
+- (CGSize)contentSizeForSize:(CGSize)size
 {
-    if (view != nil)
-        return [(TiUIButton*)view contentSizeForSize:size];
-    else
-    {
-        return [TiUtils sizeForString:[TiUtils stringValue:[self valueForKey:@"title"]] forSize:size options:self padding:_padding];
-    }
-    return CGSizeZero;
+  if (view != nil)
+    return [(TiUIButton *)view contentSizeForSize:size];
+  else {
+    return [TiUtils sizeForString:[TiUtils stringValue:[self valueForKey:@"title"]] forSize:size options:self padding:_padding];
+  }
+  return CGSizeZero;
 }
 
 @end

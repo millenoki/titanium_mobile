@@ -196,8 +196,8 @@ public class TiUIHelper
 	{ 
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
-			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 16));
-			if (!success && tv.getText() instanceof Spanned) {
+			boolean success = Linkify.addLinks(tv, TiConvert.toInt(autoLink, 0) & Linkify.ALL);
+			if (success && tv.getText() instanceof Spanned) {
 				tv.setMovementMethod(LinkMovementMethod.getInstance());
 			}
 		}
@@ -341,7 +341,7 @@ public class TiUIHelper
 
 		return units;
 	}
-	
+
 	public static void getSizeAndUnits(final String size, final float[] result) {
 		int units = TypedValue.COMPLEX_UNIT_PX;
 		float value = 15.0f;
@@ -352,9 +352,9 @@ public class TiUIHelper
 			if (m.matches()) {
 				if (m.groupCount() == 2) {
 					unitString = m.group(2);
-					value = Float.parseFloat(m.group(1));
-				}
+				value = Float.parseFloat(m.group(1));
 			}
+		}
 		}
 
 		if (unitString == null) {
@@ -406,7 +406,7 @@ public class TiUIHelper
 		}
 		return TypedValue.applyDimension(unit, size, r.getDisplayMetrics());
 	}
-
+	
 	public static float getRawSize(final int unit, final float size) {
 		return getRawSize(unit, size, null);
 	}
@@ -420,13 +420,13 @@ public class TiUIHelper
 		getSizeAndUnits(size, result);
 		return getRawSize((int)result[0], result[1], context);
 	}
-	
+
 	public static float getRawSize(final int size, final Context context) {
 		float[] result = new float[2];
 		getSizeAndUnits(null, result);
 		return getRawSize((int)result[0], size, context);
 	}
-
+	
 	public static float getInPixels(final String size) {
 		
 		return getRawSize(size, null);
@@ -512,20 +512,20 @@ public class TiUIHelper
 			fontStyle = TiConvert.toString(d, "style");
 		}
 		desc.style = toTypefaceStyle(fontWeight, fontStyle);
-		
+
 		String fontFamily = null;
         if (d.containsKey("family")) {
             fontFamily = TiConvert.toString(d, "family");
-        }
+		}
         if (fontWeight != null && desc.style == Typeface.NORMAL && 
                 fontWeight != "normal") {
             desc.typeface = toTypeface(context, fontFamily, fontWeight);
-        }
+		}
         else {
             desc.typeface = toTypeface(context, fontFamily, null);
-        }
+		}
 		return desc;
-	}
+		}
 	
 	public static void setPadding(final View view, final RectF padding) {
 		view.setPadding((int)padding.left, (int)padding.top, (int)padding.right,
@@ -535,25 +535,25 @@ public class TiUIHelper
 	public static void styleText(final TextView tv, final HashMap<String, Object> d) {
 	    styleText(tv, getFontStyle(tv.getContext(), d));
 	}
-	
+
 	public static void styleText(final TextView tv, final FontDesc desc) {
         tv.setTypeface(desc.typeface, desc.style);
         tv.setTextSize(desc.sizeUnit, desc.size);
-    }
-	
+	}
+
 	public static boolean isAndroidTypeface(String fontFamily)
-    {
-        if (fontFamily != null) {
-            if ("monospace".equals(fontFamily)) {
-                return true;
-            } else if ("serif".equals(fontFamily)) {
-                return true;
-            } else if ("sans-serif".equals(fontFamily)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	{
+		if (fontFamily != null) {
+			if ("monospace".equals(fontFamily)) {
+				return true;
+			} else if ("serif".equals(fontFamily)) {
+				return true;
+			} else if ("sans-serif".equals(fontFamily)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static Typeface toTypeface(final Context context, String fontFamily, String weight)
 	{
@@ -577,12 +577,12 @@ public class TiUIHelper
 				Typeface loadedTf = null;
 				if (context != null) {
 					try {
-						loadedTf = loadTypeface(context, fontFamily);
+					loadedTf = loadTypeface(context, fontFamily);
 						
 					} catch (Exception e) {
 						loadedTf = null;
 				Log.e(TAG, "Unable to load font " + fontFamily + ": " + e.getMessage());
-					}
+				}
 				}
 				if (loadedTf == null) {
 					Log.w(TAG, "Unsupported font: '" + fontFamily
@@ -615,16 +615,16 @@ public class TiUIHelper
 		AssetManager mgr = context.getAssets();
 		try {
 		    Typeface tf = null;
-		    String[] fontFiles = mgr.list(customFontPath);
-            for (String f : fontFiles) {
-                if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+			String[] fontFiles = mgr.list(customFontPath);
+			for (String f : fontFiles) {
+				if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
                     tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-                    synchronized(mCustomTypeFaces) {
-                        mCustomTypeFaces.put(fontFamily, tf);
-                    }
-                    return tf;
-                }
-            }
+					synchronized(mCustomTypeFaces) {
+						mCustomTypeFaces.put(fontFamily, tf);
+					}
+					return tf;
+				}
+			}
 		    tf = Typeface.create(fontFamily, Typeface.NORMAL);
 		    if (tf != null) {
 		        synchronized(mCustomTypeFaces) {
@@ -773,7 +773,7 @@ public class TiUIHelper
 				bFontSet = true;
 				fontProperties[FONT_STYLE_POSITION] = TiConvert.toString(fontProps, TiC.PROPERTY_FONT_STYLE);
 			}
-		}
+			}
 		if (!bFontSet) {
 			return null;
 		}
@@ -819,7 +819,7 @@ public class TiUIHelper
 	        ColorDrawable colorDrawable = null;
 	        if (color != null) {
 	            colorDrawable = buildColorDrawable(TiColorHelper.parseColor((String) color));
-	        }           
+		}
 	        return colorDrawable;
 	    }
 	    return null;
@@ -827,7 +827,7 @@ public class TiUIHelper
 	
 	private static String resolveImageUrl(final String path, final KrollProxy proxy) {
 		return path.length() > 0 ? proxy.resolveUrl(null, path) : null;
-	}
+		}
 
 	public static Drawable buildImageDrawable(final Context context, final Object object, final boolean tileImage, final KrollProxy proxy) {
         
@@ -839,7 +839,7 @@ public class TiUIHelper
                 return buildImageDrawable(context, ((TiBlob) object).getImage(), tileImage, proxy);
             default:
                 return null;
-            }
+		}
         } else if (object instanceof String) {
             String url = (String) object;
             if (url != null) {
@@ -865,7 +865,7 @@ public class TiUIHelper
                         BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
                         tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
                         tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-                    }
+		}
                 }
             }
             return imageDrawable;
@@ -891,13 +891,13 @@ public class TiUIHelper
 	    }
         return null;
     }
-	
+
 	public static TiGradientDrawable buildGradientDrawable(final KrollDict gradientProperties) {
 		TiGradientDrawable gradientDrawable = null;
 		if (gradientProperties != null) {
 			try {
 				gradientDrawable = new TiGradientDrawable(gradientProperties);
-			}
+	}
 			catch (IllegalArgumentException e) {
 				gradientDrawable = null;
 			}
@@ -937,7 +937,7 @@ public class TiUIHelper
 		}
 		return null;
 	}
-	
+
 	 /**
      * Draw the view into a bitmap.
      */
@@ -988,71 +988,49 @@ public class TiUIHelper
 			int width = view.getWidth();
 			int height = view.getHeight();
 			if (view.getWidth() == 0 || view.getHeight() == 0) {
-                // maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
+			// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
                 if (view.getWidth() == 0 && layoutParams != null && layoutParams.optionWidth != null) {
                     width = layoutParams.optionWidth.getAsPixels(view);
-                }
+			}
                 if (view.getHeight() == 0 && layoutParams != null && layoutParams.optionHeight != null) {
                     height = layoutParams.optionHeight.getAsPixels(view);
-                }
-    
-                int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
-                int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
-                view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
-    
-                // Will force the view to layout itself, grab dimensions
-                width = view.getMeasuredWidth();
-                height = view.getMeasuredHeight();
-                
-                // set a default BS value if the dimension is still 0 and log a warning
-                if (width == 0) {
-                    width = 100;
-                    Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
-                }
-                if (height == 0) {
-                    height = 100;
-                    Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
-                }
+			}
+
+			int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+			view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
+
+			// Will force the view to layout itself, grab dimensions
+			width = view.getMeasuredWidth();
+			height = view.getMeasuredHeight();
+
+			// set a default BS value if the dimension is still 0 and log a warning
+			if (width == 0) {
+				width = 100;
+				Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
+			if (height == 0) {
+				height = 100;
+				Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+			}
 
             }
             
-            if (view.getParent() == null) {
-                Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
-                view.layout(0, 0, width, height);
-            }
+			if (view.getParent() == null) {
+				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				view.layout(0, 0, width, height);
+			}
 			bitmap = getViewBitmap(view);
 			if (bitmap == null) {
-				
-	//			float viewRatio = height / width;
-	
-	//			int bmpWidth =  (int) (width * scale);
-	//			int bmpHeight = (int) (width * viewRatio);
-				// opacity should support transparency by default
-				Config bitmapConfig = Config.ARGB_8888;
-	
-				Drawable viewBackground = view.getBackground();
-				if (viewBackground != null) {
-					/*
-					 * If the background is opaque then we should be able to safely use a space saving format that
-					 * does not support the alpha channel. Basically, if a view has a background color set then the
-					 * the pixel format will be opaque. If a background image supports an alpha channel, the pixel
-					 * format will report transparency (even if the image doesn't actually look transparent). In
-					 * short, most of the time the Config.ARGB_8888 format will be used when viewToImage is used
-					 * but in the cases where the background is opaque, the lower memory approach will be used.
-					 */
-					if (viewBackground.getOpacity() == PixelFormat.OPAQUE) {
-						bitmapConfig = Config.RGB_565;
-					}
-				}
-				try {
-	                bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
-	                Canvas canvas = new Canvas(bitmap);
-	                view.draw(canvas);
+
+                try {
+                    Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+                    view.draw(canvas);
 //	                canvas = null;
                 } catch (Exception e) {
                     bitmap = null;
                 }
-				
 			}
 		}
 
@@ -1081,8 +1059,8 @@ public class TiUIHelper
 		if (opts == null) {
 		    opts = TiBitmapPool.defaultBitmapOptions();
 		}
-        Bitmap b = null;
-        try {
+		Bitmap b = null;
+		try {
             MarkableInputStream markStream = new MarkableInputStream(stream);
             stream = markStream;
 
@@ -1094,7 +1072,7 @@ public class TiUIHelper
 			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		} catch (IOException e) {
             e.printStackTrace();
-        }
+		}
 		return b;
 	}
 	/**
@@ -1152,7 +1130,7 @@ public class TiUIHelper
 		    matcher = drawablePattern.matcher(url);
 		    if (matcher.find()) {
 	            chopped = matcher.group(1);
-		    }
+		}
 		    if (chopped != null) {
 		        if (chopped.endsWith(".9")) {
 	                chopped = chopped.substring(0, chopped.lastIndexOf(".9"));
@@ -1166,7 +1144,7 @@ public class TiUIHelper
 		if (chopped == null) {
 			return null;
 		}
-
+		
 		chopped = chopped.toLowerCase();
 		String forHash = chopped;
 		if (forHash.endsWith(".9.png")) {
@@ -1285,8 +1263,8 @@ public class TiUIHelper
 			return new SVGDrawable(SVGFlyweightFactory.getInstance().get(id, TiApplication.getInstance().getCurrentActivity()));
 		}
 		else {
-			return getResourceDrawable(id);
-		}
+		return getResourceDrawable(id);
+	}
 	}
 	
 	public static Drawable getResourceDrawable(final int res_id)
@@ -1830,7 +1808,7 @@ public class TiUIHelper
         // another fragment
         if (tabFragment != null) {
             manager = tabFragment.getChildFragmentManager();
-        }
+}
         FragmentTransaction transaction = null;
         transaction = manager.beginTransaction();
         transaction.add(container.getId(), fragment);

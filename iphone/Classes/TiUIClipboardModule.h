@@ -9,25 +9,25 @@
 #import "TiModule.h"
 
 @interface TiUIClipboardModule : TiModule {
-@private
-    UIPasteboard *_pasteboard;
-    NSString *pasteboardName;
-    BOOL shouldCreatePasteboard;
-    BOOL isNamedPasteBoard;
-    BOOL isUnique;
+  @private
+  UIPasteboard *_pasteboard;
+  NSString *pasteboardName;
+  BOOL shouldCreatePasteboard;
+  BOOL isNamedPasteBoard;
+  BOOL isUnique;
 }
 
 #pragma mark internal
--(id)getData_:(NSString *)mimeType;
+- (id)getData_:(NSString *)mimeType;
 
--(void)clearData:(id)args;
--(void)clearText:(id)args;
--(id)getData:(id)args;
--(NSString *)getText:(id)args;
--(id)hasData:(id)args;
--(id)hasText:(id)unused;
--(void)setData:(id)args;
--(void)setText:(id)args;
+- (void)clearData:(id)args;
+- (void)clearText:(id)args;
+- (id)getData:(id)args;
+- (NSString *)getText:(id)args;
+- (id)hasData:(id)args;
+- (id)hasText:(id)unused;
+- (void)setData:(id)args;
+- (void)setText:(id)args;
 
 @end
 #endif

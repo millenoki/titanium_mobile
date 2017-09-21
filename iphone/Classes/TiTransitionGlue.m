@@ -3,7 +3,8 @@
 
 @implementation TiTransitionGlue
 
--(Class) adTransitionClass {
-    return [ADGlueTransition class];
+- (Class)adTransitionClass
+{
+  return [ADGlueTransition class];
 }
 @end

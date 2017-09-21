@@ -12,7 +12,7 @@
 @class TiUICollectionWrapperView;
 @class TiUICollectionViewProxy;
 
-@interface TiUICollectionWrapperViewProxy : TiViewProxy < TiViewEventOverrideDelegate >
+@interface TiUICollectionWrapperViewProxy : TiViewProxy <TiViewEventOverrideDelegate>
 
 @property (nonatomic, readwrite, assign) TiUICollectionWrapperView *wrapperView;
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;
@@ -21,7 +21,7 @@
 //- (NSDictionary *)bindings;
 - (void)setDataItem:(NSDictionary *)dataItem;
 
--(void)deregisterProxy:(id<TiEvaluator>)context;
+- (void)deregisterProxy:(id<TiEvaluator>)context;
 @end
 
 #endif

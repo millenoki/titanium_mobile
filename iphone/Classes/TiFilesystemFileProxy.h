@@ -5,31 +5,31 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#if defined(USE_TI_FILESYSTEM)
+#if defined(USE_TI_FILESYSTEM) || defined(USE_TI_DATABASE) || defined(USE_TI_MEDIA)
 
 #import "TiFile.h"
 
 @class TiFilesystemFileStreamProxy;
 
 @interface TiFilesystemFileProxy : TiFile {
-@private
-	NSFileManager *fm;
+  @private
+  NSFileManager *fm;
 }
 
--(id)initWithFile:(NSString*)path;
+- (id)initWithFile:(NSString *)path;
 
--(TiFilesystemFileStreamProxy *) open:(id) args;
+- (TiFilesystemFileStreamProxy *)open:(id)args;
 
-+(id)makeTemp:(BOOL)isDirectory;
-+(id)makeTemp:(BOOL)isDirectory suffix:(NSString*)suffix prefix:(NSString*)prefix;
++ (id)makeTemp:(BOOL)isDirectory;
++ (id)makeTemp:(BOOL)isDirectory suffix:(NSString *)suffix prefix:(NSString *)prefix;
 
-@property(nonatomic,readonly) id name;
-@property(nonatomic,readonly) id nativePath;
-@property(nonatomic,readonly) id readonly;
-@property(nonatomic,readonly) id writable;
-@property(nonatomic,readonly) id symbolicLink;
-@property(nonatomic,readonly) id executable;
-@property(nonatomic,readonly) id hidden;
+@property (nonatomic, readonly) id name;
+@property (nonatomic, readonly) id nativePath;
+@property (nonatomic, readonly) id readonly;
+@property (nonatomic, readonly) id writable;
+@property (nonatomic, readonly) id symbolicLink;
+@property (nonatomic, readonly) id executable;
+@property (nonatomic, readonly) id hidden;
 
 @end
 

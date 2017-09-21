@@ -10,6 +10,6 @@
 
 @class TiUIView;
 @interface UIControl (TiUIView)
-+ (void) swizzle;
++ (void)swizzle;
 - (void)setTiUIView:(TiUIView *)view;
 @end

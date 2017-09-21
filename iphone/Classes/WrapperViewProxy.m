@@ -23,40 +23,38 @@
 ////}
 //@end
 
-@implementation WrapperViewProxy
-{
-    TiTableView* _tableView;
+@implementation WrapperViewProxy {
+  TiTableView *_tableView;
 }
 
 - (id)initWithVerticalLayout:(BOOL)vertical
 {
-    return [self initWithVerticalLayout:vertical tableView:nil];
+  return [self initWithVerticalLayout:vertical tableView:nil];
 }
 
-- (id)initWithVerticalLayout:(BOOL)vertical tableView:(TiTableView*)tableView;
+- (id)initWithVerticalLayout:(BOOL)vertical tableView:(TiTableView *)tableView;
 {
-    self = [super init];
-    if (self) {
-        _tableView = [tableView retain];
-        self.canBeResizedByFrame = YES;
-        self.canRepositionItself = NO;
-        LayoutConstraint* viewLayout = [self layoutProperties];
-        viewLayout->width = TiDimensionAutoFill;
-        viewLayout->height = TiDimensionAutoSize;
-        if (TiDimensionIsUndefined(viewLayout->top))
-        {
-            viewLayout->top = TiDimensionDip(0);
-        }
-        if (vertical) {
-            viewLayout->layoutStyle = TiLayoutRuleVertical;
-        }
+  self = [super init];
+  if (self) {
+    _tableView = [tableView retain];
+    self.canBeResizedByFrame = YES;
+    self.canRepositionItself = NO;
+    LayoutConstraint *viewLayout = [self layoutProperties];
+    viewLayout->width = TiDimensionAutoFill;
+    viewLayout->height = TiDimensionAutoSize;
+    if (TiDimensionIsUndefined(viewLayout->top)) {
+      viewLayout->top = TiDimensionDip(0);
     }
-    return self;
+    if (vertical) {
+      viewLayout->layoutStyle = TiLayoutRuleVertical;
+    }
+  }
+  return self;
 }
 - (void)dealloc
 {
-    RELEASE_TO_NIL(_tableView)
-    [super dealloc];
+  RELEASE_TO_NIL(_tableView)
+  [super dealloc];
 }
 
 //-(BOOL)relayout

@@ -8,35 +8,35 @@
 
 #import "TiScrollingView.h"
 
-@interface TiUIScrollableView : TiScrollingView<TiScrolling> {
-@private
-	TDUIScrollView *_scrollView;
-	UIPageControl *pageControl;
+@interface TiUIScrollableView : TiScrollingView <TiScrolling> {
+  @private
+  TDUIScrollView *_scrollView;
+  UIPageControl *pageControl;
 
-    // See the code for why we need this...
-    BOOL enforceCacheRecalculation;
-    NSInteger cacheSize;
-    BOOL pageChanged;
-	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
-	BOOL showPageControl;
-	UIColor *pageControlBackgroundColor;
-	UIColor *pageIndicatorColor;
-	UIColor *currentPageIndicatorColor;
-	CGFloat pagingControlAlpha;
-	CGFloat pagingControlHeight;
-	BOOL handlingPageControlEvent;
-    BOOL pagingControlOnTop;
-    BOOL overlayEnabled;
-    
-    // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
-    BOOL rotatedWhileScrolling;
+  // See the code for why we need this...
+  BOOL enforceCacheRecalculation;
+  NSInteger cacheSize;
+  BOOL pageChanged;
+  NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
+  BOOL showPageControl;
+  UIColor *pageControlBackgroundColor;
+  UIColor *pageIndicatorColor;
+  UIColor *currentPageIndicatorColor;
+  CGFloat pagingControlAlpha;
+  CGFloat pagingControlHeight;
+  BOOL handlingPageControlEvent;
+  BOOL pagingControlOnTop;
+  BOOL overlayEnabled;
+
+  // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
+  BOOL rotatedWhileScrolling;
 }
-@property(nonatomic,readwrite,assign)CGFloat switchPageAnimationDuration;
+@property (nonatomic, readwrite, assign) CGFloat switchPageAnimationDuration;
 
 #pragma mark - MapMe Internal Use Only
--(void)manageRotation;
--(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
--(NSArray*)wrappers;
+- (void)manageRotation;
+- (void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
+- (NSArray *)wrappers;
 @end
 
 #endif

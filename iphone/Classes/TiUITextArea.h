@@ -9,27 +9,26 @@
 #import "TiUITextWidget.h"
 
 @interface TiUITextViewImpl : UITextView {
-@private
-    TiUIView * touchHandler;
-    UIView * touchedContentView;
+  @private
+  TiUIView *touchHandler;
+  UIView *touchedContentView;
 }
 @property (nonatomic, strong) NSString *placeholder;
 @property (nonatomic, strong) UIColor *placeholderColor;
 @property (nonatomic) BOOL displayPlaceHolder;
 @end
 
-@interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
-{
-@private
-    BOOL returnActive;
-    BOOL handleLinks;
+@interface TiUITextArea : TiUITextWidget <UITextViewDelegate> {
+  @private
+  BOOL returnActive;
+  BOOL handleLinks;
 }
 
-@property(nonatomic,readonly) BOOL becameResponder;
-@property(nonatomic,assign) UIEdgeInsets padding;
+@property (nonatomic, readonly) BOOL becameResponder;
+@property (nonatomic, assign) UIEdgeInsets padding;
 
--(void)updateCaretPosition;
--(void)checkLinkForTouch:(UITouch *)touch;
+- (void)checkLinkForTouch:(UITouch *)touch;
+- (void)updateCaretPosition;
 
 @end
 

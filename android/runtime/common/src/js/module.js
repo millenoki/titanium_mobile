@@ -94,7 +94,7 @@ Module.prototype.load = function (filename, source) {
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
 	}
-	
+
 	this.filename = filename;
 	this.path = path.dirname(filename);
 
@@ -104,7 +104,7 @@ Module.prototype.load = function (filename, source) {
 			name = 'Resources' + name;
 		} else {
 			name = 'Resources/' + name;
-		}
+	}
 		source = assets.readAsset(name);
 	}
 
@@ -173,7 +173,7 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		externalModule.once.apply(externalModule, arguments);
 		return wrapper;
 	}
-	
+
 	wrapper.off = wrapper.removeEventListener = function() {
 		externalModule.removeEventListener.apply(externalModule, arguments);
 		return wrapper;
@@ -196,7 +196,9 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
 		var jsModule = new Module(id + ".commonjs", thiss, context);
-		jsModule.load(id, kroll.getExternalCommonJsModule(id));
+		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
+		// See TIMOB-24932
+		jsModule.load(id + ".commonjs", kroll.getExternalCommonJsModule(id));
 		if (jsModule.exports) {
 			if (kroll.DBG) {
 				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
@@ -272,7 +274,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 Module.prototype.require = function (request, context) {
 	var start, // hack up the start of the string to check relative/absolute/"naked" module id
 		loaded; // variable to hold the possibly loaded module...
-	
+
 	start = request.substring(0, 2);
 	var isrelative = false;
 	if (start === './' || start === '..') {
@@ -310,7 +312,7 @@ Module.prototype.require = function (request, context) {
 				return loaded;
 			}
 		}
-		
+
 		
 
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
@@ -321,7 +323,7 @@ Module.prototype.require = function (request, context) {
 		if (loaded) {
 			return loaded;
 		}
-		
+
 		// Allow looking through node_modules
 		// 3. LOAD_NODE_MODULES(X, dirname(Y))
 		loaded = this.loadNodeModules(request, this.path, context);
@@ -369,7 +371,6 @@ Module.prototype.loadCoreModule = function (id, context) {
 				// found it
 				// FIXME Re-use loadAsJavaScriptText?
 				var module = new Module(id, this, context);
-				Module.cache[id] = module;
 				module.load(id, externalCommonJsContents);
 				return module.exports;
 			}
@@ -445,7 +446,8 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// d. let I = I - 1
 		i = i - 1;
 	}
-	dirs.push('node_modules');
+	// Always add /node_modules to the search path
+	dirs.push('/node_modules');
 	return dirs;
 }
 
@@ -482,10 +484,10 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 	if (Module.cache[filename]) {
 		return Module.cache[filename].exports || true;
 	}
-	
+
 	module = new Module(filename, this, context);
 	module.load(filename);
-	
+
 	// Stick it in the cache
 	Module.cache[filename] = module;
 	
@@ -512,11 +514,11 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.filename = filename;
 	module.path = path.dirname(filename);
 	if (filename[0] == '/') {
-		source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
 	} else {
 		source = assets.readAsset('Resources/' + filename); // Assumes Resources/!
 	}
-	
+
 		
 
 	// Stick it in the cache

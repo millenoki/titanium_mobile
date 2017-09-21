@@ -9,6 +9,6 @@
 @class KrollBridge;
 @interface TiErrorController : UIViewController
 
--(id)initWithError:(TiScriptError*)error_ template:(NSDictionary*)template inContext:(KrollBridge*)bridge;
+- (id)initWithError:(TiScriptError *)error_ template:(NSDictionary *)template inContext:(KrollBridge *)bridge;
 
 @end

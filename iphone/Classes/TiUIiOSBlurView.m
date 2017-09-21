@@ -9,90 +9,89 @@
 #import "TiUIiOSBlurView.h"
 #import "TiUIiOSBlurViewProxy.h"
 
-@implementation TiUIiOSBlurView
-{
-    UIVisualEffectView *blurView;
-    UIVisualEffectView *vibrancyView;
+@implementation TiUIiOSBlurView {
+  UIVisualEffectView *blurView;
+  UIVisualEffectView *vibrancyView;
 }
 
--(UIVisualEffectView*)blurView
+- (UIVisualEffectView *)blurView
 {
-    if (blurView == nil) {
-        
-        blurView = [[UIVisualEffectView alloc] initWithFrame:[self frame]];
-        
-        [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-//        [blurView setContentMode:[self contentModeForBlurView]];
-        
-        [self addSubview:blurView];
-    }
-    
-    return blurView;
+  if (blurView == nil) {
+
+    blurView = [[UIVisualEffectView alloc] initWithFrame:[self frame]];
+
+    [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    //        [blurView setContentMode:[self contentModeForBlurView]];
+
+    [self addSubview:blurView];
+  }
+
+  return blurView;
 }
 
--(UIVisualEffectView*)vibrancyView
+- (UIVisualEffectView *)vibrancyView
 {
-    if (vibrancyView == nil) {
-        
-        vibrancyView = [[UIVisualEffectView alloc] initWithFrame:[self frame]];
-        
-        [vibrancyView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-        //        [blurView setContentMode:[self contentModeForBlurView]];
-        
-        [[[[self blurView] contentView] subviews] enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull view, NSUInteger idx, BOOL * _Nonnull stop) {
-            [view removeFromSuperview];
-            [[vibrancyView contentView] addSubview:view];
-        }];
-        [[[self blurView] contentView] addSubview:vibrancyView];
-    }
-    
-    return vibrancyView;
+  if (vibrancyView == nil) {
+
+    vibrancyView = [[UIVisualEffectView alloc] initWithFrame:[self frame]];
+
+    [vibrancyView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+    //        [blurView setContentMode:[self contentModeForBlurView]];
+
+    [[[[self blurView] contentView] subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull view, NSUInteger idx, BOOL *_Nonnull stop) {
+      [view removeFromSuperview];
+      [[vibrancyView contentView] addSubview:view];
+    }];
+    [[[self blurView] contentView] addSubview:vibrancyView];
+  }
+
+  return vibrancyView;
 }
 
--(UIView *)parentViewForChildren
+- (UIView *)parentViewForChildren
 {
-    if (vibrancyView) {
-        return [vibrancyView contentView];
-    }
-    return [[self blurView] contentView];
+  if (vibrancyView) {
+    return [vibrancyView contentView];
+  }
+  return [[self blurView] contentView];
 }
 
 #pragma mark Cleanup
 
--(void)dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(blurView);
-    [super dealloc];
+  RELEASE_TO_NIL(blurView);
+  [super dealloc];
 }
 
 #pragma mark Public APIs
 
--(void)setEffect_:(id)value
+- (void)setEffect_:(id)value
 {
-    ENSURE_TYPE(value, NSNumber);
-    NSInteger style = [TiUtils intValue:value def:UIBlurEffectStyleLight];
-    UIBlurEffect* effect = [UIBlurEffect effectWithStyle:style];
-    [[self blurView] setEffect:effect];
-    if (vibrancyView) {
-        [vibrancyView setEffect:[UIVibrancyEffect effectForBlurEffect:effect]];
-    }
+  ENSURE_TYPE(value, NSNumber);
+  NSInteger style = [TiUtils intValue:value def:UIBlurEffectStyleLight];
+  UIBlurEffect *effect = [UIBlurEffect effectWithStyle:style];
+  [[self blurView] setEffect:effect];
+  if (vibrancyView) {
+    [vibrancyView setEffect:[UIVibrancyEffect effectForBlurEffect:effect]];
+  }
 }
 
--(void)setVibrancyEnabled_:(id)value
+- (void)setVibrancyEnabled_:(id)value
 {
-    BOOL enabled = [TiUtils boolValue:value];
-    if (enabled) {
-        if (!vibrancyView) {
-            [[self vibrancyView] setEffect:[UIVibrancyEffect effectForBlurEffect:(UIBlurEffect*)[[self blurView] effect]]];
-        }
-    } else {
-        if (vibrancyView) {
-            [[[vibrancyView contentView] subviews] enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull view, NSUInteger idx, BOOL * _Nonnull stop) {
-                [view removeFromSuperview];
-                [[blurView contentView] addSubview:view];
-            }];
-        }
+  BOOL enabled = [TiUtils boolValue:value];
+  if (enabled) {
+    if (!vibrancyView) {
+      [[self vibrancyView] setEffect:[UIVibrancyEffect effectForBlurEffect:(UIBlurEffect *)[[self blurView] effect]]];
     }
+  } else {
+    if (vibrancyView) {
+      [[[vibrancyView contentView] subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull view, NSUInteger idx, BOOL *_Nonnull stop) {
+        [view removeFromSuperview];
+        [[blurView contentView] addSubview:view];
+      }];
+    }
+  }
 }
 
 //-(void)setWidth_:(id)width_
@@ -131,10 +130,9 @@
 //    for (UIView *child in [self subviews]) {
 //        [TiUtils setView:child positionRect:bounds];
 //    }
-//    
+//
 //    [super frameSizeChanged:frame bounds:bounds];
 //}
-
 
 //-(CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 //{
@@ -145,12 +143,12 @@
 //        }
 //        return autoWidth;
 //    }
-//    
+//
 //    CGFloat calculatedWidth = TiDimensionCalculateValue(width, autoWidth);
 //    if (calculatedWidth > 0) {
 //        return calculatedWidth;
 //    }
-//    
+//
 //    return 0;
 //}
 //
@@ -159,16 +157,16 @@
 //    if (width_ != autoWidth && autoWidth>0 && autoHeight > 0) {
 //        return (width_*autoHeight/autoWidth);
 //    }
-//    
+//
 //    if (autoHeight > 0) {
 //        return autoHeight;
 //    }
-//    
+//
 //    CGFloat calculatedHeight = TiDimensionCalculateValue(height, autoHeight);
 //    if (calculatedHeight > 0) {
 //        return calculatedHeight;
 //    }
-//    
+//
 //    return 0;
 //}
 //

@@ -7,9 +7,9 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiUILabelProxy.h"
+#import "DTCoreText/DTCoreText.h"
 #import "TiUILabel.h"
 #import "TiUtils.h"
-#import "DTCoreText/DTCoreText.h"
 
 #define kDefaultFontSize 12.0
 
@@ -26,142 +26,135 @@
 //    }
 //}
 
-
 static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode linebreak)
 {
-    switch (linebreak) {
-        case NSLineBreakByClipping:
-            return kCTLineBreakByClipping;
-        case NSLineBreakByCharWrapping:
-            return kCTLineBreakByCharWrapping;
-        case NSLineBreakByTruncatingHead:
-            return kCTLineBreakByTruncatingHead;
-        case NSLineBreakByTruncatingTail:
-            return kCTLineBreakByTruncatingTail;
-        case NSLineBreakByTruncatingMiddle:
-            return kCTLineBreakByTruncatingMiddle;
-        case NSLineBreakByWordWrapping:
-        default:
-            return kCTLineBreakByWordWrapping;
-            break;
-    }
+  switch (linebreak) {
+  case NSLineBreakByClipping:
+    return kCTLineBreakByClipping;
+  case NSLineBreakByCharWrapping:
+    return kCTLineBreakByCharWrapping;
+  case NSLineBreakByTruncatingHead:
+    return kCTLineBreakByTruncatingHead;
+  case NSLineBreakByTruncatingTail:
+    return kCTLineBreakByTruncatingTail;
+  case NSLineBreakByTruncatingMiddle:
+    return kCTLineBreakByTruncatingMiddle;
+  case NSLineBreakByWordWrapping:
+  default:
+    return kCTLineBreakByWordWrapping;
+    break;
+  }
 }
 
-@implementation TiUILabelProxy
+@implementation TiUILabelProxy {
+  UIEdgeInsets _padding;
+}
+
+- (NSString *)apiName
 {
-    UIEdgeInsets _padding;
+  return @"Ti.UI.Label";
 }
 
--(NSString*)apiName
+- (NSString *)defaultSystemFontFamily
 {
-    return @"Ti.UI.Label";
+  static NSString *defaultSystemFontFamily = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
+  });
+  return defaultSystemFontFamily;
 }
 
--(NSString*)defaultSystemFontFamily
+static NSDictionary *htmlOptions;
+- (NSDictionary *)htmlOptions
 {
-    static NSString *defaultSystemFontFamily = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
-    });
-    return defaultSystemFontFamily;
+  if (htmlOptions == nil) {
+    htmlOptions = [@{
+      DTDefaultTextAlignment : @(kCTLeftTextAlignment),
+      DTDefaultFontStyle : @(0),
+      DTIgnoreLinkStyleOption : @(NO),
+      DTDefaultFontFamily : [self defaultSystemFontFamily],
+      NSFontAttributeName : [self defaultSystemFontFamily],
+      NSTextSizeMultiplierDocumentOption : @(17 / kDefaultFontSize),
+      DTUseiOS6Attributes : @YES,
+      DTDocumentPreserveTrailingSpaces : @(YES),
+      DTDefaultLineBreakMode : @(kCTLineBreakByWordWrapping)
+    } retain];
+  }
+  return htmlOptions;
 }
 
-
-static NSDictionary* htmlOptions;
--(NSDictionary *)htmlOptions
+- (id)init
 {
-    if (htmlOptions == nil)
-    {
-        htmlOptions = [@{
-                        DTDefaultTextAlignment:@(kCTLeftTextAlignment),
-                        DTDefaultFontStyle:@(0),
-                        DTIgnoreLinkStyleOption:@(NO),
-                        DTDefaultFontFamily:[self defaultSystemFontFamily],
-                        NSFontAttributeName:[self defaultSystemFontFamily],
-                        NSTextSizeMultiplierDocumentOption:@(17 / kDefaultFontSize),
-                        DTUseiOS6Attributes:@YES,
-                        DTDocumentPreserveTrailingSpaces:@(YES),
-                        DTDefaultLineBreakMode:@(kCTLineBreakByWordWrapping)} retain];
-    }
-    return htmlOptions;
-}
-
--(id)init
-{
-    if (self = [super init]) {
-        _padding = UIEdgeInsetsZero;
-        attributeTextNeedsUpdate = YES;
-        configSet = YES;
-        options = [[self htmlOptions] mutableCopy];
-    }
-    return self;
-}
-
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(contentString);
-    RELEASE_TO_NIL(options);
-    RELEASE_TO_NIL(_realLabelContent);
-    [super dealloc];
-}
-
-
-- (void)updateAttributeText {
-    
-    if (!configSet) {
-        attributeTextNeedsUpdate = YES;
-        return; // lazy init
-    }
-    
-    RELEASE_TO_NIL(_realLabelContent);
-    if (contentString) {
-        switch (_contentType) {
-            case kContentTypeHTML:
-            {
-                
-//                if ([contentString characterAtIndex:0] != '<') {
-                    //if not starting with a <, ios html parser with surround it with a <p> and thus create
-                    //paragraph spacing
-                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[[NSString stringWithFormat:@"<span>%@</span>", contentString] dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-//                } else {
-//                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-//                }
-                
-                break;
-            }
-            default:
-            {
-                _realLabelContent = [contentString retain];
-                break;
-            }
-        }
-    }
-   
-    if (view!=nil) {
-        [(TiUILabel*)view setAttributedTextViewContent];
-    }
-    [self contentsWillChange];
-    attributeTextNeedsUpdate = NO;
-}
-
--(void)configurationStart:(BOOL)recursive
-{
-    configSet = NO;
-    [super configurationStart:recursive];
-}
-
--(void)configurationSet:(BOOL)recursive
-{
+  if (self = [super init]) {
+    _padding = UIEdgeInsetsZero;
+    attributeTextNeedsUpdate = YES;
     configSet = YES;
-    [(TiUILabel*)view setPadding:_padding];
-//    [(TiUILabel *)[self view] setReusing:NO];
-    if (attributeTextNeedsUpdate)
-        [self updateAttributeText];
-    [super configurationSet:recursive];
+    options = [[self htmlOptions] mutableCopy];
+  }
+  return self;
 }
 
+- (void)dealloc
+{
+  RELEASE_TO_NIL(contentString);
+  RELEASE_TO_NIL(options);
+  RELEASE_TO_NIL(_realLabelContent);
+  [super dealloc];
+}
+
+- (void)updateAttributeText
+{
+
+  if (!configSet) {
+    attributeTextNeedsUpdate = YES;
+    return; // lazy init
+  }
+
+  RELEASE_TO_NIL(_realLabelContent);
+  if (contentString) {
+    switch (_contentType) {
+    case kContentTypeHTML: {
+
+      //                if ([contentString characterAtIndex:0] != '<') {
+      //if not starting with a <, ios html parser with surround it with a <p> and thus create
+      //paragraph spacing
+      _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[[NSString stringWithFormat:@"<span>%@</span>", contentString] dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+      //                } else {
+      //                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+      //                }
+
+      break;
+    }
+    default: {
+      _realLabelContent = [contentString retain];
+      break;
+    }
+    }
+  }
+
+  if (view != nil) {
+    [(TiUILabel *)view setAttributedTextViewContent];
+  }
+  [self contentsWillChange];
+  attributeTextNeedsUpdate = NO;
+}
+
+- (void)configurationStart:(BOOL)recursive
+{
+  configSet = NO;
+  [super configurationStart:recursive];
+}
+
+- (void)configurationSet:(BOOL)recursive
+{
+  configSet = YES;
+  [(TiUILabel *)view setPadding:_padding];
+  //    [(TiUILabel *)[self view] setReusing:NO];
+  if (attributeTextNeedsUpdate)
+    [self updateAttributeText];
+  [super configurationSet:recursive];
+}
 
 //- (void)prepareForReuse
 //{
@@ -169,51 +162,46 @@ static NSDictionary* htmlOptions;
 //    [super prepareForReuse];
 //}
 
--(void)setPadding:(id)value
+- (void)setPadding:(id)value
 {
-    _padding = [TiUtils insetValue:value];
-    if (view != nil)
-        [(TiUILabel*)view setPadding:_padding];
-    [self contentsWillChange];
-    [self replaceValue:value forKey:@"padding" notification:NO];
+  _padding = [TiUtils insetValue:value];
+  if (view != nil)
+    [(TiUILabel *)view setPadding:_padding];
+  [self contentsWillChange];
+  [self replaceValue:value forKey:@"padding" notification:NO];
 }
 
--(id)padding {
-    return [self valueForUndefinedKey:@"padding"];
+- (id)padding
+{
+  return [self valueForUndefinedKey:@"padding"];
 }
 
--(CGSize) suggestedSizeForSize:(CGSize)size
+- (CGSize)suggestedSizeForSize:(CGSize)size
 {
-    if (view != nil)
-        return [(TiUILabel*)view suggestedFrameSizeToFitEntireStringConstraintedToSize:size];
-    else
-    {
-        if (_realLabelContent != nil)
-        {
-            CGSize result = CGSizeZero;
-            CGSize maxSize = CGSizeMake(size.width<=0 ? 480 : size.width, size.height<=0 ? 10000 : size.height);
-            maxSize.width -= _padding.left + _padding.right;
-            if ([_realLabelContent isKindOfClass:[NSAttributedString class]])
-            {
-                NSInteger numberOfLines = 0;
-                if ([self valueForKey:@"maxLines"])
-                {
-                    numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
-                }
-                return [TDTTTAttributedLabel sizeThatFitsAttributedString:_realLabelContent withConstraints:maxSize limitedToNumberOfLines:numberOfLines];
-            }
-            else
-            {
-                return [TiUtils sizeForString:(NSString*)_realLabelContent forSize:size options:self padding:_padding];
-            }
+  if (view != nil)
+    return [(TiUILabel *)view suggestedFrameSizeToFitEntireStringConstraintedToSize:size];
+  else {
+    if (_realLabelContent != nil) {
+      CGSize result = CGSizeZero;
+      CGSize maxSize = CGSizeMake(size.width <= 0 ? 480 : size.width, size.height <= 0 ? 10000 : size.height);
+      maxSize.width -= _padding.left + _padding.right;
+      if ([_realLabelContent isKindOfClass:[NSAttributedString class]]) {
+        NSInteger numberOfLines = 0;
+        if ([self valueForKey:@"maxLines"]) {
+          numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
         }
+        return [TDTTTAttributedLabel sizeThatFitsAttributedString:_realLabelContent withConstraints:maxSize limitedToNumberOfLines:numberOfLines];
+      } else {
+        return [TiUtils sizeForString:(NSString *)_realLabelContent forSize:size options:self padding:_padding];
+      }
     }
-    return CGSizeZero;
+  }
+  return CGSizeZero;
 }
 
--(CGSize)contentSizeForSize:(CGSize)size
+- (CGSize)contentSizeForSize:(CGSize)size
 {
-    return [self suggestedSizeForSize:size];
+  return [self suggestedSizeForSize:size];
 }
 
 //-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
@@ -236,44 +224,42 @@ static NSDictionary* htmlOptions;
 //	return height;
 //}
 
-
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-	static NSArray *labelKeySequence = nil;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		labelKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"font",@"color",@"textAlign",@"multiLineEllipsize", @"disableLinkStyle"]] retain];
-	});
-	return labelKeySequence;
+  static NSArray *labelKeySequence = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    labelKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"font", @"color", @"textAlign", @"multiLineEllipsize", @"disableLinkStyle" ]] retain];
+  });
+  return labelKeySequence;
 }
 
--(NSMutableDictionary*)langConversionTable
+- (NSMutableDictionary *)langConversionTable
 {
-    return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
+  return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 
-
 //we do it in the proxy for faster performances in tableviews
--(void)setText:(id)value
+- (void)setText:(id)value
 {
-    //the test is for listview measurement when a same template is used for text and html
-//    if (value || _contentType == kContentTypeText) {
-    if (value || ![self valueForKey:@"html"]) {
-        [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeText];
-    }
-//    }
-	[self replaceValue:value forKey:@"text" notification:NO];
+  //the test is for listview measurement when a same template is used for text and html
+  //    if (value || _contentType == kContentTypeText) {
+  if (value || ![self valueForKey:@"html"]) {
+    [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeText];
+  }
+  //    }
+  [self replaceValue:value forKey:@"text" notification:NO];
 }
 
 //we do it in the proxy for faster performances in tableviews
@@ -286,117 +272,113 @@ static NSDictionary* htmlOptions;
 //    [self replaceValue:value forKey:@"attributedString" notification:NO];
 //}
 
--(void)setHtml:(id)value
+- (void)setHtml:(id)value
 {
-    //the test is for listview measurement when a same template is used for text and html
-//    if (value || _contentType == kContentTypeHTML) {
-    if (value || ![self valueForKey:@"text"]) {
-        [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeHTML];
-    }
-//    }
-	[self replaceValue:value forKey:@"html" notification:NO];
+  //the test is for listview measurement when a same template is used for text and html
+  //    if (value || _contentType == kContentTypeHTML) {
+  if (value || ![self valueForKey:@"text"]) {
+    [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeHTML];
+  }
+  //    }
+  [self replaceValue:value forKey:@"html" notification:NO];
 }
 
--(void)setFont:(id)font
+- (void)setFont:(id)font
 {
-    WebFont* webFont =[TiUtils fontValue:font];
-    int traitsDefault = 0;
-    if (webFont.isItalicStyle)
-        traitsDefault |= kCTFontItalicTrait;
-    if (webFont.isBoldWeight)
-        traitsDefault |= kCTFontBoldTrait;
-    [options setValue:[NSNumber numberWithInt:traitsDefault] forKey:DTDefaultFontStyle];
-    if (webFont && webFont.font)
-        [options setValue:webFont.font.fontName forKey:DTDefaultFontName];
-    else {
-        [options setObject:[self defaultSystemFontFamily] forKey:NSFontAttributeName];
-        [options setValue:[self defaultSystemFontFamily] forKey:DTDefaultFontFamily];
-    }
-    [options setValue:[NSNumber numberWithFloat:(webFont.size / kDefaultFontSize)] forKey:NSTextSizeMultiplierDocumentOption];
-    
-    //we need to reset the text to update default paragraph settings
-	[self replaceValue:font forKey:@"font" notification:YES];
+  WebFont *webFont = [TiUtils fontValue:font];
+  int traitsDefault = 0;
+  if (webFont.isItalicStyle)
+    traitsDefault |= kCTFontItalicTrait;
+  if (webFont.isBoldWeight)
+    traitsDefault |= kCTFontBoldTrait;
+  [options setValue:[NSNumber numberWithInt:traitsDefault] forKey:DTDefaultFontStyle];
+  if (webFont && webFont.font)
+    [options setValue:webFont.font.fontName forKey:DTDefaultFontName];
+  else {
+    [options setObject:[self defaultSystemFontFamily] forKey:NSFontAttributeName];
+    [options setValue:[self defaultSystemFontFamily] forKey:DTDefaultFontFamily];
+  }
+  [options setValue:[NSNumber numberWithFloat:(webFont.size / kDefaultFontSize)] forKey:NSTextSizeMultiplierDocumentOption];
+
+  //we need to reset the text to update default paragraph settings
+  [self replaceValue:font forKey:@"font" notification:YES];
+  [self updateAttributeText];
+}
+
+- (void)setTextAlign:(id)alignment
+{
+  [options setValue:NUMINTEGER(DTNSTextAlignmentToCTTextAlignment([TiUtils textAlignmentValue:alignment])) forKey:DTDefaultTextAlignment];
+
+  //we need to reset the text to update default paragraph settings
+  [self replaceValue:alignment forKey:@"textAlign" notification:YES];
+  [self updateAttributeText];
+}
+
+- (void)setDisableLinkStyle:(id)value
+{
+  [options setValue:@([TiUtils boolValue:value def:NO]) forKey:DTIgnoreLinkStyleOption];
+
+  //we need to reset the text to update default paragraph settings
+  [self replaceValue:value forKey:@"disableLinkStyle" notification:YES];
+  [self updateAttributeText];
+}
+
+- (void)setMultiLineEllipsize:(id)value
+{
+  NSInteger multilineBreakMode = [TiUtils intValue:value];
+  if (multilineBreakMode != NSLineBreakByWordWrapping) {
+    [options setValue:NUMINTEGER(NSLineBreakModeToCTLineBreakMode(multilineBreakMode)) forKey:DTDefaultLineBreakMode];
+
+    //we need to update the text
     [self updateAttributeText];
+  }
+  [self replaceValue:value forKey:@"multiLineEllipsize" notification:YES];
 }
 
--(void)setTextAlign:(id)alignment
+- (void)setAttributedTextViewContent:(id)newContentString ofType:(ContentType)contentType
 {
-    [options setValue:NUMINTEGER(DTNSTextAlignmentToCTTextAlignment([TiUtils textAlignmentValue:alignment])) forKey:DTDefaultTextAlignment];
-    
-    //we need to reset the text to update default paragraph settings
-	[self replaceValue:alignment forKey:@"textAlign" notification:YES];
-    [self updateAttributeText];
-}
+  if ((newContentString == nil && contentString == nil) || [newContentString isEqual:contentString]) {
+    return;
+  }
+  RELEASE_TO_NIL(contentString);
+  contentString = [newContentString retain];
+  _contentType = contentType;
+  if (_contentType == kContentTypeHTML && contentString) {
+    //if not using html tags, no need to set html will be so much faster
+    NSError *error = NULL;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:HTML_REGEX
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:&error];
+    NSInteger result = [regex numberOfMatchesInString:contentString
+                                              options:0
+                                                range:NSMakeRange(0, [contentString length])];
 
--(void)setDisableLinkStyle:(id)value
-{
-    [options setValue:@([TiUtils boolValue:value def:NO]) forKey:DTIgnoreLinkStyleOption];
-    
-    //we need to reset the text to update default paragraph settings
-	[self replaceValue:value forKey:@"disableLinkStyle" notification:YES];
-    [self updateAttributeText];
-}
-
--(void)setMultiLineEllipsize:(id)value
-{
-    NSInteger multilineBreakMode = [TiUtils intValue:value];
-    if (multilineBreakMode != NSLineBreakByWordWrapping)
-    {
-        [options setValue:NUMINTEGER(NSLineBreakModeToCTLineBreakMode(multilineBreakMode)) forKey:DTDefaultLineBreakMode];
-        
-        //we need to update the text
-        [self updateAttributeText];
+    if (result == 0) {
+      _contentType = kContentTypeText;
     }
-	[self replaceValue:value forKey:@"multiLineEllipsize" notification:YES];
+  }
+  [self updateAttributeText];
 }
 
-- (void)setAttributedTextViewContent:(id)newContentString ofType:(ContentType)contentType {
-    if ((newContentString == nil && contentString == nil) || [newContentString isEqual:contentString])
-    {
-        return;
-    }
-    RELEASE_TO_NIL(contentString);
-    contentString = [newContentString retain];
-    _contentType = contentType;
-    if (_contentType == kContentTypeHTML && contentString) {
-        //if not using html tags, no need to set html will be so much faster
-        NSError *error = NULL;
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:HTML_REGEX
-                                                                               options:NSRegularExpressionCaseInsensitive
-                                                                                 error:&error];
-        NSInteger result = [regex numberOfMatchesInString:contentString
-                                                  options:0
-                                                    range:NSMakeRange(0, [contentString length])];
-        
-        if(result == 0)
-        {
-            _contentType = kContentTypeText;
-        }
-    }
-    [self updateAttributeText];
-}
-
--(id)getLabelContent
+- (id)getLabelContent
 {
-    return _realLabelContent;
+  return _realLabelContent;
 }
 
-
--(id)characterIndexAtPoint:(id)args
+- (id)characterIndexAtPoint:(id)args
 {
-    NSInteger result = -1;
-    if (view!=nil) {
-        ENSURE_SINGLE_ARG(args, NSDictionary)
-        CGPoint point = [TiUtils pointValue:args];
-        result = [(TiUILabel*)view characterIndexAtPoint:point];
-    }
-    return NUMINTEGER(result);
+  NSInteger result = -1;
+  if (view != nil) {
+    ENSURE_SINGLE_ARG(args, NSDictionary)
+    CGPoint point = [TiUtils pointValue:args];
+    result = [(TiUILabel *)view characterIndexAtPoint:point];
+  }
+  return NUMINTEGER(result);
 }
 
-
--(NSNumber*)ellipsize
+- (NSNumber *)ellipsize
 {
-    return NUMINTEGER([[(TiUILabel*)[self view] label] lineBreakMode]);
+  return NUMINTEGER([[(TiUILabel *)[self view] label] lineBreakMode]);
 }
 
 @end

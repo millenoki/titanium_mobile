@@ -11,16 +11,16 @@
 
 @implementation TiUIiOSToolbarProxy
 
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-    static NSArray *keySequence = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];;
-    });
-    return keySequence;
+  static NSArray *keySequence = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"barColor" ]] retain];
+    ;
+  });
+  return keySequence;
 }
-
 
 //USE_VIEW_FOR_VERIFY_HEIGHT
 
@@ -29,20 +29,20 @@
 //	return suggestedResizing & ~UIViewAutoresizingFlexibleHeight;
 //}
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.Toolbar";
+  return @"Ti.UI.iOS.Toolbar";
 }
 
--(UIToolbar*)toolbar
+- (UIToolbar *)toolbar
 {
-	TiUIiOSToolbar *theview = (TiUIiOSToolbar*) [self view];
-	return [theview toolBar];
+  TiUIiOSToolbar *theview = (TiUIiOSToolbar *)[self view];
+  return [theview toolBar];
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 
 USE_VIEW_FOR_CONTENT_SIZE

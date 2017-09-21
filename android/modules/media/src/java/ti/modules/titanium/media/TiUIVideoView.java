@@ -124,20 +124,20 @@ public class TiUIVideoView extends TiUIView
 
 		// Proxy holds the media control style directly.
 		setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
-	}
-	
-    @Override
+		}
+
+	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        if (videoView == null) {
+		if (videoView == null) {
             super.propertySet(key, newValue, oldValue, changedProperty);
-            return;
-        }
+			return;
+		}
         switch (key) {
         case TiC.PROPERTY_URL:
         case TiC.PROPERTY_CONTENT_URL:
-            videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
-            seekIfNeeded();
+				videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
+				seekIfNeeded();
             break;
         case TiC.PROPERTY_VOLUME:
             videoView.setVolume(TiConvert.toFloat(newValue, 1.0f));
@@ -146,7 +146,7 @@ public class TiUIVideoView extends TiUIView
             videoView.setRepeatMode(TiConvert.toInt(newValue, MediaModule.VIDEO_REPEAT_MODE_NONE));
             break;
         case TiC.PROPERTY_SCALING_MODE:
-            videoView.setScalingMode(TiConvert.toInt(newValue));
+			videoView.setScalingMode(TiConvert.toInt(newValue));
             break;
         case "zOrderOnTop":
             videoView.setZOrderOnTop(TiConvert.toBoolean(newValue));
@@ -155,8 +155,8 @@ public class TiUIVideoView extends TiUIView
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
+		}
+	}
 
 	public boolean isPlaying()
 	{
@@ -173,6 +173,15 @@ public class TiUIVideoView extends TiUIView
 		}
 
 		videoView.setScalingMode(mode);
+	}
+	
+	public void setRepeatMode(int mode)
+	{
+		if (videoView == null) {
+			return;
+		}
+
+		videoView.setRepeatMode(mode);
 	}
 
 	public void setMediaControlStyle(int style)

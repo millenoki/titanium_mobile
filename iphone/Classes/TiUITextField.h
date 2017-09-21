@@ -8,33 +8,30 @@
 
 #import "TiUITextWidget.h"
 
-
-@interface TiTextField : UITextField
-{
-	UITextFieldViewMode leftMode;
-	UITextFieldViewMode rightMode;
-	BOOL becameResponder;
-    TiUIView * touchHandler;
+@interface TiTextField : UITextField {
+  UITextFieldViewMode leftMode;
+  UITextFieldViewMode rightMode;
+  BOOL becameResponder;
+  TiUIView *touchHandler;
 }
 
-@property(nonatomic,readwrite,assign) UIEdgeInsets padding;
+@property (nonatomic, readwrite, assign) UIEdgeInsets padding;
 
-@property(nonatomic,readonly) BOOL becameResponder;
+@property (nonatomic, readonly) BOOL becameResponder;
 //@property(nonatomic,retain) UIColor* hintColor;
 
--(void)setTouchHandler:(TiUIView*)handler;
+- (void)setTouchHandler:(TiUIView *)handler;
 
 @end
 
-@interface TiUITextField : TiUITextWidget <UITextFieldDelegate>
-{
-@private
+@interface TiUITextField : TiUITextWidget <UITextFieldDelegate> {
+  @private
 }
 
-#pragma mark Internal 
+#pragma mark Internal
 
--(TiTextField*)textWidgetView;
--(void)setPadding:(UIEdgeInsets)inset;
+- (TiTextField *)textWidgetView;
+- (void)setPadding:(UIEdgeInsets)inset;
 
 @end
 

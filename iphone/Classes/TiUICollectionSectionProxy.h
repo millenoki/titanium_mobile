@@ -14,17 +14,17 @@
 @protocol TiUICollectionViewDelegate <NSObject>
 @required
 
-- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block;
-- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated;
-- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block maintainPosition:(BOOL)maintain;
-- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
-- (void)dispatchBlock:(void(^)(UICollectionView *tableView))block;
-- (id)dispatchBlockWithResult:(id(^)(void))block;
+- (void)dispatchUpdateAction:(void (^)(UICollectionView *tableView))block;
+- (void)dispatchUpdateAction:(void (^)(UICollectionView *tableView))block animated:(BOOL)animated;
+- (void)dispatchUpdateAction:(void (^)(UICollectionView *tableView))block maintainPosition:(BOOL)maintain;
+- (void)dispatchUpdateAction:(void (^)(UICollectionView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
+- (void)dispatchBlock:(void (^)(UICollectionView *tableView))block;
+- (id)dispatchBlockWithResult:(id (^)(void))block;
 //-(void)hideDeleteButton:(id)args;
 
 @end
 
-@interface TiUICollectionSectionProxy : TiParentingProxy < TiUICollectionViewDelegate >
+@interface TiUICollectionSectionProxy : TiParentingProxy <TiUICollectionViewDelegate>
 
 @property (nonatomic, readwrite, assign) id<TiUICollectionViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
@@ -33,10 +33,10 @@
 
 // Private API. Used by CollectionView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
-- (void) deleteItemAtIndex:(NSUInteger)index;
-- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index;
+- (void)deleteItemAtIndex:(NSUInteger)index;
+- (void)addItem:(NSDictionary *)item atIndex:(NSUInteger)index;
 - (BOOL)isHidden;
--(id)length;
+- (id)length;
 
 - (void)appendItems:(id)args;
 - (void)insertItemsAt:(id)args;
@@ -44,7 +44,7 @@
 - (void)deleteItemsAt:(id)args;
 - (void)updateItemAt:(id)args;
 - (id)getItemAt:(id)args;
--(TiViewProxy*)sectionViewForLocation:(NSString*)location inCollectionView:(TiUICollectionView*)listView;
+- (TiViewProxy *)sectionViewForLocation:(NSString *)location inCollectionView:(TiUICollectionView *)listView;
 
 // Public API
 @property (nonatomic, readonly) NSUInteger itemCount;

@@ -129,7 +129,7 @@ import android.widget.ViewSwitcher;
 	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
 	TiC.PROPERTY_TRANSITION_NAME,
 	TiC.PROPERTY_HIT_RECT,
-    TiC.PROPERTY_HIDDEN_BEHAVIOR
+	TiC.PROPERTY_HIDDEN_BEHAVIOR
 })
 public abstract class TiViewProxy extends AnimatableProxy implements Handler.Callback
 {
@@ -237,8 +237,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
+
+						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
+						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -283,7 +286,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	                        DisplayMetrics dm = new DisplayMetrics();
 	                        TiApplication.getAppCurrentActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-	                        
+
 	                        boolean isTranslucent = false;
 	                        if (TiC.KIT_KAT_OR_GREATER) {
 	                            Window w = activity.getWindow(); // in Activity's onCreate() for instance
@@ -295,16 +298,17 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	                            int statusHeight = rect.top;
 	                            
 	                            position[1] -= statusHeight; //we remove statusbar height 
-	                        }
+						}
 	                        
 	                        
+                            View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
 	                        TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
 	                        TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
-	                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
-	                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
-	                        d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault());
-	                        d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault());
-						}
+	                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+	                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+	                        d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault(decorView));
+	                        d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault(decorView));
+					}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -327,10 +331,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				handleBlurBackground((HashMap) msg.obj);
 				return true;
 			}
-		}
+			}
 		return super.handleMessage(msg);
 	}
-	
+
 	
 	/*
 	public Context getContext()
@@ -349,10 +353,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 public KrollDict execute() {
                     // TODO Auto-generated method stub
                     return getRect();
-                }
-                
+	}
+
             });
-        }
+	}
 	    KrollDict d = null;
         if (view != null) {
             View v = view.getOuterView();
@@ -381,10 +385,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 public KrollDict execute() {
                     // TODO Auto-generated method stub
                     return getAbsoluteRect();
-                }
-	            
+		}
+
             });
-        }
+	}
 
 	    KrollDict d = null;
         d = null;
@@ -404,17 +408,17 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                     if (TiC.KIT_KAT_OR_GREATER) {
                         Window w = activity.getWindow(); // in Activity's onCreate() for instance
                         isTranslucent = (w.getAttributes().flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
-                    }
+	}
                     if (!isTranslucent) {
                         Rect rect = new Rect();
                         decorView.getWindowVisibleDisplayFrame(rect);
                         int statusHeight = rect.top;
-                        
+
                         position[1] -= statusHeight; //we remove statusbar height 
-                    }
-                    
+		}
+
                     d = TiConvert.toRectDict(position[0], position[1], v.getMeasuredWidth(), v.getMeasuredHeight());
-                }
+	}
             }
         }
         if (d == null) {
@@ -437,10 +441,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 public KrollDict execute() {
                     // TODO Auto-generated method stub
                     return getSize();
-                }
-                
+	}
+
             });
-        }
+		}
 	    KrollDict d = null;
         d = new KrollDict();
         d.put(TiC.PROPERTY_X, 0);
@@ -510,7 +514,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         if (view != null)
             return view.getTouchPassThrough();
         return false;
-    }
+	}
 
     @Kroll.getProperty
     @Kroll.method
@@ -542,7 +546,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 		view = null;
 	}
-	
+
 	public boolean viewAttached() {
 	    return view != null;
 	}
@@ -678,11 +682,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected TiUIView handleGetView(final boolean enableModelListener)
 	{
 		return handleGetView(enableModelListener, true);
-	}
+			}
 
 	protected TiUIView handleGetView(final boolean enableModelListener, final boolean processProperties)
 	{
-		Activity activity = getActivity();
+			Activity activity = getActivity();
 		if (view == null && activity != null) {
 //			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 
@@ -698,7 +702,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 		return view;
 	}
-	
+
 	protected TiUIView handleGetView()
 	{
 		return handleGetView(true);
@@ -718,7 +722,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (enableModelListener)
 		{
-			setModelListener(view);
+		setModelListener(view);
 		}
 		else if (processProperties)
 		{
@@ -737,46 +741,46 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		        for (KrollProxy p : children) {
                     if (p instanceof TiViewProxy) {
                         TiUIView cv = ((TiViewProxy) p).getOrCreateView(enableModelListener, processProperties);
-                        view.add(cv);
+					view.add(cv);
                         if (p instanceof TiWindowProxy && !((TiWindowProxy)p).isOpenedOrOpening()) {
                             ((TiWindowProxy)p).onWindowActivityCreated();
                             ((TiViewProxy) p).focus();
-                        }
-                    }
-                }
+				}
+			}
+		}
 	        }
 		}
 		viewDidRealize(enableModelListener, processProperties);
 	}
-	
+
 	protected void viewDidRealize(final boolean enableModelListener, final boolean processProperties) {
 	    if (processProperties == false && enableModelListener == false) {
             view.registerForTouch();
             view.registerForKeyPress();
-        }
+			}
         viewRealised  = true;
 	    view.didRealize();
         applyPendingAnimationsFromOptions();
         handlePendingAnimation();
-	}
+		}
 	
 	public void realizeViews(TiUIView view)
 	{
 		realizeViews(view, true);
 	}
-	
+
 	public void releaseViews(final boolean activityFinishing)
 	{
 		if (view != null) {
 		    cancelAllAnimations();
 			view.blur();
-			if (children != null) {
+			if  (children != null) {
 			    synchronized (children) {
 	                for (KrollProxy child : children) {
 	                    if (child instanceof TiViewProxy) {
 	                        ((TiViewProxy) child).releaseViews(activityFinishing);
-	                    }
-	                }
+				}
+			}
 	            }
 			}
 			if (modelListener != null && modelListener.get() == view) {
@@ -787,7 +791,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			viewRealised = false;
 		}
 	}
-	
+
 	@Override
     public void release() {
         releaseViews(true);
@@ -800,68 +804,68 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	 * @module.api
 	 */
 	public abstract TiUIView createView(Activity activity);
-	
+
 	protected void handleChildAdded(final KrollProxy child, final int index) {
 	    super.handleChildAdded(child, index);
 	    if (view != null) {
 	        Activity activity = getActivity();
 	        if (activity == null) {
-	            return;
-	        }
+			return;
+		}
 	        if (!TiApplication.isUIThread()) {
 	            activity.runOnUiThread(new Runnable() {
 	                @Override
 	                public void run() {
 	                    handleAdd((TiViewProxy) child, index);
-	                }
+		}
 	            });
-	            return;
-	        }
+					return;
+				}
             handleAdd((TiViewProxy) child, index);
-        }
-    }
-	
+			}
+		}
+
     public void handleAdd(TiViewProxy child, int index)
-    {
+	{
         if (child instanceof TiWindowProxy && !((TiWindowProxy)child).isOpenedOrOpening()) {
             TiWindowProxy childWin = (TiWindowProxy)child;
             childWin.onWindowActivityCreated();
             childWin.focus();
-        }
-        if (view != null) {
-            
-            if (this instanceof DecorViewProxy) {
-                child.isDecorView = true;
-            }
-            TiUIView cv = child.getOrCreateView();
+		}
+		if (view != null) {
+
+			if (this instanceof DecorViewProxy) {
+				child.isDecorView = true;
+			}
+			TiUIView cv = child.getOrCreateView();
             view.insertAt(cv, index);
-        }
-    }
+		}
+	}
 
 	protected void handleChildRemoved(final KrollProxy child, final int index,
             final boolean shouldDetach) {
 	    if (!(child instanceof TiViewProxy)) {
-	        return;
-	    }
+			return;
+		}
 	    Activity activity = getActivity();
 	    if (activity == null) {
-            return;
-        }
+				return;
+			}
         if (!TiApplication.isUIThread()) {
 	        activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     handleChildRemoved(child, index, shouldDetach);
-                }
+				}
             });
             return;
-		}
-	    if (view != null) {
+			}
+			if (view != null) {
             view.remove(((TiViewProxy)child).peekView());
-        }
+			}
 //        handleRemove((TiViewProxy) child, shouldDetach);
 	    super.handleChildRemoved(child, index, shouldDetach);
-    }
+			}
 //
 //    public void handleRemove(TiViewProxy child, final boolean shouldDetach)
 //    {
@@ -913,28 +917,28 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected void handleHide(KrollDict options)
 	{
 		if (view != null) {
-			handlePendingAnimation(false);
+					handlePendingAnimation(false);
 			view.hide();
-		}
-	}
+				}
+			}
 
-	@Override
+					@Override
 	protected TiAnimatorSet createAnimator(){
 		return new TiViewAnimator();
-	}
-	
+					}
+
 	@Override
 	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse) {
 		if (view != null) {
 			view.prepareAnimatorSet(tiSet, list, listReverse);
+			}
 		}
-	}
-	
+
 	@Override
 	protected void handlePendingAnimation()
 	{
-		handlePendingAnimation(false);
-	}
+			handlePendingAnimation(false);
+		}
 	public void handlePendingAnimation(boolean forceQueue)
 	{
 		if (view == null) return;
@@ -944,11 +948,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	                @Override
 	                public void execute() {
 	                    handleAnimate();                
-	                }
+				}
 	            }, false);
-		    } else {
-		        handleAnimate();
-		    }
+			} else {
+				handleAnimate();
+			}
 //			if (forceQueue || !(TiApplication.isUIThread())) {
 //				if (!TiC.HONEYCOMB_OR_GREATER) {
 //					// Even this very small delay can help eliminate the bug
@@ -963,14 +967,14 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 //			}
 		}
 	}
-	
+
 	ViewSwitcher flipper = null;
 
 	private boolean transitioning;
 	@SuppressLint("NewApi")
 	protected void handleAnimate()
 	{
-		
+
 		View view = getOuterView();
 		if (view == null) {
 			TiAnimator pendingAnimation = null;
@@ -985,17 +989,17 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 		else if (view.getWidth() == 0 && view.getHeight() == 0) {
 //		    Log.d(TAG, "delay because view not layed out", Log.DEBUG_MODE);
-			getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
-			return;
-		}
+				getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
+				return;
+			}
 		peekView().forceLayoutNativeView(true);
 		super.handlePendingAnimation();
-	}
+		}
 
 	protected void handleQueuedAnimate()
 	{
 		handleAnimate();
-	}
+		}
 
 	@Kroll.method
 	public void blur()
@@ -1016,8 +1020,8 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				        for (KrollProxy child : children) {
 	                        if (child instanceof TiViewProxy) {
 	                            if (((TiViewProxy) child).handleBlur()) return true;
-	                        }
-	                    }
+		}
+	}
                     }
 				}
 			} else return true;
@@ -1058,7 +1062,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 		@Override
 		protected TiBlob doInBackground(Object... params)
-		{
+	{
 			callback = (KrollFunction)params[2];
 			proxy = (KrollProxy)params[1];
 			return handleToImage(params[0]);
@@ -1072,34 +1076,34 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			KrollDict result = new KrollDict();
 			result.put("image", image);
 			this.callback.callAsync(this.proxy.getKrollObject(), new Object[] { result });
+			}
 		}
-	}
 
 	@Kroll.method
 	public TiBlob toImage(@Kroll.argument(optional=true) KrollFunction callback, @Kroll.argument(optional=true) Object options)
 	{
-	    
+
 		if (callback == null) {
 			return handleToImage(options);
 		}
 		else {
 			(new ToImageTask()).execute(options, this, callback);
-		}
-		return null;
 	}
-	
+			return null;
+		}
+
 	protected View viewForScreenshot() {
         return getOuterView();
-    }
-	
+		}
+
 	public Bitmap viewToBitmap(final Object options) {
 	    return getInUiThread(new Command<Bitmap>() {
-            @Override
+	@Override
             public Bitmap execute() {
                 TiUIView view = getOrCreateView();
                 if (view == null) {
-                    return null;
-                }
+			return null;
+		}
                 float scale = 1.0f;
                 KrollDict props = null;
                 if (options != null) {
@@ -1108,19 +1112,19 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                         props = TiConvert.toKrollDict((HashMap) options, TiC.PROPERTY_PROPERTIES, props);
                     } else {
                         scale = TiConvert.toFloat(options, scale);
-                    }
-                }
+	}
+		}
                 if (props != null) {
                     applyPropertiesNoSave(props, true, true);
-                }
+	}
                 Bitmap result = TiUIHelper.viewToBitmap(view.getLayoutParams(), viewForScreenshot());
                 if (scale != 1) {
                     result = TiImageHelper.imageScaled(result, scale);
-                }
-                return result;
-            }
-        });
 	}
+                return result;
+			}
+        });
+		}
 
 	protected TiBlob handleToImage(Object options)
 	{
@@ -1154,10 +1158,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	public void setClickable(boolean clickable)
 	{
 		View nv = getNativeView();
-		if (nv != null) {
-			nv.setClickable(clickable);
+			if (nv != null) {
+				nv.setClickable(clickable);
+			}
 		}
-	}
 
 //	@Kroll.method
 //	public void addClass(Object[] classNames)
@@ -1200,13 +1204,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		if (dest == null) {
 			throw new IllegalArgumentException("convertPointToView: destinationView must not be null");
 		}
-		
+
 		TiPoint point = TiConvert.toPoint(value);
 		if (point == null) {
             throw new IllegalArgumentException("convertPointToView: point must not be null");
-        }
+		}
 
-		
+
 		TiUIView view = peekView();
 		TiUIView destView = dest.peekView();
 		
@@ -1246,7 +1250,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 //			Log.d(TAG, "nativeView location in window, x: " + viewLocation[0] + ", y: " + viewLocation[1], Log.DEBUG_MODE);
 //			Log.d(TAG, "destNativeView location in window, x: " + destLocation[0] + ", y: " + destLocation[1], Log.DEBUG_MODE);
 //		}
-		
+
 		Point pt = point.compute(nativeView.getWidth(), nativeView.getHeight());
 
 		int pointWindowX = viewLocation[0] + pt.x;
@@ -1416,10 +1420,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				    }
 	                realSet.playTogether(additionalAnimator, set);
 	                realSet.start();
-				} else {
+		} else {
 				    set.start();
-				}
-			}
+		}
+	}
 			else {
 				if (viewIn!=null) add(viewIn);
 				if (viewOut!=null) {
@@ -1442,17 +1446,17 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			handlePendingTransition();
 		}
 	}
-	
+
 	protected void handlePendingTransition()
 	{
 		HashMap<String, Object> pendingTransition = null;
 		synchronized (pendingTransitionLock) {
 			if (pendingTransitions.size() == 0) {
 				return;
-			}
-			pendingTransition = pendingTransitions.remove(0);
 		}
-		
+			pendingTransition = pendingTransitions.remove(0);
+	}
+
 		transitionViews((TiViewProxy)pendingTransition.get("viewOut"), 
 				(TiViewProxy)pendingTransition.get("viewIn"), 
 				(HashMap) pendingTransition.get("arg"), 
@@ -1546,8 +1550,8 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected void handleHideKeyboard()
 	{
 		View nv = getOuterView();
-		if (nv != null) {
-			TiUIHelper.showSoftKeyboard(nv, false);
+			if (nv != null) {
+				TiUIHelper.showSoftKeyboard(nv, false);
+			}
 		}
 	}
-}

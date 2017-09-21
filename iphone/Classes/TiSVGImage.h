@@ -9,6 +9,6 @@
 #import "SVGKImage.h"
 
 @interface TiSVGImage : SVGKImage
--(UIImage*)imageForSize:(CGSize)size;
+- (UIImage *)imageForSize:(CGSize)size;
 - (UIImage *)fullImage;
 @end

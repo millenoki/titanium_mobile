@@ -9,198 +9,186 @@
 #import "TiUIButton.h"
 #import "TiUIButtonProxy.h"
 
-#import "TiUtils.h"
 #import "ImageLoader.h"
 #import "TiButtonUtil.h"
 #import "TiUIView.h"
 #import "UIControl+TiUIView.h"
-
 
 @implementation TiUIButton
 
 #pragma mark Internal
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoSize];
-    [self setDefaultWidth:TiDimensionAutoSize];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoSize];
+  [self setDefaultWidth:TiDimensionAutoSize];
 }
 #endif
 
--(void)dealloc
+- (void)dealloc
 {
-	[button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
-	RELEASE_TO_NIL(button);
-	[super dealloc];
+  [button removeTarget:self action:NULL forControlEvents:UIControlEventAllTouchEvents];
+  RELEASE_TO_NIL(button);
+  [super dealloc];
 }
 
-
--(BOOL)hasTouchableListener
+- (BOOL)hasTouchableListener
 {
-	// since this guy only works with touch events, we always want them
-	// just always return YES no matter what listeners we have registered
-	return YES;
+  // since this guy only works with touch events, we always want them
+  // just always return YES no matter what listeners we have registered
+  return YES;
 }
 
--(UIView*)viewForHitTest
+- (UIView *)viewForHitTest
 {
-    return button;
+  return button;
 }
 
 - (void)controlAction:(id)sender forEvent:(UIEvent *)event
 {
-    if (![event isKindOfClass:[UIEvent class]]) return; //so strange it happens sometimes with MKMapView
-    UITouch *touch = [[event allTouches] anyObject];
-    NSString *fireEvent;
-    NSString * fireActionEvent = nil;
-    NSDictionary *evt = [TiUtils dictionaryFromTouch:touch inView:self];
+  if (![event isKindOfClass:[UIEvent class]])
+    return; //so strange it happens sometimes with MKMapView
+  UITouch *touch = [[event allTouches] anyObject];
+  NSString *fireEvent;
+  NSString *fireActionEvent = nil;
+  NSDictionary *evt = [TiUtils dictionaryFromTouch:touch inView:self];
 
-    switch (touch.phase) {
-        case UITouchPhaseBegan:
-            if (touchStarted) {
-                return;
-            }
-            touchStarted = YES;
-            fireEvent = @"touchstart";
-            break;
-        case UITouchPhaseMoved:
-            fireEvent = @"touchmove";
-            break;
-        case UITouchPhaseEnded:
-            touchStarted = NO;
-            fireEvent = @"touchend";
-            if (button.highlighted) {
-                if ([touch tapCount] == 2 && [self.proxy _hasListeners:@"dblclick" ]) {
-                    [self.proxy fireEvent:@"dblclick"  withObject:evt];
-                }
-                fireActionEvent = @"click";
-            }
-            break;
-        case UITouchPhaseCancelled:
-            touchStarted = NO;
-            fireEvent = @"touchcancel";
-            break;
-        default:
-            return;
+  switch (touch.phase) {
+  case UITouchPhaseBegan:
+    if (touchStarted) {
+      return;
     }
-    if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
-        [self.proxy fireEvent:fireActionEvent withObject:evt checkForListener:NO];
+    touchStarted = YES;
+    fireEvent = @"touchstart";
+    break;
+  case UITouchPhaseMoved:
+    fireEvent = @"touchmove";
+    break;
+  case UITouchPhaseEnded:
+    touchStarted = NO;
+    fireEvent = @"touchend";
+    if (button.highlighted) {
+      if ([touch tapCount] == 2 && [self.proxy _hasListeners:@"dblclick"]) {
+        [self.proxy fireEvent:@"dblclick" withObject:evt];
+      }
+      fireActionEvent = @"click";
     }
-	if ([self.proxy _hasListeners:fireEvent]) {
-		[self.proxy fireEvent:fireEvent withObject:evt checkForListener:NO];
-	}
+    break;
+  case UITouchPhaseCancelled:
+    touchStarted = NO;
+    fireEvent = @"touchcancel";
+    break;
+  default:
+    return;
+  }
+  if ((fireActionEvent != nil) && [self.proxy _hasListeners:fireActionEvent]) {
+    [self.proxy fireEvent:fireActionEvent withObject:evt checkForListener:NO];
+  }
+  if ([self.proxy _hasListeners:fireEvent]) {
+    [self.proxy fireEvent:fireEvent withObject:evt checkForListener:NO];
+  }
 }
 
--(UIButton*)button
+- (UIButton *)button
 {
-	if (button==nil)
-	{
-        BOOL hasImage = [self hasImageProperties];
-        BOOL hasBgdColor = [self.proxy valueForKey:@"backgroundColor"]!=nil;
-		
-        UIButtonType defaultType = (hasImage==YES || hasBgdColor==YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
-		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
-		UIView *btn = [TiButtonUtil buttonWithType:style];
-		button = (UIButton*)[btn retain];
-		[button titleLabel].lineBreakMode = NSLineBreakByWordWrapping; //default wordWrap to True
-        [[[button titleLabel] layer] setShadowRadius:0]; //default like label
-		[self addSubview:button];
-		if (style==UIButtonTypeCustom)
-		{
-			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-		}
-		[button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
-		button.exclusiveTouch = YES;
-		button.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        
-        [button setTiUIView:self];
-        [self addSubview:button];
+  if (button == nil) {
+    BOOL hasImage = [self hasImageProperties];
+    BOOL hasBgdColor = [self.proxy valueForKey:@"backgroundColor"] != nil;
+
+    UIButtonType defaultType = (hasImage == YES || hasBgdColor == YES) ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+    style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
+    UIView *btn = [TiButtonUtil buttonWithType:style];
+    button = (UIButton *)[btn retain];
+    [button titleLabel].lineBreakMode = NSLineBreakByWordWrapping; //default wordWrap to True
+    [[[button titleLabel] layer] setShadowRadius:0]; //default like label
+    [self addSubview:button];
+    if (style == UIButtonTypeCustom) {
+      [button setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     }
-	return button;
+    [button addTarget:self action:@selector(controlAction:forEvent:) forControlEvents:UIControlEventAllTouchEvents];
+    button.exclusiveTouch = YES;
+    button.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+
+    [button setTiUIView:self];
+    [self addSubview:button];
+  }
+  return button;
 }
 
 - (BOOL)hasImageProperties
 {
-    return [self.proxy valueForKey:@"backgroundImage"] || [self.proxy valueForKey:@"backgroundSelectedImage"] || [self.proxy valueForKey:@"backgroundSelectedColor"];
+  return [self.proxy valueForKey:@"backgroundImage"] || [self.proxy valueForKey:@"backgroundSelectedImage"] || [self.proxy valueForKey:@"backgroundSelectedColor"];
 }
 
 - (id)accessibilityElement
 {
-	return [self button];
+  return [self button];
 }
 
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [button setFrame:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+  [button setFrame:bounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
-
 
 #pragma mark Public APIs
 
--(void)setStyle_:(id)style_
+- (void)setStyle_:(id)style_
 {
-	NSInteger s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
-	if (s == style)
-	{
-		return;
-	}
-	style = s;
+  NSInteger s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
+  if (s == style) {
+    return;
+  }
+  style = s;
 
-	
-	if (button==nil)
-	{
-		return;
-	}
+  if (button == nil) {
+    return;
+  }
 
-	RELEASE_TO_NIL(button);
-	[self button];
+  RELEASE_TO_NIL(button);
+  [self button];
 }
 
--(void)setImage_:(id)value
+- (void)setImage_:(id)value
 {
-	UIImage *image = [self loadImage:value];
-	if (image!=nil)
-	{
-		[[self button] setImage:image forState:UIControlStateNormal];
-		[(TiViewProxy *)[self proxy] contentsWillChange];
-	}
-	else
-	{
-		[[self button] setImage:nil forState:UIControlStateNormal];
-	}
-}
-
--(void)setCustomUserInteractionEnabled:(BOOL)value
-{
-    [super setCustomUserInteractionEnabled:value];
-	[[self button] setEnabled:[self interactionEnabled]];
-}
-
--(void)setExclusiveTouch:(BOOL)value
-{
-    [super setExclusiveTouch:value];
-	[[self button] setExclusiveTouch:value];
-}
-
--(void)setSelected_:(id)value
-{
-	[[self button] setSelected:[TiUtils boolValue:value]];
-    [super setSelected_:value];
-}
-
-
--(void)setTitle_:(id)value
-{
-	[[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];
+  UIImage *image = [self loadImage:value];
+  if (image != nil) {
+    [[self button] setImage:image forState:UIControlStateNormal];
     [(TiViewProxy *)[self proxy] contentsWillChange];
+  } else {
+    [[self button] setImage:nil forState:UIControlStateNormal];
+  }
 }
 
--(void)setText_:(id)value
+- (void)setCustomUserInteractionEnabled:(BOOL)value
 {
-    [self setTitle_:value];
+  [super setCustomUserInteractionEnabled:value];
+  [[self button] setEnabled:[self interactionEnabled]];
+}
+
+- (void)setExclusiveTouch:(BOOL)value
+{
+  [super setExclusiveTouch:value];
+  [[self button] setExclusiveTouch:value];
+}
+
+- (void)setSelected_:(id)value
+{
+  [[self button] setSelected:[TiUtils boolValue:value]];
+  [super setSelected_:value];
+}
+
+- (void)setTitle_:(id)value
+{
+  [[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+- (void)setText_:(id)value
+{
+  [self setTitle_:value];
 }
 //-(void)setBackgroundImage_:(id)value
 //{
@@ -293,164 +281,143 @@
 //    }
 //}
 
--(void)setFont_:(id)font
+- (void)setFont_:(id)font
 {
-	if (font!=nil)
-	{
-		WebFont *f = [TiUtils fontValue:font def:nil];
-		[[[self button] titleLabel] setFont:[f font]];
-	}
+  if (font != nil) {
+    WebFont *f = [TiUtils fontValue:font def:nil];
+    [[[self button] titleLabel] setFont:[f font]];
+  }
 }
 
--(void)setColor_:(id)color
+- (void)setColor_:(id)color
 {
-	if (color!=nil)
-	{
-		TiColor *c = [TiUtils colorValue:color];
-		UIButton *b = [self button];
-		if (c!=nil)
-		{
-			[b setTitleColor:[c _color] forState:UIControlStateNormal];
-		}
-		else if (b.buttonType==UIButtonTypeCustom)
-		{
-			[b setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-		}
-	}
-}
-
--(void)setHighlightedColor_:(id)color
-{
-	if (color!=nil)
-	{
-		TiColor *selColor = [TiUtils colorValue:color];
-		UIButton *b = [self button];
-		if (selColor!=nil)
-		{
-			[b setTitleColor:[selColor _color] forState:UIControlStateHighlighted];
-		}
-		else if (b.buttonType==UIButtonTypeCustom)
-		{
-			[b setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
-		}
-	}
-}
-
--(void)setSelectedColor_:(id)color
-{
-	if (color!=nil)
-	{
-		TiColor *selColor = [TiUtils colorValue:color];
-		UIButton *b = [self button];
-		if (selColor!=nil)
-		{
-            UIColor* uicolor = [selColor _color];
-			[b setTitleColor:uicolor forState:UIControlStateSelected];
-			[b setTitleColor:uicolor forState:UIControlStateHighlighted];
-		}
-		else if (b.buttonType==UIButtonTypeCustom)
-		{
-            UIColor* uicolor = [UIColor whiteColor];
-			[b setTitleColor:uicolor forState:UIControlStateSelected];
-			[b setTitleColor:uicolor forState:UIControlStateHighlighted];
-		}
-	}
-}
-
--(void)setDisabledColor_:(id)color
-{
-	if (color!=nil)
-	{
-		TiColor *selColor = [TiUtils colorValue:color];
-		UIButton *b = [self button];
-		if (selColor!=nil)
-		{
-            UIColor* uicolor = [selColor _color];
-			[b setTitleColor:uicolor forState:UIControlStateDisabled];
-		}
-		else if (b.buttonType==UIButtonTypeCustom)
-		{
-            UIColor* uicolor = [UIColor whiteColor];
-			[b setTitleColor:uicolor forState:UIControlStateDisabled];
-		}
-	}
-}
-
--(void)setTextAlign_:(id)alignment
-{
+  if (color != nil) {
+    TiColor *c = [TiUtils colorValue:color];
     UIButton *b = [self button];
-    [[b titleLabel] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
-    [b setContentHorizontalAlignment:[TiUtils contentHorizontalAlignmentValueFromTextAlignment:alignment]];
-    [b setNeedsLayout];
+    if (c != nil) {
+      [b setTitleColor:[c _color] forState:UIControlStateNormal];
+    } else if (b.buttonType == UIButtonTypeCustom) {
+      [b setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    }
+  }
 }
 
--(void)setShadowColor_:(id)color
+- (void)setHighlightedColor_:(id)color
 {
-	UIButton *b = [self button];
-	if (color==nil)
-	{
-		[[b titleLabel] setShadowColor:nil];
-	}
-	else
-	{
-        color = [TiUtils colorValue:color];
-        CGFloat alpha = CGColorGetAlpha([color _color].CGColor);
-		[[[b titleLabel] layer] setShadowColor:[color _color].CGColor];
-		[[[b titleLabel] layer] setShadowOpacity:alpha];
-	}
+  if (color != nil) {
+    TiColor *selColor = [TiUtils colorValue:color];
+    UIButton *b = [self button];
+    if (selColor != nil) {
+      [b setTitleColor:[selColor _color] forState:UIControlStateHighlighted];
+    } else if (b.buttonType == UIButtonTypeCustom) {
+      [b setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    }
+  }
 }
 
--(void)setShadowOffset_:(id)value
+- (void)setSelectedColor_:(id)color
 {
-	UIButton *b = [self button];
-	CGPoint p = [TiUtils pointValue:value];
-	CGSize size = {p.x,p.y};
-	[[[b titleLabel] layer] setShadowOffset:size];
+  if (color != nil) {
+    TiColor *selColor = [TiUtils colorValue:color];
+    UIButton *b = [self button];
+    if (selColor != nil) {
+      UIColor *uicolor = [selColor _color];
+      [b setTitleColor:uicolor forState:UIControlStateSelected];
+      [b setTitleColor:uicolor forState:UIControlStateHighlighted];
+    } else if (b.buttonType == UIButtonTypeCustom) {
+      UIColor *uicolor = [UIColor whiteColor];
+      [b setTitleColor:uicolor forState:UIControlStateSelected];
+      [b setTitleColor:uicolor forState:UIControlStateHighlighted];
+    }
+  }
 }
 
--(void)setShadowRadius_:(id)arg
+- (void)setDisabledColor_:(id)color
 {
-	UIButton *b = [self button];
-	[[[b titleLabel] layer] setShadowRadius:[TiUtils floatValue:arg]];
+  if (color != nil) {
+    TiColor *selColor = [TiUtils colorValue:color];
+    UIButton *b = [self button];
+    if (selColor != nil) {
+      UIColor *uicolor = [selColor _color];
+      [b setTitleColor:uicolor forState:UIControlStateDisabled];
+    } else if (b.buttonType == UIButtonTypeCustom) {
+      UIColor *uicolor = [UIColor whiteColor];
+      [b setTitleColor:uicolor forState:UIControlStateDisabled];
+    }
+  }
 }
 
--(void)setPadding:(UIEdgeInsets)inset
+- (void)setTextAlign_:(id)alignment
 {
-	[button setTitleEdgeInsets:inset];
-    [button setNeedsLayout];
+  UIButton *b = [self button];
+  [[b titleLabel] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
+  [b setContentHorizontalAlignment:[TiUtils contentHorizontalAlignmentValueFromTextAlignment:alignment]];
+  [b setNeedsLayout];
 }
 
--(void)setWordWrap_:(id)value
+- (void)setShadowColor_:(id)color
 {
-	BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
-	if (shouldWordWrap)
-		[[button titleLabel] setLineBreakMode:NSLineBreakByWordWrapping];
-	else 
-		[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
-    [button setNeedsLayout];
+  UIButton *b = [self button];
+  if (color == nil) {
+    [[b titleLabel] setShadowColor:nil];
+  } else {
+    color = [TiUtils colorValue:color];
+    CGFloat alpha = CGColorGetAlpha([color _color].CGColor);
+    [[[b titleLabel] layer] setShadowColor:[color _color].CGColor];
+    [[[b titleLabel] layer] setShadowOpacity:alpha];
+  }
 }
 
--(void)setEllipsize_:(id)value
+- (void)setShadowOffset_:(id)value
 {
-    [[button titleLabel] setLineBreakMode:[TiUtils intValue:value]];
-    [button setNeedsLayout];
+  UIButton *b = [self button];
+  CGPoint p = [TiUtils pointValue:value];
+  CGSize size = { p.x, p.y };
+  [[[b titleLabel] layer] setShadowOffset:size];
 }
 
--(void)setVerticalAlign_:(id)alignment
+- (void)setShadowRadius_:(id)arg
 {
-	[button setContentVerticalAlignment:[TiUtils contentVerticalAlignmentValue:alignment]];
-    [button setNeedsLayout];
+  UIButton *b = [self button];
+  [[[b titleLabel] layer] setShadowRadius:[TiUtils floatValue:arg]];
 }
 
--(CGSize)contentSizeForSize:(CGSize)value
+- (void)setPadding:(UIEdgeInsets)inset
 {
-    CGSize result = [[self button] sizeThatFits:value];
-    result.width += [self button].titleEdgeInsets.left + [self button].titleEdgeInsets.right;
-    result.height += [self button].titleEdgeInsets.top + [self button].titleEdgeInsets.bottom;
-
-    return result;
+  [button setTitleEdgeInsets:inset];
+  [button setNeedsLayout];
 }
 
+- (void)setWordWrap_:(id)value
+{
+  BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
+  if (shouldWordWrap)
+    [[button titleLabel] setLineBreakMode:NSLineBreakByWordWrapping];
+  else
+    [[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
+  [button setNeedsLayout];
+}
+
+- (void)setEllipsize_:(id)value
+{
+  [[button titleLabel] setLineBreakMode:[TiUtils intValue:value]];
+  [button setNeedsLayout];
+}
+
+- (void)setVerticalAlign_:(id)alignment
+{
+  [button setContentVerticalAlignment:[TiUtils contentVerticalAlignmentValue:alignment]];
+  [button setNeedsLayout];
+}
+
+- (CGSize)contentSizeForSize:(CGSize)value
+{
+  CGSize result = [[self button] sizeThatFits:value];
+  result.width += [self button].titleEdgeInsets.left + [self button].titleEdgeInsets.right;
+  result.height += [self button].titleEdgeInsets.top + [self button].titleEdgeInsets.bottom;
+
+  return result;
+}
 
 @end
 

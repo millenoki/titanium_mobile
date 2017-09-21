@@ -6,133 +6,129 @@
 //
 //
 
+#import "TiUIiOSActivityProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-#import "TiUIiOSActivityProxy.h"
 
 @implementation TiUIiOSActivityProxy
 
-+(TiUIiOSActivityProxy*)activityFromArg:(id)args context:(id<TiEvaluator>)context
++ (TiUIiOSActivityProxy *)activityFromArg:(id)args context:(id<TiEvaluator>)context
 {
-    id arg = nil;
-	BOOL isArray = NO;
-	
-	if ([args isKindOfClass:[TiUIiOSActivityProxy class]])
-	{
-		return args;
-	}
-	return [[[TiUIiOSActivityProxy alloc] _initWithPageContext:context] autorelease];
+  id arg = nil;
+  BOOL isArray = NO;
+
+  if ([args isKindOfClass:[TiUIiOSActivityProxy class]]) {
+    return args;
+  }
+  return [[[TiUIiOSActivityProxy alloc] _initWithPageContext:context] autorelease];
 }
 
--(void) dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_category)
-    RELEASE_TO_NIL(_type)
-    RELEASE_TO_NIL(_image)
-    RELEASE_TO_NIL(_title)
-    RELEASE_TO_NIL(_onPerformActivity)
-    [super dealloc];
-    
+  RELEASE_TO_NIL(_category)
+  RELEASE_TO_NIL(_type)
+  RELEASE_TO_NIL(_image)
+  RELEASE_TO_NIL(_title)
+  RELEASE_TO_NIL(_onPerformActivity)
+  [super dealloc];
 }
 
--(UIImage*)imageOrDefault
+- (UIImage *)imageOrDefault
 {
-    if (_image) {
-        return [TiUtils image:_image proxy:self];
-    } else {
-        return nil;
-    }
+  if (_image) {
+    return [TiUtils image:_image proxy:self];
+  } else {
+    return nil;
+  }
 }
 
-
--(UIActivity*)asActivity
+- (UIActivity *)asActivity
 {
-    return [TiActivity activityWithProxy:self ofCategory:[_category integerValue]];
+  return [TiActivity activityWithProxy:self ofCategory:[_category integerValue]];
 }
 
--(BOOL)performActivity:(TiActivity*)activity withItems:(NSArray *)items
+- (BOOL)performActivity:(TiActivity *)activity withItems:(NSArray *)items
 {
-    if (self.onPerformActivity != nil) {
-        NSLog(@"invoking onPerformActivity %@ %@", self.type, self.title);
-        id ret = [self.onPerformActivity call:items thisObject:self];
-        return [TiUtils boolValue:ret];
-    } else {
-        NSLog(@"ApplicationActivityProxy calling performActivity with no callback, will do nothing!");
-        return YES;
-    }
+  if (self.onPerformActivity != nil) {
+    NSLog(@"invoking onPerformActivity %@ %@", self.type, self.title);
+    id ret = [self.onPerformActivity call:items thisObject:self];
+    return [TiUtils boolValue:ret];
+  } else {
+    NSLog(@"ApplicationActivityProxy calling performActivity with no callback, will do nothing!");
+    return YES;
+  }
 }
 @end
 
-
 @implementation TiActivity
 
-- (NSString *) activityType
+- (NSString *)activityType
 {
-    return _proxy.type;
+  return _proxy.type;
 }
 
-- (NSString *) activityTitle
+- (NSString *)activityTitle
 {
-    return _proxy.title;
+  return _proxy.title;
 }
 
-- (UIImage *) activityImage
+- (UIImage *)activityImage
 {
-    return [_proxy imageOrDefault];
+  return [_proxy imageOrDefault];
 }
--(TiUIiOSActivityProxy*)proxy {
-    return _proxy;
-}
-- (void) prepareWithActivityItems:(NSArray *) activityItems
+- (TiUIiOSActivityProxy *)proxy
 {
-    _activityItems = activityItems;
+  return _proxy;
 }
-
-- (BOOL) canPerformWithActivityItems:(NSArray *)activityItems
+- (void)prepareWithActivityItems:(NSArray *)activityItems
 {
-    return YES;
+  _activityItems = activityItems;
 }
 
-- (void) performActivity
+- (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
 {
-    [self activityDidFinish:[_proxy performActivity:self withItems:_activityItems]];
+  return YES;
 }
 
-- (instancetype) initWithProxy:(TiUIiOSActivityProxy *)proxy;
+- (void)performActivity
 {
-    self = [super init];
-    if (self) {
-        _proxy = proxy;
-    }
-    return self;
+  [self activityDidFinish:[_proxy performActivity:self withItems:_activityItems]];
 }
 
-+ (TiActivity*) activityWithProxy:(TiUIiOSActivityProxy *)proxy ofCategory:(UIActivityCategory)category
+- (instancetype)initWithProxy:(TiUIiOSActivityProxy *)proxy;
 {
-    if (category == UIActivityCategoryAction) {
-        return [[[ApplicationActionActivity alloc] initWithProxy:proxy] autorelease];
-    } else {
-        return [[[ApplicationShareActivity alloc] initWithProxy:proxy] autorelease];
-    }
+  self = [super init];
+  if (self) {
+    _proxy = proxy;
+  }
+  return self;
+}
+
++ (TiActivity *)activityWithProxy:(TiUIiOSActivityProxy *)proxy ofCategory:(UIActivityCategory)category
+{
+  if (category == UIActivityCategoryAction) {
+    return [[[ApplicationActionActivity alloc] initWithProxy:proxy] autorelease];
+  } else {
+    return [[[ApplicationShareActivity alloc] initWithProxy:proxy] autorelease];
+  }
 }
 
 @end
 
 @implementation ApplicationShareActivity
 
-+(UIActivityCategory)activityCategory
++ (UIActivityCategory)activityCategory
 {
-    return UIActivityCategoryShare;
+  return UIActivityCategoryShare;
 }
 
 @end
 
 @implementation ApplicationActionActivity
 
-+(UIActivityCategory)activityCategory
++ (UIActivityCategory)activityCategory
 {
-    return UIActivityCategoryAction;
+  return UIActivityCategoryAction;
 }
 
 @end
-

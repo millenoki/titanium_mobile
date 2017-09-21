@@ -4,8 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiBase.h"
 #import "TiUIiOSAdViewProxy.h"
+#import "TiBase.h"
 #import "TiUIiOSAdView.h"
 #import "TiUtils.h"
 
@@ -15,39 +15,39 @@
 
 @implementation TiUIiOSAdViewProxy
 
-+(NSString*)portraitSize
++ (NSString *)portraitSize
 {
-    DebugLog(@"[WARN] Property portraitSize has been deprecated since 3.4.2 and no longer represents a valid value.");
-    if ([TiUtils isIPad]) {
-        return NSStringFromCGSize(CGSizeMake(768, 66));
-    } else {
-        return NSStringFromCGSize(CGSizeMake(320, 50));
-    }
+  DebugLog(@"[WARN] Property portraitSize has been deprecated since 3.4.2 and no longer represents a valid value.");
+  if ([TiUtils isIPad]) {
+    return NSStringFromCGSize(CGSizeMake(768, 66));
+  } else {
+    return NSStringFromCGSize(CGSizeMake(320, 50));
+  }
 }
 
-+(NSString*)landscapeSize
++ (NSString *)landscapeSize
 {
-    DebugLog(@"[WARN] Property landscapeSize has been deprecated since 3.4.2 and no longer represents a valid value.");
-    if ([TiUtils isIPad]) {
-        return NSStringFromCGSize(CGSizeMake(1024, 66));
-    } else {
-        return NSStringFromCGSize(CGSizeMake(480, 32));
-    }
+  DebugLog(@"[WARN] Property landscapeSize has been deprecated since 3.4.2 and no longer represents a valid value.");
+  if ([TiUtils isIPad]) {
+    return NSStringFromCGSize(CGSizeMake(1024, 66));
+  } else {
+    return NSStringFromCGSize(CGSizeMake(480, 32));
+  }
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.iOS.AdView";
+  return @"Ti.UI.iOS.AdView";
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 //-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
@@ -64,39 +64,38 @@
 
 USE_VIEW_FOR_CONTENT_SIZE
 
--(void)cancelAction:(id)args
+- (void)cancelAction:(id)args
 {
-	[self makeViewPerformSelector:@selector(cancelAction:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+  [self makeViewPerformSelector:@selector(cancelAction:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
-
--(NSString*)adSize
+- (NSString *)adSize
 {
-     DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a constant value.");
-    __block NSString* adSize;
-    
-    TiThreadPerformOnMainThread(^{
-        CGRect bounds = [[(TiUIiOSAdView*)[self view] adview] bounds];
-        adSize = [NSStringFromCGSize(bounds.size) retain];
-    }, YES);
-    
-    return [adSize autorelease];
+  DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a constant value.");
+  __block NSString *adSize;
+
+  TiThreadPerformOnMainThread(^{
+    CGRect bounds = [[(TiUIiOSAdView *)[self view] adview] bounds];
+    adSize = [NSStringFromCGSize(bounds.size) retain];
+  },
+      YES);
+
+  return [adSize autorelease];
 }
 
--(void)setAdSize:(id)arg
+- (void)setAdSize:(id)arg
 {
-    DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a valid value.");
+  DebugLog(@"[WARN] Property adSize has been deprecated since 3.4.2 and no longer represents a valid value.");
 }
 
--(void)fireLoad:(id)unused
+- (void)fireLoad:(id)unused
 {
-    if ([self _hasListeners:@"load" checkParent:NO])
-    {
-        NSMutableDictionary *event = [NSMutableDictionary dictionary];
-        [self fireEvent:@"load" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    }
+  if ([self _hasListeners:@"load" checkParent:NO]) {
+    NSMutableDictionary *event = [NSMutableDictionary dictionary];
+    [self fireEvent:@"load" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
 
-    [self contentsWillChange];
+  [self contentsWillChange];
 }
 
 @end

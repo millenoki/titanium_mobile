@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 48;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -72,7 +72,6 @@
 		24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8954111161050084E2DE /* PLSqliteDatabase.m */; };
 		24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */; };
 		24CA8980111161050084E2DE /* PLSqliteResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8958111161050084E2DE /* PLSqliteResultSet.m */; };
-		24CA8981111161050084E2DE /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA895A111161050084E2DE /* SBJSON.m */; };
 		24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89A91111615D0084E2DE /* KrollBridge.m */; };
 		24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AB1111615D0084E2DE /* KrollCallback.m */; };
 		24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA89AD1111615D0084E2DE /* KrollContext.m */; };
@@ -204,8 +203,7 @@
 		2B353A8115901D41008FBD84 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B353A8015901D41008FBD84 /* Ti3DMatrix.m */; };
 		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
 		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
-		2BCD59C51429561D00DEC2E8 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
-		2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
+		2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */; };
 		2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
 		3A0B56791C0CD81C00709DA4 /* TiUIiOSLivePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0B56741C0CD81C00709DA4 /* TiUIiOSLivePhoto.m */; };
 		3A0B567A1C0CD81C00709DA4 /* TiUIiOSLivePhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0B56761C0CD81C00709DA4 /* TiUIiOSLivePhotoView.m */; };
@@ -504,6 +502,8 @@
 		DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
+		DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */; };
+		DB90749F1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
@@ -710,8 +710,6 @@
 		24CA8956111161050084E2DE /* PLSqlitePreparedStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqlitePreparedStatement.m; sourceTree = "<group>"; };
 		24CA8957111161050084E2DE /* PLSqliteResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLSqliteResultSet.h; sourceTree = "<group>"; };
 		24CA8958111161050084E2DE /* PLSqliteResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLSqliteResultSet.m; sourceTree = "<group>"; };
-		24CA8959111161050084E2DE /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = ../Classes/SBJSON.h; sourceTree = SOURCE_ROOT; };
-		24CA895A111161050084E2DE /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJSON.m; path = ../Classes/SBJSON.m; sourceTree = SOURCE_ROOT; };
 		24CA89A81111615D0084E2DE /* KrollBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollBridge.h; sourceTree = "<group>"; };
 		24CA89A91111615D0084E2DE /* KrollBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollBridge.m; sourceTree = "<group>"; };
 		24CA89AA1111615D0084E2DE /* KrollCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollCallback.h; path = ../Classes/KrollCallback.h; sourceTree = SOURCE_ROOT; };
@@ -1004,10 +1002,8 @@
 		2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowView.m; sourceTree = "<group>"; };
 		2B94603413F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSCoverFlowViewProxy.h; sourceTree = "<group>"; };
 		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
-		2BCD59C11429561D00DEC2E8 /* TiUIiOSToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSToolbar.h; sourceTree = "<group>"; };
-		2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSToolbar.m; sourceTree = "<group>"; };
-		2BCD59C31429561D00DEC2E8 /* TiUIiOSToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSToolbarProxy.h; sourceTree = "<group>"; };
-		2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSToolbarProxy.m; sourceTree = "<group>"; };
+		2BCD59C11429561D00DEC2E8 /* TiUIToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbar.h; sourceTree = "<group>"; };
+		2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbar.m; sourceTree = "<group>"; };
 		2BDEA4F11448FFB7004EC750 /* TiUIiOSTabbedBarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTabbedBarProxy.h; sourceTree = "<group>"; };
 		2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTabbedBarProxy.m; sourceTree = "<group>"; };
 		312E36BF190B06D9008EAB8D /* APSAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSAnalytics.h; sourceTree = "<group>"; };
@@ -1170,7 +1166,6 @@
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		B606EF33190B109D00663EFC /* TiNetworkHTTPClientProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkHTTPClientProxy.h; sourceTree = "<group>"; };
 		B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkHTTPClientProxy.m; sourceTree = "<group>"; };
-		B606EF38190B10A800663EFC /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
 		B606EF48190B14ED00663EFC /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		B606EF49190B14ED00663EFC /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		B637616B1BC5CA4A0070A695 /* TiLayoutDimension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiLayoutDimension.h; path = Layout/TiLayoutDimension.h; sourceTree = "<group>"; };
@@ -1763,6 +1758,10 @@
 		DADE76D313D65C590079FC75 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
 		DAE541E113577BEC00A65123 /* TiDataStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDataStream.h; sourceTree = "<group>"; };
 		DAE541E213577BEC00A65123 /* TiDataStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDataStream.m; sourceTree = "<group>"; };
+		DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbarProxy.h; sourceTree = "<group>"; };
+		DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbarProxy.m; sourceTree = "<group>"; };
+		DB90749D1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
+		DB90749E1D84299500BB0FD5 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Additions.m"; path = "../Classes/NSData+Additions.m"; sourceTree = "<group>"; };
 		EF0ADD19143FA0CD00977386 /* GeolocationModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeolocationModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2019,8 +2018,6 @@
 				24EB0B72111E7EE8001DC2D1 /* NSData+Additions.h */,
 				24CA892A111161050084E2DE /* Base64Transcoder.c */,
 				24CA892B111161050084E2DE /* Base64Transcoder.h */,
-				24CA8959111161050084E2DE /* SBJSON.h */,
-				24CA895A111161050084E2DE /* SBJSON.m */,
 			);
 			name = Misc;
 			sourceTree = "<group>";
@@ -2309,6 +2306,7 @@
 			children = (
 				D5C92DA4182AA8680072D117 /* UIViewsTouchDelegate */,
 				D56E6691180BF07B00F1B737 /* transitions */,
+				DB0D54921F3B491300E2B771 /* Toolbar */,
 				BBDD81351A2C71E5003CDA10 /* AttributedString */,
 				84DEE90F1815CE67000D7B78 /* RefreshControl */,
 				24ADC5081299F4730014DB75 /* Clipboard */,
@@ -2347,12 +2345,11 @@
 		24CA8C171111643E0084E2DE /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				DA2556411353D24C005D459C /* Sockets */,
 				B606EF48190B14ED00663EFC /* Reachability.h */,
 				B606EF49190B14ED00663EFC /* Reachability.m */,
-				B606EF38190B10A800663EFC /* SBJSON.h */,
 				B606EF33190B109D00663EFC /* TiNetworkHTTPClientProxy.h */,
 				B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */,
-				DA2556411353D24C005D459C /* Sockets */,
 				248133A1115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.h */,
 				248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */,
 				248133A3115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.h */,
@@ -2771,7 +2768,6 @@
 				84EB07FE1A71920300D35815 /* SplitViewWindow */,
 				2B0B6E0F15951FC200F3170F /* DocumentViewer */,
 				2BDEA4F41448FFCB004EC750 /* Tabbedbar */,
-				2BCD59C91429563400DEC2E8 /* Toolbar */,
 				24CA8C5D111165550084E2DE /* Coverflow */,
 				24D06FE311D0216100F615D8 /* iAd */,
 				24CA8C5E1111655E0084E2DE /* iPhone */,
@@ -3022,17 +3018,6 @@
 				2B0B6E0B15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m */,
 			);
 			name = DocumentViewer;
-			sourceTree = "<group>";
-		};
-		2BCD59C91429563400DEC2E8 /* Toolbar */ = {
-			isa = PBXGroup;
-			children = (
-				2BCD59C11429561D00DEC2E8 /* TiUIiOSToolbar.h */,
-				2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */,
-				2BCD59C31429561D00DEC2E8 /* TiUIiOSToolbarProxy.h */,
-				2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */,
-			);
-			name = Toolbar;
 			sourceTree = "<group>";
 		};
 		2BDEA4F41448FFCB004EC750 /* Tabbedbar */ = {
@@ -4021,6 +4006,17 @@
 			name = Stream;
 			sourceTree = "<group>";
 		};
+		DB0D54921F3B491300E2B771 /* Toolbar */ = {
+			isa = PBXGroup;
+			children = (
+				2BCD59C11429561D00DEC2E8 /* TiUIToolbar.h */,
+				2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */,
+				DB0D54931F3B4A3D00E2B771 /* TiUIToolbarProxy.h */,
+				DB0D54941F3B4A3D00E2B771 /* TiUIToolbarProxy.m */,
+			);
+			name = Toolbar;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -4078,7 +4074,7 @@
 				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Titanium" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -4241,7 +4237,6 @@
 				D535CCE219CF2C77005E114E /* SLColorArt.m in Sources */,
 				8484E3A717A865F700C24B02 /* TiViewController.m in Sources */,
 				24CA8980111161050084E2DE /* PLSqliteResultSet.m in Sources */,
-				24CA8981111161050084E2DE /* SBJSON.m in Sources */,
 				D50A303018B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */,
 				24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */,
 				D56C5BE01CA19A8500460105 /* DDMathTokenizer.m in Sources */,
@@ -4422,6 +4417,7 @@
 				D54C7CF818115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
 				24CA8BFA111161FE0084E2DE /* ContactsModule.m in Sources */,
 				24CA8BFB111161FE0084E2DE /* TiUITableViewRowProxy.m in Sources */,
+				DB0D54951F3B4A3D00E2B771 /* TiUIToolbarProxy.m in Sources */,
 				24CA8BFC111161FE0084E2DE /* Bridge.m in Sources */,
 				D56F98FA19E67D140050E727 /* UIImage+ImageEffects.m in Sources */,
 				24CA8C08111161FE0084E2DE /* AppModule.m in Sources */,
@@ -4585,8 +4581,7 @@
 				D5509FD8194B1C2D00655C61 /* AnalyticsModule.m in Sources */,
 				2B1F65771431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 				D5C8C96A17EF45C900F54C19 /* ADCarrouselTransition.m in Sources */,
-				2BCD59C51429561D00DEC2E8 /* TiUIiOSToolbar.m in Sources */,
-				2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */,
+				2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */,
 				848C2594145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				848C259A145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				D5C5EC3118642FB100357DE4 /* TiTableView.m in Sources */,

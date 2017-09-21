@@ -7,298 +7,320 @@
 #ifdef USE_TI_UIWEBVIEW
 
 #import "TiUIWebViewProxy.h"
-#import "TiUIWebView.h"
-#import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiHost.h"
+#import "TiUIWebView.h"
+#import "TiUtils.h"
 
 @implementation TiUIWebViewProxy
 
 #ifdef DEBUG_MEMORY
--(void)dealloc
+- (void)dealloc
 {
-	[super dealloc];
+  [super dealloc];
 }
 
--(id)retain
+- (id)retain
 {
-	return [super retain];
+  return [super retain];
 }
 
--(void)release
+- (void)release
 {
-	[super release];
+  [super release];
 }
 #endif
 
--(NSArray *)keySequence
+- (NSArray *)keySequence
 {
-    static NSArray *keySequence = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"asyncLoad", @"url"]] retain];;
-    });
-    return keySequence;
+  static NSArray *keySequence = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"asyncLoad", @"url" ]] retain];
+    ;
+  });
+  return keySequence;
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.WebView";
+  return @"Ti.UI.WebView";
 }
 
--(BOOL)shouldDetachViewForSpace
+- (BOOL)shouldDetachViewForSpace
 {
-	return NO;
+  return NO;
 }
 
--(void)_initWithProperties:(NSDictionary *)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
-//    [self initializeProperty:@"willHandleTouches" defaultValue:NUMBOOL(YES)];
-    [super _initWithProperties:properties];
+  [self replaceValue:[NSArray arrayWithObject:NUMINT(UIDataDetectorTypePhoneNumber)] forKey:@"autoDetect" notification:NO];
+  //    [self initializeProperty:@"willHandleTouches" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
 }
 
-
-- (NSString*) prepareEvalString:(NSString*) expression {
-    NSError *error = nil;
-   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\s+$|\n|\r)" options:NSRegularExpressionCaseInsensitive error:&error];
-    NSString *result = [regex stringByReplacingMatchesInString:expression options:0 range:NSMakeRange(0, [expression length]) withTemplate:@""];
-    regex = [NSRegularExpression regularExpressionWithPattern:@"(var|function|//|if|return|console)" options:NSRegularExpressionCaseInsensitive error:&error];
-    if ([[regex matchesInString:expression options:0 range:NSMakeRange(0, [expression length])] count] > 0) {
-        return result;
-    } else {
-        return [@"return " stringByAppendingString:result];
-    }
+- (NSString *)prepareEvalString:(NSString *)expression
+{
+  NSError *error = nil;
+  NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\s+$|\n|\r)" options:NSRegularExpressionCaseInsensitive error:&error];
+  NSString *result = [regex stringByReplacingMatchesInString:expression options:0 range:NSMakeRange(0, [expression length]) withTemplate:@""];
+  regex = [NSRegularExpression regularExpressionWithPattern:@"(var|function|//|if|return|console)" options:NSRegularExpressionCaseInsensitive error:&error];
+  if ([[regex matchesInString:expression options:0 range:NSMakeRange(0, [expression length])] count] > 0) {
+    return result;
+  } else {
+    return [@"return " stringByAppendingString:result];
+  }
 }
 
-- (NSString*)evalJS:(id)args
+- (NSString *)evalJS:(id)args
 {
-    /*
+  /*
      Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
-    NSString* code = nil;
-    KrollCallback *cb = nil;
-    ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
-    ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
-    if (cb) {
-        TiThreadPerformOnMainThread(^{
-            NSString* actualCode = [NSString stringWithFormat:@"(function(){%@})()", [self prepareEvalString:code]];
-            NSString* result = [(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:actualCode];
-            [self _fireEventToListener:@"evaluated" withObject:result listener:cb thisObject:nil];
-        }, NO);
+  NSString *code = nil;
+  KrollCallback *cb = nil;
+  ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+  ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
+  if (cb) {
+    TiThreadPerformOnMainThread(^{
+      NSString *actualCode = [NSString stringWithFormat:@"(function(){%@})()", [self prepareEvalString:code]];
+      NSString *result = [(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:actualCode];
+      [self _fireEventToListener:@"evaluated" withObject:result listener:cb thisObject:nil];
+    },
+        NO);
 
-//        [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
-        return nil;
-    } else {
-        return [self evalJSAndWait:code];
-    }
+    //        [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
+    return nil;
+  } else {
+    return [self evalJSAndWait:code];
+  }
 }
 
 - (void)injectJS:(id)args
 {
-    /*
+  /*
      Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
-    NSString* code = nil;
-    KrollCallback *cb = nil;
-    ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
-    ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
-    TiThreadPerformOnMainThread(^{
-        [(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];
-        [self _fireEventToListener:@"evaluated" withObject:nil listener:cb thisObject:nil];
-    }, NO);
-//    [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
+  NSString *code = nil;
+  KrollCallback *cb = nil;
+  ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+  ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:code];
+    [self _fireEventToListener:@"evaluated" withObject:nil listener:cb thisObject:nil];
+  },
+      NO);
+  //    [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
 }
 
 //USE_VIEW_FOR_CONTENT_HEIGHT
 //USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_SIZE
 
-- (NSString*)html
+- (NSString *)html
 {
-	NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
-	// strip out the ti injection - nobody wants that - and if 
-	// you're saving off the HTML, we don't want to save that off since 
-	// it's dynamically injected and can't be preserved
-	NSRange range = [html rangeOfString:@"<script id=\"__ti_injection"];
-	if (range.location!=NSNotFound)
-	{
-		NSRange nextRange = [html rangeOfString:@"</script" options:0 range:NSMakeRange(range.location, [html length]-range.location) locale:nil];
-		if (nextRange.location!=NSNotFound)
-		{
-			NSString *before = [html substringToIndex:range.location];
-			NSString *after = [html substringFromIndex:nextRange.location+9];
-			return [NSString stringWithFormat:@"%@%@",before,after];
-		}
-	}
-	return html;
-}
-
--(id)loading
-{
-	__block BOOL loading;
-	TiThreadPerformOnMainThread(^{
-		loading = [(TiUIWebView*)[self view] loading];
-	}, YES);
-    
-	return NUMBOOL(loading);
-}
-
--(void)goBack:(id)args
-{
-	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goBack];}, NO);
-}
-
--(void)goForward:(id)args
-{
-	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] goForward];}, NO);
-}
-
--(void)stopLoading:(id)args
-{
-	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] stopLoading];}, NO);
-}
-
--(void)reload:(id)args
-{
-	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] reload];}, NO);
-}
-
--(void)setHtml:(NSString*)content withObject:(id)property
-{
-    [self replaceValue:content forKey:@"html" notification:NO];
-    TiThreadPerformOnMainThread(^{
-        [(TiUIWebView *)[self view] setHtml_:content withObject:property];
-    }, YES);
-}
-
--(id)canGoBack:(id)args
-{
-	if ([self viewAttached])
-	{
-		__block BOOL result;
-		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoBack];}, YES);
-		return NUMBOOL(result);
-	}
-	return NUMBOOL(NO);
-}
-
--(id)canGoForward:(id)args
-{
-	if ([self viewAttached])
-	{
-		__block BOOL result;
-		TiThreadPerformOnMainThread(^{result = [(TiUIWebView*)[self view] canGoForward];}, YES);
-		return NUMBOOL(result);
-	}
-	return NUMBOOL(NO);
-}
-
--(void)clearCache:(id)args
-{
-    [self makeViewPerformSelector:@selector(clearCache) withObject:nil createIfNeeded:YES waitUntilDone:YES];
-}
-
--(void)clearHistory:(id)args
-{
-    [self makeViewPerformSelector:@selector(clearHistory) withObject:nil createIfNeeded:NO waitUntilDone:YES];
-}
-
--(void)setBasicAuthentication:(NSArray*)args
-{
-	[self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];
-}
-
--(void)repaint:(id)unused
-{
-	[self contentsWillChange];
-}
-
--(void)windowDidClose
-{
-    if (pageToken!=nil)
-    {
-        [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-        RELEASE_TO_NIL(pageToken);
+  NSString *html = [self evalJSAndWait:@"document.documentElement.outerHTML"];
+  // strip out the ti injection - nobody wants that - and if
+  // you're saving off the HTML, we don't want to save that off since
+  // it's dynamically injected and can't be preserved
+  NSRange range = [html rangeOfString:@"<script id=\"__ti_injection"];
+  if (range.location != NSNotFound) {
+    NSRange nextRange = [html rangeOfString:@"</script" options:0 range:NSMakeRange(range.location, [html length] - range.location) locale:nil];
+    if (nextRange.location != NSNotFound) {
+      NSString *before = [html substringToIndex:range.location];
+      NSString *after = [html substringFromIndex:nextRange.location + 9];
+      return [NSString stringWithFormat:@"%@%@", before, after];
     }
-    NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
-    WARN_IF_BACKGROUND_THREAD_OBJ;
-    [[NSNotificationCenter defaultCenter] postNotification:notification];
-    [super windowDidClose];
+  }
+  return html;
 }
 
--(void)_destroy
+- (id)loading
 {
-	if (pageToken!=nil)
-	{
-		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-		RELEASE_TO_NIL(pageToken);
-	}
-    [super _destroy];
+  __block BOOL loading;
+  TiThreadPerformOnMainThread(^{
+    loading = [(TiUIWebView *)[self view] loading];
+  },
+      YES);
+
+  return NUMBOOL(loading);
 }
 
--(void)setPageToken:(NSString*)pageToken_
+- (void)goBack:(id)args
 {
-	if (pageToken != nil)
-	{
-		[[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
-		RELEASE_TO_NIL(pageToken);
-	}
-	pageToken = [pageToken_ retain];
-	[[self host] registerContext:self forToken:pageToken];
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] goBack];
+  },
+      NO);
+}
+
+- (void)goForward:(id)args
+{
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] goForward];
+  },
+      NO);
+}
+
+- (void)stopLoading:(id)args
+{
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] stopLoading];
+  },
+      NO);
+}
+
+- (void)reload:(id)args
+{
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] reload];
+  },
+      NO);
+}
+
+- (void)setHtml:(NSString *)content withObject:(id)property
+{
+  [self replaceValue:content forKey:@"html" notification:NO];
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] setHtml_:content withObject:property];
+  },
+      YES);
+}
+
+- (id)canGoBack:(id)args
+{
+  if ([self viewAttached]) {
+    __block BOOL result;
+    TiThreadPerformOnMainThread(^{
+      result = [(TiUIWebView *)[self view] canGoBack];
+    },
+        YES);
+    return NUMBOOL(result);
+  }
+  return NUMBOOL(NO);
+}
+
+- (id)canGoForward:(id)args
+{
+  if ([self viewAttached]) {
+    __block BOOL result;
+    TiThreadPerformOnMainThread(^{
+      result = [(TiUIWebView *)[self view] canGoForward];
+    },
+        YES);
+    return NUMBOOL(result);
+  }
+  return NUMBOOL(NO);
+}
+
+- (void)clearCache:(id)args
+{
+  [self makeViewPerformSelector:@selector(clearCache) withObject:nil createIfNeeded:YES waitUntilDone:YES];
+}
+
+- (void)clearHistory:(id)args
+{
+  [self makeViewPerformSelector:@selector(clearHistory) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+}
+
+- (void)setBasicAuthentication:(NSArray *)args
+{
+  [self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];
+}
+
+- (void)repaint:(id)unused
+{
+  [self contentsWillChange];
+}
+
+- (void)windowDidClose
+{
+  if (pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+    RELEASE_TO_NIL(pageToken);
+  }
+  NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
+  WARN_IF_BACKGROUND_THREAD_OBJ;
+  [[NSNotificationCenter defaultCenter] postNotification:notification];
+  [super windowDidClose];
+}
+
+- (void)_destroy
+{
+  if (pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+    RELEASE_TO_NIL(pageToken);
+  }
+  [super _destroy];
+}
+
+- (void)setPageToken:(NSString *)pageToken_
+{
+  if (pageToken != nil) {
+    [[self host] unregisterContext:(id<TiEvaluator>)self forToken:pageToken];
+    RELEASE_TO_NIL(pageToken);
+  }
+  pageToken = [pageToken_ retain];
+  [[self host] registerContext:self forToken:pageToken];
 }
 
 #pragma mark Evaluator
 
 - (BOOL)evaluationError
 {
-	// TODO; is this correct
-	return NO;
+  // TODO; is this correct
+  return NO;
 }
 
-- (TiHost*)host
+- (TiHost *)host
 {
-	return [self _host];
+  return [self _host];
 }
 
-- (void)evalFile:(NSString*)file
+- (void)evalFile:(NSString *)file
 {
-	TiThreadPerformOnMainThread(^{[(TiUIWebView*)[self view] evalFile:file];}, NO);
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] evalFile:file];
+  },
+      NO);
 }
 
-- (id)evalJSAndWait:(NSString*)code
+- (id)evalJSAndWait:(NSString *)code
 {
-	__block id result;
-	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
-	return [result autorelease];
+  __block id result;
+  TiThreadPerformOnMainThread(^{
+    result = [[(TiUIWebView *)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+  },
+      YES);
+  return [result autorelease];
 }
--(void)includeFile:(NSString *)file withBaseUrl:(NSURL*)baseUrl
+- (void)includeFile:(NSString *)file withBaseUrl:(NSURL *)baseUrl
 {
-    
 }
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-	TiThreadPerformOnMainThread(^{
-		[(TiUIWebView*)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
-	}, NO);
+  TiThreadPerformOnMainThread(^{
+    [(TiUIWebView *)[self view] fireEvent:listener withObject:obj remove:yn thisObject:thisObject_];
+  },
+      NO);
 }
 
 - (id)preloadForKey:(id)key name:(id)name
 {
-	return nil;
+  return nil;
 }
 
-- (KrollContext*)krollContext
+- (KrollContext *)krollContext
 {
-	return nil;
+  return nil;
 }
 
 - (id)registerProxy:(id)proxy
 {
-	return nil;
+  return nil;
 }
 
 - (void)unregisterProxy:(id)proxy
@@ -308,56 +330,55 @@ USE_VIEW_FOR_CONTENT_SIZE
 //TODO: Is this correct?
 - (BOOL)usesProxy:(id)proxy;
 {
-	return NO;
+  return NO;
 }
 
 //TODO: Is this correct?
 - (id)krollObjectForProxy:(id)proxy
 {
-	return nil;
+  return nil;
 }
 
--(void)evalJSWithoutResult:(NSString*)code
+- (void)evalJSWithoutResult:(NSString *)code
 {
-	[self evalJS:code];
+  [self evalJS:code];
 }
 
-- (NSString*)basename
+- (NSString *)basename
 {
-	return nil;
+  return nil;
 }
 
 - (NSURL *)currentURL
 {
-	return nil;
+  return nil;
 }
 
--(void)setCurrentURL:(NSURL *)unused
+- (void)setCurrentURL:(NSURL *)unused
 {
-
 }
 
-
--(id)userAgent
+- (id)userAgent
 {
-    return [self evalJSAndWait:@"navigator.userAgent"];
+  return [self evalJSAndWait:@"navigator.userAgent"];
 }
 
-DEFINE_DEF_PROP(scrollsToTop,@YES);
+DEFINE_DEF_PROP(scrollsToTop, @YES);
 
 #pragma mark - Internal Use Only
--(void)delayedLoad
+- (void)delayedLoad
 {
-    TiThreadPerformOnMainThread(^{
-        [self contentsWillChange];
-    }, NO);
+  TiThreadPerformOnMainThread(^{
+    [self contentsWillChange];
+  },
+      NO);
 }
 
--(void)webviewDidFinishLoad
+- (void)webviewDidFinishLoad
 {
-    [self contentsWillChange];
-    //Do a delayed load as well if this one does not go through.
-    [self performSelector:@selector(delayedLoad) withObject:nil afterDelay:0.5];
+  [self contentsWillChange];
+  //Do a delayed load as well if this one does not go through.
+  [self performSelector:@selector(delayedLoad) withObject:nil afterDelay:0.5];
 }
 @end
 

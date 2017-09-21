@@ -36,7 +36,7 @@ public class DisplayCapsProxy extends KrollProxy
 	{
 		super();
 	}
-	
+
 	public static Point getRealSize(Display display) {
         Point outPoint = new Point();
         Method mGetRawH;
@@ -97,23 +97,23 @@ public class DisplayCapsProxy extends KrollProxy
 		if (softDisplay == null || softDisplay.get() == null) {
 		    Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		    if (activity != null) {
-		     // we only need the window manager so it doesn't matter if the root or current activity is used
-	            // for accessing it
+			// we only need the window manager so it doesn't matter if the root or current activity is used
+			// for accessing it
 	            softDisplay = new SoftReference<Display>(activity.getWindowManager().getDefaultDisplay());
 		    } else {
 		        
 	            softDisplay = new SoftReference<Display>(((WindowManager)TiApplication.getAppSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
-		    }
+		}
 			
 		}
 		return softDisplay.get();
 	}
-	
+
 	private DisplayMetrics getDisplayMetrics() {
 	    if (dm == null) {
 	        dm = new DisplayMetrics();
-	        getDisplay().getMetrics(dm);
-	    }
+			getDisplay().getMetrics(dm);
+		}
 	    return dm;
 	}
 
@@ -127,32 +127,32 @@ public class DisplayCapsProxy extends KrollProxy
 	public int getPlatformHeight() {
 	    querySize();
         return realHeight;
-	}
+		}
 
 	@Kroll.getProperty @Kroll.method
 	public String getDensity() {
 		return TiApplication.getAppDensityString();
-	}
+			}
 
 	@Kroll.getProperty @Kroll.method
 	public float getDpi() {
 		return getDisplayMetrics().densityDpi;
-	}
+		}
 
 	@Kroll.getProperty @Kroll.method
 	public float getXdpi() {
 		return getDisplayMetrics().xdpi;
-	}
+		}
 
 	@Kroll.getProperty @Kroll.method
 	public float getYdpi() {
 		return getDisplayMetrics().ydpi;
-	}
+		}
 
 	@Kroll.getProperty @Kroll.method
 	public float getLogicalDensityFactor() {
         return TiApplication.getAppDensity();
-	}
+		}
 
 	@Override
 	public String getApiName()

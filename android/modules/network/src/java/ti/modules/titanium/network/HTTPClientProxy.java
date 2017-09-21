@@ -51,16 +51,15 @@ public class HTTPClientProxy extends KrollProxy
 		super();
 		this.client = new TiHTTPClient(this);
 	}
-    
-    @Override
-    public void release() {
-        this.client = null;
-        super.release();
-    }
-	
+
 	@Override
-    public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
-    {
+	public void release() {
+		this.client = null;
+		super.release();
+	}
+
+	public void handleCreationDict(HashMap dict, KrollProxy rootProxy)
+	{
 		super.handleCreationDict(dict, rootProxy);
 
 		if (dict.containsKey(TiC.PROPERTY_TIMEOUT)) {
@@ -74,7 +73,7 @@ public class HTTPClientProxy extends KrollProxy
 		if (dict.containsKey(TiC.PROPERTY_AUTO_ENCODE_URL)) {
 			client.setAutoEncodeUrl(TiConvert.toBoolean(dict, TiC.PROPERTY_AUTO_ENCODE_URL, true));
 		}
-		
+
 		if (dict.containsKey("json")) {
             client.setJSON(TiConvert.toBoolean(dict, "json", false));
         }
@@ -95,9 +94,9 @@ public class HTTPClientProxy extends KrollProxy
 				}
 			}
 		}
-		
+
 		client.setTlsVersion(TiConvert.toInt(dict, TiC.PROPERTY_TLS_VERSION, NetworkModule.TLS_DEFAULT));
-		
+
 
 
 	}
@@ -137,7 +136,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getResponseText();
 	}
-	
+
 	@Kroll.getProperty(enumerable=false) @Kroll.method
     public Object getResponseJSON()
     {
@@ -205,7 +204,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		client.setTimeout(millis);
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
     public void setJson(boolean value)
     {
@@ -223,7 +222,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getConnectionType();
 	}
-	
+
 	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getConnected()
 	{
@@ -235,7 +234,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getAutoEncodeUrl();
 	}
-	
+
 	@Kroll.getProperty(enumerable=false) @Kroll.method
     public boolean getJson()
     {

@@ -19,49 +19,49 @@
 //        _item = [[CSSearchableItem alloc] initWithUniqueIdentifier:identifier
 //                                                  domainIdentifier:domainIdentifier
 //                                                      attributeSet:attributeSet];
-//        
+//
 //    }
 //    return self;
 //}
 
--(void)dealloc
+- (void)dealloc
 {
-    RELEASE_TO_NIL(_item);
-    [super dealloc];
+  RELEASE_TO_NIL(_item);
+  [super dealloc];
 }
 
-
--(TiAppiOSSearchableItemAttributeSetProxy*)attributeSetFromArg:(id)arg
+- (TiAppiOSSearchableItemAttributeSetProxy *)attributeSetFromArg:(id)arg
 {
-    TiAppiOSSearchableItemAttributeSetProxy *proxy = [self objectOfClass:[TiAppiOSSearchableItemAttributeSetProxy class] fromArg:arg];
-    return proxy;
+  TiAppiOSSearchableItemAttributeSetProxy *proxy = [self objectOfClass:[TiAppiOSSearchableItemAttributeSetProxy class] fromArg:arg];
+  return proxy;
 }
 
-+(CSSearchableItem*)itemFromDict:(NSDictionary*)dict
++ (CSSearchableItem *)itemFromDict:(NSDictionary *)dict
 {
-    CSSearchableItemAttributeSet* set = nil;
-    id attSet = [dict objectForKey:@"attributeSet"];
-    if (IS_OF_CLASS(attSet, TiAppiOSSearchableItemAttributeSetProxy)) {
-        set = ((TiAppiOSSearchableItemAttributeSetProxy*)attSet).attributes;
-    } else if (IS_OF_CLASS(attSet, NSDictionary)) {
-        set = [TiAppiOSSearchableItemAttributeSetProxy setFromDict:attSet];
-    }
-    return [[[CSSearchableItem alloc] initWithUniqueIdentifier:[TiUtils stringValue:@"identifier" properties:dict]
+  CSSearchableItemAttributeSet *set = nil;
+  id attSet = [dict objectForKey:@"attributeSet"];
+  if (IS_OF_CLASS(attSet, TiAppiOSSearchableItemAttributeSetProxy)) {
+    set = ((TiAppiOSSearchableItemAttributeSetProxy *)attSet).attributes;
+  } else if (IS_OF_CLASS(attSet, NSDictionary)) {
+    set = [TiAppiOSSearchableItemAttributeSetProxy setFromDict:attSet];
+  }
+  return [[[CSSearchableItem alloc] initWithUniqueIdentifier:[TiUtils stringValue:@"identifier" properties:dict]
                                             domainIdentifier:[TiUtils stringValue:@"domainIdentifier" properties:dict]
-                                                  attributeSet:set] autorelease];
+                                                attributeSet:set] autorelease];
 }
 
--(CSSearchableItem*)item {
-    if (!_item) {
-        
-        _item = [[TiAppiOSSearchableItemProxy itemFromDict:[self allProperties]] retain];
-    }
-    return _item;
-}
-
--(NSString*)apiName
+- (CSSearchableItem *)item
 {
-    return @"Ti.App.iOS.SearchableItem";
+  if (!_item) {
+
+    _item = [[TiAppiOSSearchableItemProxy itemFromDict:[self allProperties]] retain];
+  }
+  return _item;
+}
+
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.SearchableItem";
 }
 
 // Should be unique to your application group.
@@ -82,9 +82,9 @@
 //    return [self item].domainIdentifier;
 //}
 
--(TiAppiOSSearchableItemAttributeSetProxy*)attributeSet
+- (TiAppiOSSearchableItemAttributeSetProxy *)attributeSet
 {
-    return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemAttributeSet:_item.attributeSet] autorelease];
+  return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemAttributeSet:_item.attributeSet] autorelease];
 }
 
 // Searchable items have an expiration date or time to live.  By default it's set to 1 month.
@@ -93,16 +93,16 @@
 //    if([self item].expirationDate == nil){
 //        return nil;
 //    }
-//    
+//
 //    return [TiUtils UTCDateForDate:_item.expirationDate];
 //}
 
--(void)setExpirationDate:(id)value
+- (void)setExpirationDate:(id)value
 {
-    ENSURE_SINGLE_ARG(value,NSString);
-    ENSURE_UI_THREAD(setExpirationDate,value);
-    [self item].expirationDate = [TiUtils dateForUTCDate:value];
-    [self replaceValue:value forKey:@"expirationDate" notification:NO];
+  ENSURE_SINGLE_ARG(value, NSString);
+  ENSURE_UI_THREAD(setExpirationDate, value);
+  [self item].expirationDate = [TiUtils dateForUTCDate:value];
+  [self replaceValue:value forKey:@"expirationDate" notification:NO];
 }
 
 @end

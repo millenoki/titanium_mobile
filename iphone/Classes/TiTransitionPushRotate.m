@@ -3,8 +3,9 @@
 
 @implementation TiTransitionPushRotate
 
--(Class) adTransitionClass {
-    return [ADPushRotateTransition class];
+- (Class)adTransitionClass
+{
+  return [ADPushRotateTransition class];
 }
 
 @end

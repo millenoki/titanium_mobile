@@ -8,10 +8,9 @@
 
 #import "TiScrollingViewProxy.h"
 
-@interface TiUIScrollViewProxy : TiScrollingViewProxy
-{
+@interface TiUIScrollViewProxy : TiScrollingViewProxy {
 }
--(void)layoutChildrenAfterContentSize:(BOOL)optimize;
+- (void)layoutChildrenAfterContentSize:(BOOL)optimize;
 
 @end
 

@@ -15,5 +15,4 @@
 
 @property (nonatomic, assign) BOOL hasStroke;
 
-
 @end

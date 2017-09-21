@@ -11,39 +11,39 @@
 
 @implementation TiUISwitchProxy
 
--(void)_configure
+- (void)_configure
 {
-    //to get the shadow on ios7
-	[self replaceValue:NUMBOOL(NO) forKey:@"clipChildren" notification:NO];
-	[super _configure];
+  //to get the shadow on ios7
+  [self replaceValue:NUMBOOL(NO) forKey:@"clipChildren" notification:NO];
+  [super _configure];
 }
 
--(UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
+- (UIViewAutoresizing)verifyAutoresizing:(UIViewAutoresizing)suggestedResizing
 {
-	return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth);
+  return suggestedResizing & ~(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.Switch";
+  return @"Ti.UI.Switch";
 }
 
--(NSNumber*)value
+- (NSNumber *)value
 {
-    return [(TiUISwitch*)[self view] value];
+  return [(TiUISwitch *)[self view] value];
 }
 
 USE_VIEW_FOR_VERIFY_HEIGHT
 USE_VIEW_FOR_VERIFY_WIDTH
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 

@@ -25,7 +25,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-
 /** An TiCacheObject is a representation of a tile cache for use with the TiMemoryCache in-memory cache storage. While TiDatabaseCache uses a disk-based database backing store, TiMemoryCache maintains first-class objects in memory for use later. */
 @interface TiCacheObject : NSObject
 
@@ -38,7 +37,7 @@
 @property (nonatomic, readonly) NSString *cacheKey;
 
 /** The tile key for the cache object. */
-@property (nonatomic, readonly) NSNumber* key;
+@property (nonatomic, readonly) NSNumber *key;
 
 /** The freshness timestamp for the cache object. */
 @property (nonatomic, readonly) NSDate *timestamp;
@@ -48,14 +47,14 @@
  *   @param key The key for the object.
  *   @param aCacheKey The unique identifier for the cache.
  *   @return A newly created cache object. */
-+ (instancetype)cacheObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey;
++ (instancetype)cacheObject:(id)anObject forKey:(NSNumber *)aKey withCacheKey:(NSString *)aCacheKey;
 
 /** Initializes and returns a newly allocated cache object for a given key and object to store in a given cache.
  *   @param anObject The object to cache, typically a UIImage.
  *   @param key The key for the object.
  *   @param aCacheKey The unique identifier for the cache.
  *   @return An initialized cache object. */
-- (id)initWithObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey;
+- (id)initWithObject:(id)anObject forKey:(NSNumber *)aKey withCacheKey:(NSString *)aCacheKey;
 
 /** Updates the timestamp on a cache object to indicate freshness. Objects with older timestamps get deleted first when space is needed. */
 - (void)touch;

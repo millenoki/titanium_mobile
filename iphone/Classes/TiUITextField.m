@@ -9,159 +9,156 @@
 #import "TiUITextField.h"
 #import "TiUITextFieldProxy.h"
 
-#import "TiUtils.h"
-#import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
+#import "TiUtils.h"
+#import "TiViewProxy.h"
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
-@implementation TiTextField
-{
-    UIEdgeInsets _padding;
+@implementation TiTextField {
+  UIEdgeInsets _padding;
 }
 @synthesize padding = _padding, becameResponder;
 
-
--(void)configure
+- (void)configure
 {
-    _padding = UIEdgeInsetsMake(0, 5, 0, 5);
-    [super setLeftViewMode:UITextFieldViewModeAlways];
-    [super setRightViewMode:UITextFieldViewModeAlways];
-//    _hintColor = nil;
+  _padding = UIEdgeInsetsMake(0, 5, 0, 5);
+  [super setLeftViewMode:UITextFieldViewModeAlways];
+  [super setRightViewMode:UITextFieldViewModeAlways];
+  //    _hintColor = nil;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    [super dealloc];
+  [super dealloc];
 }
 
--(void)setTouchHandler:(TiUIView*)handler
+- (void)setTouchHandler:(TiUIView *)handler
 {
-    touchHandler = handler;
+  touchHandler = handler;
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [touchHandler processTouchesBegan:touches withEvent:event];
-    [super touchesBegan:touches withEvent:event];
+  [touchHandler processTouchesBegan:touches withEvent:event];
+  [super touchesBegan:touches withEvent:event];
 }
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [touchHandler processTouchesMoved:touches withEvent:event];
-    [super touchesMoved:touches withEvent:event];
+  [touchHandler processTouchesMoved:touches withEvent:event];
+  [super touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [touchHandler processTouchesEnded:touches withEvent:event];
-    [super touchesEnded:touches withEvent:event];
+  [touchHandler processTouchesEnded:touches withEvent:event];
+  [super touchesEnded:touches withEvent:event];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [touchHandler processTouchesCancelled:touches withEvent:event];
-    [super touchesCancelled:touches withEvent:event];
+  [touchHandler processTouchesCancelled:touches withEvent:event];
+  [super touchesCancelled:touches withEvent:event];
 }
 
--(UIView*)newPadView:(CGFloat)width height:(CGFloat)height
+- (UIView *)newPadView:(CGFloat)width height:(CGFloat)height
 {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-    view.backgroundColor = [UIColor clearColor];
-    return view;
+  UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+  view.backgroundColor = [UIColor clearColor];
+  return view;
 }
 
--(void)setPadding:(UIEdgeInsets)value
+- (void)setPadding:(UIEdgeInsets)value
 {
-    _padding = value;
-    [self setNeedsLayout];
+  _padding = value;
+  [self setNeedsLayout];
 }
--(BOOL)canBecomeFirstResponder
+- (BOOL)canBecomeFirstResponder
 {
-    return self.isEnabled;
+  return self.isEnabled;
 }
 
--(BOOL)resignFirstResponder
+- (BOOL)resignFirstResponder
 {
-    if ([super resignFirstResponder])
-    {
-        if (becameResponder) {
-            becameResponder = NO;
-        }
-        return YES;
+  if ([super resignFirstResponder]) {
+    if (becameResponder) {
+      becameResponder = NO;
     }
-    
-    return NO;
+    return YES;
+  }
+
+  return NO;
 }
 
--(BOOL)becomeFirstResponder
+- (BOOL)becomeFirstResponder
 {
-    if (self.isEnabled && self.canBecomeFirstResponder) {
-        if ([super becomeFirstResponder])
-        {
-            becameResponder = YES;
-            return YES;
-        }
+  if (self.isEnabled && self.canBecomeFirstResponder) {
+    if ([super becomeFirstResponder]) {
+      becameResponder = YES;
+      return YES;
     }
-    return NO;
+  }
+  return NO;
 }
 
--(BOOL)isFirstResponder
+- (BOOL)isFirstResponder
 {
-    if (becameResponder) return YES;
-    return [super isFirstResponder];
+  if (becameResponder)
+    return YES;
+  return [super isFirstResponder];
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds
 {
-    CGRect result = UIEdgeInsetsInsetRect(bounds, _padding);
-    if ([self leftView]){
-        CGRect rect = [self leftViewRectForBounds:result];
-        CGFloat width = rect.origin.x + rect.size.width;
-        result.origin.x +=width;
-        result.size.width -= width;
-    }
-    if ([self rightView]){
-        CGRect rect = [self rightViewRectForBounds:result];
-        CGFloat width = bounds.size.width - rect.origin.x;
-        result.size.width -= width;
-    }
-    return result;
+  CGRect result = UIEdgeInsetsInsetRect(bounds, _padding);
+  if ([self leftView]) {
+    CGRect rect = [self leftViewRectForBounds:result];
+    CGFloat width = rect.origin.x + rect.size.width;
+    result.origin.x += width;
+    result.size.width -= width;
+  }
+  if ([self rightView]) {
+    CGRect rect = [self rightViewRectForBounds:result];
+    CGFloat width = bounds.size.width - rect.origin.x;
+    result.size.width -= width;
+  }
+  return result;
 }
 - (CGRect)editingRectForBounds:(CGRect)bounds
 {
-    return [self textRectForBounds:bounds];
+  return [self textRectForBounds:bounds];
 }
 
 - (CGRect)leftViewRectForBounds:(CGRect)bounds
 {
-    UIView* view = [self leftView];
-    if ([view isKindOfClass:[TiUIView class]]){
-        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
-        if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
-            proxy.sandboxBounds = bounds;
-            [proxy dirtyItAll];
-        }
-        [proxy refreshViewIfNeeded];
-        return [[proxy view] frame];
+  UIView *view = [self leftView];
+  if ([view isKindOfClass:[TiUIView class]]) {
+    TiViewProxy *proxy = (TiViewProxy *)[((TiUIView *)view)proxy];
+    if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
+      proxy.sandboxBounds = bounds;
+      [proxy dirtyItAll];
     }
-    return [super leftViewRectForBounds:bounds];
+    [proxy refreshViewIfNeeded];
+    return [[proxy view] frame];
+  }
+  return [super leftViewRectForBounds:bounds];
 }
 
 - (CGRect)rightViewRectForBounds:(CGRect)bounds
 {
-    UIView* view = [self rightView];
-    if ([view isKindOfClass:[TiUIView class]]){
-        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
-        if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
-            proxy.sandboxBounds = bounds;
-            [proxy dirtyItAll];
-        }
-        [proxy refreshViewIfNeeded];
-        return [[proxy view] frame];
+  UIView *view = [self rightView];
+  if ([view isKindOfClass:[TiUIView class]]) {
+    TiViewProxy *proxy = (TiViewProxy *)[((TiUIView *)view)proxy];
+    if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
+      proxy.sandboxBounds = bounds;
+      [proxy dirtyItAll];
     }
-    return [super rightViewRectForBounds:bounds];
+    [proxy refreshViewIfNeeded];
+    return [[proxy view] frame];
+  }
+  return [super rightViewRectForBounds:bounds];
 }
 //
 //- (void)drawPlaceholderInRect:(CGRect)rect {
@@ -172,7 +169,7 @@
 //        [_hintColor setFill];
 //        // Get the size of placeholder text. We will use height to calculate frame Y position
 //        CGSize size = [self.placeholder sizeWithFont:self.font];
-//        
+//
 //        // Vertically centered frame
 //        CGRect placeholderRect;
 //        switch (self.contentVerticalAlignment) {
@@ -191,17 +188,17 @@
 //            default:
 //                break;
 //        }
-//        
+//
 //        // Check if OS version is 7.0+ and draw placeholder a bit differently
 //        if (IOS_7) {
-//            
+//
 //            NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
 //            style.lineBreakMode = NSLineBreakByTruncatingTail;
 //            style.alignment = self.textAlignment;
 //            NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:style,NSParagraphStyleAttributeName, self.font, NSFontAttributeName, _hintColor, NSForegroundColorAttributeName, nil];
-//            
+//
 //            [self.placeholder drawInRect:placeholderRect withAttributes:attr];
-//            
+//
 //            [style release];
 //        } else {
 //            [self.placeholder drawInRect:placeholderRect
@@ -214,356 +211,342 @@
 
 @end
 
-
-
-@implementation TiUITextField
-{
-    BOOL _editing;
+@implementation TiUITextField {
+  BOOL _editing;
 }
 
 #pragma mark Internal
 
 #ifndef TI_USE_AUTOLAYOUT
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [TiUtils setView:textWidgetView positionRect:bounds];
-    [super frameSizeChanged:frame bounds:bounds];
+  [TiUtils setView:textWidgetView positionRect:bounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
 
 #endif
-
 
 #ifdef TI_USE_AUTOLAYOUT
--(void)initializeTiLayoutView
+- (void)initializeTiLayoutView
 {
-    [super initializeTiLayoutView];
-    [self setDefaultHeight:TiDimensionAutoSize];
-    [self setDefaultWidth:TiDimensionAutoFill];
+  [super initializeTiLayoutView];
+  [self setDefaultHeight:TiDimensionAutoSize];
+  [self setDefaultWidth:TiDimensionAutoFill];
 }
 #endif
 
-- (void) dealloc
+- (void)dealloc
 {
-    WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
-    [super dealloc];
+  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
+  [super dealloc];
 }
 
--(UIView<UITextInputTraits>*)textWidgetView
+- (UIView<UITextInputTraits> *)textWidgetView
 {
-    if (textWidgetView==nil)
-    {
-        TiTextField* textfield = [[TiTextField alloc] initWithFrame:CGRectZero];
-        textWidgetView = textfield;
+  if (textWidgetView == nil) {
+    TiTextField *textfield = [[TiTextField alloc] initWithFrame:CGRectZero];
+    textWidgetView = textfield;
 #ifdef TI_USE_AUTOLAYOUT
-		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
 #endif
-        //        textfield.backgroundColor = [UIColor clearColor];
-        textfield.delegate = self;
-        textfield.text = @"";
-        textfield.textAlignment = NSTextAlignmentLeft;
-        textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-        [textfield configure];
-        [textfield setTouchHandler:self];
-        [self addSubview:textWidgetView];
-        self.clipsToBounds = YES;
-        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-        NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
-        [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
-        
-        // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
-        BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && textfield.secureTextEntry);
-                                
-        if (needsAdjustment)
-        {
-            NSString *str = textfield.text;
-            textfield.text = @"";
-            textfield.text = str;
-        }
-}
-	
-    return textWidgetView;
-}
+    //        textfield.backgroundColor = [UIColor clearColor];
+    textfield.delegate = self;
+    textfield.text = @"";
+    textfield.textAlignment = NSTextAlignmentLeft;
+    textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    [textfield configure];
+    [textfield setTouchHandler:self];
+    [self addSubview:textWidgetView];
+    self.clipsToBounds = YES;
+    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    NSNotificationCenter *theNC = [NSNotificationCenter defaultCenter];
+    [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
 
+    // TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
+    BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && textfield.secureTextEntry);
 
-#pragma mark Public APIs
-
--(void)setShowUndoRedoActions_:(id)value
-{
-    if(![TiUtils isIOS9OrGreater]){
-        return;
+    if (needsAdjustment) {
+      NSString *str = textfield.text;
+      textfield.text = @"";
+      textfield.text = str;
     }
+  }
 
-    TiTextField* tv = (TiTextField*)[self textWidgetView];
-    
-    [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
-
-    if([TiUtils boolValue:value] == YES) {
-        tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-        tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
-    } else {
-        tv.inputAssistantItem.leadingBarButtonGroups = @[];
-        tv.inputAssistantItem.trailingBarButtonGroups = @[];
-    }
-}
-
--(void)setExclusiveTouch:(BOOL)value
-{
-    [super setExclusiveTouch:value];
-    [[self textWidgetView] setExclusiveTouch:value];
+  return textWidgetView;
 }
 
 #pragma mark Public APIs
 
--(void)setPadding:(UIEdgeInsets)inset
+- (void)setShowUndoRedoActions_:(id)value
 {
-    [self textWidgetView].padding = inset;
+  if (![TiUtils isIOS9OrGreater]) {
+    return;
+  }
+
+  TiTextField *tv = (TiTextField *)[self textWidgetView];
+
+  [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
+
+  if ([TiUtils boolValue:value] == YES) {
+    tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+    tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+  } else {
+    tv.inputAssistantItem.leadingBarButtonGroups = @[];
+    tv.inputAssistantItem.trailingBarButtonGroups = @[];
+  }
 }
 
--(void)setEditable_:(id)value
+- (void)setExclusiveTouch:(BOOL)value
 {
-    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
-    [[self textWidgetView] setEnabled:_trulyEnabled];
-    [self setBgState:UIControlStateNormal];
+  [super setExclusiveTouch:value];
+  [[self textWidgetView] setExclusiveTouch:value];
 }
 
--(BOOL) enabledForBgState {
-    return [self textWidgetView].enabled && [super enabledForBgState];
+#pragma mark Public APIs
+
+- (void)setPadding:(UIEdgeInsets)inset
+{
+  [self textWidgetView].padding = inset;
 }
 
--(void)setCustomUserInteractionEnabled:(BOOL)value
+- (void)setEditable_:(id)value
 {
-    BOOL _trulyEnabled = (value && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
-    [super setCustomUserInteractionEnabled:_trulyEnabled];
-    [[self textWidgetView] setEnabled:_trulyEnabled];
+  BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+  [[self textWidgetView] setEnabled:_trulyEnabled];
+  [self setBgState:UIControlStateNormal];
+}
+
+- (BOOL)enabledForBgState
+{
+  return [self textWidgetView].enabled && [super enabledForBgState];
+}
+
+- (void)setCustomUserInteractionEnabled:(BOOL)value
+{
+  BOOL _trulyEnabled = (value && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+  [super setCustomUserInteractionEnabled:_trulyEnabled];
+  [[self textWidgetView] setEnabled:_trulyEnabled];
 }
 
 - (void)setBackgroundColor_:(id)value
 {
-	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
-	[(TiTextField*)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+  [[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+  [(TiTextField *)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
 }
 
--(void)setHintText_:(id)value
+- (void)setHintText_:(id)value
 {
-    [(TiTextField*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
-    
-    if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
-        [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
-    }
+  [(TiTextField *)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+
+  if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
+    [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+  }
 }
 
--(void)setHintTextColor_:(id)value
+- (void)setHintTextColor_:(id)value
 {
-    id hintText = [[self proxy] valueForUndefinedKey:@"hintText"];
-    
-    if (!hintText) {
-        hintText = @"";
-    }
-    NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{NSForegroundColorAttributeName:[[TiUtils colorValue:value] _color]}];
-    [(TiTextField*)[self textWidgetView] setAttributedPlaceholder:placeHolder];
-    RELEASE_TO_NIL(placeHolder);
+  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"];
+
+  if (!hintText) {
+    hintText = @"";
+  }
+  NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
+  [(TiTextField *)[self textWidgetView] setAttributedPlaceholder:placeHolder];
+  RELEASE_TO_NIL(placeHolder);
 }
 
--(void)setAttributedHintText_:(id)value
+- (void)setAttributedHintText_:(id)value
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
-	[[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+  ENSURE_SINGLE_ARG(value, TiUIAttributedStringProxy);
+  [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
 #endif
 }
 
--(void)setMinimumFontSize_:(id)value
+- (void)setMinimumFontSize_:(id)value
 {
-    CGFloat newSize = [TiUtils floatValue:value];
-    if (newSize < 4) {
-        [[self textWidgetView] setAdjustsFontSizeToFitWidth:NO];
-        [[self textWidgetView] setMinimumFontSize:0.0];
-    }
-    else {
-        [[self textWidgetView] setAdjustsFontSizeToFitWidth:YES];
-        [[self textWidgetView] setMinimumFontSize:newSize];
-    }
+  CGFloat newSize = [TiUtils floatValue:value];
+  if (newSize < 4) {
+    [[self textWidgetView] setAdjustsFontSizeToFitWidth:NO];
+    [[self textWidgetView] setMinimumFontSize:0.0];
+  } else {
+    [[self textWidgetView] setAdjustsFontSizeToFitWidth:YES];
+    [[self textWidgetView] setMinimumFontSize:newSize];
+  }
 }
 
--(void)setClearOnEdit_:(id)value
+- (void)setClearOnEdit_:(id)value
 {
-    [[self textWidgetView] setClearsOnBeginEditing:[TiUtils boolValue:value]];
+  [[self textWidgetView] setClearsOnBeginEditing:[TiUtils boolValue:value]];
 }
 
--(void)setBorderStyle_:(id)value
+- (void)setBorderStyle_:(id)value
 {
-    TiThreadPerformOnMainThread(^{
-        [[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
-    }, NO);
+  TiThreadPerformOnMainThread(^{
+    [[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
+  },
+      NO);
 }
 
--(void)setClearButtonMode_:(id)value
+- (void)setClearButtonMode_:(id)value
 {
-    [[self textWidgetView] setClearButtonMode:[TiUtils intValue:value]];
+  [[self textWidgetView] setClearButtonMode:[TiUtils intValue:value]];
 }
 
 //TODO: rename
 
--(void)setLeftButton_:(id)value
+- (void)setLeftButton_:(id)value
 {
-    UIView* leftView = nil;
-    id vp = [[self viewProxy] addObjectToHold:value forKey:@"leftButton"];
-    if (IS_OF_CLASS(vp, TiViewProxy)) {
-        // to make sure the proxy is not released
-        //we need the proxy to be retained to compute the rect
-        LayoutConstraint* constraint = [(TiViewProxy*)vp layoutProperties];
-        if (TiDimensionIsUndefined(constraint->left))
-        {
-            constraint->left = TiDimensionDip(0);
-        }
-        leftView = [(TiViewProxy*)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
-        
+  UIView *leftView = nil;
+  id vp = [[self viewProxy] addObjectToHold:value forKey:@"leftButton"];
+  if (IS_OF_CLASS(vp, TiViewProxy)) {
+    // to make sure the proxy is not released
+    //we need the proxy to be retained to compute the rect
+    LayoutConstraint *constraint = [(TiViewProxy *)vp layoutProperties];
+    if (TiDimensionIsUndefined(constraint->left)) {
+      constraint->left = TiDimensionDip(0);
     }
-    [[self textWidgetView] setLeftView:leftView];
+    leftView = [(TiViewProxy *)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+  }
+  [[self textWidgetView] setLeftView:leftView];
 }
 
--(void)setLeftButtonMode_:(id)value
+- (void)setLeftButtonMode_:(id)value
 {
-    [[self textWidgetView] setLeftViewMode:[TiUtils intValue:value]];
+  [[self textWidgetView] setLeftViewMode:[TiUtils intValue:value]];
 }
 
--(void)setRightButton_:(id)value
+- (void)setRightButton_:(id)value
 {
-    UIView* rightView = nil;
-    id vp = [[self viewProxy] addObjectToHold:value forKey:@"rightButton"];
-    if (IS_OF_CLASS(vp, TiViewProxy)) {
-        LayoutConstraint* constraint = [(TiViewProxy*)vp layoutProperties];
-        if (TiDimensionIsUndefined(constraint->right))
-        {
-            constraint->right = TiDimensionDip(0);
-        }
-        rightView = [(TiViewProxy*)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
-        
+  UIView *rightView = nil;
+  id vp = [[self viewProxy] addObjectToHold:value forKey:@"rightButton"];
+  if (IS_OF_CLASS(vp, TiViewProxy)) {
+    LayoutConstraint *constraint = [(TiViewProxy *)vp layoutProperties];
+    if (TiDimensionIsUndefined(constraint->right)) {
+      constraint->right = TiDimensionDip(0);
     }
-    [[self textWidgetView] setRightView:rightView];
+    rightView = [(TiViewProxy *)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+  }
+  [[self textWidgetView] setRightView:rightView];
 }
 
--(void)setRightButtonMode_:(id)value
+- (void)setRightButtonMode_:(id)value
 {
-    [[self textWidgetView] setRightViewMode:[TiUtils intValue:value]];
+  [[self textWidgetView] setRightViewMode:[TiUtils intValue:value]];
 }
 
--(void)setVerticalAlign_:(id)value
+- (void)setVerticalAlign_:(id)value
 {
-    UIControlContentVerticalAlignment verticalAlign = [TiUtils contentVerticalAlignmentValue:value];
-    [[self textWidgetView] setContentVerticalAlignment:verticalAlign];
+  UIControlContentVerticalAlignment verticalAlign = [TiUtils contentVerticalAlignmentValue:value];
+  [[self textWidgetView] setContentVerticalAlignment:verticalAlign];
 }
 
 #pragma mark Public Method
 
--(BOOL)hasText
+- (BOOL)hasText
 {
-    UITextField *f = [self textWidgetView];
-    return [[f text] length] > 0;
+  UITextField *f = [self textWidgetView];
+  return [[f text] length] > 0;
 }
 
 #pragma mark UITextFieldDelegate
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
-    _editing = YES;
-    TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
-    
-    //TIMOB-14563. Set the right text value.
-    if ([ourProxy suppressFocusEvents]) {
-        NSString* theText = [ourProxy valueForKey:@"value"];
-        [tf setText:theText];
-    }
-    [self setViewState:UIControlStateHighlighted];
-    
-    [self textWidget:tf didFocusWithText:[tf text]];
-    [self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
-}
+  _editing = YES;
+  TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
+  //TIMOB-14563. Set the right text value.
+  if ([ourProxy suppressFocusEvents]) {
+    NSString *theText = [ourProxy valueForKey:@"value"];
+    [tf setText:theText];
+  }
+  [self setViewState:UIControlStateHighlighted];
+
+  [self textWidget:tf didFocusWithText:[tf text]];
+  [self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
+}
 
 #pragma mark Keyboard Delegates
 
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField; // return NO to disallow editing.
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    //sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
-    if (range.length + range.location > [[tf text] length]) {
-        return NO;
-    }
-    
-    [self processKeyPressed:string];
-    
-    NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
-    
-    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
-        [self setValue_:curText];
-        return NO;
-    }
-    return YES;
+  //sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
+  if (range.length + range.location > [[tf text] length]) {
+    return NO;
+  }
+
+  [self processKeyPressed:string];
+
+  NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
+
+  if ((maxLength > -1) && ([curText length] > maxLength)) {
+    [self setValue_:curText];
+    return NO;
+  }
+  return YES;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
-    if (!_editing) return;
-    _editing = NO;
-    [self setViewState:-1];
-    [self textWidget:tf didBlurWithText:[tf text]];
-	//TIMOB-18365. Value not updated when autocorrect is up and return is pressed
-	[self textFieldDidChange:nil];
+  if (!_editing)
+    return;
+  _editing = NO;
+  [self setViewState:-1];
+  [self textWidget:tf didBlurWithText:[tf text]];
+  //TIMOB-18365. Value not updated when autocorrect is up and return is pressed
+  [self textFieldDidChange:nil];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification
 {
-    TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
-    
-    
-    //TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
-    if ([ourProxy suppressFocusEvents]) {
-        return;
-    }
-    [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
+  TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+
+  //TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
+  if ([ourProxy suppressFocusEvents]) {
+    return;
+  }
+  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
-    // we notify proxy so he can serialize in the model
-    [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
-    return YES;
+  // we notify proxy so he can serialize in the model
+  [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
+  return YES;
 }
 
--(BOOL)textFieldShouldReturn:(UITextField *)tf
+- (BOOL)textFieldShouldReturn:(UITextField *)tf
 {
-    if ([(TiViewProxy*)self.proxy _hasListeners:@"return" checkParent:NO])
-    {
-        [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"] propagate:NO checkForListener:NO];
-    }
-    
-    if ([self textWidgetView].returnKeyType == UIReturnKeyNext)
-    {
-        return ![(TiUITextWidgetProxy *)self.proxy selectNextTextWidget];
-    }
-    
-    if (suppressReturn)
-    {
-        [tf resignFirstResponder];
-        return NO;
-    }
-    return YES;
+  if ([(TiViewProxy *)self.proxy _hasListeners:@"return" checkParent:NO]) {
+    [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"] propagate:NO checkForListener:NO];
+  }
+
+  if ([self textWidgetView].returnKeyType == UIReturnKeyNext) {
+    return ![(TiUITextWidgetProxy *)self.proxy selectNextTextWidget];
+  }
+
+  if (suppressReturn) {
+    [tf resignFirstResponder];
+    return NO;
+  }
+  return YES;
 }
 
--(CGSize)contentSizeForSize:(CGSize)size
+- (CGSize)contentSizeForSize:(CGSize)size
 {
-    return [[self textWidgetView] sizeThatFits:size];
+  return [[self textWidgetView] sizeThatFits:size];
 }
 
 @end

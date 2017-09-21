@@ -13,34 +13,32 @@
 - (void)resetGradient;
 @end
 
-
-@implementation TiLabel
-{
-    BOOL _hasStroke;
-    UIColor* _strokeColor;
-    CGFloat _strokeWidth;
+@implementation TiLabel {
+  BOOL _hasStroke;
+  UIColor *_strokeColor;
+  CGFloat _strokeWidth;
 }
 @synthesize hasStroke = _hasStroke;
 @synthesize strokeColor = _strokeColor;
 @synthesize strokeWidth = _strokeWidth;
 - (id)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self) {
-        //initialize common properties
-        _hasStroke = NO;
-        _strokeWidth = 1.0f;
-//        self.backgroundColor = [UIColor clearColor];
-        
-//        [self redrawLabel];
-    }
-    return self;
+  self = [super initWithFrame:frame];
+  if (self) {
+    //initialize common properties
+    _hasStroke = NO;
+    _strokeWidth = 1.0f;
+    //        self.backgroundColor = [UIColor clearColor];
+
+    //        [self redrawLabel];
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    [_strokeColor release];
-    [super dealloc];
+  [_strokeColor release];
+  [super dealloc];
 }
 
 //- (void)redrawLabel {
@@ -55,24 +53,24 @@
 
 #pragma mark Overriden/custom setters/getters
 
-- (void)setHasStroke:(BOOL)stroke {
-    _hasStroke = stroke;
-    [self setNeedsDisplay];
+- (void)setHasStroke:(BOOL)stroke
+{
+  _hasStroke = stroke;
+  [self setNeedsDisplay];
 }
 
-- (void)setStrokeColor:(UIColor *)color {
-    [_strokeColor release];
-    _strokeColor = [color retain];
-    //enable/disable stroke
-    self.hasStroke = (_strokeColor != nil);
+- (void)setStrokeColor:(UIColor *)color
+{
+  [_strokeColor release];
+  _strokeColor = [color retain];
+  //enable/disable stroke
+  self.hasStroke = (_strokeColor != nil);
 }
 
-- (void)setStrokeWidth:(CGFloat)width {
-    _strokeWidth = width;
+- (void)setStrokeWidth:(CGFloat)width
+{
+  _strokeWidth = width;
 }
-
-
-
 
 //- (void)setText:(NSString *)text {
 //    [super setText:text];
@@ -92,40 +90,40 @@
 
 #pragma mark -
 
+- (void)drawTextInRect:(CGRect)rect
+{
+  UIColor *shadowColor = self.shadowColor;
+  if (_hasStroke) {
+    UIColor *textColor = self.textColor;
 
-- (void)drawTextInRect:(CGRect)rect {
-    UIColor *shadowColor = self.shadowColor;
-    if (_hasStroke) {
-        UIColor *textColor = self.textColor;
-        
-        CGContextRef c = UIGraphicsGetCurrentContext();
-        CGContextSaveGState(c);
-        CGContextSetLineWidth(c, _strokeWidth);
-        CGContextSetLineJoin(c, kCGLineJoinRound);
-        CGContextSetTextDrawingMode(c, kCGTextStroke);
-        if (shadowColor) {
-            self.shadowColor = nil;
-            CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
-        }
-        self.textColor = _strokeColor;
-        [super drawTextInRect:rect];
-        CGContextRestoreGState(c);
-        
-        self.textColor = textColor;
-        [super drawTextInRect:rect];
-    } else {
-        if (shadowColor) {
-            self.shadowColor = nil;
-            CGContextRef c = UIGraphicsGetCurrentContext();
-            CGContextSaveGState(c);
-            CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
-            [super drawTextInRect:rect];
-            CGContextRestoreGState(c);
-        } else {
-            [super drawTextInRect:rect];
-        }
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(c);
+    CGContextSetLineWidth(c, _strokeWidth);
+    CGContextSetLineJoin(c, kCGLineJoinRound);
+    CGContextSetTextDrawingMode(c, kCGTextStroke);
+    if (shadowColor) {
+      self.shadowColor = nil;
+      CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
     }
-    self.shadowColor = shadowColor;
+    self.textColor = _strokeColor;
+    [super drawTextInRect:rect];
+    CGContextRestoreGState(c);
+
+    self.textColor = textColor;
+    [super drawTextInRect:rect];
+  } else {
+    if (shadowColor) {
+      self.shadowColor = nil;
+      CGContextRef c = UIGraphicsGetCurrentContext();
+      CGContextSaveGState(c);
+      CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
+      [super drawTextInRect:rect];
+      CGContextRestoreGState(c);
+    } else {
+      [super drawTextInRect:rect];
+    }
+  }
+  self.shadowColor = shadowColor;
 }
 
 @end

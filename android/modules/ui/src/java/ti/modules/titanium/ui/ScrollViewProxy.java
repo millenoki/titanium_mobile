@@ -37,7 +37,8 @@ import java.util.HashMap;
     TiC.PROPERTY_SCROLLING_ENABLED,
 //	TiC.PROPERTY_CONTENT_OFFSET,
 	TiC.PROPERTY_CAN_CANCEL_EVENTS,
-	TiC.PROPERTY_OVER_SCROLL_MODE
+	TiC.PROPERTY_OVER_SCROLL_MODE,
+	TiC.PROPERTY_REFRESH_CONTROL
 })
 public class ScrollViewProxy extends ViewProxy
 	implements Handler.Callback
@@ -101,22 +102,22 @@ public class ScrollViewProxy extends ViewProxy
 			handleSetContentOffset(offset, animated);
 		}
 	}
-	
+
 	@Kroll.setProperty
 	public void setContentOffset(Object offset)
 	{
 		setContentOffset(offset, null);
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public Object getContentOffset()
 	{
 	    if (peekView() != null) {
 	        return getScrollView().getContentOffset();
-	    }
+	}
 		return getProperty(TiC.PROPERTY_CONTENT_OFFSET);
 	}
-	
+
 	@Kroll.method
     public void setZoomScale(final Object scale, final @Kroll.argument(optional = true) Object obj)
     {
@@ -180,9 +181,9 @@ public class ScrollViewProxy extends ViewProxy
             getScrollView().smoothScrollTo(x, y);
 	    } else {
 	        getScrollView().scrollTo(x, y);
-	    }
 	}
-	
+	}
+
 	public void handleSetContentOffset(Object offset, boolean animated) {
 		getScrollView().setContentOffset(offset, animated);
 	}

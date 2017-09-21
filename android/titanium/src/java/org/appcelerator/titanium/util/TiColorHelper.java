@@ -22,7 +22,7 @@ public class TiColorHelper
 {
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");
 	static Pattern rgbPattern = Pattern.compile("(rgb|rgba|argb)\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*(\\d+(?:\\.\\d+)?))?\\)");
-	
+
 	static Boolean hexColorUsesRGBA = null;
 	
 	static boolean hexColorUsesRGBA() {
@@ -33,8 +33,8 @@ public class TiColorHelper
 	}
 
 	private static final String TAG = "TiColorHelper";
-	private static HashMap<String, Integer> colorTable;	
-
+	private static HashMap<String, Integer> colorTable;
+	
     public static int parseHexColor(String lowval) {
         final int length = lowval.length();
         long alpha = 255;
@@ -42,7 +42,7 @@ public class TiColorHelper
         long red = 0;
         long green = 0;
         long blue = 0;
-        
+
         if (length < 6)
         {
             value = ((value & 0xF000) << 16) |
@@ -84,7 +84,7 @@ public class TiColorHelper
 	public static int parseColor(String value) {
 		int color = Color.TRANSPARENT;
 		if (value != null) {
-            String lowval = value.trim().toLowerCase();
+			String lowval = value.trim().toLowerCase();
 			Matcher m = null;
 			if (lowval.startsWith("#")) {
 			   color = parseHexColor(lowval.substring(1));
@@ -93,38 +93,38 @@ public class TiColorHelper
                 boolean argb = first.equalsIgnoreCase("argb");
                 boolean rgba = first.equalsIgnoreCase("rgba");
 			    if (argb) {
-                    color = Color.argb(
+				color = Color.argb(
                             (int) (Float.valueOf(m.group(2))*255.0f),
                             Integer.valueOf(m.group(3)),
-                            Integer.valueOf(m.group(4)),
+						Integer.valueOf(m.group(4)),
                             Integer.valueOf(m.group(5))
-                            );
+						);
                 } else if (rgba) {
-                    color = Color.argb(
+			    color = Color.argb(
                             (int) (Float.valueOf(m.group(5))*255.0f),
-                            Integer.valueOf(m.group(2)),
+			            Integer.valueOf(m.group(2)),
                             Integer.valueOf(m.group(3)),
                             Integer.valueOf(m.group(4))
-                            );
+			            );
                 } else {
                     color = Color.rgb(
                             Integer.valueOf(m.group(2)),
                             Integer.valueOf(m.group(3)),
                             Integer.valueOf(m.group(4))
-                            );
+			            );
                 }
 				
 			} else {
-			    try {     
-			        if (colorTable == null) {
-                        buildColorTable();
-                    }
-			        if (colorTable.containsKey(lowval)) {
+				try {
+					if (colorTable == null) {
+						buildColorTable();
+					}
+					if (colorTable.containsKey(lowval)) {
                         return colorTable.get(lowval);
-                    }
+					}
 		            color = parseHexColor(lowval);
 			    } catch (IllegalArgumentException e) {
-	            }
+				}
 			}
 		    
 		}
@@ -171,6 +171,6 @@ public class TiColorHelper
 	        return String.format("#%02x%02x%02x%02x",red, green, blue, alpha);
 	    } else {
 	        return String.format("#%02x%02x%02x%02x", alpha,red, green, blue);
-	    }
+}
 	}
 }

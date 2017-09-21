@@ -12,8 +12,8 @@
 @interface TiUIPickerProxy : TiViewProxy {
 }
 
--(void)reloadColumn:(id)column atIndex:(NSUInteger)index;
--(TiUIPicker*)picker;
+- (void)reloadColumn:(id)column atIndex:(NSUInteger)index;
+- (TiUIPicker *)picker;
 
 @end
 

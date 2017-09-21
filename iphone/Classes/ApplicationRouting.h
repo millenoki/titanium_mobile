@@ -8,6 +8,6 @@
 
 @interface ApplicationRouting : NSObject {
 }
-+ (NSData*) resolveAppAsset:(NSString*)path;
-+ (NSArray*) getDirectoryListing:(NSString*)path;
++ (NSData *)resolveAppAsset:(NSString *)path;
++ (NSArray *)getDirectoryListing:(NSString *)path;
 @end

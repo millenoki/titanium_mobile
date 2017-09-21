@@ -35,7 +35,6 @@ import android.app.Activity;
 	TiC.PROPERTY_SHADOW_COLOR,
 	TiC.PROPERTY_SHADOW_RADIUS,
 	TiC.PROPERTY_SHADOW_OFFSET,
-	TiC.PROPERTY_INCLUDE_FONT_PADDING,
 	TiC.PROPERTY_LINES,
 	TiC.PROPERTY_MAX_LINES,
 	TiC.PROPERTY_LINE_SPACING,
@@ -82,5 +81,5 @@ public class LabelProxy extends ViewProxy
         if (!oldNullEmpty && !newNullEmpty) return (!oldValue.equals(newValue));
         return oldNullEmpty != newNullEmpty;
         
-    }
+}
 }

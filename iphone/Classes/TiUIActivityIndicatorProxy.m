@@ -11,32 +11,30 @@
 
 @implementation TiUIActivityIndicatorProxy
 
-
--(NSMutableDictionary*)langConversionTable
+- (NSMutableDictionary *)langConversionTable
 {
-    return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
+  return [NSMutableDictionary dictionaryWithObject:@"message" forKey:@"messageid"];
 }
 
--(void)_initWithProperties:(NSDictionary*)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"visible" defaultValue:NUMBOOL(NO)];
-    [super _initWithProperties:properties];
+  [self initializeProperty:@"visible" defaultValue:NUMBOOL(NO)];
+  [super _initWithProperties:properties];
 }
 
-
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.ActivityIndicator";
+  return @"Ti.UI.ActivityIndicator";
 }
 
 #ifndef TI_USE_AUTOLAYOUT
--(TiDimension)defaultAutoWidthBehavior:(id)unused
+- (TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+- (TiDimension)defaultAutoHeightBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+  return TiDimensionAutoSize;
 }
 #endif
 

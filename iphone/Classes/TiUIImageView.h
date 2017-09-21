@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UIIMAGEVIEW
 
-#import "TiUIView.h"
 #import "ImageLoader.h"
 #import "TiAnimatedImage.h"
+#import "TiUIView.h"
 
 //
 // this is a re-implementation (sort of) of the UIImageView object used for
@@ -16,23 +16,20 @@
 // problemmatic and we try and solve it here.
 //
 
-@interface TiUIImageView : TiUIView <ImageLoaderDelegate, AnimatedImageDelegate>
-{	
+@interface TiUIImageView : TiUIView <ImageLoaderDelegate, AnimatedImageDelegate> {
 }
 
--(void)start;
--(void)stop;
--(void)pause;
--(void)resume;
--(void)playpause;
--(id)getImage;
+- (void)start;
+- (void)stop;
+- (void)pause;
+- (void)resume;
+- (void)playpause;
+- (id)getImage;
 
-
--(void)setImage_:(id)arg;
--(void)setReusing:(BOOL)value;
--(id)convertToUIImage:(id)arg;
--(id)prepareImage:(id)image;
-
+- (void)setImage_:(id)arg;
+- (void)setReusing:(BOOL)value;
+- (id)convertToUIImage:(id)arg;
+- (id)prepareImage:(id)image;
 
 @end
 

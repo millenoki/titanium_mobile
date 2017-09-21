@@ -1,481 +1,460 @@
 #import "TiParentingProxy.h"
-#import "TiUtils.h"
 #import "TiProxyTemplate.h"
+#import "TiUtils.h"
 
-@implementation TiParentingProxy
-{
-    BOOL _unarchiving;
+@implementation TiParentingProxy {
+  BOOL _unarchiving;
 }
 @synthesize children;
 @synthesize parent;
 
-
--(id)init
+- (id)init
 {
-	if ((self = [super init]))
-	{
-        _unarchiving = NO;
-		pthread_rwlock_init(&childrenLock, NULL);
-        childrenCount = 0;
-	}
-	return self;
+  if ((self = [super init])) {
+    _unarchiving = NO;
+    pthread_rwlock_init(&childrenLock, NULL);
+    childrenCount = 0;
+  }
+  return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-    parent = nil;
-    _parentForBubbling = nil;
-	[super dealloc];
+  parent = nil;
+  _parentForBubbling = nil;
+  [super dealloc];
 }
 
--(TiProxy *)parentForBubbling
+- (TiProxy *)parentForBubbling
 {
-	return _parentForBubbling?_parentForBubbling:parent;
+  return _parentForBubbling ? _parentForBubbling : parent;
 }
 
--(void)_initWithProperties:(NSDictionary*)properties
+- (void)_initWithProperties:(NSDictionary *)properties
 {
-    if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"] || [properties objectForKey:@"events"])) {
-//        [self invokeBlockOnJSThread:^{
-        [self rememberSelf];
-        [self unarchiveFromDictionary:properties rootProxy:self];
-        [self forgetSelf];
-//        }];
-        return;
-    }
-	[super _initWithProperties:properties];
+  if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"] || [properties objectForKey:@"events"])) {
+    //        [self invokeBlockOnJSThread:^{
+    [self rememberSelf];
+    [self unarchiveFromDictionary:properties rootProxy:self];
+    [self forgetSelf];
+    //        }];
+    return;
+  }
+  [super _initWithProperties:properties];
 }
 
--(void)_destroy
+- (void)_destroy
 {
-    [super _destroy]; // call first so that destroyed is set
-	pthread_rwlock_wrlock(&childrenLock);
-    [self releaseChildOnDestroy:children];
-    RELEASE_TO_NIL(children);
-	pthread_rwlock_unlock(&childrenLock);
-	pthread_rwlock_destroy(&childrenLock);
-    
-    pthread_rwlock_wrlock(&_holdedProxiesLock);
-    [self releaseChildOnDestroy:_holdedProxies];
-    RELEASE_TO_NIL(_holdedProxies);
-    pthread_rwlock_unlock(&_holdedProxiesLock);
-    pthread_rwlock_destroy(&_holdedProxiesLock);
-    
+  [super _destroy]; // call first so that destroyed is set
+  pthread_rwlock_wrlock(&childrenLock);
+  [self releaseChildOnDestroy:children];
+  RELEASE_TO_NIL(children);
+  pthread_rwlock_unlock(&childrenLock);
+  pthread_rwlock_destroy(&childrenLock);
+
+  pthread_rwlock_wrlock(&_holdedProxiesLock);
+  [self releaseChildOnDestroy:_holdedProxies];
+  RELEASE_TO_NIL(_holdedProxies);
+  pthread_rwlock_unlock(&_holdedProxiesLock);
+  pthread_rwlock_destroy(&_holdedProxiesLock);
 }
 
-
--(void)releaseChildOnDestroy:(id)child {
-    if (!child) return;
-    if (IS_OF_CLASS(child, NSArray)) {
-        [child enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self releaseChildOnDestroy:obj];
-        }];
-        return;
-    } else if (IS_OF_CLASS(child, NSDictionary)) {
-        [[child allValues] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self releaseChildOnDestroy:obj];
-        }];
-        return;
-    }
-    [child retain];
-    [self childRemoved:child wasChild:YES shouldDetach:YES];
-    [child release];
-}
-
--(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
+- (void)releaseChildOnDestroy:(id)child
 {
-    BOOL returnVal = [super _hasListeners:type];
-    if (_bubbleParentDefined) {
-        check = _bubbleParent;
-    }
-    if (!returnVal && check) {
-        returnVal = [[self parentForBubbling] _hasListeners:type];
-    }
-	return returnVal;
+  if (!child)
+    return;
+  if (IS_OF_CLASS(child, NSArray)) {
+    [child enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      [self releaseChildOnDestroy:obj];
+    }];
+    return;
+  } else if (IS_OF_CLASS(child, NSDictionary)) {
+    [[child allValues] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      [self releaseChildOnDestroy:obj];
+    }];
+    return;
+  }
+  [child retain];
+  [self childRemoved:child wasChild:YES shouldDetach:YES];
+  [child release];
 }
 
--(BOOL)_hasListenersIgnoreBubble:(NSString *)type
+- (BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
 {
-    return [super _hasListeners:type];
+  BOOL returnVal = [super _hasListeners:type];
+  if (_bubbleParentDefined) {
+    check = _bubbleParent;
+  }
+  if (!returnVal && check) {
+    returnVal = [[self parentForBubbling] _hasListeners:type];
+  }
+  return returnVal;
 }
 
--(BOOL)_hasListeners:(NSString *)type
+- (BOOL)_hasListenersIgnoreBubble:(NSString *)type
 {
-	return [self _hasListeners:type checkParent:YES];
+  return [super _hasListeners:type];
 }
 
--(NSArray*)children
+- (BOOL)_hasListeners:(NSString *)type
 {
-    if (childrenCount == 0) {
-        return [NSMutableArray array];
-    }
-//    if (![NSThread isMainThread]) {
-//        __block NSArray* result = nil;
-//        TiThreadPerformOnMainThread(^{
-//            result = [[self children] retain];
-//        }, YES);
-//        return [result autorelease];
-//    }
-    
-	pthread_rwlock_rdlock(&childrenLock);
-    NSArray* copy = [children mutableCopy];
-	pthread_rwlock_unlock(&childrenLock);
-	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
+  return [self _hasListeners:type checkParent:YES];
 }
 
--(TiProxy*)childAt:(NSInteger)index
+- (NSArray *)children
 {
-    TiProxy* result = nil;
-    if (index >= 0 && index < childrenCount)
-    {
-        pthread_rwlock_rdlock(&childrenLock);
-        result = [children objectAtIndex:index];
-        pthread_rwlock_unlock(&childrenLock);
-    }
-    return result;
+  if (childrenCount == 0) {
+    return [NSMutableArray array];
+  }
+  pthread_rwlock_rdlock(&childrenLock);
+  NSArray *copy = [children mutableCopy];
+  pthread_rwlock_unlock(&childrenLock);
+  return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
--(NSUInteger)childrenCount {
-    return childrenCount;
-}
-
--(void)setParent:(TiParentingProxy *)newParent
+- (TiProxy *)childAt:(NSInteger)index
 {
-    if (parent) {
-        //we need to remove the child from his current parent children's list
-        // or it might get detached when the old parent gets released
-        [parent _removeChild:self];
-//        RELEASE_TO_NIL(parent)
-    }
-    parent = newParent;
-//    parent = [newParent retain];
-}
-
--(BOOL)containsChild:(TiProxy*)child
-{
-    if (child == self)return YES;
-    NSArray* subproxies = [self children];
-    for (TiProxy * thisChildProxy in subproxies)
-    {
-        if (thisChildProxy == child || ([thisChildProxy isKindOfClass:[TiParentingProxy class]] &&
-            [(TiParentingProxy*)thisChildProxy containsChild:child])) {
-            return YES;
-            
-        }
-    }
-    return NO;
-}
-
--(void)add:(id)arg
-{
-    [self addInternal:arg atIndex:-1 shouldRelayout:YES];
-}
--(void)add:(id)arg atIndex:(NSInteger)position {
-    [self addInternal:arg atIndex:position shouldRelayout:YES];
-}
-
-
--(void)addInternal:(id)arg atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
-{
-	// allow either an array of arrays or an array of single proxy
-	if ([arg isKindOfClass:[NSArray class]])
-	{
-        if ( [arg count] == 2 && [[arg objectAtIndex:1] isKindOfClass:[NSNumber class]]) {
-            [self addInternal:[arg objectAtIndex:0] atIndex:[TiUtils intValue:[arg objectAtIndex:1]] shouldRelayout:shouldRelayout];
-        } else {
-            NSInteger newPos = position;
-            for (id a in arg)
-            {
-                [self addInternal:a atIndex:newPos shouldRelayout:shouldRelayout];
-            }
-        }
-        
-		return;
-	}
-    TiProxy *child = [self createChildFromObject:arg];
-    if (child != nil) {
-        [self addProxy:child atIndex:position shouldRelayout:shouldRelayout];
-    }
-}
-
--(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
-{
-    if ([child respondsToSelector:@selector(setParent:)]) {
-        [(id)child setParent:self];
-    }
-}
-
--(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
-{
-    ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
-    if (child == nil) return;
-    pthread_rwlock_wrlock(&childrenLock);
-    if ([children containsObject:child]) {
-        pthread_rwlock_unlock(&childrenLock);
-        return;
-    }
-    [self rememberProxy:child];
-    if (children==nil)
-    {
-        children = [[NSMutableArray alloc] initWithObjects:child,nil];
-    }
-    else
-    {
-        if(position < 0 || position > [children count]) {
-            position = [children count];
-        }
-        [children insertObject:child atIndex:position];
-    }
-    childrenCount = [children count];
+  TiProxy *result = nil;
+  if (index >= 0 && index < childrenCount) {
+    pthread_rwlock_rdlock(&childrenLock);
+    result = [children objectAtIndex:index];
     pthread_rwlock_unlock(&childrenLock);
-    [self childAdded:child atIndex:position shouldRelayout:shouldRelayout];
+  }
+  return result;
 }
 
--(void)insertAt:(id)args
+- (NSUInteger)childrenCount
 {
-	ENSURE_SINGLE_ARG(args, NSDictionary);
-    [self addInternal:[args objectForKey:@"view"] atIndex:[TiUtils intValue:[args objectForKey:@"position"] def:-1] shouldRelayout:YES];
+  return childrenCount;
 }
 
--(void)replaceAt:(id)args
+- (void)setParent:(TiParentingProxy *)newParent
 {
-	ENSURE_SINGLE_ARG(args, NSDictionary);
-	NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
-	NSArray *childrenArray = [self children];
-	if(childrenArray != nil && position > -1 && [childrenArray count] > position) {
-		TiProxy *childToRemove = [[childrenArray objectAtIndex:position] retain];
-		[self insertAt:args];
-		[self remove: childToRemove];
-		[childToRemove autorelease];
-	}
+  if (parent) {
+    //we need to remove the child from his current parent children's list
+    // or it might get detached when the old parent gets released
+    [parent _removeChild:self];
+    //        RELEASE_TO_NIL(parent)
+  }
+  parent = newParent;
+  //    parent = [newParent retain];
 }
 
--(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
+- (BOOL)containsChild:(TiProxy *)child
 {
-    if (wasChild && [child respondsToSelector:@selector(setParent:)]) {
-        [(id)child setParent:nil];
+  if (child == self)
+    return YES;
+  NSArray *subproxies = [self children];
+  for (TiProxy *thisChildProxy in subproxies) {
+    if (thisChildProxy == child || ([thisChildProxy isKindOfClass:[TiParentingProxy class]] &&
+                                       [(TiParentingProxy *)thisChildProxy containsChild:child])) {
+      return YES;
     }
-    [self forgetProxy:child];
-    if (child.createdFromDictionary) {
-        [child forgetSelf];
-    }
+  }
+  return NO;
 }
 
-
--(void)_removeChild:(id)child
+- (void)add:(id)arg
 {
-    pthread_rwlock_wrlock(&childrenLock);
-    if ([children containsObject:child]) {
-        [children removeObject:child];
+  [self addInternal:arg atIndex:-1 shouldRelayout:YES];
+}
+- (void)add:(id)arg atIndex:(NSInteger)position
+{
+  [self addInternal:arg atIndex:position shouldRelayout:YES];
+}
+
+- (void)addInternal:(id)arg atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
+{
+  // allow either an array of arrays or an array of single proxy
+  if ([arg isKindOfClass:[NSArray class]]) {
+    if ([arg count] == 2 && [[arg objectAtIndex:1] isKindOfClass:[NSNumber class]]) {
+      [self addInternal:[arg objectAtIndex:0] atIndex:[TiUtils intValue:[arg objectAtIndex:1]] shouldRelayout:shouldRelayout];
+    } else {
+      NSInteger newPos = position;
+      for (id a in arg) {
+        [self addInternal:a atIndex:newPos shouldRelayout:shouldRelayout];
+      }
     }
+
+    return;
+  }
+  TiProxy *child = [self createChildFromObject:arg];
+  if (child != nil) {
+    [self addProxy:child atIndex:position shouldRelayout:shouldRelayout];
+  }
+}
+
+- (void)childAdded:(TiProxy *)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
+{
+  if ([child respondsToSelector:@selector(setParent:)]) {
+    [(id)child setParent:self];
+  }
+}
+
+- (void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
+{
+  ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
+  if (child == nil)
+    return;
+  pthread_rwlock_wrlock(&childrenLock);
+  if ([children containsObject:child]) {
     pthread_rwlock_unlock(&childrenLock);
+    return;
+  }
+  [self rememberProxy:child];
+  if (children == nil) {
+    children = [[NSMutableArray alloc] initWithObjects:child, nil];
+  } else {
+    if (position < 0 || position > [children count]) {
+      position = [children count];
+    }
+    [children insertObject:child atIndex:position];
+  }
+  childrenCount = [children count];
+  pthread_rwlock_unlock(&childrenLock);
+  [self childAdded:child atIndex:position shouldRelayout:shouldRelayout];
 }
 
+- (void)insertAt:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  [self addInternal:[args objectForKey:@"view"] atIndex:[TiUtils intValue:[args objectForKey:@"position"] def:-1] shouldRelayout:YES];
+}
 
--(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
+- (void)replaceAt:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+  NSInteger position = [TiUtils intValue:[args objectForKey:@"position"] def:-1];
+  NSArray *childrenArray = [self children];
+  if (childrenArray != nil && position > -1 && [childrenArray count] > position) {
+    TiProxy *childToRemove = [[childrenArray objectAtIndex:position] retain];
+    [self insertAt:args];
+    [self remove:childToRemove];
+    [childToRemove autorelease];
+  }
+}
+
+- (void)childRemoved:(TiProxy *)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
+{
+  if (wasChild && [child respondsToSelector:@selector(setParent:)]) {
+    [(id)child setParent:nil];
+  }
+  [self forgetProxy:child];
+  if (child.createdFromDictionary) {
+    [child forgetSelf];
+  }
+}
+
+- (void)_removeChild:(id)child
+{
+  pthread_rwlock_wrlock(&childrenLock);
+  if ([children containsObject:child]) {
+    [children removeObject:child];
+  }
+  pthread_rwlock_unlock(&childrenLock);
+}
+
+- (void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
 {
 #ifdef HYPERLOOP
-    // ofbuscate this selector
-    static SEL nativeObjSel = nil;
-    if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
-    // obfuscate this class name
-    static Class hlClassName = nil;
-    if (hlClassName == nil) hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop",@"Class"]);
-    if ([child isKindOfClass:[UIView class]] || (hlClassName != nil && [child isKindOfClass:hlClassName])) {
-        
-        TiUIView *tmpView;
-        if ([child isKindOfClass: hlClassName]) {
-            UIView* v = [child performSelector: nativeObjSel];
-            if (![v isKindOfClass:[UIView class]]) {
-                NSLog(@"[WARN] Trying to remove an object that is not a view");
-                return;
-            }
-            tmpView = (TiUIView*)[v superview];
-        } else {
-            tmpView = (TiUIView*)[(UIView*)child superview];
-        }
-        if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
-            child = [tmpView proxy];
-        } else {
-            NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
-            return;
-        }
+  // ofbuscate this selector
+  static SEL nativeObjSel = nil;
+  if (nativeObjSel == nil)
+    nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+  // obfuscate this class name
+  static Class hlClassName = nil;
+  if (hlClassName == nil)
+    hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop", @"Class"]);
+  if ([child isKindOfClass:[UIView class]] || (hlClassName != nil && [child isKindOfClass:hlClassName])) {
+
+    TiUIView *tmpView;
+    if ([child isKindOfClass:hlClassName]) {
+      UIView *v = [child performSelector:nativeObjSel];
+      if (![v isKindOfClass:[UIView class]]) {
+        NSLog(@"[WARN] Trying to remove an object that is not a view");
+        return;
+      }
+      tmpView = (TiUIView *)[v superview];
+    } else {
+      tmpView = (TiUIView *)[(UIView *)child superview];
     }
+    if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
+      child = [tmpView proxy];
+    } else {
+      NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
+      return;
+    }
+  }
 #endif
-    ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
-    BOOL wasChild = false;
-    pthread_rwlock_wrlock(&childrenLock);
-	if ([children containsObject:child]) {
-		[children removeObject:child];
-        wasChild = true;
-	}
-	pthread_rwlock_unlock(&childrenLock);
-    
-    [self childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
+  ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
+  BOOL wasChild = false;
+  pthread_rwlock_wrlock(&childrenLock);
+  if ([children containsObject:child]) {
+    [children removeObject:child];
+    wasChild = true;
+  }
+  pthread_rwlock_unlock(&childrenLock);
+
+  [self childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
 }
 
--(void)removeProxy:(id)child
+- (void)removeProxy:(id)child
 {
-    if (IS_OF_CLASS(child, TiParentingProxy)) {
-        TiParentingProxy* childParent = ((TiParentingProxy*)child).parent;
-        if (childParent && childParent != self) {
-            return;
-        }
+  if (IS_OF_CLASS(child, TiParentingProxy)) {
+    TiParentingProxy *childParent = ((TiParentingProxy *)child).parent;
+    if (childParent && childParent != self) {
+      return;
     }
-    [self removeProxy:child shouldDetach:YES];
+  }
+  [self removeProxy:child shouldDetach:YES];
 }
 
--(void)remove:(id)arg
+- (void)remove:(id)arg
 {
-	ENSURE_UI_THREAD_1_ARG(arg);
-    
-    if ([arg isKindOfClass:[NSArray class]])
-	{
-		for (id a in arg)
-		{
-            [self remove:a];
-		}
-		return;
-	}
-    [self removeProxy:arg];
-}
+  ENSURE_UI_THREAD_1_ARG(arg);
 
--(void)removeFromParent:(id)arg
-{
-    if (parent)
-        [parent remove:self];
-}
-
--(void)removeAllChildren:(id)arg
-{
-    pthread_rwlock_wrlock(&childrenLock);
-    NSMutableArray* childrenCopy = [children mutableCopy];
-    [children removeAllObjects];
-    childrenCount = 0;
-    RELEASE_TO_NIL(children);
-    pthread_rwlock_unlock(&childrenLock);
-    for (TiProxy* theChild in childrenCopy) {
-        [self childRemoved:theChild wasChild:YES shouldDetach:YES];
-        [self forgetProxy:theChild];
+  if ([arg isKindOfClass:[NSArray class]]) {
+    for (id a in arg) {
+      [self remove:a];
     }
-	[childrenCopy release];
+    return;
+  }
+  [self removeProxy:arg];
 }
 
--(void)setViews:(id)args
+- (void)removeFromParent:(id)arg
 {
-    [self removeAllChildren:nil];
-    [self add:args];
+  if (parent)
+    [parent remove:self];
 }
 
--(void)_listenerAdded:(NSString*)type count:(NSInteger)count
+- (void)removeAllChildren:(id)arg
 {
-    //TIMOB-15991 Update children as well
-	NSArray* childrenArray = [[self children] retain];
-    for (id child in childrenArray) {
-        
-        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
-            [child performSelector:@selector(parentListenersChanged)];
-        }
+  pthread_rwlock_wrlock(&childrenLock);
+  NSMutableArray *childrenCopy = [children mutableCopy];
+  [children removeAllObjects];
+  childrenCount = 0;
+  RELEASE_TO_NIL(children);
+  pthread_rwlock_unlock(&childrenLock);
+  for (TiProxy *theChild in childrenCopy) {
+    [self childRemoved:theChild wasChild:YES shouldDetach:YES];
+    [self forgetProxy:theChild];
+  }
+  [childrenCopy release];
+}
+
+- (void)setViews:(id)args
+{
+  [self removeAllChildren:nil];
+  [self add:args];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(NSInteger)count
+{
+  //TIMOB-15991 Update children as well
+  NSArray *childrenArray = [[self children] retain];
+  for (id child in childrenArray) {
+
+    if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+      [child performSelector:@selector(parentListenersChanged)];
     }
-	[childrenArray release];
+  }
+  [childrenArray release];
 }
 
--(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
+- (void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
-    //TIMOB-15991 Update children as well
-    NSArray* childrenArray = [[self children] retain];
-    for (id child in childrenArray) {
-        if ([child respondsToSelector:@selector(parentListenersChanged)]) {
-            [child performSelector:@selector(parentListenersChanged)];
-        }
+  //TIMOB-15991 Update children as well
+  NSArray *childrenArray = [[self children] retain];
+  for (id child in childrenArray) {
+    if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+      [child performSelector:@selector(parentListenersChanged)];
     }
-    [childrenArray release];
+  }
+  [childrenArray release];
 }
-
 
 - (TiProxy *)createChildFromObject:(id)object
 {
-    return [self createChildFromObject:object rootProxy:self];
+  return [self createChildFromObject:object rootProxy:self];
 }
 
-- (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy*)rootProxy
+- (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy *)rootProxy
 {
-    TiProxy *child = nil;
+  TiProxy *child = nil;
 #ifdef HYPERLOOP
-    // obfuscate this selector
-    static SEL nativeObjSel = nil;
-    if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+  // obfuscate this selector
+  static SEL nativeObjSel = nil;
+  if (nativeObjSel == nil)
+    nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
 #endif
-    if ([object isKindOfClass:[NSDictionary class]]) {
-        id<TiEvaluator> context = self.executionContext;
-        if (context == nil) {
-            context = self.pageContext;
-        }
-        child = [[self class] createFromDictionary:object rootProxy:rootProxy inContext:context];
-        [self rememberProxy:child];
+  if ([object isKindOfClass:[NSDictionary class]]) {
+    id<TiEvaluator> context = self.executionContext;
+    if (context == nil) {
+      context = self.pageContext;
+    }
+    child = [[self class] createFromDictionary:object rootProxy:rootProxy inContext:context];
+    [self rememberProxy:child];
 //        [context.krollContext invokeBlockOnThread:^{
 //        }];
 #ifdef HYPERLOOP
-    } else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
-        Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
-        if (hyperloopViewProxy != nil) {
-            child = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-            [child performSelector:@selector(setNativeView:) withObject:arg];
-        }
+  } else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
+    Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
+    if (hyperloopViewProxy != nil) {
+      child = [(TiViewProxy *)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+      [child performSelector:@selector(setNativeView:) withObject:arg];
+    }
 #endif
-    } else if(([object isKindOfClass:[TiProxy class]]))
-    {
-        child = (TiProxy *)object;
-    }
-    if (child && child.bindId) {
-        [rootProxy addBinding:child forKey:child.bindId];
-    }
-    return child;
+  } else if (([object isKindOfClass:[TiProxy class]])) {
+    child = (TiProxy *)object;
+  }
+  if (child && child.bindId) {
+    [rootProxy addBinding:child forKey:child.bindId];
+  }
+  return child;
 }
 
-
-
-- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy
+- (void)unarchiveFromDictionary:(NSDictionary *)dictionary rootProxy:(TiParentingProxy *)rootProxy
 {
-	if (dictionary == nil) {
-		return;
-	}
-	_unarchiving = YES;
-	id<TiEvaluator> context = self.executionContext;
-	if (context == nil) {
-		context = self.pageContext;
-	}
-	[super unarchiveFromDictionary:dictionary rootProxy:rootProxy];
-    
-    NSArray* childTemplates = (NSArray*)[dictionary objectForKey:@"childTemplates"];
-	
-	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-        TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
-		if (child != nil) {
-            [context.krollContext invokeBlockOnThread:^{
-                [self rememberProxy:child];
-				[child forgetSelf];
-			}];
-            [self addProxy:child atIndex:-1 shouldRelayout:NO];
-//            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
-//                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
-//                if ([events count] > 0) {
-//                    [context.krollContext invokeBlockOnThread:^{
-//                        [events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
-//                            if ([listener isKindOfClass:[KrollCallback class]]) {
-//                                KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
-//                                [wrapper protectJsobject];
-//                                [child addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
-//                            } else {
-//                                [child addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
-//                            }
-//                        }];
-//                    }];
-//                }
-//            }
-		}
-	}];
-	_unarchiving = NO;
+  if (dictionary == nil) {
+    return;
+  }
+  _unarchiving = YES;
+  id<TiEvaluator> context = self.executionContext;
+  if (context == nil) {
+    context = self.pageContext;
+  }
+  [super unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+
+  NSArray *childTemplates = (NSArray *)[dictionary objectForKey:@"childTemplates"];
+
+  [childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
+    TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
+    if (child != nil) {
+      [context.krollContext invokeBlockOnThread:^{
+        [self rememberProxy:child];
+        [child forgetSelf];
+      }];
+      [self addProxy:child atIndex:-1 shouldRelayout:NO];
+      //            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
+      //                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
+      //                if ([events count] > 0) {
+      //                    [context.krollContext invokeBlockOnThread:^{
+      //                        [events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
+      //                            if ([listener isKindOfClass:[KrollCallback class]]) {
+      //                                KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
+      //                                [wrapper protectJsobject];
+      //                                [child addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+      //                            } else {
+      //                                [child addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+      //                            }
+      //                        }];
+      //                    }];
+      //                }
+      //            }
+    }
+  }];
+  _unarchiving = NO;
 }
 
 // Returns protected proxy, caller should do forgetSelf.
@@ -485,7 +464,7 @@
 //    if (viewTemplate == nil) {
 //        return;
 //    }
-//    
+//
 //    if (viewTemplate.type != nil) {
 //        TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
 //        if (proxy) {
@@ -494,235 +473,235 @@
 //                [proxy rememberSelf];
 //            }];
 //            [proxy unarchiveFromTemplate:viewTemplate withEvents:withEvents];
-//            
+//
 //        }
 //        return proxy;
 //    }
 //    return nil;
 //}
 
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents rootProxy:(TiProxy*)rootProxy
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents rootProxy:(TiProxy *)rootProxy
 {
-	TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
-	if (viewTemplate == nil) {
-		return;
-	}
-	[super unarchiveFromTemplate:viewTemplate withEvents:withEvents rootProxy:rootProxy];
-    id<TiEvaluator> context = [rootProxy getContext];
-	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiProxyTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
-        NSString* type = childTemplate.type;
-        if (!type) {
-            type = @"Ti.UI.View";
-        }
-        if (type != nil) {
-            TiProxy *child = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
-            if (child) {
-                [context.krollContext invokeBlockOnThread:^{
-                    [context registerProxy:child];
-                    [child rememberSelf];
-                }];
-                [child unarchiveFromTemplate:childTemplate withEvents:withEvents rootProxy:rootProxy];
-                [context.krollContext invokeBlockOnThread:^{
-                    [self rememberProxy:child];
-                    [child forgetSelf];
-                }];
-                [self addProxy:child atIndex:-1 shouldRelayout:NO];
-                if (child.bindId) {
-                    [rootProxy addBinding:child forKey:child.bindId];
-                }
-            }
-//            return proxy;
-        }
-//
-//        TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
-//		if (child != nil) {
-//            
-//		}
-	}];
-}
-
--(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child
-{
-    id result = nil;
-    NSArray* subproxies = [self children];
-    NSInteger index=child?[subproxies indexOfObject:child]:0;
-    if(NSNotFound != index) {
-        for (NSInteger i = index + 1; i < [subproxies count] ; i++) {
-            TiProxy* obj = [subproxies objectAtIndex:i];
-            if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
-                    return obj;
-            } else if (IS_OF_CLASS(obj, TiParentingProxy)) {
-                result = [(TiParentingProxy*)obj getNextChildrenOfClass:theClass afterChild:nil];
-                if (result) {
-                    return result;
-                }
-            }
-        }
+  TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
+  if (viewTemplate == nil) {
+    return;
+  }
+  [super unarchiveFromTemplate:viewTemplate withEvents:withEvents rootProxy:rootProxy];
+  id<TiEvaluator> context = [rootProxy getContext];
+  [viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiProxyTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
+    NSString *type = childTemplate.type;
+    if (!type) {
+      type = @"Ti.UI.View";
     }
-    return result;
-}
-
--(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive
-{
-//    if (recursive)
-//    {
-    pthread_rwlock_rdlock(&childrenLock);
-    NSArray* subproxies = [self children];
-    pthread_rwlock_unlock(&childrenLock);
-    for (TiProxy * thisChildProxy in subproxies)
-    {
-        block(thisChildProxy);
-        if (recursive && IS_OF_CLASS(thisChildProxy, TiParentingProxy)) {
-            [(TiParentingProxy*)thisChildProxy runBlock:block recursive:recursive];
-        }
-    }
-//    }
-}
-
--(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
-{
-    [[self children] makeObjectsPerformSelector:selector withObject:object];
-}
-
--(id)addObjectToHold:(id)value forKey:(NSString*)key
-{
-    return [self addObjectToHold:value forKey:key shouldRelayout:NO];
-}
--(id)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
-{
-    if (IS_OF_CLASS(value, NSArray)) {
-        NSMutableArray* proxies = [NSMutableArray arrayWithCapacity:[value count]];
-        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            TiProxy* theProxy = [self createChildFromObject:obj];
-            if (theProxy) {
-                [proxies addObject:theProxy];
-            }
+    if (type != nil) {
+      TiProxy *child = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
+      if (child) {
+        [context.krollContext invokeBlockOnThread:^{
+          [context registerProxy:child];
+          [child rememberSelf];
         }];
-        return [self addProxiesArrayToHold:proxies forKey:key shouldRelayout:shouldRelayout];
+        [child unarchiveFromTemplate:childTemplate withEvents:withEvents rootProxy:rootProxy];
+        [context.krollContext invokeBlockOnThread:^{
+          [self rememberProxy:child];
+          [child forgetSelf];
+        }];
+        [self addProxy:child atIndex:-1 shouldRelayout:NO];
+        if (child.bindId) {
+          [rootProxy addBinding:child forKey:child.bindId];
+        }
+      }
+      //            return proxy;
     }
-    TiProxy* theProxy = [self createChildFromObject:value];
-    return [self addProxyToHold:theProxy forKey:key shouldRelayout:shouldRelayout];
-}
--(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key
-{
-    [self addProxyToHold:proxy forKey:key shouldRelayout:NO];
-}
--(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
-{
-    return [self addProxyToHold:proxy setParent:YES forKey:key shouldRelayout:shouldRelayout];
+    //
+    //        TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
+    //		if (child != nil) {
+    //
+    //		}
+  }];
 }
 
--(TiProxy*)addProxyToHold:(TiProxy*)proxy setParent:(BOOL)setParent forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
+- (id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy *)child
 {
-    
-    TiProxy* oldProxy = [_holdedProxies objectForKey:key];
-    if (oldProxy) {
-        if (oldProxy == proxy) return proxy;
-        if (IS_OF_CLASS(oldProxy, TiParentingProxy) && ((TiParentingProxy*)oldProxy).parent != self) {
-            [((TiParentingProxy*)oldProxy).parent removeProxy:oldProxy shouldDetach:YES];
-        } else {
-            [self childRemoved:oldProxy wasChild:setParent shouldDetach:YES];
+  id result = nil;
+  NSArray *subproxies = [self children];
+  NSInteger index = child ? [subproxies indexOfObject:child] : 0;
+  if (NSNotFound != index) {
+    for (NSInteger i = index + 1; i < [subproxies count]; i++) {
+      TiProxy *obj = [subproxies objectAtIndex:i];
+      if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
+        return obj;
+      } else if (IS_OF_CLASS(obj, TiParentingProxy)) {
+        result = [(TiParentingProxy *)obj getNextChildrenOfClass:theClass afterChild:nil];
+        if (result) {
+          return result;
         }
+      }
     }
-    if (proxy) {
-        [self rememberProxy:proxy];
-        if (!_holdedProxies) {
-            pthread_rwlock_init(&_holdedProxiesLock, NULL);
-            _holdedProxies = [[NSMutableDictionary alloc] init];
-        }
-        pthread_rwlock_wrlock(&_holdedProxiesLock);
-        [_holdedProxies setValue:proxy forKey:key];
-        if (setParent) {
-            [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
-        }
-        pthread_rwlock_unlock(&_holdedProxiesLock);
-    } else if (_holdedProxies) {
-        pthread_rwlock_wrlock(&_holdedProxiesLock);
-        [_holdedProxies removeObjectForKey:key];
-        pthread_rwlock_unlock(&_holdedProxiesLock);
-    }
-    return proxy;
+  }
+  return result;
 }
 
--(NSArray*)addProxiesArrayToHold:(NSArray*)proxies forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
+- (void)runBlock:(void (^)(TiProxy *proxy))block recursive:(BOOL)recursive
 {
+  //    if (recursive)
+  //    {
+  pthread_rwlock_rdlock(&childrenLock);
+  NSArray *subproxies = [self children];
+  pthread_rwlock_unlock(&childrenLock);
+  for (TiProxy *thisChildProxy in subproxies) {
+    block(thisChildProxy);
+    if (recursive && IS_OF_CLASS(thisChildProxy, TiParentingProxy)) {
+      [(TiParentingProxy *)thisChildProxy runBlock:block recursive:recursive];
+    }
+  }
+  //    }
+}
+
+- (void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
+{
+  [[self children] makeObjectsPerformSelector:selector withObject:object];
+}
+
+- (id)addObjectToHold:(id)value forKey:(NSString *)key
+{
+  return [self addObjectToHold:value forKey:key shouldRelayout:NO];
+}
+- (id)addObjectToHold:(id)value forKey:(NSString *)key shouldRelayout:(BOOL)shouldRelayout
+{
+  if (IS_OF_CLASS(value, NSArray)) {
+    NSMutableArray *proxies = [NSMutableArray arrayWithCapacity:[value count]];
+    [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      TiProxy *theProxy = [self createChildFromObject:obj];
+      if (theProxy) {
+        [proxies addObject:theProxy];
+      }
+    }];
+    return [self addProxiesArrayToHold:proxies forKey:key shouldRelayout:shouldRelayout];
+  }
+  TiProxy *theProxy = [self createChildFromObject:value];
+  return [self addProxyToHold:theProxy forKey:key shouldRelayout:shouldRelayout];
+}
+- (TiProxy *)addProxyToHold:(TiProxy *)proxy forKey:(NSString *)key
+{
+  [self addProxyToHold:proxy forKey:key shouldRelayout:NO];
+}
+- (TiProxy *)addProxyToHold:(TiProxy *)proxy forKey:(NSString *)key shouldRelayout:(BOOL)shouldRelayout
+{
+  return [self addProxyToHold:proxy setParent:YES forKey:key shouldRelayout:shouldRelayout];
+}
+
+- (TiProxy *)addProxyToHold:(TiProxy *)proxy setParent:(BOOL)setParent forKey:(NSString *)key shouldRelayout:(BOOL)shouldRelayout
+{
+
+  TiProxy *oldProxy = [_holdedProxies objectForKey:key];
+  if (oldProxy) {
+    if (oldProxy == proxy)
+      return proxy;
+    if (IS_OF_CLASS(oldProxy, TiParentingProxy) && ((TiParentingProxy *)oldProxy).parent != self) {
+      [((TiParentingProxy *)oldProxy).parent removeProxy:oldProxy shouldDetach:YES];
+    } else {
+      [self childRemoved:oldProxy wasChild:setParent shouldDetach:YES];
+    }
+  }
+  if (proxy) {
+    [self rememberProxy:proxy];
     if (!_holdedProxies) {
-        pthread_rwlock_init(&_holdedProxiesLock, NULL);
-        _holdedProxies = [[NSMutableDictionary alloc] init];
+      pthread_rwlock_init(&_holdedProxiesLock, NULL);
+      _holdedProxies = [[NSMutableDictionary alloc] init];
     }
     pthread_rwlock_wrlock(&_holdedProxiesLock);
-    NSArray* oldProxies = [_holdedProxies objectForKey:key];
-    if (oldProxies) {
-        if ([oldProxies isEqual:proxies]) {
-            pthread_rwlock_wrlock(&_holdedProxiesLock);
-            return proxies;
-        }
-        [oldProxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self forgetProxy:obj];
-            if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy*)obj).parent != self) {
-                [((TiParentingProxy*)obj).parent removeProxy:obj shouldDetach:YES];
-            } else {
-                [self childRemoved:obj wasChild:YES shouldDetach:YES];
-            }
-        }];
-        [_holdedProxies removeObjectForKey:key];
-    }
-    if (proxies) {
-        
-        [_holdedProxies setValue:proxies forKey:key];
-        [proxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self rememberProxy:obj];
-            [self childAdded:obj atIndex:-1 shouldRelayout:shouldRelayout];
-        }];
+    [_holdedProxies setValue:proxy forKey:key];
+    if (setParent) {
+      [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
     }
     pthread_rwlock_unlock(&_holdedProxiesLock);
-    return proxies;
-}
--(id)removeHoldedProxyForKey:(NSString*)key
-{
-    if (!key || !_holdedProxies) return;
+  } else if (_holdedProxies) {
     pthread_rwlock_wrlock(&_holdedProxiesLock);
-    id object = [_holdedProxies objectForKey:key];
-    if (!object) {
-        NSLog(@"[WARN] there is no holded proxy for the key %@", key);
-        pthread_rwlock_unlock(&_holdedProxiesLock);
-        return nil;
-    }
-    if (IS_OF_CLASS(object, NSArray)) {
-        [object enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy*)obj).parent != self) {
-                [((TiParentingProxy*)obj).parent removeProxy:obj shouldDetach:YES];
-            } else {
-                [self childRemoved:obj wasChild:YES shouldDetach:YES];
-            }
-        }];
-    } else {
-        if (IS_OF_CLASS(object, TiParentingProxy) && ((TiParentingProxy*)object).parent != self) {
-            [((TiParentingProxy*)object).parent removeProxy:object shouldDetach:YES];
-        } else {
-            [self childRemoved:object wasChild:YES shouldDetach:YES];
-        }
-    }
     [_holdedProxies removeObjectForKey:key];
     pthread_rwlock_unlock(&_holdedProxiesLock);
-    return object;
+  }
+  return proxy;
 }
 
--(NSArray*)allKeysForHoldedProxy:(id)object
+- (NSArray *)addProxiesArrayToHold:(NSArray *)proxies forKey:(NSString *)key shouldRelayout:(BOOL)shouldRelayout
 {
-    pthread_rwlock_wrlock(&_holdedProxiesLock);
-    NSArray* result = [_holdedProxies allKeysForObject:object];
-    pthread_rwlock_unlock(&_holdedProxiesLock);
-    return result;
-}
+  if (!_holdedProxies) {
+    pthread_rwlock_init(&_holdedProxiesLock, NULL);
+    _holdedProxies = [[NSMutableDictionary alloc] init];
+  }
+  pthread_rwlock_wrlock(&_holdedProxiesLock);
+  NSArray *oldProxies = [_holdedProxies objectForKey:key];
+  if (oldProxies) {
+    if ([oldProxies isEqual:proxies]) {
+      pthread_rwlock_wrlock(&_holdedProxiesLock);
+      return proxies;
+    }
+    [oldProxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      [self forgetProxy:obj];
+      if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy *)obj).parent != self) {
+        [((TiParentingProxy *)obj).parent removeProxy:obj shouldDetach:YES];
+      } else {
+        [self childRemoved:obj wasChild:YES shouldDetach:YES];
+      }
+    }];
+    [_holdedProxies removeObjectForKey:key];
+  }
+  if (proxies) {
 
--(id)holdedProxyForKey:(NSString*)key
+    [_holdedProxies setValue:proxies forKey:key];
+    [proxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      [self rememberProxy:obj];
+      [self childAdded:obj atIndex:-1 shouldRelayout:shouldRelayout];
+    }];
+  }
+  pthread_rwlock_unlock(&_holdedProxiesLock);
+  return proxies;
+}
+- (id)removeHoldedProxyForKey:(NSString *)key
 {
-    pthread_rwlock_wrlock(&_holdedProxiesLock);
-    id result = [_holdedProxies objectForKey:key];
+  if (!key || !_holdedProxies)
+    return;
+  pthread_rwlock_wrlock(&_holdedProxiesLock);
+  id object = [_holdedProxies objectForKey:key];
+  if (!object) {
+    NSLog(@"[WARN] there is no holded proxy for the key %@", key);
     pthread_rwlock_unlock(&_holdedProxiesLock);
-    return result;
+    return nil;
+  }
+  if (IS_OF_CLASS(object, NSArray)) {
+    [object enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+      if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy *)obj).parent != self) {
+        [((TiParentingProxy *)obj).parent removeProxy:obj shouldDetach:YES];
+      } else {
+        [self childRemoved:obj wasChild:YES shouldDetach:YES];
+      }
+    }];
+  } else {
+    if (IS_OF_CLASS(object, TiParentingProxy) && ((TiParentingProxy *)object).parent != self) {
+      [((TiParentingProxy *)object).parent removeProxy:object shouldDetach:YES];
+    } else {
+      [self childRemoved:object wasChild:YES shouldDetach:YES];
+    }
+  }
+  [_holdedProxies removeObjectForKey:key];
+  pthread_rwlock_unlock(&_holdedProxiesLock);
+  return object;
 }
 
+- (NSArray *)allKeysForHoldedProxy:(id)object
+{
+  pthread_rwlock_wrlock(&_holdedProxiesLock);
+  NSArray *result = [_holdedProxies allKeysForObject:object];
+  pthread_rwlock_unlock(&_holdedProxiesLock);
+  return result;
+}
+
+- (id)holdedProxyForKey:(NSString *)key
+{
+  pthread_rwlock_wrlock(&_holdedProxiesLock);
+  id result = [_holdedProxies objectForKey:key];
+  pthread_rwlock_unlock(&_holdedProxiesLock);
+  return result;
+}
 
 @end

@@ -10,15 +10,15 @@
 
 @interface TiFileSystemHelper : NSObject
 
-+(id)resolveFile:(id)arg;
-+(NSString*)pathFromComponents:(NSArray*)args;
-+(NSString*)separator;
-+(NSString*)lineEnding;
-+(NSString*)resourcesDirectory;
-+(NSString*)applicationDirectory;
-+(NSString*)applicationSupportDirectory;
-+(NSString*)applicationDataDirectory;
-+(NSString*)applicationCacheDirectory;
-+(NSString*)tempDirectory;
-+(NSString*)directoryForSuite:(NSString*)suitePath;
++ (id)resolveFile:(id)arg;
++ (NSString *)pathFromComponents:(NSArray *)args;
++ (NSString *)separator;
++ (NSString *)lineEnding;
++ (NSString *)resourcesDirectory;
++ (NSString *)applicationDirectory;
++ (NSString *)applicationSupportDirectory;
++ (NSString *)applicationDataDirectory;
++ (NSString *)applicationCacheDirectory;
++ (NSString *)tempDirectory;
++ (NSString *)directoryForSuite:(NSString *)suitePath;
 @end

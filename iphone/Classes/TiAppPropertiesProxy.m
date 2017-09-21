@@ -7,164 +7,171 @@
 #ifdef USE_TI_APP
 
 #import "TiAppPropertiesProxy.h"
-#import "TiUtils.h"
+#import "TiApp.h"
 #import "TiApp.h"
 #import "TiProperties.h"
+#import "TiUtils.h"
 
 @implementation TiAppPropertiesProxy
 
--(void)dealloc
+- (void)dealloc
 {
-	TiThreadPerformOnMainThread(^{
-		[[NSNotificationCenter defaultCenter] removeObserver:self];
-	}, YES);
-    
-	[super dealloc];
+  TiThreadPerformBlockOnMainThread(^{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+  },
+      YES);
+
+  [super dealloc];
 }
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.App.Properties";
+  return @"Ti.App.Properties";
 }
 
--(void)_listenerAdded:(NSString*)type count:(NSInteger)count
+- (void)_listenerAdded:(NSString *)type count:(NSInteger)count
 {
-	if (count == 1 && [type isEqual:@"change"])
-	{
-		TiThreadPerformOnMainThread(^{
-			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange) name:NSUserDefaultsDidChangeNotification object:nil];
-		}, YES);
-	}
+  if (count == 1 && [type isEqual:@"change"]) {
+    TiThreadPerformBlockOnMainThread(^{
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(NSUserDefaultsDidChange) name:NSUserDefaultsDidChangeNotification object:nil];
+    },
+        YES);
+  }
 }
 
--(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
+- (void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
-	if (count == 0 && [type isEqual:@"change"])
-	{
-		TiThreadPerformOnMainThread(^{
-			[[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
-		}, YES);
-	}
+  if (count == 0 && [type isEqual:@"change"]) {
+    TiThreadPerformBlockOnMainThread(^{
+      [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:nil];
+    },
+        YES);
+  }
 }
 
-#define GETPROP \
-ENSURE_TYPE(args,NSArray);\
-NSString *key = [args objectAtIndex:0];\
-id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
-if(appProp) { \
-return appProp; \
-} \
-id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];\
+#define GETPROP                                            \
+  ENSURE_TYPE(args, NSArray);                              \
+  NSString *key = [args objectAtIndex:0];                  \
+  id appProp = [[TiApp tiAppProperties] objectForKey:key]; \
+  if (appProp) {                                           \
+    return appProp;                                        \
+  }                                                        \
+  id defaultValue = [args count] > 1 ? [args objectAtIndex:1] : [NSNull null];
 
--(id)getBool:(id)args
+- (id)getBool:(id)args
 {
-	GETPROP
-	return [TiProperties getBool:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getBool:key defaultValue:defaultValue];
 }
 
--(id)getDouble:(id)args
+- (id)getDouble:(id)args
 {
-	GETPROP
-	return [TiProperties getDouble:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getDouble:key defaultValue:defaultValue];
 }
 
--(id)getInt:(id)args
+- (id)getInt:(id)args
 {
-	GETPROP
-	return [TiProperties getInt:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getInt:key defaultValue:defaultValue];
 }
 
--(id)getString:(id)args
+- (id)getString:(id)args
 {
-	GETPROP
-	return [TiProperties getString:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getString:key defaultValue:defaultValue];
 }
 
--(id)getList:(id)args
+- (id)getList:(id)args
 {
-	GETPROP
-	return [TiProperties getList:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getList:key defaultValue:defaultValue];
 }
 
--(id)getObject:(id)args
+- (id)getObject:(id)args
 {
-    GETPROP
-	return [TiProperties getObject:key defaultValue:defaultValue];
+  GETPROP
+  return [TiProperties getObject:key defaultValue:defaultValue];
 }
 
-#define SETPROP \
-ENSURE_TYPE(args,NSArray);\
-NSString *key = [args objectAtIndex:0];\
-id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
+#define SETPROP                           \
+  ENSURE_TYPE(args, NSArray);             \
+  NSString *key = [args objectAtIndex:0]; \
+  id value = [args count] > 1 ? [args objectAtIndex:1] : nil;
 
--(void)setBool:(id)args
+- (void)setBool:(id)args
 {
-	SETPROP
-	[TiProperties setBool:value forKey:key];
+  SETPROP
+      [TiProperties setBool:value
+                     forKey:key];
 }
 
--(void)setDouble:(id)args
+- (void)setDouble:(id)args
 {
-	SETPROP
-	[TiProperties setDouble:value forKey:key];
+  SETPROP
+      [TiProperties setDouble:value
+                       forKey:key];
 }
 
--(void)setInt:(id)args
+- (void)setInt:(id)args
 {
-	SETPROP
-	[TiProperties setInt:value forKey:key];
-
+  SETPROP
+      [TiProperties setInt:value
+                    forKey:key];
 }
 
--(void)setString:(id)args
+- (void)setString:(id)args
 {
-	SETPROP
-	[TiProperties setString:value forKey:key];
+  SETPROP
+      [TiProperties setString:value
+                       forKey:key];
 }
 
--(void)setList:(id)args
+- (void)setList:(id)args
 {
-	SETPROP
-	[TiProperties setList:value forKey:key];
+  SETPROP
+      [TiProperties setList:value
+                     forKey:key];
 }
 
--(void)setObject:(id)args
+- (void)setObject:(id)args
 {
-	SETPROP
-	[TiProperties setObject:value forKey:key];
+  SETPROP
+      [TiProperties setObject:value
+                       forKey:key];
 }
 
--(void)removeProperty:(id)args
+- (void)removeProperty:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSString);
-	[TiProperties removeProperty:args];
+  ENSURE_SINGLE_ARG(args, NSString);
+  [TiProperties removeProperty:args];
 }
 
--(void)removeAllProperties:(id)unused {
-	[TiProperties removeAllProperties];
-}
-
--(id)hasProperty:(id)args
+- (void)removeAllProperties:(id)unused
 {
-    ENSURE_SINGLE_ARG(args,NSString);
-	return NUMBOOL([TiProperties hasProperty:args]);
+  [TiProperties removeAllProperties];
 }
 
--(id)listProperties:(id)unused
+- (id)hasProperty:(id)args
 {
-    return [TiProperties listProperties];
+  ENSURE_SINGLE_ARG(args, NSString);
+  return NUMBOOL([TiProperties hasProperty:args]);
 }
 
--(void) NSUserDefaultsDidChange
+- (id)listProperties:(id)unused
 {
-    NSDictionary* event = nil;
-    if ([[TiProperties sharedInstance] changedProperty] != nil) {
-        event = [NSDictionary dictionaryWithObject:[[TiProperties sharedInstance] changedProperty] forKey:@"property"];
-        [TiProperties sharedInstance].changedProperty = nil;
-    }
-	[self fireEvent:@"change" withObject:event];
+  return [TiProperties listProperties];
 }
 
+- (void)NSUserDefaultsDidChange
+{
+  NSDictionary *event = nil;
+  if ([[TiProperties sharedInstance] changedProperty] != nil) {
+    event = [NSDictionary dictionaryWithObject:[[TiProperties sharedInstance] changedProperty] forKey:@"property"];
+    [TiProperties sharedInstance].changedProperty = nil;
+  }
+  [self fireEvent:@"change" withObject:event];
+}
 
 @end
 

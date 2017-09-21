@@ -11,7 +11,7 @@
 @class TiUIListItem;
 @class TiUIListViewProxy;
 
-@interface TiUIListItemProxy : TiViewProxy < TiViewEventOverrideDelegate >
+@interface TiUIListItemProxy : TiViewProxy <TiViewEventOverrideDelegate>
 
 @property (nonatomic, readwrite, assign) TiUIListItem *listItem;
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;
@@ -19,12 +19,12 @@
 - (id)initWithListViewProxy:(TiUIListViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context;
 //- (NSDictionary *)bindings;
 - (void)setDataItem:(NSDictionary *)dataItem;
--(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
--(void)cleanup;
+- (CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
+- (void)cleanup;
 
--(void)deregisterProxy:(id<TiEvaluator>)context;
--(BOOL)shouldHighlight;
--(TiUIListViewProxy*)listViewProxy;
+- (void)deregisterProxy:(id<TiEvaluator>)context;
+- (BOOL)shouldHighlight;
+- (TiUIListViewProxy *)listViewProxy;
 @end
 
 #endif

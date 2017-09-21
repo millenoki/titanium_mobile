@@ -6,18 +6,18 @@
  */
 #ifdef USE_TI_UIBUTTON
 
-#import "TiViewProxy.h"
-#import "TiUINavBarButton.h"
-#import "TiToolbarButton.h"
 #import "TiToolbar.h"
+#import "TiToolbarButton.h"
+#import "TiUINavBarButton.h"
+#import "TiViewProxy.h"
 
-@interface TiUIButtonProxy : TiViewProxy<TiToolbarButton> {
-@private
-	UIButtonType styleCache;
-	TiUINavBarButton *button;
-	id<TiToolbar> toolbar; // weak
+@interface TiUIButtonProxy : TiViewProxy <TiToolbarButton> {
+  @private
+  UIButtonType styleCache;
+  TiUINavBarButton *button;
+  id<TiToolbar> toolbar; // weak
 }
--(UIButton*)button;
+- (UIButton *)button;
 
 @end
 

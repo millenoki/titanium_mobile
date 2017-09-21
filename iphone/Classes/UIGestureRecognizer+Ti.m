@@ -6,58 +6,57 @@
 //
 //
 
-#import "UIGestureRecognizer+Ti.h"
-#import "TiUIView.h"
-#import <objc/runtime.h>
-#import <UIKit/UIGestureRecognizerSubclass.h>
 #import "JRSwizzle.h"
+#import "TiUIView.h"
+#import "UIGestureRecognizer+Ti.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
+#import <objc/runtime.h>
 
-static NSString * const kTiGestureStartTouchedView = @"kTiGestureStartTouchedView";
-static NSString * const kIsTiGesture = @"kIsTiGesture";
+static NSString *const kTiGestureStartTouchedView = @"kTiGestureStartTouchedView";
+static NSString *const kIsTiGesture = @"kIsTiGesture";
 
 @implementation UIGestureRecognizer (StartTouchedView)
 
-+ (void) swizzle
++ (void)swizzle
 {
-    [UIGestureRecognizer jr_swizzleMethod:@selector(setState:) withMethod:@selector(setStateCustom:) error:nil];
+  [UIGestureRecognizer jr_swizzleMethod:@selector(setState:) withMethod:@selector(setStateCustom:) error:nil];
 }
 
 - (void)setTiGesture:(BOOL)value
 {
-    objc_setAssociatedObject(self, kIsTiGesture, @(value), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, kIsTiGesture, @(value), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)tiGesture
 {
-    id obj = objc_getAssociatedObject(self, kIsTiGesture);
-    if (obj) {
-        return [obj boolValue];
-    }
-    return false;
+  id obj = objc_getAssociatedObject(self, kIsTiGesture);
+  if (obj) {
+    return [obj boolValue];
+  }
+  return false;
 }
 
 - (void)setStartTouchedView:(TiUIView *)view
 {
-    objc_setAssociatedObject(self, kTiGestureStartTouchedView, view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, kTiGestureStartTouchedView, view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (TiUIView*)startTouchedView
+- (TiUIView *)startTouchedView
 {
-    return objc_getAssociatedObject(self, kTiGestureStartTouchedView);
+  return objc_getAssociatedObject(self, kTiGestureStartTouchedView);
 }
 
--(void)setStateCustom:(UIGestureRecognizerState)state
+- (void)setStateCustom:(UIGestureRecognizerState)state
 {
-    //WARNING: this is the swizzle trick, will actually call [UIGestureRecognizer setState:]
-    [self setStateCustom:state];
-    BOOL tiGesture = [self tiGesture];
-    if (!tiGesture) {
-        return;
-    }
-    if (state == UIGestureRecognizerStateRecognized) {
-        UIView* theView = [self startTouchedView];
-        [(TiUIView*)theView processTouchesCancelled:nil withEvent:nil];
-    }
+  //WARNING: this is the swizzle trick, will actually call [UIGestureRecognizer setState:]
+  [self setStateCustom:state];
+  BOOL tiGesture = [self tiGesture];
+  if (!tiGesture) {
+    return;
+  }
+  if (state == UIGestureRecognizerStateRecognized) {
+    UIView *theView = [self startTouchedView];
+    [(TiUIView *)theView processTouchesCancelled:nil withEvent:nil];
+  }
 }
 @end
-

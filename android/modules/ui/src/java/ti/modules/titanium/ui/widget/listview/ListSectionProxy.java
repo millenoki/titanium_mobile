@@ -19,38 +19,38 @@ import android.annotation.SuppressLint;
 public class ListSectionProxy extends AbsListSectionProxy {
 
 	private static final String TAG = "ListSectionProxy";
-    
-	public ListSectionProxy() {
+	
+	public ListSectionProxy () {
 	    super();
 	}
 	
-
-    @Override
+	
+	@Override
     public String getApiName()
-    {
+	{
         return "Ti.UI.ListSection";
-    }
-    
+			}
+
     protected void notifyItemRangeRemoved(int childPositionStart,
             int itemCount, final boolean animated) {
         TiCollectionViewInterface listView = getListView();
         if (animated && listView instanceof TiListView) {
             ((TiListView) listView).remove(childPositionStart, itemCount);
-        } else {
+		} else {
             notifyDataChange();
-        }
-    }
-    
+		}
+	}
+	
     protected void notifyItemRangeChanged(int childPositionStart, int itemCount, final boolean animated) {
         notifyDataChange();
-    }
+		}
     protected void notifyItemRangeInserted(int childPositionStart, int itemCount, final boolean animated) {
         TiCollectionViewInterface listView = getListView();
         if (animated && listView instanceof TiListView) {
             ((TiListView) listView).insert(childPositionStart,
                     new Object[itemCount]);
-        } else {
+		} else {
             notifyDataChange();
-        }
-    }
-}
+		}
+	}
+		}

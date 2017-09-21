@@ -96,7 +96,7 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_CONTROL_FULLSCREEN = 2;
 	@Kroll.constant public static final int VIDEO_CONTROL_NONE = 3;
 	@Kroll.constant public static final int VIDEO_CONTROL_HIDDEN = 4;
-	
+
     @Kroll.constant public static final int VIDEO_REPEAT_MODE_NONE = 0;
     @Kroll.constant public static final int VIDEO_REPEAT_MODE_ONE = 1;
 
@@ -118,6 +118,9 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
+	
+	@Kroll.constant public static final int VIDEO_REPEAT_MODE_NONE = 0;
+	@Kroll.constant public static final int VIDEO_REPEAT_MODE_ONE = 1;
 
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEAREST_KEYFRAME = MediaMetadataRetriever.OPTION_CLOSEST;
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_CLOSEST_SYNC = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
@@ -135,17 +138,6 @@ public class MediaModule extends KrollModule
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
-
-	@Kroll.constant public static final int SHUFFLE_NONE = 0;
-    @Kroll.constant public static final int SHUFFLE_SONGS = 1;
-    @Kroll.constant public static final int SHUFFLE_RANDOM = 2;
-    @Kroll.constant public static final int SHUFFLE_ALBUMS = SHUFFLE_SONGS;
-    @Kroll.constant public static final int SHUFFLE_DEFAULT = SHUFFLE_NONE;
-    @Kroll.constant public static final int REPEAT_NONE = 0;
-	@Kroll.constant public static final int REPEAT_ONE = 1;
-	@Kroll.constant public static final int REPEAT_ALL = 2;
-    @Kroll.constant public static final int REPEAT_DEFAULT = REPEAT_NONE;
-
 
 	private static class ApiLevel16
 	{
@@ -395,6 +387,18 @@ public class MediaModule extends KrollModule
 		return false;
 	}
 
+	@Kroll.method
+	public boolean hasAudioRecorderPermissions() {
+		if (Build.VERSION.SDK_INT < 23) {
+			return true;
+		}
+		Context context = TiApplication.getInstance().getApplicationContext();
+		if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+			return true;
+		}
+		return false;
+	}
+
 	private boolean hasCameraPermission() {
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
@@ -472,16 +476,27 @@ public class MediaModule extends KrollModule
 		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CAMERA, getKrollObject(), permissionCallback);
         Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {
-            String[] permissions = null;
-            if (!hasCameraPermission() && !hasStoragePermission()) {
-                permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
-            } else if (!hasCameraPermission()) {
-                permissions = new String[] {Manifest.permission.CAMERA};
-            } else {
-                permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-            }
-            currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
-        }
+		String[] permissions = null;
+		if (!hasCameraPermission() && !hasStoragePermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+		} else if (!hasCameraPermission()) {
+		    permissions = new String[] {Manifest.permission.CAMERA};
+		} else {
+	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+		}
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+	}
+	}
+
+	@Kroll.method
+	public void requestAudioRecorderPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+		if (hasAudioRecorderPermissions()) {
+			return;
+		}
+		String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO};
+		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE,permissionCallback, getKrollObject());
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
 	}
 
 	/*
@@ -1205,12 +1220,12 @@ public class MediaModule extends KrollModule
 				Bitmap bitmap = TiUIHelper.viewToBitmap(null, winParam.getDecorView());
 				if (winScale != 1.0f) {
 					bitmap = TiImageHelper.imageScaled(bitmap, winScale);
-				}
+		}
 				TiBlob blob = TiBlob.blobFromObject(bitmap);
 				KrollDict result = new KrollDict();
 				result.put("image", blob);
 				callback.callAsync(getKrollObject(), new Object[] { result });
-			}
+	}
 		});
 	}
 
@@ -1299,6 +1314,13 @@ public class MediaModule extends KrollModule
 
 		return result;
 
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public boolean getCanRecord()
+	{
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}
 
 	@Override

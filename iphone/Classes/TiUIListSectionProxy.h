@@ -17,18 +17,18 @@
 @protocol TiUIListViewDelegate <NSObject>
 @required
 
-- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
-- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated;
-- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block maintainPosition:(BOOL)maintain;
-- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
-- (void)dispatchBlock:(void(^)(UITableView *tableView))block;
-- (id)dispatchBlockWithResult:(id(^)(void))block;
-- (id<TiUIListViewDelegateView>) delegateView;
+- (void)dispatchUpdateAction:(void (^)(UITableView *tableView))block;
+- (void)dispatchUpdateAction:(void (^)(UITableView *tableView))block animated:(BOOL)animated;
+- (void)dispatchUpdateAction:(void (^)(UITableView *tableView))block maintainPosition:(BOOL)maintain;
+- (void)dispatchUpdateAction:(void (^)(UITableView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
+- (void)dispatchBlock:(void (^)(UITableView *tableView))block;
+- (id)dispatchBlockWithResult:(id (^)(void))block;
+- (id<TiUIListViewDelegateView>)delegateView;
 //-(void)hideDeleteButton:(id)args;
 
 @end
 
-@interface TiUIListSectionProxy : TiParentingProxy < TiUIListViewDelegate >
+@interface TiUIListSectionProxy : TiParentingProxy <TiUIListViewDelegate>
 
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
@@ -37,10 +37,10 @@
 
 // Private API. Used by ListView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
-- (void) deleteItemAtIndex:(NSUInteger)index;
-- (void) addItem:(NSDictionary*)item atIndex:(NSUInteger)index;
+- (void)deleteItemAtIndex:(NSUInteger)index;
+- (void)addItem:(NSDictionary *)item atIndex:(NSUInteger)index;
 - (BOOL)isHidden;
--(id)length;
+- (id)length;
 
 - (void)appendItems:(id)args;
 - (void)insertItemsAt:(id)args;
@@ -48,7 +48,7 @@
 - (void)deleteItemsAt:(id)args;
 - (void)updateItemAt:(id)args;
 - (id)getItemAt:(id)args;
--(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView;
+- (TiViewProxy *)sectionViewForLocation:(NSString *)location inListView:(TiUIListView *)listView;
 
 // Public API
 @property (nonatomic, readonly) NSUInteger itemCount;

@@ -7,41 +7,42 @@
 
 #import "TiConsole.h"
 
+@implementation TiConsole
 
 @implementation TiConsole
 
--(void)log:(NSArray*)args withSeverity:(NSString*)severity
+- (void)log:(NSArray *)args withSeverity:(NSString *)severity
 {
-    __block NSMutableString* message = [NSMutableString string];
-    [args enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [message appendString:@" "];
-        [message appendString:[TiUtils stringifyObject:obj]];
-    }];
-    [self logMessage:@[message] severity:severity];
+  __block NSMutableString *message = [NSMutableString string];
+  [args enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    [message appendString:@" "];
+    [message appendString:[TiUtils stringifyObject:obj]];
+  }];
+  [self logMessage:@[ message ] severity:severity];
 }
 
--(void)log:(NSArray*)args
+- (void)log:(NSArray *)args
 {
-    [self log:args withSeverity:@"info"];
+  [self log:args withSeverity:@"info"];
 }
 
--(void)error:(NSArray*)args
+- (void)error:(NSArray *)args
 {
-    [self log:args withSeverity:@"error"];
+  [self log:args withSeverity:@"error"];
 }
 
--(void)warn:(NSArray*)args
+- (void)warn:(NSArray *)args
 {
-    [self log:args withSeverity:@"warn"];
+  [self log:args withSeverity:@"warn"];
 }
 
--(void)info:(NSArray*)args
+- (void)info:(NSArray *)args
 {
-    [self log:args withSeverity:@"info"];
+  [self log:args withSeverity:@"info"];
 }
 
--(void)debug:(NSArray*)args
+- (void)debug:(NSArray *)args
 {
-    [self log:args withSeverity:@"debug"];
+  [self log:args withSeverity:@"debug"];
 }
 @end

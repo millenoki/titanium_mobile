@@ -8,18 +8,17 @@
 
 #import "TiViewProxy.h"
 
-@interface TiUITextWidgetProxy : TiViewProxy<TiKeyboardFocusableView> {
-	BOOL _suppressFocusEvents;
-@private
-
+@interface TiUITextWidgetProxy : TiViewProxy <TiKeyboardFocusableView> {
+  BOOL _suppressFocusEvents;
+  @private
 }
 
 //Internal values
--(void)noteValueChange:(NSString *)newValue;
+- (void)noteValueChange:(NSString *)newValue;
 
--(BOOL)selectNextTextWidget;
+@property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
 
-@property(nonatomic,readwrite,assign)	BOOL suppressFocusEvents;
+@property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
 
 @end
 

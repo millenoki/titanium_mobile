@@ -9,14 +9,14 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 
 @interface TiAppiOSSearchableItemProxy : TiProxy {
-
 }
 //-(id)initWithUniqueIdentifier:(NSString *)identifier
 //         withDomainIdentifier:(NSString*)domainIdentifier
 //             withAttributeSet:(CSSearchableItemAttributeSet *)attributeSet;
 
-@property(nonatomic,retain) CSSearchableItem *item;
-+(CSSearchableItem*)itemFromDict:(NSDictionary*)dict;
++ (CSSearchableItem *)itemFromDict:(NSDictionary *)dict;
+
+@property (nonatomic, retain) CSSearchableItem *item;
 
 @end
 #endif

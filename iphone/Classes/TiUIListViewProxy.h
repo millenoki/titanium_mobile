@@ -11,7 +11,7 @@
 
 @class TiTableView;
 @class TiUIListItemProxy;
-@interface TiUIListViewProxy : TiScrollingViewProxy < TiUIListViewDelegate >
+@interface TiUIListViewProxy : TiScrollingViewProxy <TiUIListViewDelegate>
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;
@@ -21,16 +21,16 @@
 @property (nonatomic, assign) BOOL autoResizeOnImageLoad;
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index;
-- (void) deleteSectionAtIndex:(NSUInteger)index;
-- (void) setMarker:(id)args;
--(BOOL)shouldHighlightCurrentListItem;
--(BOOL)isEditing;
-- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
--(TiTableView*)tableView;
--(void)didOverrideEvent:(NSString*)type forItem:(TiUIListItemProxy*)item;
+- (void)deleteSectionAtIndex:(NSUInteger)index;
+- (void)setMarker:(id)args;
+- (BOOL)shouldHighlightCurrentListItem;
+- (BOOL)isEditing;
+- (NSIndexPath *)nextIndexPath:(NSIndexPath *)indexPath;
+- (TiTableView *)tableView;
+- (void)didOverrideEvent:(NSString *)type forItem:(TiUIListItemProxy *)item;
 @end
 
 @interface TiUIListViewProxy (internal)
--(void)willDisplayCell:(NSIndexPath*)indexPath;
+- (void)willDisplayCell:(NSIndexPath *)indexPath;
 @end
 #endif

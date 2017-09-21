@@ -224,11 +224,16 @@ public class KrollAPIUpdater
 		hack = new ArrayList<String>();
 		hack.add("cardview");
 		modulesJSON.put("titanium-cardview.jar", hack);
-		
+
 		//Hack in the design module for now. revisit later.
-        hack = new ArrayList<String>();
-        hack.add("design");
-        modulesJSON.put("titanium-design.jar", hack);
+		ArrayList<String> designHack = new ArrayList<String>();
+		designHack.add("design");
+		modulesJSON.put("titanium-design.jar", designHack);
+
+		//Hack in the compat module for now. revisit later.
+		ArrayList<String> compatHack = new ArrayList<String>();
+		compatHack.add("compat");
+		modulesJSON.put("titanium-compat.jar", compatHack);
 		
 		File modules = new File(modulesDestDir, "modules.json");
 
@@ -241,7 +246,7 @@ public class KrollAPIUpdater
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected void saveTypeTemplate(String outPath, Template template, String outFile, Map root)
 	{
 		Writer writer = null;

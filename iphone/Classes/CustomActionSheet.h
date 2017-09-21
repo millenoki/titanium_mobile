@@ -10,7 +10,6 @@
 
 @end
 
-
 @interface CustomActionSheet : AbstractActionSheetPicker
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *htmlTitle;
@@ -23,10 +22,10 @@
 
 - (void)showActionSheet;
 
-    // For subclasses.  This returns a configured view.  Subclasses should autorelease.
+// For subclasses.  This returns a configured view.  Subclasses should autorelease.
 - (UIView *)configuredCustomView;
 
--(BOOL)isVisible;
+- (BOOL)isVisible;
 - (void)dismissAnimated:(BOOL)animated;
 - (void)dismiss;
 - (void)showFromToolbar:(UIToolbar *)view;

@@ -8,18 +8,18 @@
 
 #import "TiProxy.h"
 typedef NS_ENUM(NSInteger, TiImageHelperFilterType) {
-    TiImageHelperFilterBoxBlur,
-    TiImageHelperFilterGaussianBlur,
-    TiImageHelperFilterIOSBlur
+  TiImageHelperFilterBoxBlur,
+  TiImageHelperFilterGaussianBlur,
+  TiImageHelperFilterIOSBlur
 };
 
 @interface UIImageWithInfo : UIImage
-@property(nonatomic, readonly) NSDictionary* info;
+@property (nonatomic, readonly) NSDictionary *info;
 @end
 
 @interface TiImageHelper : NSObject
-+(UIImage*)getFilteredImage:(UIImage*)inputImage withFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options;
-+(id)imageFiltered:(UIImage*)image withOptions:(NSDictionary*)options;
-+(UIImage*)tintedImage:(UIImage*)source withColor:(UIColor*)color blendMode:(CGBlendMode)mode;
-+(id)convertToUIImage:(id)arg withProxy:(TiProxy*)proxy;
++ (UIImage *)getFilteredImage:(UIImage *)inputImage withFilter:(TiImageHelperFilterType)filterType options:(NSDictionary *)options;
++ (id)imageFiltered:(UIImage *)image withOptions:(NSDictionary *)options;
++ (UIImage *)tintedImage:(UIImage *)source withColor:(UIColor *)color blendMode:(CGBlendMode)mode;
++ (id)convertToUIImage:(id)arg withProxy:(TiProxy *)proxy;
 @end

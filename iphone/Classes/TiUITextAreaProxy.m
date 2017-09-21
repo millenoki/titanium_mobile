@@ -9,65 +9,63 @@
 #import "TiUITextAreaProxy.h"
 #import "TiUITextArea.h"
 
-@implementation TiUITextAreaProxy
-{
-    UIEdgeInsets _padding;
+@implementation TiUITextAreaProxy {
+  UIEdgeInsets _padding;
 }
-
 
 #pragma mark Defaults
 
-DEFINE_DEF_PROP(value,@"");
-DEFINE_DEF_PROP(scrollsToTop,@YES);
-DEFINE_DEF_INT_PROP(maxLength,-1);
+DEFINE_DEF_PROP(value, @"");
+DEFINE_DEF_PROP(scrollsToTop, @YES);
+DEFINE_DEF_INT_PROP(maxLength, -1);
 
--(NSString*)apiName
+- (NSString *)apiName
 {
-    return @"Ti.UI.TextArea";
+  return @"Ti.UI.TextArea";
 }
 
--(id)init
+- (id)init
 {
-    if (self = [super init]) {
-        _padding = UIEdgeInsetsZero;
-    }
-    return self;
+  if (self = [super init]) {
+    _padding = UIEdgeInsetsZero;
+  }
+  return self;
 }
 
--(void)setPadding:(id)value
+- (void)setPadding:(id)value
 {
-    _padding = [TiUtils insetValue:value];
-    if (view != nil)
-        [(TiUITextArea*)view setPadding:_padding];
-    [self contentsWillChange];
-    [self replaceValue:value forKey:@"padding" notification:NO];
+  _padding = [TiUtils insetValue:value];
+  if (view != nil)
+    [(TiUITextArea *)view setPadding:_padding];
+  [self contentsWillChange];
+  [self replaceValue:value forKey:@"padding" notification:NO];
 }
 
--(id)padding {
-    return [self valueForUndefinedKey:@"padding"];
+- (id)padding
+{
+  return [self valueForUndefinedKey:@"padding"];
 }
 
--(void)configurationSet
+- (void)configurationSet
 {
-    [super configurationSet];
-    [(TiUITextArea*)view setPadding:_padding];
+  [super configurationSet];
+  [(TiUITextArea *)view setPadding:_padding];
 }
 
--(CGSize)contentSizeForSize:(CGSize)size
+- (CGSize)contentSizeForSize:(CGSize)size
 {
-    if (view != nil)
-        return [(TiUITextArea*)view contentSizeForSize:size];
-    else
-    {
-        return [TiUtils sizeForString:[TiUtils stringValue:[self valueForKey:@"value"]] forSize:size options:self padding:_padding];
-    }
-    return CGSizeZero;
+  if (view != nil)
+    return [(TiUITextArea *)view contentSizeForSize:size];
+  else {
+    return [TiUtils sizeForString:[TiUtils stringValue:[self valueForKey:@"value"]] forSize:size options:self padding:_padding];
+  }
+  return CGSizeZero;
 }
 
--(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    [(TiUITextArea*)view updateCaretPosition];
+  [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+  [(TiUITextArea *)view updateCaretPosition];
 }
 
 @end

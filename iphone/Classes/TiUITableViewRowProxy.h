@@ -6,54 +6,53 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiViewProxy.h"
 #import "TiDimension.h"
+#import "TiViewProxy.h"
 
 @class TiUITableViewCell;
 @class TiUITableView;
 @class TiUITableViewSectionProxy;
 @class TiUITableViewRowContainer;
 
-@interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate>
-{
-@private
-	NSString *tableClass;
-	TiUITableView *table;
-	TiUITableViewSectionProxy *section;
-//	TiDimension height;
-	TiDimension leftCap;
-	TiDimension topCap;
-	BOOL configuredChildren;
-	int dirtyRowFlags;
-//	TiUITableViewRowContainer * rowContainerView;
-	BOOL modifyingRow;
-	BOOL attaching;
-	NSInteger row;
-	TiUITableViewCell* callbackCell;
+@interface TiUITableViewRowProxy : TiViewProxy <TiProxyDelegate> {
+  @private
+  NSString *tableClass;
+  TiUITableView *table;
+  TiUITableViewSectionProxy *section;
+  //	TiDimension height;
+  TiDimension leftCap;
+  TiDimension topCap;
+  BOOL configuredChildren;
+  int dirtyRowFlags;
+  //	TiUITableViewRowContainer * rowContainerView;
+  BOOL modifyingRow;
+  BOOL attaching;
+  NSInteger row;
+  TiUITableViewCell *callbackCell;
 }
 
 #pragma mark Public APIs
 
-@property(nonatomic,readonly)	NSString *tableClass;
-@property(nonatomic) BOOL reusable; // Readonly until reproxy/reuse implemented properly
+@property (nonatomic, readonly) NSString *tableClass;
+@property (nonatomic) BOOL reusable; // Readonly until reproxy/reuse implemented properly
 
 #pragma mark Framework
 
-@property(nonatomic,readwrite,assign) TiUITableView *table;
-@property(nonatomic,readwrite,assign) TiUITableViewSectionProxy *section;
-@property(nonatomic,readwrite,assign) NSInteger row;
-@property(nonatomic,readwrite,assign) TiUITableViewCell* callbackCell;
+@property (nonatomic, readwrite, assign) TiUITableView *table;
+@property (nonatomic, readwrite, assign) TiUITableViewSectionProxy *section;
+@property (nonatomic, readwrite, assign) NSInteger row;
+@property (nonatomic, readwrite, assign) TiUITableViewCell *callbackCell;
 
--(void)prepareTableRowForReuse;
--(void)initializeTableViewCell:(UITableViewCell*)cell;
--(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
--(CGFloat)rowHeight:(CGFloat)width;
--(TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint*)point;
--(id)createEventObject:(id)initialObject;
--(void)triggerAttach;
--(void)updateRow:(NSDictionary*)data withObject:(NSDictionary*)properties;
--(void)configureBackgroundColor;
--(void)triggerLayout; //Private method :For internal use only. Called from layoutSubviews of the cell.
+- (void)prepareTableRowForReuse;
+- (void)initializeTableViewCell:(UITableViewCell *)cell;
+- (CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force;
+- (CGFloat)rowHeight:(CGFloat)width;
+- (TiProxy *)touchedViewProxyInCell:(UITableViewCell *)targetCell atPoint:(CGPoint *)point;
+- (id)createEventObject:(id)initialObject;
+- (void)triggerAttach;
+- (void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties;
+- (void)configureBackgroundColor;
+- (void)triggerLayout; //Private method :For internal use only. Called from layoutSubviews of the cell.
 
 @end
 
