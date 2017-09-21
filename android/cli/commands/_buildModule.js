@@ -503,52 +503,53 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 				 *
 				 * @param {Function} callback Function to call once the resources merging is complete
 				 */
-				function mergeCoreModuleResource(callback) {
-					var resArchives = [];
-					var modulesPath = path.join(this.platformPath, 'modules');
-					var explodedModuleResPath = path.join(this.buildIntermediatesDir, 'res/timodules');
-					fs.readdirSync(modulesPath).forEach(function (file) {
-						if (path.extname(file) !== '.jar') {
-							return;
-						}
-						var resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
-						var respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
-						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
-						}
-					}, this);
+				//TODO: look at bringing this back
+				// function mergeCoreModuleResource(callback) {
+				// 	var resArchives = [];
+				// 	var modulesPath = path.join(this.platformPath, 'modules');
+				// 	var explodedModuleResPath = path.join(this.buildIntermediatesDir, 'res/timodules');
+				// 	fs.readdirSync(modulesPath).forEach(function (file) {
+				// 		if (path.extname(file) !== '.jar') {
+				// 			return;
+				// 		}
+				// 		var resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
+				// 		var respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
+				// 		if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
+				// 			extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
+				// 			resArchives.push(resArchivePathAndFilename);
+				// 		}
+				// 	}, this);
 
-					if (resArchives.length === 0) {
-						return callback();
-					}
+				// 	if (resArchives.length === 0) {
+				// 		return callback();
+				// 	}
 
-					if (!fs.existsSync(explodedModuleResPath)) {
-						wrench.mkdirSyncRecursive(explodedModuleResPath);
-					}
-					async.eachSeries(resArchives, function(resArchivePathAndFilename, done) {
-						this.logger.trace(__('Processing module resources: %s', resArchivePathAndFilename.cyan));
-						var explodedPath = path.join(explodedModuleResPath, path.basename(resArchivePathAndFilename, '.res.zip'));
-						var coreModuleResPath = path.join(explodedPath, 'res');
-						// The core modules should hardly ever change, so a simple check for the
-						// already exploded archive dir will suffice for subsequent builds.
-						if (fs.existsSync(explodedPath)) {
-							merge(coreModuleResPath, mergedResPath);
-							return done();
-						}
+				// 	if (!fs.existsSync(explodedModuleResPath)) {
+				// 		wrench.mkdirSyncRecursive(explodedModuleResPath);
+				// 	}
+				// 	async.eachSeries(resArchives, function(resArchivePathAndFilename, done) {
+				// 		this.logger.trace(__('Processing module resources: %s', resArchivePathAndFilename.cyan));
+				// 		var explodedPath = path.join(explodedModuleResPath, path.basename(resArchivePathAndFilename, '.res.zip'));
+				// 		var coreModuleResPath = path.join(explodedPath, 'res');
+				// 		// The core modules should hardly ever change, so a simple check for the
+				// 		// already exploded archive dir will suffice for subsequent builds.
+				// 		if (fs.existsSync(explodedPath)) {
+				// 			merge(coreModuleResPath, mergedResPath);
+				// 			return done();
+				// 		}
 
-						this.logger.info(__('Extracting module resources: %s', resArchivePathAndFilename.cyan));
-						appc.zip.unzip(resArchivePathAndFilename, explodedPath, {}, function (err) {
-							if (err) {
-								this.logger.error(__('Failed to extract module resource zip: %s', resArchivePathAndFilename.cyan) + '\n');
-								return done(err);
-							}
+				// 		this.logger.info(__('Extracting module resources: %s', resArchivePathAndFilename.cyan));
+				// 		appc.zip.unzip(resArchivePathAndFilename, explodedPath, {}, function (err) {
+				// 			if (err) {
+				// 				this.logger.error(__('Failed to extract module resource zip: %s', resArchivePathAndFilename.cyan) + '\n');
+				// 				return done(err);
+				// 			}
 
-							merge(coreModuleResPath, mergedResPath);
-							done();
-						}.bind(this));
-					}.bind(this), callback);
-				},
+				// 			merge(coreModuleResPath, mergedResPath);
+				// 			done();
+				// 		}.bind(this));
+				// 	}.bind(this), callback);
+				// },
 
 				/**
 				 * Merge all resource from Android Archives that are bundled with the module
