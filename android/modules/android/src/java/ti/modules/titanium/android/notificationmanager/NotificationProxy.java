@@ -223,22 +223,21 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             notificationBuilder.setPriority(TiConvert.toInt(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
-        case TiC.PROPERTY_GROUP_KEY: {
-            setGroupKey(TiConvert.toString(d, TiC.PROPERTY_GROUP_KEY));
+        case TiC.PROPERTY_GROUP_KEY:
+            notificationBuilder.setGroup(TiConvert.toString(newValue, TiC.PROPERTY_GROUP_KEY));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_GROUP_ALERT_BEHAVIOR:
-            setGroupAlertBehavior(TiConvert.toInt(newValue));
+            notificationBuilder.setGroupAlertBehavior(TiConvert.toInt(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_GROUP_SUMMARY:
-            setGroupSummary(TiConvert.toBoolean(newValue));
+            notificationBuilder.setGroupSummary(TiConvert.toBoolean(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_WAKE_LOCK:
-            setWakeLock(TiConvert.toHashMap(newValue));
+            wakeParams = TiConvert.toHashMap(newValue);
             break;
-    break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

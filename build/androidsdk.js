@@ -3,8 +3,8 @@
 var os = require('os'),
 	fs = require('fs-extra'),
 	path = require('path'),
-    DEFAULT_API_LEVEL = 26,
-    DEFAULT_GMS_VERSION = '10.2.0';
+	DEFAULT_API_LEVEL = 26,
+	DEFAULT_GMS_VERSION = '10.2.0';
 
 /**
  * Given a hinted at location of Android SDK, find one.
@@ -50,12 +50,13 @@ function resolve(supplied) {
  * Represents an installed Android SDK
  * @param       {string} dir install root of Android SDK
  * @param       {number} apiLevel integer api level to use to build
+ * @param       {number} gmsVersion integer gms version to use to build
  * @constructor
  */
-function AndroidSDK(dir, apiLevel) {
+function AndroidSDK(dir, apiLevel, gmsVersion) {
 	this.dir = resolve(dir);
 	this.apiLevel = apiLevel || DEFAULT_API_LEVEL;
-    this.gmsVersion = gmsVersion || DEFAULT_GMS_VERSION;
+	this.gmsVersion = gmsVersion || DEFAULT_GMS_VERSION;
 }
 
 AndroidSDK.prototype.getAndroidSDK = function () {
@@ -83,7 +84,7 @@ AndroidSDK.prototype.getGoogleApisDir = function () {
 	// console.warn('Android build is set to use API Level %d, but was unable to find expected Google APIs SDK component at %s', this.apiLevel, possible);
 };
 
-AndroidSDK.prototype.getGooglePlayServicesDir = function() {
+AndroidSDK.prototype.getGooglePlayServicesDir = function () {
 	var possible = path.join(this.dir, 'extras', 'google', 'm2repository', 'com', 'google', 'android', 'gms');
 	if (fs.existsSync(possible)) {
 		return possible;

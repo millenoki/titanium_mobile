@@ -276,22 +276,6 @@ public class TiDrawableReference
 		// Create a drawable reference from the given object.
 		return TiDrawableReference.fromObject(activity, object);
 	}
-
-	/**
-	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
-	 * @param activity the referenced activity.
-	 * @param object the referenced object.
-	 * @return A ready instance of TiDrawableReference.
-	 * @module.api
-	 */
-	public static TiDrawableReference fromObject(final KrollProxy proxy, Object object)
-	{
-		if (object instanceof String) {
-			return fromUrl(proxy, TiConvert.toString(object));
-		} else {
-			return fromObject((proxy != null)? proxy.getActivity():null, object);
-		}
-	}
 	
 	/**
      * Does its best to determine the type of reference (url, blob, etc) based on object parameter.

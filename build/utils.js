@@ -10,22 +10,37 @@ const path = require('path'),
 	util = require('util'),
 	Utils = {};
 
-Utils.copyFile = function (srcFolder, destFolder, filename, next) {
-	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), next);
+Utils.copyFile = function (srcFolder, destFolder, filename, options, next) {
+	// console.log('copyFiles', srcFolder, destFolder, filename);
+	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), options, next);
 };
 
-Utils.copyFiles = function (srcFolder, destFolder, files, next) {
+Utils.copyFiles = function (srcFolder, destFolder, files, options, next) {
+	// console.log('copyFiles', srcFolder, destFolder, files);
+	let realNext = options;
+	let hasOptions = false;
+	if (next) {
+		realNext = next;
+		hasOptions = true;
+	}
 	async.each(files, function (file, cb) {
-		Utils.copyFile(srcFolder, destFolder, file, cb);
-	}, next);
+		Utils.copyFile(srcFolder, destFolder, file, hasOptions ? options : undefined, cb);
+	}, realNext);
 };
 
-Utils.globCopy = function (pattern, srcFolder, destFolder, next) {
+Utils.globCopy = function (pattern, srcFolder, destFolder, options, next) {
+	// console.log('globCopy', pattern, srcFolder, destFolder);
+	let realNext = options;
+	let hasOptions = false;
+	if (next) {
+		realNext = next;
+		hasOptions = true;
+	}
 	glob(pattern, { cwd: srcFolder }, function (err, files) {
 		if (err) {
 			return next(err);
 		}
-		Utils.copyFiles(srcFolder, destFolder, files, next);
+		Utils.copyFiles(srcFolder, destFolder, files, hasOptions ? options : undefined, realNext);
 	});
 };
 
@@ -49,6 +64,7 @@ Utils.copyAndModifyFile = function (srcFolder, destFolder, filename, substitutio
 };
 
 Utils.copyAndModifyFiles = function (srcFolder, destFolder, files, substitutions, next) {
+	// console.log('copyAndModifyFiles', srcFolder, destFolder, files);
 	async.each(files, function (file, cb) {
 		Utils.copyAndModifyFile(srcFolder, destFolder, file, substitutions, cb);
 	}, next);

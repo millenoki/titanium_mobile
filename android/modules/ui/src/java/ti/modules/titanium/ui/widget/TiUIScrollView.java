@@ -47,9 +47,22 @@ public class TiUIScrollView extends TiUIView
 	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
 			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
 
+	private Point mCurrentOffset = new Point();
+    private float mZoomScale = 1.0f;
+    private float mMinZoomScale = 1.0f;
+    private float mMaxZoomScale = 1.0f;
+    
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
 	private boolean isTouching = false;
+	
+	private boolean mAutoCenter = true;
+    private boolean animating = false;
+    private ScaleGestureDetector mScaleGestureDetector = null;
+    private boolean mIsScaling = false;
+    
+    protected static final int TIFLAG_NEEDS_ZOOM               = 0x00000001;
+    protected static final int TIFLAG_NEEDS_CONTENT_OFFSET     = 0x00000002;
 
 	
 	public class TiScrollViewLayout extends TiCompositeLayout
@@ -712,13 +725,7 @@ public class TiUIScrollView extends TiUIView
 	{
 		final View view = getNativeView();
 		if (smoothScroll) {
-			if (view instanceof TiHorizontalScrollView) {
-				TiHorizontalScrollView scrollView = (TiHorizontalScrollView) view;
-				scrollView.smoothScrollTo(x, y);
-			} else if (view instanceof TiVerticalScrollView) {
-				TiVerticalScrollView scrollView = (TiVerticalScrollView) view;
-				scrollView.smoothScrollTo(x, y);
-			}
+	        ((TiScrollView)getNativeView()).smoothScrollTo(x, y);
 		} else {
 			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
 		}

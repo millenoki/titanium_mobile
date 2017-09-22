@@ -36,6 +36,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 public class TiUIDrawerLayout extends TiUIView {
 
@@ -337,7 +338,7 @@ public class TiUIDrawerLayout extends TiUIView {
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(HashMap d) {
 		if (d.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
 			Object leftView = d.get(TiC.PROPERTY_LEFT_VIEW);
 			if (leftView != null && leftView instanceof TiViewProxy) {
@@ -546,15 +547,15 @@ public class TiUIDrawerLayout extends TiUIView {
 			rightFrame = null;
 		}
 		if (leftView != null) {
-			leftView.releaseViews();
+			leftView.releaseViews(false);
 			leftView = null;
 		}
 		if (rightView != null) {
-			rightView.releaseViews();
+			rightView.releaseViews(false);
 			rightView = null;
 		}
 		if (centerView != null) {
-			centerView.releaseViews();
+			centerView.releaseViews(false);
 			centerView = null;
 		}
 		if (toolbar != null) {

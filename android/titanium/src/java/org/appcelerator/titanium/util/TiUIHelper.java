@@ -1024,7 +1024,7 @@ public class TiUIHelper
 			if (bitmap == null) {
 
                 try {
-                    Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+                    bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
                     Canvas canvas = new Canvas(bitmap);
                     view.draw(canvas);
 //	                canvas = null;

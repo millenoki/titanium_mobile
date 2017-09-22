@@ -31,7 +31,7 @@ import ti.modules.titanium.audio.RemoteControlClientCompat.MetadataEditorCompat;
 
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.Picasso.LoadedFrom;
-
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -42,7 +42,6 @@ import android.media.AudioManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.RemoteControlClient;
@@ -56,6 +55,7 @@ import android.os.PowerManager;
 import android.view.KeyEvent;
 import android.webkit.URLUtil;
 
+@SuppressLint("NewApi")
 public class TiSound implements MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener, KrollProxyListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener,
@@ -289,7 +289,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
 
     void setAudioType() {
         int audioType = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_AUDIO_TYPE));
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        if (TiC.LOLLIPOP_OR_GREATER) {
             int streamType = -1;
             switch (audioType) {
                 case AUDIO_TYPE_ALARM:

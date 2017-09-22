@@ -43,6 +43,7 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ClipData;
@@ -65,6 +66,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.view.Window;
 
+@SuppressLint("NewApi")
 @SuppressWarnings("deprecation")
 @Kroll.module @ContextSpecific
 public class MediaModule extends KrollModule
@@ -118,9 +120,6 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
-	
-	@Kroll.constant public static final int VIDEO_REPEAT_MODE_NONE = 0;
-	@Kroll.constant public static final int VIDEO_REPEAT_MODE_ONE = 1;
 
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEAREST_KEYFRAME = MediaMetadataRetriever.OPTION_CLOSEST;
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_CLOSEST_SYNC = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
@@ -476,16 +475,17 @@ public class MediaModule extends KrollModule
 		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CAMERA, getKrollObject(), permissionCallback);
         Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {
-		String[] permissions = null;
-		if (!hasCameraPermission() && !hasStoragePermission()) {
-		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
-		} else if (!hasCameraPermission()) {
-		    permissions = new String[] {Manifest.permission.CAMERA};
-		} else {
-	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-		}
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
-	}
+    		String[] permissions = null;
+    		if (!hasCameraPermission() && !hasStoragePermission()) {
+    		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+    		} else if (!hasCameraPermission()) {
+    		    permissions = new String[] {Manifest.permission.CAMERA};
+    		} else {
+    	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+    		}
+		
+    		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+        }
 	}
 
 	@Kroll.method
@@ -494,9 +494,11 @@ public class MediaModule extends KrollModule
 			return;
 		}
 		String[] permissions = new String[] {Manifest.permission.RECORD_AUDIO};
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_MICROPHONE,permissionCallback, getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
+		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_MICROPHONE, getKrollObject(), permissionCallback);
+        Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+        if (currentActivity != null) {
+            currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
+        }
 	}
 
 	/*

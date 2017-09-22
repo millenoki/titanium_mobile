@@ -23,7 +23,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
-import ti.modules.titanium.ui.UIModule;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -31,7 +30,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
@@ -307,7 +305,7 @@ public class TiUIText extends TiUINonViewGroupView
 			rightPane.setVisibility(View.VISIBLE);
 		}
 
-		public void setHintText(final String hintText) {
+		public void setHintText(final CharSequence hintText) {
 			if (hintText != null) {
 				int type = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_HINT_TYPE), UIModule.HINT_TYPE_STATIC);
 				if (type == UIModule.HINT_TYPE_STATIC) {
@@ -378,9 +376,9 @@ public class TiUIText extends TiUINonViewGroupView
         realtv.setOnEditorActionListener(this);
         realtv.setIncludeFontPadding(true); 
         if (field) {
-            realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+            realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         } else {
-            realtv.setGravity(Gravity.TOP | Gravity.LEFT);
+            realtv.setGravity(Gravity.TOP | Gravity.START);
 		}
         color = disabledColor = selectedColor = realtv.getCurrentTextColor();
         setNativeView(tv);
@@ -775,7 +773,7 @@ public class TiUIText extends TiUINonViewGroupView
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (realtv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+		if (Build.VERSION.SDK_INT < 24 && (realtv.getGravity() & Gravity.START) != Gravity.START) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);

@@ -13,13 +13,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.appcelerator.titanium.TiApplication;
-
+import org.appcelerator.titanium.TiC;
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+@SuppressLint("NewApi")
 public class TitaniumBlob extends TiBaseFile
 {
 	protected String url;
@@ -45,10 +49,9 @@ public class TitaniumBlob extends TiBaseFile
 	 */
 	public static String getPath(final Context context, final Uri uri) {
 
-	    final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
 	    // DocumentProvider
-	    if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+	    if (TiC.KIT_KAT_OR_GREATER && DocumentsContract.isDocumentUri(context, uri)) {
 	        // ExternalStorageProvider
 	        if (isExternalStorageDocument(uri)) {
 	            final String docId = DocumentsContract.getDocumentId(uri);

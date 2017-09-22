@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 
@@ -22,7 +23,8 @@ import android.util.DisplayMetrics;
  * strings at runtime.
  */
 public class TiRHelper {
-	
+    private static final String TAG = "TiRHelper";
+
 	private static Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<String, Class<?>>());
 	private static Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<String, Integer>());
 	

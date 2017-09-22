@@ -31,6 +31,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import ti.modules.titanium.ui.AttributedStringProxy;
@@ -71,7 +72,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.MaskFilterSpan;
 import android.text.style.QuoteSpan;
-import android.text.style.RasterizerSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.ScaleXSpan;
 import android.text.style.StrikethroughSpan;
@@ -84,6 +84,7 @@ import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.TypedValue;
 
+@SuppressLint("NewApi")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TiUILabel extends TiUINonViewGroupView
 {
@@ -834,9 +835,6 @@ public class TiUILabel extends TiUINonViewGroupView
 			}
 			else if (span instanceof ImageSpan){
 				return new ImageSpan(((ImageSpan)span).getDrawable());
-			}
-			else if (span instanceof RasterizerSpan){
-				return new RasterizerSpan(((RasterizerSpan)span).getRasterizer());
 			}
 			else if (span instanceof QuoteSpan){
 				return new QuoteSpan(((QuoteSpan)span).getColor());

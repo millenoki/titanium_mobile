@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -60,6 +61,7 @@ import android.animation.PropertyValuesHolder;
 import android.animation.StateListAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -105,6 +107,7 @@ import android.widget.Button;
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
+@SuppressLint("NewApi")
 public abstract class TiUIView implements KrollProxyReusableListener,
         OnFocusChangeListener, Handler.Callback, OnTouchListener,
         TiBackgroundDrawableDelegate, OnClickListener {
@@ -1407,6 +1410,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     change.getOldValue(), true);
         }
         didProcessProperties();
+    }
+    
+    public void runInUiThread(final CommandNoReturn command) {
+        if (proxy != null) {
+            proxy.runInUiThread(command, true);
+        }
     }
 
     public void onFocusChange(final View v, final boolean hasFocus) {

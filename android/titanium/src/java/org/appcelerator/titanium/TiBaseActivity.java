@@ -70,7 +70,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -92,6 +91,7 @@ import com.appcelerator.aps.APSAnalytics;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
+@SuppressLint("NewApi")
 public abstract class TiBaseActivity extends AppCompatActivity
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
@@ -168,7 +168,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
-	private static int totalWindowStack = 0;
 
 	public boolean isResumed = false;
 
@@ -248,7 +247,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		    window.onWindowFocusChange(false);
 		}
 		windowStack.add(proxy);
-		totalWindowStack++;
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
@@ -265,7 +263,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		boolean isTopWindow = ( (!windowStack.isEmpty()) && (windowStack.peek() == proxy) ) ? true : false;
 		windowStack.remove(proxy);
-		totalWindowStack--;
 
 		//Fire focus only if activity is not paused and the removed window was topWindow
 		if (!windowStack.empty() && isResumed && isTopWindow) {
@@ -2116,7 +2113,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
-			window.releaseViews();
+			window.releaseViews(isFinishing);
 			window.releaseKroll();
 			window = null;
 		}

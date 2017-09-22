@@ -76,11 +76,11 @@ IOS.prototype.build = function (next) {
 
 IOS.prototype.cleanupXCodeProject = function (next) {
 	console.log('Cleaning up XCode project...');
-	var prc = spawn('node', [
+	const prc = spawn('node', [
 		path.join(__dirname, 'xcode.js'),
 		path.join(path.join(IOS_ROOT, 'iphone'), 'Titanium.xcodeproj'),
 		path.join(ROOT_DIR, 'dist', 'ios'),
-		], {cwd: __dirname});
+	], { cwd: __dirname });
 
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
@@ -89,12 +89,12 @@ IOS.prototype.cleanupXCodeProject = function (next) {
 		console.error(data.toString());
 	});
 	prc.on('close', function (code) {
-		if (code != 0) {
+		if (code !== 0) {
 			return next('Failed to Clean up XCode project.');
 		}
 		next(null);
-	}.bind(this));
-}
+	});
+};
 
 IOS.prototype.package = function (packager, next) {
 	// FIXME This is a hot mess. Why can't we place artifacts in their proper location already like Windows?
@@ -108,43 +108,43 @@ IOS.prototype.package = function (packager, next) {
 				function (cb) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'Classes'), path.join(DEST_IOS, 'include'), {
 						dereference:true
-					},cb);
+					}, cb);
 				},
 				function (cb) {
 					globCopy('**/*.h', path.join(IOS_ROOT, 'headers', 'JavaScriptCore'), path.join(DEST_IOS, 'include', 'JavaScriptCore'), cb);
 				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['AppledocSettings.plist', 'cli', 'headers', 'templates'], cb);
-				}.bind(this),
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'AppledocSettings.plist', 'cli', 'headers', 'templates' ], cb);
+				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['externalLibs'], {
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'externalLibs' ], {
 						dereference:false
 					}, cb);
-				}.bind(this),
+				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['externalEmbeddedFrameworks'], {
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'externalEmbeddedFrameworks' ], {
 						dereference:false
 					}, cb);
-				}.bind(this),
+				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['Classes'], {
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'Classes' ], {
 						dereference:true
 					}, cb);
-				}.bind(this),
+				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['iphone'], {
-						filter: function(name) {
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'iphone' ], {
+						filter: function (name) {
 							if (/build|xcuserdata/i.test(name)) {
 								return false;
 							}
 							return true;
 						}
 					}, cb);
-				}.bind(this),
+				},
 				this.cleanupXCodeProject,
 				function (cb) {
-					copyFiles(path.join(ROOT_DIR, 'dist', 'ios'), path.join(DEST_IOS, 'iphone'), ['Titanium.xcodeproj'], cb);
-				}.bind(this),
+					copyFiles(path.join(ROOT_DIR, 'dist', 'ios'), path.join(DEST_IOS, 'iphone'), [ 'Titanium.xcodeproj' ], cb);
+				},
 				// Copy and inject values for special source files
 				function (cb) {
 					const subs = {
@@ -158,7 +158,7 @@ IOS.prototype.package = function (packager, next) {
 					copyFiles(IOS_LIB, DEST_IOS, [ 'libtiverify.a', 'libti_ios_debugger.a', 'libti_ios_profiler.a' ], cb);
 				},
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['dependency.json'], cb);
+					copyFiles(IOS_ROOT, DEST_IOS, [ 'dependency.json' ], cb);
 				},
 				// copy iphone/package.json, but replace __VERSION__ with our version!
 				function (cb) {
@@ -167,7 +167,7 @@ IOS.prototype.package = function (packager, next) {
 				// Copy iphone/Resources/modules/<name>/* to this.zipSDKDir/iphone/modules/<name>/images
 				function (cb) {
 					fs.copy(path.join(IOS_ROOT, 'Resources', 'modules'), path.join(DEST_IOS, 'modules'), cb);
-				}.bind(this)
+				}
 			], callback);
 		}.bind(this)
 	], function (err) {

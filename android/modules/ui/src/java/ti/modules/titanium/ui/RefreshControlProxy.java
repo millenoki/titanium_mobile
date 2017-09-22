@@ -7,6 +7,8 @@
 package ti.modules.titanium.ui;
 
 import android.graphics.Color;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -73,7 +75,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * @param properties Dictionary of property settings.
 	 */
 	@Override
-	public void handleCreationDict(KrollDict properties)
+	public void handleCreationDict(HashMap properties)
 	{
 		Object value;
 

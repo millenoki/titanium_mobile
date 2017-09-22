@@ -50,6 +50,7 @@ import se.emilsjolander.stickylistheaders.OnStickyHeaderChangedListener;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
 import se.emilsjolander.stickylistheaders.WrapperView;
+import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
@@ -1009,12 +1010,13 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             ((RefreshableListView) listView).setHeaderPullView(setPullView(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
-		case TiC.PROPERTY_REFRESH_CONTROL:
-			if (newValue instanceof RefreshControlProxy) {
-				((RefreshControlProxy)newValue).assignTo(this.wrapper);
-			} else {
-				RefreshControlProxy.unassignFrom(this.wrapper);
-			}
+//		case TiC.PROPERTY_REFRESH_CONTROL:
+//			if (newValue instanceof RefreshControlProxy) {
+//				((RefreshControlProxy)newValue).assignTo(this.wrapper);
+//			} else {
+//				RefreshControlProxy.unassignFrom(this.wrapper);
+//			}
+//            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -1561,7 +1563,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         templatesByBinding.clear();
 
 		// If a refresh control is currently assigned, then detach it.
-		RefreshControlProxy.unassignFrom(this.wrapper);
+//		RefreshControlProxy.unassignFrom(this.wrapper);
 		
 		if (handledProxies != null) {
 		    for (TiViewProxy viewProxy : handledProxies) {

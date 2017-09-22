@@ -64,6 +64,7 @@ import android.widget.ViewSwitcher;
 /**
  * The parent class of view proxies.
  */
+@SuppressLint("NewApi")
 @Kroll.proxy(propertyAccessors={
 	// background properties
 	TiC.PROPERTY_BACKGROUND_COLOR,
@@ -301,7 +302,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 						}
 	                        
 	                        
-                            View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
+//                            View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
 	                        TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
 	                        TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
 	                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));

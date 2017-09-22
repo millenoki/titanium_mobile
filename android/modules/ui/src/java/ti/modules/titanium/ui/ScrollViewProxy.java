@@ -177,11 +177,7 @@ public class ScrollViewProxy extends ViewProxy
 	}
 
 	public void handleScrollTo(int x, int y, boolean smoothScroll) {
-	    if (smoothScroll) {
-            getScrollView().smoothScrollTo(x, y);
-	    } else {
-	        getScrollView().scrollTo(x, y);
-	}
+	    getScrollView().scrollTo(x, y, smoothScroll);
 	}
 
 	public void handleSetContentOffset(Object offset, boolean animated) {

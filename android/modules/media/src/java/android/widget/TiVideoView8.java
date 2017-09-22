@@ -74,7 +74,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	@SuppressWarnings("unused")
 	private Map<String, String> mHeaders;
 	private int mDuration;
-	private boolean repeat = false;
+//	private boolean repeat = false;
 	private boolean ignoreListener = false;
 
 	// all possible internal states
@@ -531,12 +531,12 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
 		public void onCompletion(MediaPlayer mp)
 		{
-		    if (repeat) {
-		        ignoreListener = true;
-		        stopPlayback();
-		        openVideo();
-		        ignoreListener = true;
-		    } else {
+//		    if (repeat) {
+//		        ignoreListener = true;
+//		        stopPlayback();
+//		        openVideo();
+//		        ignoreListener = true;
+//		    } else {
 		        mCurrentState = STATE_PLAYBACK_COMPLETED;
 	            mTargetState = STATE_PLAYBACK_COMPLETED;
 	            if (mMediaController != null) {
@@ -545,7 +545,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	            if (mOnCompletionListener != null) {
 	                mOnCompletionListener.onCompletion(mMediaPlayer);
 	            }
-		    }
+//		    }
 			
 		}
 	};
@@ -908,7 +908,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		return 0;
 	}
 
-    public void setRepeatMode(int repeat) {
-        this.repeat = repeat == 1;
-    }
+//    public void setRepeatMode(int repeat) {
+//        this.repeat = repeat == 1;
+//    }
 }

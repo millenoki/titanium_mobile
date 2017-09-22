@@ -414,8 +414,6 @@ public class WebViewProxy extends ViewProxy
 	public boolean getDisableContextMenu()
 	{
 		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_DISABLE_CONTEXT_MENU), false);
-		}
-		return false;
 	}
 
 	@Kroll.method @Kroll.setProperty
