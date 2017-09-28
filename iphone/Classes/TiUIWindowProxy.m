@@ -527,6 +527,7 @@
     UIColor *barColor = [TiUtils barColorForColor:newColor];
     UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
 
+    id navController = [self navControllerForController:controller];
     UINavigationBar *navBar = [navController navigationBar];
     [navBar setBarStyle:navBarStyle];
     //        [navBar setTranslucent:[TiUtils barTranslucencyForColor:newColor]];

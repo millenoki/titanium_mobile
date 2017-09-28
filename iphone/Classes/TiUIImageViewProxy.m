@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_UIIMAGEVIEW
 
+#import "TiUIImageView.h"
 #import "TiUIImageViewProxy.h"
 #import "NSDictionary+Merge.h"
 #import "OperationQueue.h"
@@ -80,7 +81,9 @@
 {
   if ([self _hasListeners:@"load"]) {
     [self setModelDelegate:nil];
+#ifdef TI_USE_KROLL_THREAD
     [self fireEvent:@"load" withObject:@{ @"state" : [self loadEventState] }];
+#endif
   }
 }
 

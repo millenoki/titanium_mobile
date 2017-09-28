@@ -9,7 +9,6 @@
 #import "TiRect.h"
 #import "TiUIView.h"
 #import "TiViewController.h"
-#import "TiViewTemplate.h"
 #import <pthread.h>
 /*
  This Protocol will be implemented by objects that want to

@@ -289,75 +289,77 @@ static BOOL alertShowing = NO;
       [alert show];
       [self fireEvent:@"open" withObject:nil];
     }
+  }
+}
 
-    -(void)suspended : (NSNotification *)note
-    {
-      if (!persistentFlag) {
-        [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
+- (void)suspended:(NSNotification *)note
+{
+  if (!persistentFlag) {
+    [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
+  }
+}
+
+- (void)fireClickEventWithAction:(UIAlertAction *)theAction
+{
+  if ([self _hasListeners:@"click"]) {
+    NSUInteger indexOfAction = [(TiAlertAction *)theAction index];
+
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+      @"index" : @(indexOfAction),
+      @"cancel" : @(indexOfAction == cancelIndex),
+      @"destructive" : @(indexOfAction == destructiveIndex),
+      @"preferred" : @(preferredIndex),
+    }];
+
+    if (style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput) {
+      NSString *theText = [[[alertController textFields] objectAtIndex:0] text];
+      [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
+    } else if (style == UIAlertViewStyleLoginAndPasswordInput) {
+      NSArray *textFields = [alertController textFields];
+      for (UITextField *theField in textFields) {
+        NSString *theText = [theField text];
+        [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
       }
     }
+    [self fireEvent:@"click" withObject:event checkForListener:NO];
+  }
+  [self cleanup];
+}
 
-    -(void)fireClickEventWithAction : (UIAlertAction *)theAction
-    {
-      if ([self _hasListeners:@"click"]) {
-        NSUInteger indexOfAction = [(TiAlertAction *)theAction index];
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+  [self cleanup];
+}
 
-        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
-          @"index" : @(indexOfAction),
-          @"cancel" : @(indexOfAction == cancelIndex),
-          @"destructive" : @(indexOfAction == destructiveIndex),
-          @"preferred" : @(preferredIndex),
-        }];
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+  if ([self _hasListeners:@"click"]) {
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                                          NUMINTEGER(buttonIndex), @"index",
+                                                      [NSNumber numberWithBool:(buttonIndex == [alertView cancelButtonIndex])], @"cancel",
+                                                      nil];
 
-        if (style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput) {
-          NSString *theText = [[[alertController textFields] objectAtIndex:0] text];
-          [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
-        } else if (style == UIAlertViewStyleLoginAndPasswordInput) {
-          NSArray *textFields = [alertController textFields];
-          for (UITextField *theField in textFields) {
-            NSString *theText = [theField text];
-            [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
-          }
-        }
-        [self fireEvent:@"click" withObject:event checkForListener:NO];
-      }
-      [self cleanup];
+    if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {
+      NSString *theText = [[alertView textFieldAtIndex:0] text];
+      [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
+    } else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
+      NSString *theText = [[alertView textFieldAtIndex:0] text];
+      [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"login"];
+
+      // If the field never gains focus, `text` property becomes `nil`.
+      NSString *password = [[alertView textFieldAtIndex:1] text];
+      [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
     }
 
-    -(void)alertView : (UIAlertView *)alertView didDismissWithButtonIndex : (NSInteger)buttonIndex
-    {
-      [self cleanup];
-    }
+    [self fireEvent:@"click" withObject:event checkForListener:NO];
+  }
+}
 
-    -(void)alertView : (UIAlertView *)alertView clickedButtonAtIndex : (NSInteger)buttonIndex
-    {
-      if ([self _hasListeners:@"click"]) {
-        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                              NUMINTEGER(buttonIndex), @"index",
-                                                          [NSNumber numberWithBool:(buttonIndex == [alertView cancelButtonIndex])], @"cancel",
-                                                          nil];
+- (void)alertViewCancel:(UIAlertView *)alertView
+{
+  if (!persistentFlag && hideOnClick) {
+    [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
+  }
+}
 
-        if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {
-          NSString *theText = [[alertView textFieldAtIndex:0] text];
-          [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
-        } else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
-          NSString *theText = [[alertView textFieldAtIndex:0] text];
-          [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"login"];
-
-          // If the field never gains focus, `text` property becomes `nil`.
-          NSString *password = [[alertView textFieldAtIndex:1] text];
-          [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
-        }
-
-        [self fireEvent:@"click" withObject:event checkForListener:NO];
-      }
-    }
-
-    -(void)alertViewCancel : (UIAlertView *)alertView
-    {
-      if (!persistentFlag && hideOnClick) {
-        [self hide:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]];
-      }
-    }
-
-    @end
+@end

@@ -8,6 +8,5 @@
     "sourceType": "script"
   },
   "rules": {
-    "strict": ["error", "global"]
-  },
+  }
 }

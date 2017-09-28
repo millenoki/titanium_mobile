@@ -7,6 +7,8 @@
 #ifdef USE_TI_UITABLEVIEW
 
 #import "TiScrollingView.h"
+#import "TiUISearchBarProxy.h"
+#import "TiUITableViewAction.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
 #import "TiUIView.h"
@@ -38,9 +40,10 @@
 
 @end
 
-@interface TiUITableView : TiScrollingView <UISearchDisplayDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
+@interface TiUITableView : TiScrollingView <UISearchResultsUpdating, UISearchControllerDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, TiScrolling, TiProxyObserver> {
   @protected
   TDUITableView *tableview;
+  TDUITableView *_searchTableView;
   @private
   BOOL moving;
   BOOL editing;

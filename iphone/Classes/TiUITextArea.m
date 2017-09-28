@@ -689,14 +689,15 @@ Text area constrains the text event though the content offset and edge insets ar
 {
   UITextView *ourView = (UITextView *)[self textWidgetView];
   NSAttributedString *theString = [ourView attributedText];
-        CGRect rect = [theString boundingRectWithSize:CGSizeMake(size.width, CGFLOAT_MAX)
-                                                   options:NSStringDrawingUsesLineFragmentOrigin
-                                                   context:nil]
-                               .size.width);
-        if (value - txtWidth >= TXT_OFFSET) {
-          return (txtWidth + TXT_OFFSET);
-        }
-        return CGSizeMake(txtWidth + 2 * self.layer.borderWidth, height);
+  CGRect rect = [theString boundingRectWithSize:CGSizeMake(size.width, CGFLOAT_MAX)
+                                        options:NSStringDrawingUsesLineFragmentOrigin
+                                        context:nil];
+  CGFloat txtWidth = ceilf(rect.size.width);
+  CGFloat height = ceilf(rect.size.height);
+  if (size.width - txtWidth >= TXT_OFFSET) {
+    return CGSizeMake((txtWidth + TXT_OFFSET), height);
+  }
+  return CGSizeMake(txtWidth + 2 * self.layer.borderWidth, height);
 }
 
 - (void)scrollViewDidScroll:(id)scrollView

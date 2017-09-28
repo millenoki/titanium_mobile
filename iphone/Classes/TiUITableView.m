@@ -416,7 +416,7 @@
   [table setOpaque:![[table backgroundColor] isEqual:[UIColor clearColor]]];
 }
 
-- (TDUITableView *)tableView
+- (TDUITableView *)searchTableView
 {
   if (_searchTableView == nil) {
     id styleObject = [self.proxy valueForKey:@"style"];
@@ -427,7 +427,7 @@
       NSLog(@"[WARN] No style object!");
     }
 #endif
-    _searchTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
+    _searchTableView = [[TDUITableView alloc] initWithFrame:CGRectMake(0, 0, [self bounds].size.width, [self bounds].size.height) style:style];
     _searchTableView.delegate = self;
     _searchTableView.dataSource = self;
     _searchTableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -448,7 +448,7 @@
   return _searchTableView;
 }
 
-- (UITableView *)tableView
+- (TDUITableView *)tableView
 {
   if (tableview == nil) {
     id styleObject = [self.proxy valueForKey:@"style"];
@@ -481,9 +481,6 @@
     }
     if (initBackGround) {
       [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
-    }
-    if (tableController) {
-      tableController.tableView = tableview;
     }
 
     [self updateSearchView];
@@ -1758,16 +1755,6 @@
     [searchField getOrCreateView]; //make sure the view is created
     [searchField windowWillOpen];
     [searchField setDelegate:self];
-    tableController = [[UITableViewController alloc] init];
-    [TiUtils configureController:tableController withObject:nil];
-    [tableController setClearsSelectionOnViewWillAppear:!allowsSelectionSet];
-    searchController = [[UISearchDisplayController alloc] initWithSearchBar:[search searchBar] contentsController:tableController];
-    searchController.searchResultsDataSource = self;
-    searchController.searchResultsDelegate = self;
-    searchController.delegate = self;
-    if (tableview) {
-      tableController.tableView = tableview;
-    }
     [self updateSearchView];
     [self initSearhController];
 
@@ -2646,13 +2633,13 @@
 
 - (void)presentSearchController:(UISearchController *)controller
 {
-  id proxy = [(TiViewProxy *)self.proxy parent];
-  while ([proxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    proxy = [proxy parent];
+  id theProxy = [(TiViewProxy *)self.proxy parent];
+  while ([theProxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+    theProxy = [theProxy parent];
   }
   UIViewController *viewController = nil;
   if ([proxy isKindOfClass:[TiWindowProxy class]]) {
-    viewController = [proxy windowHoldingController];
+    viewController = [theProxy windowHoldingController];
   } else {
     viewController = [[TiApp app] controller];
   }

@@ -651,6 +651,8 @@ DEFINE_EXCEPTIONS
 
 - (void)animatedImage:(TiAnimatedImage *)animatedImage changedToImage:(UIImage *)image
 {
+    RELEASE_TO_NIL(_currentImage);
+    _currentImage = [image retain];
   if (animatedImage.stopped) {
     [self transitionToImage:_currentImage];
   } else {

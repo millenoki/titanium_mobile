@@ -13,10 +13,6 @@
 // an explicit compile time dependency to UI
 #import "TiUIAlertDialogProxy.h"
 
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-#import "TiUIActivityIndicatorStyleProxy.h"
-#endif
-
 @interface UIModule : TiModule {
 
   @private
@@ -274,10 +270,6 @@
 
 @property (nonatomic, readonly) NSNumber *TABLE_VIEW_SEPARATOR_STYLE_NONE;
 @property (nonatomic, readonly) NSNumber *TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
-
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-@property (nonatomic, readonly) TiUIActivityIndicatorStyleProxy *ActivityIndicatorStyle;
-#endif
 
 @end
 

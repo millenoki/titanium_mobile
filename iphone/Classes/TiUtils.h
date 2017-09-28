@@ -534,7 +534,7 @@ typedef enum {
 + (NSString *)stringValue:(NSString *)name properties:(NSDictionary *)properties;
 
 + (CGPoint)pointValue:(NSString *)name properties:(NSDictionary *)properties;
-+ GPoint)pointValue:(id)value def:(CGPoint)defaultValue;
++ (CGPoint)pointValue:(id)value def:(CGPoint)defaultValue;
 
 + (TiColor *)colorValue:(NSString *)name properties:(NSDictionary *)properties;
 

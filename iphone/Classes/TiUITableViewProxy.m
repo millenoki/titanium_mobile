@@ -1125,7 +1125,9 @@ DEFINE_DEF_PROP(scrollsToTop, @YES);
       UITableView *ourTable = [ourView tableView];
       [section setTable:ourView];
       [ourTable reloadSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
-    }
+    } forceReload:NO];
+  }, NO);
+}
 
 -(id)createEventObject:(id)initialObject
 {

@@ -8,6 +8,7 @@
 
 #import "MediaModule.h"
 #import "Mimetypes.h"
+#import "TiApp.h"
 #import "Ti2DMatrix.h"
 #import "TiViewProxy.h"
 #import "TouchCapturingWindow.h"

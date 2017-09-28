@@ -22,8 +22,6 @@
   });
   return keySequence;
 }
-return sliderKeySequence;
-}
 
 - (NSString *)apiName
 {

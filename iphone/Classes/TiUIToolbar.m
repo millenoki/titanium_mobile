@@ -94,28 +94,30 @@
   ENSURE_TYPE_OR_NIL(value, NSArray);
   if (value != nil) {
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:[value count]];
-    Class proxyClass = [TiViewProxy class];
-    for (TiViewProxy *thisProxy in value) {
-      ENSURE_CLASS(thisProxy, proxyClass);
-      if (![thisProxy supportsNavBarPositioning]) {
-        //TODO: This is an exception that should have been raised long ago.
-        DebugLog(@"[ERROR] %@ does not support being in a toolbar!", thisProxy);
-        //continue;
+    //		Class proxyClass = [TiViewProxy class];
+    for (id object in value) {
+      TiViewProxy *vp = (TiViewProxy *)[(TiViewProxy *)self.proxy createChildFromObject:object];
+      if (!vp)
+        continue;
+      if ([vp conformsToProtocol:@protocol(TiToolbarButton)]) {
+        [(id<TiToolbarButton>)vp setToolbar:(id<TiToolbar>)self.proxy];
       }
-      if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)]) {
-        [(id<TiToolbarButton>)thisProxy setToolbar:(id<TiToolbar>)self.proxy];
-      }
-      [thisProxy windowWillOpen];
-      [result addObject:[thisProxy barButtonItem]];
-      [thisProxy windowDidOpen];
+      [vp setParent:(TiParentingProxy *)self.proxy];
+      [vp windowWillOpen];
+      [result addObject:[vp barButtonItem]];
+      [vp windowDidOpen];
     }
     [[self toolBar] setItems:result];
   } else {
     UIToolbar *toolbar = [self toolBar];
     if (toolbar != nil) {
-      for (id thisProxy in [toolbar items]) {
-        if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)]) {
-          [(id<TiToolbarButton>)thisProxy setToolbar:nil];
+      for (id item in [toolbar items]) {
+        if ([item respondsToSelector:@selector(proxy)]) {
+          TiViewProxy *p = [(TiViewProxy *)[item performSelector:@selector(proxy)] retain];
+          [p removeBarButtonView];
+          [p windowDidClose];
+          [self.proxy forgetProxy:p];
+          [p release];
         }
       }
     }
@@ -123,11 +125,9 @@
   }
 }
 
-- (void)setBackgroundImage_:(id)arg
+- (void)setBackgroundImage:(id)image forState:(UIControlState)state
 {
-  UIImage *image = [self loadImage:arg];
   [[self toolBar] setBackgroundImage:image forToolbarPosition:(extendsBackground ? UIBarPositionTopAttached : UIBarPositionAny) barMetrics:UIBarMetricsDefault];
-  self.backgroundImage = arg;
 }
 
 - (void)setBarColor_:(id)value
@@ -140,17 +140,22 @@
   [toolBar setBarTintColor:barColor];
 }
 
-- (void)setTintColor_:(id)color
-{
-  TiColor *ticolor = [TiUtils colorValue:color];
-  UIColor *theColor = [ticolor _color];
-  [[self toolBar] setTintColor:theColor];
-  [self setTintColor:theColor];
-}
+//- (void)setTintColor_:(id)color
+//{
+//  TiColor *ticolor = [TiUtils colorValue:color];
+//  UIColor *theColor = [ticolor _color];
+//  [[self toolBar] setTintColor:theColor];
+//  [self setTintColor:theColor];
+//}
 
 - (void)setTranslucent_:(id)value
 {
   [toolBar setTranslucent:[TiUtils boolValue:value]];
+}
+
+- (void)setStyle_:(id)value
+{
+  [[self toolBar] setBarStyle:[TiUtils intValue:value def:[self toolBar].barStyle]];
 }
 
 #ifndef TI_USE_AUTOLAYOUT
@@ -164,6 +169,10 @@
   }
 }
 
+- (CGSize)contentSizeForSize:(CGSize)size
+{
+  return [[self toolBar] sizeThatFits:size];
+}
 #endif
 
 - (CGFloat)verifyHeight:(CGFloat)suggestedHeight

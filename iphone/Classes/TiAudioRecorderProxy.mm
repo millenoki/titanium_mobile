@@ -10,7 +10,7 @@
 #import "TiAudioSession.h"
 #import "TiFile.h"
 #import "TiFilesystemFileProxy.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #import "TiUtils.h"
 #import "TiUtils.h"
 #import <AudioToolbox/AudioFile.h>

@@ -15,6 +15,8 @@
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "TiFileSystemHelper.h"
+#import "TiUIWebViewProxy.h"
+#import "Webcolor.h"
 
 extern NSString *const TI_APPLICATION_ID;
 

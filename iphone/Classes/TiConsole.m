@@ -9,8 +9,6 @@
 
 @implementation TiConsole
 
-@implementation TiConsole
-
 - (void)log:(NSArray *)args withSeverity:(NSString *)severity
 {
   __block NSMutableString *message = [NSMutableString string];

@@ -18,8 +18,6 @@
 
 @property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
 
-@property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
-
 @end
 
 #endif

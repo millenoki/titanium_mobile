@@ -395,9 +395,10 @@
                                       resultingOrientation:&imageOrientation
                                                      idiom:&imageIdiom];
 
-  //    CGFloat imageScale = [defaultImage scale];
+  CGFloat imageScale = [defaultImage scale];
   CGRect newFrame = [[self view] bounds];
   CGSize imageSize = [defaultImage size];
+  UIViewContentMode contentMode = UIViewContentModeScaleToFill;
 
   if (imageOrientation == UIDeviceOrientationPortrait) {
     if (newOrientation == UIInterfaceOrientationLandscapeLeft) {

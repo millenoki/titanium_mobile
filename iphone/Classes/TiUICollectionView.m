@@ -24,6 +24,7 @@
 #import "TiUICollectionWrapperView.h"
 #import "TiUICollectionWrapperViewProxy.h"
 #import "TiUIHelper.h"
+#import "TiWindowProxy.h"
 #import "WrapperViewProxy.h"
 
 @interface TiUIView (eventHandler)
@@ -44,6 +45,7 @@
 
 @implementation TiUICollectionView {
   TiCollectionView *_tableView;
+  TiCollectionView *_searchTableView;
 
   id _defaultItemTemplate;
   BOOL hideOnSearch;
@@ -58,8 +60,8 @@
   TiDimension _minItemHeight;
   TiDimension _maxItemHeight;
 
-  UICollectionViewController *tableController;
-  TiSearchDisplayController *searchController;
+  UISearchController *searchController;
+  UICollectionViewController *resultViewController;
 
   NSMutableArray *sectionTitles;
   NSMutableArray *sectionIndices;
@@ -67,8 +69,6 @@
   NSMutableArray *filteredIndices;
 
   BOOL pullActive;
-  //    CGPoint tapPoint;
-  BOOL editing;
   BOOL pruneSections;
 
   BOOL caseInsensitiveSearch;
@@ -94,6 +94,8 @@
   BOOL _useAppearAnimation;
 
   BOOL _hasHeaderView;
+
+  BOOL _dimsBackgroundDuringPresentation;
 }
 
 static NSDictionary *replaceKeysForRow;
@@ -139,6 +141,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
     _appearAnimation = nil;
     _useAppearAnimation = NO;
     searchIgnoreExactMatch = NO;
+    _dimsBackgroundDuringPresentation = YES;
   }
   return self;
 }
@@ -148,12 +151,24 @@ static TiProxyTemplate *sDefaultItemTemplate;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
+
+  _searchTableView.delegate = nil;
+  _searchTableView.dataSource = nil;
+
+  RELEASE_TO_NIL(_searchTableView)
+
+#if IS_XCODE_8
+  if ([TiUtils isIOS10OrGreater]) {
+    _tableView.prefetchDataSource = nil;
+  }
+#endif
+
   RELEASE_TO_NIL(_tableView)
   RELEASE_TO_NIL(_defaultItemTemplate)
   RELEASE_TO_NIL(_searchString)
   RELEASE_TO_NIL(_searchResults)
-  RELEASE_TO_NIL(tableController)
-  RELEASE_TO_NIL(searchController)
+  RELEASE_TO_NIL(searchController);
+  RELEASE_TO_NIL(resultViewController);
   RELEASE_TO_NIL(sectionTitles)
   RELEASE_TO_NIL(sectionIndices)
   RELEASE_TO_NIL(filteredTitles)
@@ -203,10 +218,56 @@ static TiProxyTemplate *sDefaultItemTemplate;
                                                    forKey:@"headerWrapper"];
     vp.canBeResizedByFrame = YES;
     [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:HEADER_VIEW_STYLE];
+    [_searchTableView registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:HEADER_VIEW_STYLE];
     [self setHeaderFooter:vp isHeader:YES];
     _hasHeaderView = YES;
   }
   return vp;
+}
+
+- (TDUICollectionView *)searchTableView
+{
+  if (_searchTableView == nil) {
+    TiUICollectionViewFlowLayout *layout = [[TiUICollectionViewFlowLayout alloc] init];
+
+    _searchTableView = [[TiCollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+    [layout release];
+    //        _tableView.autoresizingMask = UIViewAutoresizingNone;
+    _searchTableView.delegate = self;
+    _searchTableView.dataSource = self;
+    _searchTableView.touchDelegate = self;
+    _searchTableView.alwaysBounceVertical = YES;
+
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+      _searchTableView.prefetchDataSource = self;
+    }
+#endif
+
+    //        id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
+    //        BOOL doSetBackground = YES;
+    //        if (doSetBackground) {
+    [[self class] setBackgroundColor:[UIColor clearColor] onTable:_tableView];
+    //        }
+
+    if ([TiUtils isIOS8OrGreater]) {
+      [_tableView setLayoutMargins:UIEdgeInsetsZero];
+    }
+
+    //prevents crash if no template defined for headers/footers
+    [_searchTableView registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:DEFAULT_TEMPLATE_STYLE];
+    [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"headerView"];
+    [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header"];
+    [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footerView"];
+    [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footer"];
+    if (_hasHeaderView) {
+      [_searchTableView registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:HEADER_VIEW_STYLE];
+    }
+  }
+  if ([_tableView superview] != self) {
+    [self addSubview:_tableView];
+  }
+  return _searchTableView;
 }
 
 - (TDUICollectionView *)tableView
@@ -271,7 +332,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (searchViewProxy) {
-      [searchViewProxy ensureSearchBarHeirarchy];
+      [searchViewProxy ensureSearchBarHierarchy];
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
         CGFloat right = _tableView.bounds.size.width - rowWidth;
@@ -385,10 +446,19 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
     if ([key rangeOfString:@"header" options:NSCaseInsensitiveSearch].location != NSNotFound) {
       [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:key];
+      if (_searchTableView) {
+        [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:key];
+      }
     } else if ([key rangeOfString:@"footer" options:NSCaseInsensitiveSearch].location != NSNotFound) {
       [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:key];
+      if (_searchTableView) {
+        [_searchTableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:key];
+      }
     } else {
       [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:key];
+      if (_searchTableView) {
+        [_searchTableView registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:key];
+      }
     }
   }];
   if (configurationSet) {
@@ -514,6 +584,12 @@ static TiProxyTemplate *sDefaultItemTemplate;
   //
   // * The hide when the search controller was active is animated
   // * The animation only occurs once
+
+  if ([[self searchController] isActive]) {
+    [[self searchController] setActive:NO];
+    searchActive = NO;
+    return;
+  }
 
   searchActive = NO;
   if (![(TiViewProxy *)self.proxy viewReady]) {
@@ -736,17 +812,20 @@ static TiProxyTemplate *sDefaultItemTemplate;
 - (void)updateSearchResults:(id)unused
 {
   [self buildResultsForSearchText];
-  if (_hasHeaderView) {
-    NSInteger sectionCount = [_searchResults count];
-    if (sectionCount > 0) {
-      NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, sectionCount)];
-      [_tableView reloadSections:set];
-    } else {
-      [_tableView reloadSections:[NSIndexSet indexSetWithIndex:1]];
-    }
 
-  } else {
-    [_tableView reloadData];
+  if (!searchActive || !resultViewController) {
+    if (_hasHeaderView) {
+      NSInteger sectionCount = [_searchResults count];
+      if (sectionCount > 0) {
+        NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, sectionCount)];
+        [_tableView reloadSections:set];
+      } else {
+        [_tableView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+      }
+
+    } else {
+      [_tableView reloadData];
+    }
   }
 }
 
@@ -955,23 +1034,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
 - (void)setAllowsSelection_:(id)value
 {
   allowsSelection = [TiUtils boolValue:value];
-  [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
 }
-
-//-(void)setAllowsSelectionDuringEditing_:(id)arg
-//{
-//	[[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
-//}
-
-//-(void)setEditing_:(id)args
-//{
-//    if ([TiUtils boolValue:args def:NO] != editing) {
-//        editing = !editing;
-//        [[self tableView] beginUpdates];
-//        [_tableView setEditing:editing animated:YES];
-//        [_tableView endUpdates];
-//    }
-//}
 
 - (void)setScrollSuspendsImageLoading_:(id)value
 {
@@ -1007,10 +1070,10 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
 #pragma mark - Search Support
 
-//-(TiSearchDisplayController*) searchController
-//{
-//    return [(TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"] searchController];
-//}
+- (UISearchController *)searchController
+{
+  return searchController;
+}
 
 - (void)setCaseInsensitiveSearch_:(id)args
 {
@@ -1039,31 +1102,42 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
 - (void)setSearchViewExternal_:(id)args
 {
-  RELEASE_TO_NIL(tableController);
   ENSURE_SINGLE_ARG_OR_NIL(args, TiUISearchBarProxy)
 
   id vp = [[self viewProxy] addProxyToHold:args setParent:NO forKey:@"searchView" shouldRelayout:NO];
   if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
     [(TiUISearchBarProxy *)vp setReadyToCreateView:YES];
     [(TiUISearchBarProxy *)vp setDelegate:self];
-    ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = NO;
+    ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = YES;
     if (searchHidden) {
       [self hideSearchScreen:nil animated:NO];
     }
+  } else {
+    [[self viewProxy] removeHoldedProxyForKey:@"searchView"];
   }
 }
 
 - (void)setSearchView_:(id)args
 {
-  RELEASE_TO_NIL(tableController);
   id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
   if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
     [(TiUISearchBarProxy *)vp setReadyToCreateView:YES];
     [(TiUISearchBarProxy *)vp setDelegate:self];
+    ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = YES;
+    ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = [TiUtils boolValue:@"dontUseResultView" def:YES];
     [[self getOrCreateHeaderHolder] addProxy:vp atIndex:0 shouldRelayout:YES];
+    self.searchString = [[vp searchBar] text];
+    [self initSearchController:self];
+    if (self.searchString) {
+      [self buildResultsForSearchText];
+      [[resultViewController collectionView] reloadData];
+    }
+
     if (searchHidden) {
       [self hideSearchScreen:nil animated:NO];
     }
+  } else {
+    [[self viewProxy] removeHoldedProxyForKey:@"searchView"];
   }
 }
 
@@ -1085,213 +1159,11 @@ static TiProxyTemplate *sDefaultItemTemplate;
   hideOnSearch = [TiUtils boolValue:yn def:NO];
 }
 
-#pragma mark - SectionIndexTitle Support
-
-//-(void)setSectionIndexTitles_:(id)args
-//{
-//    ENSURE_TYPE_OR_NIL(args, NSArray);
-//
-//    RELEASE_TO_NIL(sectionTitles);
-//    RELEASE_TO_NIL(sectionIndices);
-//    RELEASE_TO_NIL(filteredTitles);
-//    RELEASE_TO_NIL(filteredIndices);
-//
-//    NSArray* theIndex = args;
-//	if ([theIndex count] > 0) {
-//        sectionTitles = [[NSMutableArray alloc] initWithCapacity:[theIndex count]];
-//        sectionIndices = [[NSMutableArray alloc] initWithCapacity:[theIndex count]];
-//
-//        for (NSDictionary *entry in theIndex) {
-//            ENSURE_DICT(entry);
-//            NSString *title = [entry objectForKey:@"title"];
-//            id index = [entry objectForKey:@"index"];
-//            [sectionTitles addObject:title];
-//            [sectionIndices addObject:[NSNumber numberWithInt:[TiUtils intValue:index]]];
-//        }
-//    }
-//    if (searchViewProxy == nil) {
-//        if (searchActive) {
-//            [self buildResultsForSearchText];
-//        }
-//        [_tableView reloadSectionIndexTitles];
-//    }
-//}
-
-#pragma mark - SectionIndexTitle Support Datasource methods.
-
-//-(NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
-//{
-//    if (tableView != _tableView) {
-//        return nil;
-//    }
-//
-//    if (editing) {
-//        return nil;
-//    }
-//
-//    if (searchActive) {
-//        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-//            return filteredTitles;
-//        } else {
-//            return nil;
-//        }
-//    }
-//
-//    return sectionTitles;
-//}
-
-//-(NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)theIndex
-//{
-//    if (tableView != _tableView) {
-//        return 0;
-//    }
-//
-//    if (editing) {
-//        return 0;
-//    }
-//
-//    if (searchActive) {
-//        if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
-//            // get the index for the title
-//            int index = [filteredTitles indexOfObject:title];
-//            if (index > 0 && (index < [filteredIndices count]) ) {
-//                return [[filteredIndices objectAtIndex:index] intValue];
-//            }
-//            return 0;
-//        } else {
-//            return 0;
-//        }
-//    }
-//
-//    if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
-//        // get the index for the title
-//        int index = [sectionTitles indexOfObject:title];
-//        if (index > 0 && (index < [sectionIndices count]) ) {
-//            return [[sectionIndices objectAtIndex:index] intValue];
-//        }
-//        return 0;
-//    }
-//    return 0;
-//}
-
-//#pragma mark - Editing Support
-//
-//-(BOOL)canEditRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    id editValue = [self valueWithKey:@"canEdit" atIndexPath:indexPath];
-//    //canEdit if undefined is false
-//    return [TiUtils boolValue:editValue def:NO];
-//}
-//
-//
-//-(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
-//    //canMove if undefined is false
-//    return [TiUtils boolValue:moveValue def:NO];
-//}
-
-//#pragma mark - Editing Support Datasource methods.
-//
-//- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    if (tableView != _tableView) {
-//        return NO;
-//    }
-//
-//    if (searchActive) {
-//        return NO;
-//    }
-//
-//    if ([self canEditRowAtIndexPath:indexPath]) {
-//        return YES;
-//    }
-//    if (editing) {
-//        return [self canMoveRowAtIndexPath:indexPath];
-//    }
-//    return NO;
-//}
-//
-//- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    if (editingStyle == UITableViewCellEditingStyleDelete) {
-//        TiUICollectionSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
-//        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
-//
-//
-//        //Fire the delete Event if required
-//        NSString *eventName = @"delete";
-//        if ([self.proxy _hasListeners:eventName]) {
-//
-//            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-//                                                theSection, @"section",
-//                                                self.proxy, @"listView",
-//                                                NUMINT(indexPath.section), @"sectionIndex",
-//                                                NUMINT(indexPath.row), @"itemIndex",
-//                                                nil];
-//            id propertiesValue = [theItem objectForKey:@"properties"];
-//            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-//            id itemId = [properties objectForKey:@"itemId"];
-//            if (itemId != nil) {
-//                [eventObject setObject:itemId forKey:@"itemId"];
-//            }
-//            [self.proxy fireEvent:eventName withObject:eventObject propagate:NO checkForListener:NO];
-//            [eventObject release];
-//        }
-//        [theItem release];
-//
-//        BOOL asyncDelete = [TiUtils boolValue:[self.proxy valueForKey:@"asyncDelete"] def:NO];
-//        if (asyncDelete) return;
-//        [tableView beginUpdates];
-////        [theSection willRemoveItemAt:indexPath];
-////        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-////        [tableView endUpdates];
-//        [theSection deleteItemsAt:@[@(indexPath.row), @(1), @{@"animated":@(YES)}]];
-//    }
-//}
-
-//#pragma mark - Editing Support Delegate Methods.
-//
-//- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    //No support for insert style yet
-//    if ([self canEditRowAtIndexPath:indexPath]) {
-//        return UITableViewCellEditingStyleDelete;
-//    } else {
-//        return UITableViewCellEditingStyleNone;
-//    }
-//}
-//
-//- (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    return [self canEditRowAtIndexPath:indexPath];
-//}
-//
-//- (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    editing = YES;
-//    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
-//}
-//
-//- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    editing = [_tableView isEditing];
-//    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
-//    if (!editing) {
-//        [self performSelector:@selector(reloadTableViewData) withObject:nil afterDelay:0.1];
-//    }
-//}
-
 #pragma mark - UICollectionViewDataSource
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
   NSUInteger sectionCount = 0;
-
-  //TIMOB-15526
-  //    if (collectionView != _tableView && collectionView.backgroundColor == [UIColor clearColor]) {
-  //        collectionView.backgroundColor = [UIColor whiteColor];
-  //    }
 
   if (_searchResults != nil) {
     sectionCount = MAX([_searchResults count], 1);
@@ -1794,13 +1666,6 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-  //    if (_hasHeaderView) {
-  //        if (indexPath.section == 0) {
-  //            return;
-  //        } else {
-  //            indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section-1];
-  //        }
-  //    }
   [self fireClickForItemAtIndexPath:indexPath collectionView:collectionView accessoryButtonTapped:NO];
   if (allowsSelection == NO) {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
@@ -2124,15 +1989,15 @@ static TiProxyTemplate *sDefaultItemTemplate;
 //	return result;
 //}
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-  // iOS idiom seems to indicate that you should never be able to interact with a table
-  // while the 'delete' button is showing for a row, but touchesBegan:withEvent: is still triggered.
-  // Turn it into a no-op while we're editing
-  if (!editing) {
-    [super touchesBegan:touches withEvent:event];
-  }
-}
+//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+//{
+//  // iOS idiom seems to indicate that you should never be able to interact with a table
+//  // while the 'delete' button is showing for a row, but touchesBegan:withEvent: is still triggered.
+//  // Turn it into a no-op while we're editing
+//  if (!editing) {
+//    [super touchesBegan:touches withEvent:event];
+//  }
+//}
 
 //-(UIView*)viewForGestures
 //{
@@ -2141,8 +2006,9 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
 - (void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
-  //    BOOL viaSearch = [self isSearchActive];
-  CGPoint point = [recognizer locationInView:_tableView];
+  BOOL viaSearch = [self isSearchActive];
+  UICollectionView *theTableView = viaSearch ? [resultViewController collectionView] : _tableView;
+  CGPoint point = [recognizer locationInView:theTableView];
   NSIndexPath *indexPath = [_tableView indexPathForItemAtPoint:point];
   [super recognizedSwipe:recognizer];
 
@@ -2155,8 +2021,9 @@ static TiProxyTemplate *sDefaultItemTemplate;
 {
   NSMutableDictionary *event = [super dictionaryFromGesture:recognizer];
 
-  //    BOOL viaSearch = [self isSearchActive];
-  CGPoint point = [recognizer locationInView:_tableView];
+  BOOL viaSearch = [self isSearchActive];
+  UICollectionView *theTableView = viaSearch ? [resultViewController collectionView] : _tableView;
+  CGPoint point = [recognizer locationInView:theTableView];
   NSIndexPath *indexPath = [_tableView indexPathForItemAtPoint:point];
   indexPath = [self pathForSearchPath:indexPath];
   if (indexPath != nil) {
@@ -2170,7 +2037,8 @@ static TiProxyTemplate *sDefaultItemTemplate;
   [super recognizedLongPress:recognizer];
   if ([recognizer state] == UIGestureRecognizerStateBegan) {
     BOOL viaSearch = [self isSearchActive];
-    CGPoint point = [recognizer locationInView:_tableView];
+    UICollectionView *theTableView = viaSearch ? [resultViewController collectionView] : _tableView;
+    CGPoint point = [recognizer locationInView:theTableView];
     NSIndexPath *indexPath = [_tableView indexPathForItemAtPoint:point];
     if (allowsSelection == NO) {
       [_tableView deselectItemAtIndexPath:indexPath animated:YES];
@@ -2198,15 +2066,24 @@ static TiProxyTemplate *sDefaultItemTemplate;
 {
   TiViewProxy *vp = [self holdedProxyForKey:@"searchView"];
   if (vp) {
+#ifndef TI_USE_AUTOLAYOUT
     [vp layoutProperties]->right = TiDimensionDip(0);
+#endif
     [vp refreshViewIfNeeded];
+    [self initSearchController:self];
   }
 }
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
+  if ([searchBar.text isEqualToString:self.searchString] && [searchController isActive]) {
+    return;
+  }
   self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
   [self updateSearchResults:nil];
+  if (searchController.isActive) {
+    [[resultViewController collectionView] reloadData];
+  }
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2214,6 +2091,9 @@ static TiProxyTemplate *sDefaultItemTemplate;
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self updateSearchResults:nil];
+    if ([[self searchController] isActive]) {
+      [[self searchController] setActive:NO];
+    }
   }
 }
 
@@ -2233,33 +2113,22 @@ static TiProxyTemplate *sDefaultItemTemplate;
 {
   self.searchString = @"";
   [searchBar setText:self.searchString];
-  [self buildResultsForSearchText];
+  [self updateSearchResults:nil];
   [searchBar endEditing:YES];
 }
 
-#pragma mark - UISearchDisplayDelegate Methods
-
-- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+#pragma mark - UISearchControllerDelegate
+- (void)willDismissSearchController:(UISearchController *)searchController
 {
-  searchViewAnimating = YES;
-  [_tableView setContentOffset:CGPointZero animated:NO];
+  //    [[resultViewController tableView] setEditing:NO];
+  //    [_tableView setEditing:NO];
 }
 
-- (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller
-{
-  searchViewAnimating = YES;
-}
-
-- (void)searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller
-{
-  searchViewAnimating = NO;
-}
-
-- (void)searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
+- (void)didDismissSearchController:(UISearchController *)searchController
 {
   searchViewAnimating = NO;
   self.searchString = @"";
-  [self buildResultsForSearchText];
+  //    [self buildResultsForSearchText];
 
   //IOS7 DP3. TableView seems to be adding the searchView to
   //tableView. Bug on IOS7?
@@ -2268,16 +2137,89 @@ static TiProxyTemplate *sDefaultItemTemplate;
     CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
     if (rowWidth > 0) {
       CGFloat right = _tableView.bounds.size.width - rowWidth;
+#ifndef TI_USE_AUTOLAYOUT
       [searchViewProxy layoutProperties]->right = TiDimensionDip(right);
+#endif
       [searchViewProxy refreshViewIfNeeded];
     }
+    [searchViewProxy ensureSearchBarHierarchy];
   }
-  [searchViewProxy ensureSearchBarHeirarchy];
-  [_tableView reloadData];
+  //  [self clearSearchController:self];
+  [self updateSearchResults:nil];
   [self hideSearchScreen:nil];
+
+  id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
+  ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
+
+  if (!searchButtonTitle) {
+    return;
+  }
+
+  // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
+  // as soon as we remove iOS < 9 support
+  id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+  [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
   //    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
 
+- (void)presentSearchController:(UISearchController *)controller
+{
+  TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+
+  if (resultsBackgroundColor) {
+    // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+    UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+    [resultViewController.collectionView setBackgroundColor:color];
+  }
+
+  // Presenting search controller on window holding controller
+  id theProxy = [(TiViewProxy *)self.proxy parent];
+  while ([theProxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+    theProxy = [theProxy parent];
+  }
+  UIViewController *viewController = nil;
+  if ([theProxy isKindOfClass:[TiWindowProxy class]]) {
+    viewController = [theProxy windowHoldingController];
+  } else {
+    viewController = [[TiApp app] controller];
+  }
+  viewController.definesPresentationContext = YES;
+
+  [viewController presentViewController:controller
+                               animated:NO
+                             completion:^{
+                               UIView *view = controller.searchBar.superview;
+                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+                               controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
+                               resultViewController.collectionView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+                             }];
+
+  TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
+  id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
+  ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
+
+  if (!searchButtonTitle) {
+    return;
+  }
+
+  // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
+  // as soon as we remove iOS < 9 support
+  id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
+  [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+  //    [[resultViewController collectionView] setEditing:NO];
+  //    [_tableView setEditing:NO];
+}
+
+#pragma mark - UISearchResultsUpdating
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)controller
+{
+  self.searchString = [controller.searchBar text];
+  [self updateSearchResults:nil];
+  if (controller.isActive) {
+    [resultViewController.collectionView reloadData];
+  }
+}
 #pragma mark - TiScrolling
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
@@ -2376,30 +2318,39 @@ static TiProxyTemplate *sDefaultItemTemplate;
   }
 }
 
-- (void)clearSearchController:(id)sender
-{
-  if (sender == self) {
-    TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
-    if (!searchViewProxy.canHaveSearchDisplayController) {
-      RELEASE_TO_NIL(tableController);
-      RELEASE_TO_NIL(searchController);
-      [searchViewProxy ensureSearchBarHeirarchy];
-    }
-  }
-}
+//- (void)clearSearchController:(id)sender
+//{
+//  if (sender == self) {
+//    TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
+//    if (!searchViewProxy.canHaveSearchDisplayController) {
+//      RELEASE_TO_NIL(tableController);
+//      RELEASE_TO_NIL(searchController);
+//      [searchViewProxy ensureSearchBarHierarchy];
+//    }
+//  }
+//}
 
 - (void)initSearchController:(id)sender
 {
-  if (sender == self && tableController == nil) {
+  if (sender == self && searchController == nil) {
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (!searchViewProxy.canHaveSearchDisplayController) {
-      tableController = [[UICollectionViewController alloc] init];
-      [TiUtils configureController:tableController withObject:nil];
-      tableController.collectionView = [self tableView];
-      searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
-      //            searchController.searchResultsDataSource = self;
-      //            searchController.searchResultsDelegate = self;
+      resultViewController = [[UICollectionViewController alloc] init];
+      resultViewController.collectionView = [self searchTableView];
+      searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
       searchController.delegate = self;
+      searchController.searchResultsUpdater = self;
+      searchController.hidesNavigationBarDuringPresentation = NO;
+      searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
+
+      searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
+      searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+      searchController.searchBar.placeholder = [[searchViewProxy searchBar] placeholder];
+      searchController.searchBar.text = [[searchViewProxy searchBar] text];
+      [searchViewProxy setSearchBar:searchController.searchBar];
+
+      [TiUtils configureController:resultViewController withObject:self.proxy];
+      [TiUtils configureController:searchController withObject:self.proxy];
     }
   }
 }

@@ -18,6 +18,7 @@
 #import "TiHost.h"
 #import "TiModule.h"
 #import "TiProxy.h"
+#import "TiProxyTemplate.h"
 #import "TiViewProxy.h"
 
 #include <libkern/OSAtomic.h>

@@ -168,7 +168,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 {
   NSUInteger length = [hexCode length];
   if ((length != 3) && (length != 4) && (length != 6) && (length != 7) && (length != 8)) {
-    if ([hexCode rangeOfString:@"rgb"].location == NSNotFound) {
+    if ([hexCode rangeOfString:@"rgba"].location == NSNotFound) {
       DebugLog(@"[WARN] Hex color passed looks invalid: %@", hexCode);
     }
     return nil;
@@ -189,35 +189,32 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
     value <<= 4;
     value |= toASCIIHexValue(thisChar);
   }
-  return nil;
-}
-unsigned value = 0;
 
-if (length < 6) {
-  value = ((value & 0xF000) << 16) | ((value & 0xFF00) << 12) | ((value & 0xFF0) << 8) | ((value & 0xFF) << 4) | (value & 0xF);
-}
+  if (length < 6) {
+    value = ((value & 0xF000) << 16) | ((value & 0xFF00) << 12) | ((value & 0xFF0) << 8) | ((value & 0xFF) << 4) | (value & 0xF);
+  }
 
-if ([TiUtils hexColorUsesRGBA]) {
-  if ((length % 4) == 0) {
-    red = (value >> 24) & 0xFF;
-    green = (value >> 16) & 0xFF;
-    blue = (value >> 8) & 0xFF;
-    alpha = (value & 0xFF) / 255.0;
+  if ([TiUtils hexColorUsesRGBA]) {
+    if ((length % 4) == 0) {
+      red = (value >> 24) & 0xFF;
+      green = (value >> 16) & 0xFF;
+      blue = (value >> 8) & 0xFF;
+      alpha = (value & 0xFF) / 255.0;
+    } else {
+      red = (value >> 16) & 0xFF;
+      green = (value >> 8) & 0xFF;
+      blue = value & 0xFF;
+    }
   } else {
+    if ((length % 4) == 0) {
+      alpha = ((value >> 24) & 0xFF) / 255.0;
+    }
+
     red = (value >> 16) & 0xFF;
     green = (value >> 8) & 0xFF;
     blue = value & 0xFF;
   }
-} else {
-  if ((length % 4) == 0) {
-    alpha = ((value >> 24) & 0xFF) / 255.0;
-  }
-
-  red = (value >> 16) & 0xFF;
-  green = (value >> 8) & 0xFF;
-  blue = value & 0xFF;
-}
-return RGBACOLOR(red, green, blue, alpha);
+  return RGBACOLOR(red, green, blue, alpha);
 }
 
 + (void)flushCache

@@ -2146,7 +2146,6 @@ SEL GetterForKrollProperty(NSString *key)
 
 - (TiUIView *)newView
 {
-  TiUIView *newview = nil;
   NSString *proxyName = NSStringFromClass([self class]);
   if ([proxyName hasSuffix:@"Proxy"]) {
     Class viewClass = nil;

@@ -268,9 +268,6 @@
   }
 }
 
-[self sliderChanged:[self sliderView]];
-}
-
 - (void)setCustomUserInteractionEnabled:(BOOL)value
 {
   [super setCustomUserInteractionEnabled:value];

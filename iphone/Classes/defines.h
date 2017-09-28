@@ -7,6 +7,8 @@
 
 // MODULES
 
+#define TI_USE_KROLL_THREAD
+
 #define USE_TI_STREAM
 #define USE_TI_CODEC
 #define USE_TI_UTILS

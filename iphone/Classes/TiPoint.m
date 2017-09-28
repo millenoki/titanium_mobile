@@ -44,54 +44,55 @@
     xDimension = TiDimensionUndefined;
     yDimension = TiDimensionUndefined;
   }
+}
 
-  -(void)setPoint : (CGPoint)point_
-  {
-    xDimension = TiDimensionDip(point_.x);
-    yDimension = TiDimensionDip(point_.y);
-  }
+- (void)setPoint:(CGPoint)point_
+{
+  xDimension = TiDimensionDip(point_.x);
+  yDimension = TiDimensionDip(point_.y);
+}
 
-  -(CGPoint)point
-  {
-    return CGPointMake(TiDimensionCalculateValue(xDimension, 0),
-        TiDimensionCalculateValue(yDimension, 0));
-  }
+- (CGPoint)point
+{
+  return CGPointMake(TiDimensionCalculateValue(xDimension, 0),
+      TiDimensionCalculateValue(yDimension, 0));
+}
 
-  -(CGPoint)pointWithinSize : (CGSize)size
-  {
-    return CGPointMake(TiDimensionCalculateValue(xDimension, size.width),
-        TiDimensionCalculateValue(yDimension, size.height));
-  }
+- (CGPoint)pointWithinSize:(CGSize)size
+{
+  return CGPointMake(TiDimensionCalculateValue(xDimension, size.width),
+      TiDimensionCalculateValue(yDimension, size.height));
+}
 
-  -(id)x
-  {
-    return [TiUtils valueFromDimension:xDimension];
-  }
+- (id)x
+{
+  return [TiUtils valueFromDimension:xDimension];
+}
 
-  -(void)setX : (id)x
-  {
-    xDimension = TiDimensionFromObject(x);
-  }
+- (void)setX:(id)x
+{
+  xDimension = TiDimensionFromObject(x);
+}
 
-  -(id)y
-  {
-    return [TiUtils valueFromDimension:yDimension];
-  }
+- (id)y
+{
+  return [TiUtils valueFromDimension:yDimension];
+}
 
-  -(void)setY : (id)y
-  {
-    yDimension = TiDimensionFromObject(y);
-  }
+- (void)setY:(id)y
+{
+  yDimension = TiDimensionFromObject(y);
+}
 
-  // In the implementation
-  -(id)copyWithZone : (NSZone *)zone
-  {
-    // We'll ignore the zone for now
-    TiPoint *another = [[TiPoint alloc] init];
-    another.xDimension = TiDimensionMake(xDimension.type, xDimension.value);
-    another.yDimension = TiDimensionMake(yDimension.type, yDimension.value);
+// In the implementation
+- (id)copyWithZone:(NSZone *)zone
+{
+  // We'll ignore the zone for now
+  TiPoint *another = [[TiPoint alloc] init];
+  another.xDimension = TiDimensionMake(xDimension.type, xDimension.value);
+  another.yDimension = TiDimensionMake(yDimension.type, yDimension.value);
 
-    return another;
-  }
+  return another;
+}
 
-  @end
+@end

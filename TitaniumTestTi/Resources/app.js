@@ -3838,7 +3838,7 @@ function imageViewTransitionTest(_args) {
 	var image1 = Ti.UI.createImageView({
 		backgroundColor: 'yellow',
 		tintColor: 'red',
-		tintColorImage: true,
+		// tintColorImage: true,
 		image: "animation/win_1.png",
 		backgroundGradient: {
 			type: 'linear',
@@ -3892,7 +3892,7 @@ function imageViewAnimationTest(_args) {
 	var image1 = Ti.UI.createImageView({
 		backgroundColor: 'yellow',
 		// tintColorImage: true,
-		tintColorImage: true,
+		// tintColorImage: true,
 		width: 100,
 		transition: {
 			style: Ti.UI.TransitionStyle.FADE,
@@ -3959,15 +3959,15 @@ function imageViewAnimationTest(_args) {
 		bid: 7,
 		title: 'transition'
 	}]);
-	btnHolder.addEventListener('singletap', function(e) {
+	btnHolder.addEventListener('click', function(e) {
 		console.log(e);
 		switch (e.source.bid) {
 			case 0:
-				// image1.start();
-				Ti.API.debug(image1.progress);
-				Ti.API.debug(image1.touchPassThrough);
+				image1.start();
+				// Ti.API.debug(image1.progress);
+				// Ti.API.debug(image1.touchPassThrough);
 				// image1.touchPassThrough = 1;
-				image1.progress = 0.8;
+				// image1.progress = 0.8;
 				break;
 			case 1:
 				image1.pause();
@@ -5867,7 +5867,7 @@ function textAreaTest(_args) {
 							size: 12
 						},
 						keyboardToolbar: {
-							type: 'Ti.UI.iOS.Toolbar',
+							type: 'Ti.UI.Toolbar',
 							properties: {
 								items: [{
 									type: 'Ti.UI.Button',

@@ -12,6 +12,7 @@
 #import "TiModule.h"
 #import "TiProxy.h"
 #import "TiToJS.h"
+#import "TopTiModule.h"
 #import <Foundation/Foundation.h>
 #include <libkern/OSAtomic.h>
 

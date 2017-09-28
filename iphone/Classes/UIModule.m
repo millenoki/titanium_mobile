@@ -38,9 +38,6 @@
 #ifdef USE_TI_UICOVERFLOWVIEW
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
-#ifdef USE_TI_UITOOLBAR
-#import "TiUIiOSToolbarProxy.h"
-#endif
 #ifdef USE_TI_UITABBEDBAR
 #import "TiUIiOSTabbedBarProxy.h"
 #endif
@@ -54,7 +51,7 @@ static NSDictionary *tableViewSeparatorStyle = nil;
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
-#ifdef USE_TI_UITOOLBAR
+#if defined(USE_TI_UITOOLBAR) || defined(USE_TI_UIIOSTOOLBAR)
 #import "TiUIToolbarProxy.h"
 #endif
 
@@ -99,6 +96,9 @@ static NSDictionary *blendMode = nil;
 {
   //should be done only once. And must be done before any TiUIButton is allocated
   [UIModule swizzle];
+#ifdef USE_TI_UIIOSTOOLBAR
+  CFDictionarySetValue([TiProxy classNameLookup], @"Ti.UI.iOS.Toolbar", [TiUIToolbarProxy class]);
+#endif
   [super startup];
 }
 
@@ -140,13 +140,6 @@ static NSDictionary *blendMode = nil;
 {
   return @"Ti.UI";
 }
-
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-- (TiUIActivityIndicatorStyleProxy *)ActivityIndicatorStyle
-{
-  return [[[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self pageContext]] autorelease];
-}
-#endif
 
 #pragma mark Public Constants
 
@@ -337,13 +330,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 }
 #endif
 
-#ifdef USE_TI_UITOOLBAR
-- (id)createToolbar:(id)args
-{
-  return [[[TiUIToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args apiName:@"Ti.UI.Toolbar"] autorelease];
-}
-#endif
-
 - (void)setOrientation:(id)mode
 {
   DebugLog(@"Ti.UI.setOrientation is deprecated since 1.7.2 . Ignoring call.");
@@ -490,7 +476,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 - (id)Clipboard
 {
   if (clipboard == nil) {
-    clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
+    clipboard = [[TiUIClipboardModule alloc] _initWithPageContext:[self executionContext]];
     [self rememberProxy:clipboard];
   }
   return clipboard;

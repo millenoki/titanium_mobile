@@ -812,8 +812,6 @@
 {
   return YES;
 }
-}
-}
 
 - (HLSAnimation *)animationForAnimation:(TiAnimation *)animation
 {

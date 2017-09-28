@@ -28,6 +28,7 @@
 - (void)setDelegate:(id<UISearchBarDelegate>)delegate;
 - (UISearchBar *)searchBar;
 - (TiSearchDisplayController *)searchController;
+- (void)setSearchBar:(UISearchBar *)searchBar;
 
 @end
 

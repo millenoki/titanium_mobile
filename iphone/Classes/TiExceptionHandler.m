@@ -10,6 +10,7 @@
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiFileSystemHelper.h"
+#include <execinfo.h>
 
 static void TiUncaughtExceptionHandler(NSException *exception);
 

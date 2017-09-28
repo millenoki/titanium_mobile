@@ -61,10 +61,10 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
     // pre-cache a few modules we always use
     TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
     if (ui)
-    [self addModule:@"UI" module:ui];
+      [self addModule:@"UI" module:ui];
     TiModule *api = [host moduleNamed:@"API" context:pageContext_];
     if (api)
-    [self addModule:@"API" module:api];
+      [self addModule:@"API" module:api];
 
     if (TI_APPLICATION_ANALYTICS) {
       APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
@@ -452,7 +452,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
       NSArray *lines = [jcode componentsSeparatedByString:@"\n"];
       if (lineNb < [lines count]) {
         error.sourceLine = [[lines objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-  }
+      }
     }
 
     [[TiExceptionHandler defaultExceptionHandler] reportScriptError:error];
@@ -992,7 +992,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   // object.
   if (data) {
     return [self loadJavascriptText:[NSString stringWithUTF8String:[data bytes]] fromFile:topLevel ? [fullPath stringByAppendingFormat:@"/%@", moduleID] : fullPath withContext:context];
-}
+  }
   //	TiContextRef jsContext = [[self krollContext] context];
   //	TiObjectRef jsObject = [wrapper jsobject];
   //	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
@@ -1096,12 +1096,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // cache the module by filename
   if (![modules objectForKey:filename]) {
-  [modules setObject:module forKey:filename];
-  if (filename != nil && module != nil) {
-    // uri is optional but we point it to where we loaded it
-    [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-    [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
-  }
+    [modules setObject:module forKey:filename];
+    if (filename != nil && module != nil) {
+      // uri is optional but we point it to where we loaded it
+      [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
+      [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
+    }
   }
 
   return module;
@@ -1298,6 +1298,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   NSURL *oldURL = [self currentURL];
   NSString *workingPath = [oldURL relativePath];
   NSMutableString *pathCacheKey;
+  @try {
     // First let's check if we cached the resolved path for this require string
     // and if we did, try and load a cached module for this path
     if (pathCache != nil && modules != nil) {
@@ -1319,11 +1320,11 @@ CFMutableSetRef krollBridgeRegistry = nil;
     id module; // may be TiModule* if it was a core module with no hybrid JS, or KrollWrapper* in all other cases
     @try {
 
-    // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
-    module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
-    if (module) {
-      return module;
-    }
+      // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
+      module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+      if (module) {
+        return module;
+      }
       // 1. If X is a core module,
       module = [self loadCoreModule:path withContext:kroll];
       if (module) {
@@ -1373,8 +1374,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
         if (module) {
           return module;
         }
-        }
       }
+    }
     @finally {
       // Cache the resolved path for this request if we got a module
       if (module != nil && pathCache != nil && pathCacheKey != nil) {
@@ -1389,8 +1390,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
       }
     }
   }
-@finally
-{
+  @finally {
     [self setCurrentURL:oldURL];
   }
 

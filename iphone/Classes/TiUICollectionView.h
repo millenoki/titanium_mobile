@@ -14,9 +14,17 @@
 #import "TiUICollectionViewFlowLayout.h"
 #import "TiUICollectionViewProxy.h"
 @class TiCollectionView;
-@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate> {
+
+#if IS_XCODE_8
+// Add support for iOS 10 table-view prefetching
+@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDataSourcePrefetching, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
+#else
+@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchResultsUpdating, UISearchControllerDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
+#endif
+{
   BOOL allowsSelection;
 }
+
 #pragma mark - Private APIs
 
 @property (nonatomic, readonly) TiCollectionView *tableView;

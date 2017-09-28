@@ -12,13 +12,13 @@
 #import "Mimetypes.h"
 #import "Mimetypes.h"
 #import "NSData+Additions.h"
-#import "SBJSON.h"
 #import "TiApp.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiFileSystemHelper.h"
 #import "TouchCapturingWindow.h"
+#import "Webcolor.h"
 
 #import <CoreSpotlight/CoreSpotlight.h>
 #import <QuartzCore/QuartzCore.h>
@@ -1109,7 +1109,7 @@ TI_INLINE void waitForMemoryPanicCleared(); //WARNING: This must never be run on
 - (void)showModalError:(TiScriptError *)error
 {
   if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO) {
-    NSLog(@"[ERROR] Application received error: %@", message);
+    NSLog(@"[ERROR] Application received error: %@", [error localizedDescription]);
     return;
   }
   static NSDictionary *dict = nil;

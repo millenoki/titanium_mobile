@@ -32,7 +32,7 @@
   }
   RELEASE_TO_NIL(controllerStack);
   RELEASE_TO_NIL(rootWindow);
-  RELEASE_TO_NIL(controller);
+  RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
   [super _destroy];
 }
@@ -66,11 +66,11 @@
 {
   TiThreadPerformOnMainThread(^{
     UIViewController *rootController = [self rootController];
-    [controller setDelegate:nil];
-    if ([[controller viewControllers] count] > 1) {
-      NSMutableArray *doomedVcs = [[controller viewControllers] mutableCopy];
+    [navController setDelegate:nil];
+    if ([[navController viewControllers] count] > 1) {
+      NSMutableArray *doomedVcs = [[navController viewControllers] mutableCopy];
       [doomedVcs removeObject:rootController];
-      [controller setViewControllers:[NSArray arrayWithObject:rootController]];
+      [navController setViewControllers:[NSArray arrayWithObject:rootController]];
       if (current != nil) {
         RELEASE_TO_NIL(current);
         current = [(TiWindowProxy *)[(TiViewController *)rootController proxy] retain];
@@ -82,10 +82,10 @@
     }
     if (removeTab) {
       [self closeWindowProxy:rootWindow animated:NO];
-      RELEASE_TO_NIL(controller);
+      RELEASE_TO_NIL(navController);
       RELEASE_TO_NIL(current);
     } else {
-      [controller setDelegate:self];
+      [navController setDelegate:self];
     }
   },
       YES);
@@ -150,8 +150,8 @@
   } else {
     [self forgetSelf];
   }
-  if (controller != nil) {
-    [TiUtils configureController:controller withObject:tabGroup];
+  if (navController != nil) {
+    [TiUtils configureController:navController withObject:tabGroup];
   }
 }
 
@@ -173,7 +173,7 @@
   UIViewController *windowController = [[window hostingController] retain];
 
   // Manage the navigation controller stack
-  UINavigationController *navController = [[self rootController] navigationController];
+//  UINavigationController *navController = [[self rootController] navigationController];
   NSMutableArray *newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
   [newControllerStack removeObject:windowController];
   [navController setViewControllers:newControllerStack animated:animated];
@@ -207,12 +207,12 @@
 }
 
 #pragma mark - TiTab protocol
-- (UINavigationController *)controller
+- (UINavigationController *)navController
 {
-  if (controller == nil) {
-    controller = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
-    controller.delegate = self;
-    [TiUtils configureController:controller withObject:tabGroup];
+  if (navController == nil) {
+    navController = [[UINavigationController alloc] initWithRootViewController:[self rootController]];
+    navController.delegate = self;
+    [TiUtils configureController:navController withObject:tabGroup];
     [self setTitle:[self valueForKey:@"title"]];
     [self setIcon:[self valueForKey:@"icon"]];
     [self setBadge:[self valueForKey:@"badge"]];
@@ -220,10 +220,10 @@
     [self setIconInsets:[self valueForKey:@"iconInsets"]];
     controllerStack = [[NSMutableArray alloc] init];
     [controllerStack addObject:[self rootController]];
-    [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-    [[controller interactivePopGestureRecognizer] setDelegate:self];
+    [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+    [[navController interactivePopGestureRecognizer] setDelegate:self];
   }
-  return controller;
+  return navController;
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
@@ -381,7 +381,7 @@
 {
   if (current != nil) {
     UIViewController *oldController = [current hostingController];
-    UINavigationController *navController = [[self rootController] navigationController];
+//    UINavigationController *navController = [[self rootController] navigationController];
     if (![[navController viewControllers] containsObject:oldController]) {
       [controllerStack removeObject:oldController];
       [current setTab:nil];
@@ -711,7 +711,7 @@
   [super willChangeSize];
 
   //TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
-  for (UIViewController *thisController in [controller viewControllers]) {
+  for (UIViewController *thisController in [navController viewControllers]) {
     if ([thisController isKindOfClass:[TiViewController class]]) {
       TiViewProxy *thisProxy = [(TiViewController *)thisController proxy];
       [thisProxy willChangeSize];
@@ -724,7 +724,7 @@
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
   TiThreadPerformOnMainThread(^{
-    [controller popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
+    [navController popToRootViewControllerAnimated:[TiUtils boolValue:@"animated" properties:args def:NO]];
   },
       YES);
 }
@@ -769,7 +769,7 @@
 
 - (TiOrientationFlags)orientationFlags
 {
-  UIViewController *modalController = [controller presentedViewController];
+  UIViewController *modalController = [navController presentedViewController];
   if ([modalController conformsToProtocol:@protocol(TiOrientationController)]) {
     return [(id<TiOrientationController>)modalController orientationFlags];
   }

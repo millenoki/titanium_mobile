@@ -193,9 +193,6 @@
           font = [[UIFont fontWithName:family size:self.size] retain];
         }
       }
-      if (foundFontName != nil) {
-        break;
-      }
     }
     if (font == nil) {
       //NO valid family specified. Just check for characteristics. Semi bold is ignored here.
@@ -230,55 +227,26 @@
         }
       } else if (self.isItalicStyle) {
         font = [[UIFont italicSystemFontOfSize:self.size] retain];
-      } else {
-        font = [[UIFont systemFontOfSize:self.size] retain];
+      } else if ([TiUtils isIOSVersionOrGreater:@"8.2"]) {
+        if (self.isSemiboldWeight) {
+          font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
+        } else if (self.isThinWeight) {
+          font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightThin] retain];
+        } else if (self.isLightWeight) {
+          font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightLight] retain];
+        } else if (self.isUltraLightWeight) {
+          font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightUltraLight] retain];
+        } else {
+          font = [[UIFont systemFontOfSize:self.size] retain];
+        }
       }
     }
-    if (foundFontName != nil) {
-      break;
-    }
   }
-  if (foundFontName != nil) {
-    font = [[UIFont fontWithName:foundFontName size:self.size] retain];
-  } else {
-    font = [theFont retain];
-  }
-}
-else
-{
-  font = [theFont retain];
-}
-}
-else if (self.isItalicStyle)
-{
-  font = [[UIFont italicSystemFontOfSize:self.size] retain];
-}
-else if ([TiUtils isIOSVersionOrGreater:@"8.2"])
-{
-  if (self.isSemiboldWeight) {
-    font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightSemibold] retain];
-  } else if (self.isThinWeight) {
-    font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightThin] retain];
-  } else if (self.isLightWeight) {
-    font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightLight] retain];
-  } else if (self.isUltraLightWeight) {
-    font = [[UIFont systemFontOfSize:self.size weight:UIFontWeightUltraLight] retain];
-  } else {
+  // WORST-CASE-SCENARIO
+  if (font == nil) {
     font = [[UIFont systemFontOfSize:self.size] retain];
   }
-}
-else
-{
-  font = [[UIFont systemFontOfSize:self.size] retain];
-}
-}
-}
-}
-// WORST-CASE-SCENARIO
-if (font == nil) {
-  font = [[UIFont systemFontOfSize:self.size] retain];
-}
-return font;
+  return font;
 }
 
 - (BOOL)updateWithDict:(NSDictionary *)fontDict inherits:(WebFont *)inheritedFont;
@@ -424,20 +392,20 @@ return font;
           didChange = YES;
           self.isSemiboldWeight = isSemiboldBool;
         }
-        BOOL isThinWeight = inheritedFont.isThinWeight;
-        if (self.isThinWeight != isThinWeight) {
+        BOOL thinWeight = inheritedFont.isThinWeight;
+        if (self.isThinWeight != thinWeight) {
           didChange = YES;
-          self.isThinWeight = isThinWeight;
+          self.isThinWeight = thinWeight;
         }
-        BOOL isLightWeight = inheritedFont.isLightWeight;
-        if (self.isLightWeight != isLightWeight) {
+        BOOL lightWeight = inheritedFont.isLightWeight;
+        if (self.isLightWeight != lightWeight) {
           didChange = YES;
-          self.isLightWeight = isLightWeight;
+          self.isLightWeight = lightWeight;
         }
-        BOOL isUltraLightWeight = inheritedFont.isUltraLightWeight;
-        if (self.isUltraLightWeight != isUltraLightWeight) {
+        BOOL ultraLightWeight = inheritedFont.isUltraLightWeight;
+        if (self.isUltraLightWeight != ultraLightWeight) {
           didChange = YES;
-          self.isUltraLightWeight = isUltraLightWeight;
+          self.isUltraLightWeight = ultraLightWeight;
         }
       }
 
@@ -496,39 +464,40 @@ return font;
         self.isNormalStyle = isNormal;
       }
     }
-
-    return didChange;
   }
 
-  +(WebFont *)defaultBoldFont
-  {
-    WebFont *result = [[self alloc] init];
-    result.size = [UIFont labelFontSize];
-    result.isBoldWeight = YES;
-    return [result autorelease];
-  }
+  return didChange;
+}
 
-  +(WebFont *)defaultItalicFont
-  {
-    WebFont *result = [[self alloc] init];
-    result.size = [UIFont labelFontSize];
-    result.isItalicStyle = YES;
-    return [result autorelease];
-  }
++ (WebFont *)defaultBoldFont
+{
+  WebFont *result = [[self alloc] init];
+  result.size = [UIFont labelFontSize];
+  result.isBoldWeight = YES;
+  return [result autorelease];
+}
 
-  +(WebFont *)defaultFont
-  {
-    WebFont *result = [[self alloc] init];
-    result.size = [UIFont labelFontSize];
-    return [result autorelease];
-  }
++ (WebFont *)defaultItalicFont
+{
+  WebFont *result = [[self alloc] init];
+  result.size = [UIFont labelFontSize];
+  result.isItalicStyle = YES;
+  return [result autorelease];
+}
 
-  +(WebFont *)fontWithName : (NSString *)name
-  {
-    WebFont *result = [[[self alloc] init] autorelease];
-    result.family = [[name copy] autorelease];
-    result.size = [UIFont labelFontSize];
-    return result;
-  }
++ (WebFont *)defaultFont
+{
+  WebFont *result = [[self alloc] init];
+  result.size = [UIFont labelFontSize];
+  return [result autorelease];
+}
 
-  @end
++ (WebFont *)fontWithName:(NSString *)name
+{
+  WebFont *result = [[[self alloc] init] autorelease];
+  result.family = [[name copy] autorelease];
+  result.size = [UIFont labelFontSize];
+  return result;
+}
+
+@end
