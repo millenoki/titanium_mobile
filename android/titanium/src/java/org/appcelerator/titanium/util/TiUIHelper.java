@@ -541,6 +541,19 @@ public class TiUIHelper
         tv.setTextSize(desc.sizeUnit, desc.size);
 	}
 
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight)
+	{
+		styleText(tv, fontFamily, fontSize, fontWeight, null);
+	}
+
+	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
+	{
+		Typeface tf = tv.getTypeface();
+		tf = toTypeface(tv.getContext(), fontFamily);
+		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
+		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
+	}
+
 	public static boolean isAndroidTypeface(String fontFamily)
 	{
 		if (fontFamily != null) {

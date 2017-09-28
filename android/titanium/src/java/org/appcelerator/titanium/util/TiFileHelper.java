@@ -486,6 +486,22 @@ public class TiFileHelper implements Handler.Callback
 //	}
 
 	/**
+	 * This is a wrapper method.
+	 * Refer to {@link #loadDrawable(String, boolean, boolean)} for more details.
+	 * @param path  url of the Drawable
+	 * @param report  this is not being used.
+	 * @return a Drawable instance.
+	 */
+	public Drawable loadDrawable(String path, boolean report) {
+		return loadDrawable(path, report, false);
+	}
+
+	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
+	{
+		return loadDrawable(path, report, checkForNinePatch, true);
+	}
+
+	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable
 	 * if checkForNinePatch param is true.
 	 * @param path  the path/url of the Drawable 
