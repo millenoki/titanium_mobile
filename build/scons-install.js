@@ -4,7 +4,7 @@
 const os = require('os'),
 	path = require('path'),
 	program = require('commander'),
-	appc = require('node-appc');
+	appc = require('node-appc'),
 	version = require('../package.json').version + '.AKYLAS';
 
 program
@@ -39,7 +39,7 @@ function install(versionTag, next) {
 	const zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-    fs.removeSync(path.join(dest, 'mobilesdk', osName, versionTag));
+	fs.removeSync(path.join(dest, 'mobilesdk', osName, versionTag));
 	appc.zip.unzip(zipfile, dest, {}, next);
 }
 
