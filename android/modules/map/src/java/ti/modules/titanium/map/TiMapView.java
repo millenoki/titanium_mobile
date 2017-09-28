@@ -133,7 +133,7 @@ public class TiMapView extends TiUIView
 				switch (actionType) {
 					case MotionEvent.ACTION_DOWN:
 						Message msg = handler.obtainMessage(MSG_EVENT_LONG_PRESS);
-						msg.obj = dictFromEvent(ev);
+						msg.obj = dictFromMotionEvent(ev);
 						longClickXCoordinate = ev.getX();
 						longClickYCoordinate = ev.getY();
 						handler.sendMessageDelayed(msg, MIN_MILLISECONDS_FOR_LONG_CLICK);
@@ -516,6 +516,7 @@ public class TiMapView extends TiUIView
 			public void onStart(Activity activity) {}
 			public void onStop(Activity activity) {}
 			public void onCreate(Activity activity, Bundle savedInstanceState) {}
+			public void onLowMemory(Activity activity){}
 		});
 		view.setBuiltInZoomControls(true);
 		view.setScrollable(true);
@@ -784,7 +785,7 @@ public class TiMapView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
 		LocalMapView view = getView();
 		if (d.containsKey(TiC.PROPERTY_MAP_TYPE)) {
@@ -797,13 +798,13 @@ public class TiMapView extends TiUIView
 			view.setScrollable(TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_ENABLED));
 		}
 		if (d.containsKey(TiC.PROPERTY_REGION)) {
-			doSetLocation(d.getKrollDict(TiC.PROPERTY_REGION));
+			doSetLocation(TiConvert.toKrollDict(d, TiC.PROPERTY_REGION, null));
 		}
 		if (d.containsKey(TiC.PROPERTY_REGION_FIT)) {
-			regionFit = d.getBoolean(TiC.PROPERTY_REGION_FIT);
+			regionFit = TiConvert.toBoolean(d, TiC.PROPERTY_REGION_FIT);
 		}
 		if (d.containsKey(TiC.PROPERTY_USER_LOCATION)) {
-			doUserLocation(d.getBoolean(TiC.PROPERTY_USER_LOCATION));
+			doUserLocation(TiConvert.toBoolean(d, TiC.PROPERTY_USER_LOCATION));
 		}
 		if (d.containsKey(TiC.PROPERTY_ANNOTATIONS)) {
 			proxy.setProperty(TiC.PROPERTY_ANNOTATIONS, d.get(TiC.PROPERTY_ANNOTATIONS));

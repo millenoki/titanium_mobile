@@ -28,7 +28,6 @@ import android.os.Message;
 import android.os.Bundle;
 import android.view.Window;
 
-@SuppressWarnings("deprecation")
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
 	TiC.PROPERTY_ANNOTATIONS,
 	TiC.PROPERTY_MAP_TYPE,
@@ -37,7 +36,7 @@ import android.view.Window;
 	TiC.PROPERTY_USER_LOCATION,
 	TiC.PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP
 })
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
 public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 {
 	private static LocalActivityManager lam;
@@ -129,6 +128,12 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 						lam = null;
 					}
 				}
+
+				@Override
+				public void onLowMemory(Activity activity)
+				{
+				}
+
 			};
 			TiApplication.getInstance().getRootActivity().addOnLifecycleEventListener(rootLifecycleListener);
 			lam = new LocalActivityManager(rootActivity, true);
