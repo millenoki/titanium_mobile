@@ -332,7 +332,7 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public String getCarrierName()
 	{
-		TelephonyManager manager = (TelephonyManager)TiApplication.getInstance().getRootActivity().getSystemService(Context.TELEPHONY_SERVICE);
+		TelephonyManager manager = (TelephonyManager)TiApplication.getAppContext().getSystemService(Context.TELEPHONY_SERVICE);
 		if (manager != null) {
 			manager.getNetworkOperatorName();
 		}
@@ -344,9 +344,8 @@ public class NetworkModule extends KrollModule {
 	public Boolean getWifiEnabled()
 	{
 		Boolean result = false;
-		TiApplication tiApp = TiApplication.getInstance();
-
-		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getAppContext();
+		if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
 			WifiManager wm = getWifiManager();
 			if (wm != null) {
 				result = wm.isWifiEnabled();
@@ -374,8 +373,8 @@ public class NetworkModule extends KrollModule {
 	public void closeWifiAccessPoint() {
 		WifiConfiguration currentConf = getCurrentWifiApConfiguration();
 		if (currentConf != null) {
-			TiApplication tiApp = TiApplication.getInstance();
-			if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+			Context context = TiApplication.getAppContext();
+			if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
 	            WifiManager wm = getWifiManager();
 				if (wm != null) {
 					Method[] wmMethods = wm.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
@@ -426,8 +425,8 @@ public class NetworkModule extends KrollModule {
 	
 	@Kroll.method
 	public void createWifiAccessPoint(String ssid, String pwd) {
-		TiApplication tiApp = TiApplication.getInstance();
-		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getAppContext();
+		if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
             WifiManager wm = getWifiManager();
 			if (wm != null) {
 				if(wm.isWifiEnabled())
@@ -500,8 +499,8 @@ public class NetworkModule extends KrollModule {
 	
 	private WifiConfiguration getCurrentWifiApConfiguration() {
 		WifiConfiguration result = null;
-		TiApplication tiApp = TiApplication.getInstance();
-		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+		Context context = TiApplication.getAppContext();
+		if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
             WifiManager wm = getWifiManager();
 			if (wm != null) {
 				Method[] wmMethods = wm.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
@@ -624,10 +623,9 @@ public class NetworkModule extends KrollModule {
 	@Kroll.setProperty @Kroll.method
 	public void setWifiEnabled(Boolean enabled)
 	{
-		TiApplication tiApp = TiApplication.getInstance();
-
-		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+		Context context = TiApplication.getAppContext();
+		if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+			WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wm != null) {
 				wm.setWifiEnabled(enabled);
 			}
@@ -718,9 +716,9 @@ public class NetworkModule extends KrollModule {
 	}
 	
 	private WifiManager getWifiManager() {
-        TiApplication tiApp = TiApplication.getInstance();
-	    if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-            return (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+		Context context = TiApplication.getAppContext();
+		if(context != null && context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
+            return (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 	    }
 	    return null;
 	}
