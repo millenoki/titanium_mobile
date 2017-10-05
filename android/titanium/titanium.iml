@@ -15,9 +15,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="appcompat" />
-    <orderEntry type="module" module-name="common" />
-    <orderEntry type="module" module-name="kroll-apt" />
-    <orderEntry type="library" name="common" level="project" />
+    <orderEntry type="module" module-name="appcompat" exported="" />
+    <orderEntry type="module" module-name="common" exported="" />
+    <orderEntry type="module" module-name="kroll-apt" exported="" />
+    <orderEntry type="library" exported="" name="common" level="project" />
+    <orderEntry type="module" module-name="design" exported="" />
+    <orderEntry type="module" module-name="cardview" exported="" />
   </component>
 </module>

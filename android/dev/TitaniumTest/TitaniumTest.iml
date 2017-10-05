@@ -13,11 +13,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="common" />
     <orderEntry type="module" module-name="v8" />
     <orderEntry type="module" module-name="titanium" />
     <orderEntry type="module" module-name="platform" />
-    <orderEntry type="module" module-name="appcompat" />
     <orderEntry type="module" module-name="calendar" />
     <orderEntry type="module" module-name="ui" />
     <orderEntry type="module" module-name="utils" />

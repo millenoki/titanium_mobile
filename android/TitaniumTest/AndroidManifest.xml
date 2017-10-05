@@ -5,7 +5,7 @@
     android:versionName="1" >
 
     <uses-sdk
-        android:minSdkVersion="9"
+        android:minSdkVersion="21"
         android:targetSdkVersion="23" />
     
 <!--     <supports-screens android:anyDensity="true"
@@ -29,7 +29,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     
@@ -69,9 +68,6 @@
          <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyA4DiNxX9WbOV6anySJHjGeyW9CJf3AhZ0" />
-         <activity android:name="com.google.android.gms.ads.AdActivity"
-                   android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-                   android:theme="@style/Theme.Titanium.Translucent" />
 
         <!-- 
      		<receiver android:name="ti.modules.titanium.android.BootUpReceiver"
@@ -169,7 +165,6 @@
         </receiver>
         <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerService"/>
         <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerExoService"/>
-        <service android:name="akylas.triton.TritonAudioService"/>
         </application>
 
     <!-- TI_PERMISSIONS -->

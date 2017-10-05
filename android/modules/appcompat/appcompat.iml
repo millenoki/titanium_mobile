@@ -16,6 +16,5 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="support" level="project" />
     <orderEntry type="module" module-name="compat" exported="" />
-    <orderEntry type="module" module-name="design" exported="" />
   </component>
 </module>

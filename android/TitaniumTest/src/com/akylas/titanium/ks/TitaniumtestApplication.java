@@ -41,12 +41,9 @@ public final class TitaniumtestApplication extends TiApplication {
                 put("akylas.slidemenu", new Class[] {
                         akylas.slidemenu.AkylasSlidemenuBootstrap.class,
                         akylas.slidemenu.AkylasSlidemenuModule.class });
-                put("akylas.charts", new Class[] {
-                        akylas.charts.AkylasChartsBootstrap.class,
-                        akylas.charts.AkylasChartsModule.class });
-//                put("akylas.bluetooth", new Class[] {
-//                        akylas.bluetooth.AkylasBluetoothBootstrap.class,
-//                        akylas.bluetooth.AkylasBluetoothModule.class });
+                put("akylas.bluetooth", new Class[] {
+                        akylas.bluetooth.AkylasBluetoothBootstrap.class,
+                        akylas.bluetooth.AkylasBluetoothModule.class });
             }
         };
         V8Runtime runtime = new V8Runtime();
@@ -60,6 +57,8 @@ public final class TitaniumtestApplication extends TiApplication {
         }
         runtime.addExternalCommonJsModule("akylas.commonjs",
                 akylas.commonjs.CommonJsSourceProvider.class);
+
+
         // Custom modules
         KrollModuleInfo moduleInfo;
 

@@ -18,9 +18,7 @@
     <orderEntry type="module" module-name="filesystem" />
     <orderEntry type="module" module-name="media" />
     <orderEntry type="module" module-name="titanium" />
-    <orderEntry type="module" module-name="common" />
-    <orderEntry type="module" module-name="kroll-apt" />
-    <orderEntry type="module" module-name="appcompat" />
+    <orderEntry type="library" name="UI" level="project" />
     <orderEntry type="module" module-name="cardview" />
   </component>
 </module>

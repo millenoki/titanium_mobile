@@ -1,11 +1,16 @@
 <component name="libraryTable">
   <library name="common">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/titanium/lib/nineoldandroids-appc-2.4.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/titanium/lib/ti-commons-codec-1.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/titanium/lib/aps-analytics.jar!/" />
       <root url="jar://$PROJECT_DIR$/titanium/lib/android-support-multidex.jar!/" />
       <root url="jar://$PROJECT_DIR$/titanium/lib/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/gifdrawable.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/gpuimage-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/okhttp-2.7.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/okio-1.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/picasso.jar!/" />
+      <root url="jar://$PROJECT_DIR$/titanium/lib/bypass.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -16,7 +16,5 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="titanium" />
-    <orderEntry type="module" module-name="common" />
-    <orderEntry type="module" module-name="kroll-apt" />
   </component>
 </module>

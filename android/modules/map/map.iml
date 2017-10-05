@@ -16,9 +16,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="titanium" />
-    <orderEntry type="module" module-name="common" />
-    <orderEntry type="module" module-name="kroll-apt" />
     <orderEntry type="library" name="maps" level="project" />
-    <orderEntry type="module" module-name="appcompat" />
   </component>
 </module>
