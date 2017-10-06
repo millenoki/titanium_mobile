@@ -1108,7 +1108,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// 3. assign module.exports as JSON.parse call on the JSON
 	data = [@"module.exports = " stringByAppendingString:data];
 	// 4. Replace newlines with "' +\n'"
-	data = [data stringByReplacingOccurrencesOfString:@"\n" withString:@"' +\n'"];
+	// data = [data stringByReplacingOccurrencesOfString:@"\n" withString:@"' +\n'"];
 	// 5. close the JSON string and end the JSON.parse call
 	data = [data stringByAppendingString:@";"];
 
