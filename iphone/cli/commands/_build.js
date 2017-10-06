@@ -5129,7 +5129,7 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
 }
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
-		jsonPackageTitanium = fs.existsSync('package.json') &&  JSON.parse(fs.readFileSync('package.json')).titanium
+		jsonPackageTitanium = fs.existsSync(path.join(this.projectDir, 'package.json')) &&  JSON.parse(fs.readFileSync(path.join(this.projectDir, 'package.json'))).titanium
 		useAppThinning = this.useAppThinning,
 
 		appIcon = this.tiapp.icon.match(filenameRegExp),
