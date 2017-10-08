@@ -169,6 +169,9 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	}
 
 	Local<Message> message = tryCatch.Message();
+	if (message.IsEmpty()) {
+		return;
+	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
