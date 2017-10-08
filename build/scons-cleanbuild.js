@@ -4,6 +4,7 @@
 const os = require('os'),
 	path = require('path'),
 	async = require('async'),
+	fs = require('fs-extra'),
 	program = require('commander'),
 	packageJSON = require('../package.json'),
 	version = packageJSON.version + '.AKYLAS',

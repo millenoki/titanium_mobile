@@ -3,6 +3,7 @@
 
 const os = require('os'),
 	path = require('path'),
+	fs = require('fs-extra'),
 	program = require('commander'),
 	appc = require('node-appc'),
 	version = require('../package.json').version + '.AKYLAS';
