@@ -375,19 +375,22 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 		// Array and expose it on kroll above in nativeInit, and
 		// module.js will insert module contexts into this array in
 		// Module.prototype._runScript
-		uint32_t length = V8Runtime::ModuleContexts()->Length();
-		for (uint32_t i = 0; i < length; ++i) {
-			Local<Value> moduleContext = V8Runtime::ModuleContexts()->Get(i);
-
-			// WrappedContext is simply a C++ wrapper for the V8 Context object,
-			// and is used to expose the Context to javascript. See ScriptsModule for
-			// implementation details
-			WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.As<Object>());
-			ASSERT(wrappedContext != NULL);
-
-			wrappedContext->Dispose();
+		Local<Array> moduleContexts = V8Runtime::ModuleContexts();
+		if (moduleContexts.IsEmpty()) {
+			uint32_t length = moduleContexts->Length();
+			for (uint32_t i = 0; i < length; ++i) {
+				Local<Value> moduleContext = moduleContexts->Get(i);
+	
+				// WrappedContext is simply a C++ wrapper for the V8 Context object,
+				// and is used to expose the Context to javascript. See ScriptsModule for
+				// implementation details
+				WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.As<Object>());
+				ASSERT(wrappedContext != NULL);
+	
+				wrappedContext->Dispose();
+			}
 		}
-
+		
 		// KrollBindings
 		KrollBindings::dispose(V8Runtime::v8_isolate);
 		EventEmitter::dispose();
