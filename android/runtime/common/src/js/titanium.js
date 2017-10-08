@@ -103,12 +103,6 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	// Object.defineProperty(this, "resourcesRelativePath", {
-	// 	get: function() {
-	// 		return self.resourcesRelativePath;
-	// 	}
-	// });
-
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
 		module: context.module,
