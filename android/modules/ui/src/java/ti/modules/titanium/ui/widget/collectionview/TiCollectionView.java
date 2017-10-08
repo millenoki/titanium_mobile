@@ -1661,8 +1661,8 @@ public class TiCollectionView extends TiUINonViewGroupView
     }
 
     private void setHeaderOrFooterView(Object viewObj, boolean isHeader) {
-        KrollProxy viewProxy = proxy.addProxyToHold(viewObj,
-                isHeader ? "headerView" : "footerView", false, true);
+        final String key = isHeader ? "headerView" : "footerView";
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, key, false, true);
         if (viewProxy instanceof TiViewProxy) {
             if (isHeader) {
                 getOrCreateHeaderWrapperView().add(viewProxy, 1);
