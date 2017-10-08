@@ -1,7 +1,7 @@
 # Main NDK build script for <%- MODULE_ID %>
 
 APP_BUILD_SCRIPT := jni/Android.mk
-TARGET_PLATFORM := android-21
+TARGET_PLATFORM := android-16
 APP_STL := c++_shared
 APP_ABI := <%- ARCHITECTURES %>
 
@@ -9,4 +9,4 @@ APP_CPPFLAGS += -fno-rtti
 APP_CPPFLAGS += -fexceptions
 
 NDK_TOOLCHAIN_VERSION=4.9
-APP_PLATFORM := android-21
+APP_PLATFORM := android-16
