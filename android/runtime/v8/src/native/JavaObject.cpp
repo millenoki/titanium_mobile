@@ -200,6 +200,7 @@ void JavaObject::MakeJavaWeak()
 		ASSERT(javaObject_ != NULL);
 		// Convert our global ref to a weak global ref
 		jweak weakRef = env->NewWeakGlobalRef(javaObject_);
+		JNIUtil::removePointer(javaObject_);
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = weakRef;
 	} else {
@@ -214,20 +215,19 @@ void JavaObject::MakeJavaWeak()
 void JavaObject::DeleteJavaRef()
 {
 	if (useGlobalRefs) {
-		LOGD(TAG, "Deleting global ref");
 		JNIEnv *env = JNIUtil::getJNIEnv();
 		ASSERT(env != NULL);
 		ASSERT(javaObject_ != NULL);
+
 		// Wipe the V8Object ptr value back to 0, to denote that the native C++ proxy is gone
-		JNIUtil::removePointer(javaObject_);
 		if (isWeakRef_) {
 			env->DeleteWeakGlobalRef(javaObject_);
 		} else {
+			JNIUtil::removePointer(javaObject_);
 			env->DeleteGlobalRef(javaObject_);
 		}
 		javaObject_ = NULL;
 	} else {
-		LOGD(TAG, "Deleting ref in ReferenceTable for key: %d, pointer: %p", refTableKey_, this);
 		ReferenceTable::destroyReference(refTableKey_); // Kill the Java side
 		refTableKey_ = 0; // throw away the key
 	}
