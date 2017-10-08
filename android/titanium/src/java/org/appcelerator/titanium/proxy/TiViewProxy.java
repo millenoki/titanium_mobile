@@ -723,7 +723,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (enableModelListener)
 		{
-		setModelListener(view);
+		    setModelListener(view);
 		}
 		else if (processProperties)
 		{
@@ -742,13 +742,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		        for (KrollProxy p : children) {
                     if (p instanceof TiViewProxy) {
                         TiUIView cv = ((TiViewProxy) p).getOrCreateView(enableModelListener, processProperties);
-					view.add(cv);
+                        view.add(cv);
                         if (p instanceof TiWindowProxy && !((TiWindowProxy)p).isOpenedOrOpening()) {
                             ((TiWindowProxy)p).onWindowActivityCreated();
                             ((TiViewProxy) p).focus();
-				}
-			}
-		}
+                        }
+                    }
+		        }
 	        }
 		}
 		viewDidRealize(enableModelListener, processProperties);
