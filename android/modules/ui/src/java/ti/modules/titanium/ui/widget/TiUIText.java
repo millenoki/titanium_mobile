@@ -30,8 +30,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -91,7 +91,7 @@ public class TiUIText extends TiUINonViewGroupView
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
 
-	public class TiEditText extends AppCompatEditText 
+	public class TiEditText extends TextInputEditText 
 	{
 		
 		public TiEditText(Context context) 
@@ -484,16 +484,18 @@ public class TiUIText extends TiUINonViewGroupView
             maxLength = TiConvert.toInt(newValue, -1);
             if (changedProperty) {
 			//truncate if current text exceeds max length
-                Editable currentText = getEditText().getText();
-			if (maxLength >= 0 && currentText.length() > maxLength) {
-				CharSequence truncateText = currentText.subSequence(0, maxLength);
-                    int cursor = getEditText().getSelectionStart() - 1;
-				if (cursor > maxLength) {
-					cursor = maxLength;
-				}
-                    getEditText().setText(truncateText);
-                    getEditText().setSelection(cursor);
-			}
+                Editable currentText = realtv.getText();
+                if (maxLength >= 0 && currentText.length() > maxLength) {
+                    CharSequence truncateText = currentText.subSequence(0, maxLength);
+                    int cursor = realtv.getSelectionStart() - 1;
+                    if (cursor > maxLength) {
+                        cursor = maxLength;
+                    }
+                    realtv.setText(truncateText);
+                    if (realtv.isTextSelectable()) {
+                        realtv.setSelection(cursor);
+                    }
+                }
 			}
             break;
         case TiC.PROPERTY_SUPPRESS_RETURN:
@@ -514,25 +516,29 @@ public class TiUIText extends TiUINonViewGroupView
         case TiC.PROPERTY_ATTRIBUTED_STRING:
             if (newValue instanceof AttributedStringProxy) {
                 disableChangeEvent = !changedProperty;
-                getEditText().setText(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));
-                int pos = getEditText().getText().length();
-                getEditText().setSelection(pos);
+                realtv.setText(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));
+                if (realtv.isTextSelectable()) {
+                    int pos = realtv.getText().length();
+                    realtv.setSelection(pos);
+                }
                 disableChangeEvent = false;
 			}
             break;    
         case TiC.PROPERTY_VALUE:
             disableChangeEvent = !changedProperty;
-            getEditText().setText(TiConvert.toString(newValue));
-            int pos = getEditText().getText().length();
-            getEditText().setSelection(pos);
+            realtv.setText(TiConvert.toString(newValue));
+            if (realtv.isTextSelectable()) {
+                int pos = realtv.getText().length();
+                realtv.setSelection(pos);
+            }
             disableChangeEvent = false;
             break;
         case TiC.PROPERTY_ELLIPSIZE:
-            getEditText().setEllipsize(TiConvert.toBoolean(newValue)?TruncateAt.END:null);
+            realtv.setEllipsize(TiConvert.toBoolean(newValue)?TruncateAt.END:null);
             break;
         case TiC.PROPERTY_HINT_TEXT_COLOR:
         case TiC.PROPERTY_HINT_COLOR:
-            getEditText().setHintTextColor(TiConvert.toColor(newValue, Color.GRAY));
+            realtv.setHintTextColor(TiConvert.toColor(newValue, Color.GRAY));
             break;
         case TiC.PROPERTY_AUTOCORRECT:
             autocorrect = TiConvert.toBoolean(newValue, true)?InputType.TYPE_TEXT_FLAG_AUTO_CORRECT:0;
@@ -641,7 +647,9 @@ public class TiUIText extends TiUINonViewGroupView
 				cursor = maxLength;
 			}
 			realtv.setText(newText); // This method will invoke onTextChanged() and afterTextChanged().
-			realtv.setSelection(cursor);
+            if (realtv.isTextSelectable()) {
+                realtv.setSelection(cursor);
+            }
 		} else {
 			isTruncatingText = false;
 		}
@@ -664,7 +672,7 @@ public class TiUIText extends TiUINonViewGroupView
 	    if (disableChangeEvent
 //	            || realtv.willMaskText()
 	            ) {
-	        Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
+//	        Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
 	        return;
 	    }
 		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
