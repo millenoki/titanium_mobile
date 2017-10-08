@@ -25,12 +25,14 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.SparseArray;
 
+@SuppressLint("NewApi")
 @Kroll.module @ContextSpecific
 public class ContactsModule extends KrollModule
 		implements TiActivityResultHandler
@@ -68,7 +70,7 @@ public class ContactsModule extends KrollModule
 		return contactsApi.hasContactsPermissions();
 	}
 
-	@Kroll.method
+    @Kroll.method
 	public void requestContactsPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
