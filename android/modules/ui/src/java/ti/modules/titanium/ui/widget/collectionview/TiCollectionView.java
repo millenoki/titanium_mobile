@@ -658,7 +658,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             }
             if (!section.hasHeader()
                     && childPosition == RecyclerView.NO_POSITION) {
-                return SECTION_NO_HEADER_VIEW_TYPE;
+                return FlexibleAdapter.SECTION_NO_HEADER_VIEW_TYPE;
             }
             final String templateText = section
                     .getTemplateByIndex(childPosition);
