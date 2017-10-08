@@ -45,6 +45,7 @@ import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.view.View;
 import android.webkit.URLUtil;
 import pl.droidsonroids.gif.GifDrawable;
@@ -55,10 +56,10 @@ import pl.droidsonroids.gif.GifDrawable;
 @SuppressWarnings("deprecation")
 public class TiDrawableReference
 {
-	private static Map<Integer, Bounds> boundsCache;
+	private static SparseArray<Bounds> boundsCache;
 	static
 	{
-		boundsCache = Collections.synchronizedMap(new HashMap<Integer, Bounds>());
+		boundsCache = new SparseArray<Bounds>();
 	}
 
 	public enum DrawableReferenceType
@@ -967,11 +968,14 @@ public class TiDrawableReference
 	public Bounds peekBounds()
 	{
 		int hash = this.hashCode();
-		if (boundsCache.containsKey(hash)) {
-			return boundsCache.get(hash);
+		Bounds bounds = boundsCache.get(hash);
+		if (bounds != null) {
+			return bounds;
 		}
-		Bounds bounds = new Bounds();
-		if (isTypeNull()) { return bounds; }
+		bounds = new Bounds();
+		if (isTypeNull()) { 
+		    return bounds; 
+		}
 
 		InputStream stream = null;
 		try {

@@ -81,6 +81,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -106,7 +107,7 @@ public class TiCollectionView extends TiUINonViewGroupView
     private AtomicInteger itemTypeCount;
     private String defaultTemplateBinding;
     private HashMap<String, TiAbsListViewTemplate> templatesByBinding;
-    private HashMap<Integer, TiAbsListViewTemplate> templatesByType;
+    private SparseArray<TiAbsListViewTemplate> templatesByType;
     public static int listContentId = 24123;
     public static int isCheck;
     public static int hasChild;
@@ -331,7 +332,6 @@ public class TiCollectionView extends TiUINonViewGroupView
             super(content);
             itemContent = (TiBaseAbsListViewItem) content
                     .findViewById(listContentId);
-
         }
 
         public void prepareForReuse() {
@@ -435,6 +435,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
 
         public RecyclerView.ViewHolder createViewHolder(ViewGroup parent,
+                int viewType,
                 TiAbsListViewTemplate template) {
 
             TiBaseAbsListViewItem itemContent = null;
@@ -509,21 +510,18 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         public RecyclerView.ViewHolder onCreateSectionHeaderViewHolder(
                 ViewGroup parent, int viewType) {
-            
+       
             if (viewType == CUSTOM_PROXY_ITEM_TYPE) {
-                return createViewHolder(parent, null);
+                return createViewHolder(parent, viewType, null);
 
             }
-            if (templatesByType.containsKey(viewType)) {
-                return createViewHolder(parent, templatesByType.get(viewType));
-            }
-            return null;
+            return createViewHolder(parent, viewType, templatesByType.get(viewType));
         }
 
         @Override
         public ViewHolder onCreateSectionChildViewHolder(ViewGroup parent,
                 int viewType) {
-            return createViewHolder(parent, templatesByType.get(viewType));
+            return createViewHolder(parent, viewType, templatesByType.get(viewType));
 
         }
 
@@ -1748,7 +1746,7 @@ public class TiCollectionView extends TiUINonViewGroupView
 
     protected void processTemplates(HashMap<String, Object> templates) {
         templatesByBinding = new HashMap<String, TiAbsListViewTemplate>();
-        templatesByType = new HashMap<Integer, TiAbsListViewTemplate>();
+        templatesByType = new SparseArray<TiAbsListViewTemplate>();
 
         templatesByBinding.put(defaultTemplateKey, defaultTemplate);
         templatesByType.put(defaultTemplate.getType(), defaultTemplate);
@@ -1762,9 +1760,12 @@ public class TiCollectionView extends TiUINonViewGroupView
                             (HashMap) templates.get(key));
                     TiAbsListViewTemplate template = new TiAbsListViewTemplate(
                             key, properties);
-                    template.setType(getItemType());
+                    final int type = getItemType();
+                    template.setType(type);
                     templatesByBinding.put(key, template);
-                    templatesByType.put(template.getType(), template);
+                    templatesByType.put(type, template);
+                    mRecyclerView.getRecycledViewPool().setMaxRecycledViews(type, 20);
+
                 } else {
                     Log.e(TAG, "null template definition: " + key);
                 }

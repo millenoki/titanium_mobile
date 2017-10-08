@@ -150,7 +150,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
     protected TiWeakList<OrientationChangedListener> orientationChangedListeners = null;
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
 
-	private static HashMap<Integer, ArrayList<Object>> sPermissionCallback = new HashMap();
+	private static SparseArray<ArrayList<Object>> sPermissionCallback = new SparseArray();
     protected ViewGroup layout;
     protected TiCompositeLayout contentView;
 	protected TiActivitySupportHelper supportHelper;
@@ -878,18 +878,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
 		String permissions[], int[] grantResults) {
-	    if (sPermissionCallback.containsKey(requestCode)) {
-	        ArrayList<Object> callbacks = sPermissionCallback.get(requestCode);
+        ArrayList<Object> callbacks = sPermissionCallback.get(requestCode);
+	    if (callbacks != null) {
 	        for (Object command : callbacks) {
 	            if (command instanceof PermissionCallback) {
 	                ((PermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
 	            } else if (command instanceof  KrollPermissionCallback) {
                     ((KrollPermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
-			}
-		}
+	            }
+	        }
 	        sPermissionCallback.remove(requestCode);
+	    }
 	}
-		}
 
 	public void setFullscreen(boolean fullscreen)
 	{

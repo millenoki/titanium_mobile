@@ -20,7 +20,7 @@ import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Build;
+import android.util.SparseArray;
 
 /**
  * An implementation of {@link TiActivitySupport} interface.
@@ -32,13 +32,13 @@ public class TiActivitySupportHelper
 	private static final String TAG = "TiActivitySupportHelper";
 	
 	protected Activity activity;
-	protected HashMap<Integer, TiActivityResultHandler> resultHandlers;
+	protected SparseArray<TiActivityResultHandler> resultHandlers;
 	protected AtomicInteger uniqueResultCodeAllocator;
 
 	public TiActivitySupportHelper(Activity activity)
 	{
 		this.activity = activity;
-		resultHandlers = new HashMap<Integer, TiActivityResultHandler>();
+		resultHandlers = new SparseArray<TiActivityResultHandler>();
 		uniqueResultCodeAllocator = new AtomicInteger(1); // start with non-zero
 	}
 

@@ -58,6 +58,8 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.Handler.Callback;
 import android.os.PowerManager.WakeLock;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.KeyEvent;
 
 import com.squareup.picasso.Cache;
@@ -381,7 +383,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         public static final int STATE_CONNECTING = 9;
     }
 
-    public static final HashMap<Integer, String> STATE_DESC = new HashMap<Integer, String>() {
+    public static final SparseArray<String> STATE_DESC = new SparseArray<String>() {
         {
             put(State.STATE_BUFFERING, "buffering");
             put(State.STATE_INITIALIZED, "initialized");
@@ -396,7 +398,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         }
     };
     
-    public static final HashMap<Integer, Integer> REMOTE_STATE = new HashMap<Integer, Integer>() {
+    public static final SparseIntArray REMOTE_STATE = new SparseIntArray() {
         {
             put(State.STATE_BUFFERING, RemoteControlClient.PLAYSTATE_BUFFERING);
             put(State.STATE_PAUSED, RemoteControlClient.PLAYSTATE_PAUSED);
@@ -2191,14 +2193,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             return;
         mState = state;
 
-        int remoteState = mRemoteControlClientState;
-        mStateDescription = "";
-        if (REMOTE_STATE.containsKey(state)) {
-            remoteState = REMOTE_STATE.get(state);
-        }
-        if (STATE_DESC.containsKey(state)) {
-            mStateDescription = STATE_DESC.get(state);
-        }
+        int remoteState = REMOTE_STATE.get(state, mRemoteControlClientState);
+        mStateDescription = STATE_DESC.get(state, "");
         if (mRemoteControlClientCompat != null
                 && mRemoteControlClientState != remoteState) {
             mRemoteControlClientState = remoteState;

@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.SparseArray;
 
 @Kroll.module @ContextSpecific
 public class ContactsModule extends KrollModule
@@ -49,7 +50,7 @@ public class ContactsModule extends KrollModule
 
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
-	private Map<Integer, Map<String, KrollFunction>> requests;
+	private SparseArray<Map<String, KrollFunction>> requests;
 
 	public ContactsModule()
 	{
@@ -167,7 +168,7 @@ public class ContactsModule extends KrollModule
 		int requestCode = requestCodeGen.getAndIncrement();
 
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String,KrollFunction>>();
+			requests = new SparseArray<Map<String,KrollFunction>>();
 		}
 		Map<String, KrollFunction> callbacks = new HashMap<String, KrollFunction>();
 		requests.put(new Integer(requestCode), callbacks);
@@ -203,9 +204,8 @@ public class ContactsModule extends KrollModule
 	public void onResult(Activity activity, int requestCode, int resultCode,
 			Intent data)
 	{
-		Integer rcode = new Integer(requestCode);
-		if (requests.containsKey(rcode)) {
-			Map<String, KrollFunction> request = requests.get(rcode);
+        Map<String, KrollFunction> request = requests.get(requestCode);
+		if (request != null) {
 			Log.d(TAG, "Received result from contact picker.  Result code: " + resultCode, Log.DEBUG_MODE);
 			if (resultCode == Activity.RESULT_CANCELED) {
 				if (request.containsKey("cancel")) {
@@ -230,7 +230,7 @@ public class ContactsModule extends KrollModule
 
 			// Teardown the request -- it's a one timer.
 			request.clear();
-			requests.remove(rcode);
+			requests.remove(requestCode);
 		}
 	}
 

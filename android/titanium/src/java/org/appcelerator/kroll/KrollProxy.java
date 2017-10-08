@@ -46,6 +46,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Bundle;
 import android.util.Pair;
+import android.util.SparseArray;
 
 import org.json.JSONObject;
 
@@ -100,7 +101,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected AtomicInteger listenerIdGenerator;
 
     protected Map<String, List<KrollDict>> evaluators;
-    protected Map<String, HashMap<Integer, Object>> eventListeners;
+    protected Map<String, ArrayList<Object>> eventListeners;
     protected KrollObject krollObject;
     protected boolean krollObjectSupported = false;
 	protected WeakReference<Activity> activity;
@@ -158,8 +159,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public KrollProxy(String baseCreationUrl) {
 		creationUrl = new TiUrl(baseCreationUrl);
 		this.listenerIdGenerator = new AtomicInteger(0);
-        this.eventListeners = Collections
-                .synchronizedMap(new HashMap<String, HashMap<Integer, Object>>());
+        this.eventListeners = Collections.synchronizedMap(new HashMap<String, ArrayList<Object>>());
 		this.langConversionTable = getLangConversionTable();
 	}
 
@@ -864,20 +864,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             propertiesToUpdateNativeSide  = props;
         }
     }   
-    public void internalUpdateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
+
+    public void internalUpdateKrollObjectProperties(
+            HashMap<String, Object> props, final boolean wait) {
+        long startTime = System.currentTimeMillis();
         if (wait && KrollRuntime.getInstance().isRuntimeThread()) {
             doUpdateKrollObjectProperties(props);
 
         } else {
             if (wait && !TiApplication.appRunOnMainThread()) {
-                Message msg = getRuntimeHandler().obtainMessage(
-                        MSG_UPDATE_KROLL_PROPERTIES);
+                Message msg = getRuntimeHandler()
+                        .obtainMessage(MSG_UPDATE_KROLL_PROPERTIES);
                 TiMessenger.sendBlockingRuntimeMessage(msg, props);
             } else {
                 Message message = getRuntimeHandler().obtainMessage(
                         MSG_UPDATE_KROLL_PROPERTIES, new HashMap(props));
                 message.sendToTarget();
             }
+        }
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - startTime;
+        if (diff > 20) {
+            Log.w(TAG, "propertySet " + diff + "ms");
         }
     }
 
@@ -1478,25 +1486,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 fireEventToParent(event, data);
 			}
             return true;
-					}
+		}
         final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
 //        
         if (isRuntimeThread) {
             doFireEvent(event, data, bubbles);
-				} else {
+		} else {
             Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT,
                     data);
             message.getData().putString(PROPERTY_NAME, event);
             message.getData().putBoolean(PROPERTY_BUBBLES, bubbles);
             message.sendToTarget();
-				}
+		}
         
         return true;
-			}
+	}
     
     public String getBindId() {
         return mBindId;
-			}
+	}
 
     public boolean doFireEvent(String event, Object data, boolean bubbles) {
         boolean reportSuccess = false;
@@ -1549,16 +1557,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //                        break;
                     case TiC.PROPERTY_SOURCE:
                         hashValue = entry.getValue();
-				if (hashValue != this) {
-					source = ((KrollProxy)hashValue).getKrollObject();
-				}
+        				if (hashValue != this) {
+        					source = ((KrollProxy)hashValue).getKrollObject();
+        				}
                         break;
                     default:
                         hashValue = entry.getValue();
                         if (hashValue instanceof KrollProxy) {
                             //make sure the kroll object exists
                             ((KrollProxy) hashValue).getKrollObject();
-			}
+                        }
                         break;
                     }
                 }
@@ -1614,32 +1622,26 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //                    }
 ////                    krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
 //                }
-			if (krollData.size() == 0){
-				krollData = null;
-			}
-		}
+    			if (krollData.size() == 0){
+    				krollData = null;
+    			}
+    		}
         }
 
         if (eventListeners != null && !eventListeners.isEmpty()) {
-            HashMap<Integer, Object> listeners = eventListeners
-                    .get(event);
+            ArrayList<Object> listeners = eventListeners.get(event);
             if (listeners != null) {
-                for (Integer listenerId : listeners.keySet()) {
-                    Object callback = listeners.get(listenerId);
+                for(int i = 0; i < listeners.size(); i++) {
+                    Object callback = listeners.get(i);
                     if (callback instanceof KrollEventCallback) {
                         ((KrollEventCallback) callback).call(data);
                     } else if (callback instanceof KrollFunction) {
                         ((KrollFunction) callback).call(getKrollObject(), (HashMap) data);
 //                        ((KrollEventCallback) callback).call(data);
-	}
+                    }
                 }
             }
         }
-
-        
-
-        
-
         return getKrollObject().fireEvent(source, event, krollData, bubbles,
                 reportSuccess, code, message);
     }
@@ -1675,10 +1677,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         } else {
             Message msg = getMainHandler().obtainMessage(
                     hasListeners ? MSG_LISTENER_ADDED : MSG_LISTENER_REMOVED);
-		msg.obj = event;
-		TiMessenger.getMainMessenger().sendMessage(msg);
-	}
-
+    		msg.obj = event;
+    		TiMessenger.getMainMessenger().sendMessage(msg);
+    	}
     }
 
 	/**
@@ -2122,10 +2123,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
 			}
 
-            HashMap<Integer, Object> listeners = eventListeners
-                    .get(eventName);
+            ArrayList<Object> listeners = eventListeners.get(eventName);
 			if (listeners == null) {
-                listeners = new HashMap<Integer, Object>();
+                listeners = new ArrayList<Object>();
 				eventListeners.put(eventName, listeners);
 			}
 
@@ -2133,8 +2133,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             //     Log.d(TAG, "Added for eventName '" + eventName + "' with id "
             //             + listenerId, Log.DEBUG_MODE);
             // }
-			listenerId = listenerIdGenerator.incrementAndGet();
-			listeners.put(listenerId, callback);
+//			listenerId = listenerIdGenerator.incrementAndGet();
+			listeners.add(callback);
             eventListenerAdded(eventName, listeners.size(), this);
 		}
 
@@ -2148,12 +2148,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		synchronized (eventListeners) {
-            HashMap<Integer, Object> listeners = eventListeners
-                    .get(eventName);
+		    ArrayList<Object> listeners = eventListeners.get(eventName);
 			if (listeners != null) {
                 listeners.remove(listenerId);
                 eventListenerRemoved(eventName, listeners.size(), this);
-				if (listeners.isEmpty()) {
+				if (listeners.size() == 0) {
 					eventListeners.remove(eventName);
 				}
 				if (eventListeners.isEmpty()) {
@@ -2166,17 +2165,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
     public void onEventFired(String event, Object data) {
-        // HashMap<Integer, KrollEventCallback> listeners =
-        // eventListeners.get(event);
-        // if (listeners != null) {
-        // for (Integer listenerId : listeners.keySet()) {
-        // KrollEventCallback callback = listeners.get(listenerId);
-        // if (callback != null) {
-        // callback.call(data);
-        // }
-        // }
-        // }
-				}
+
+	}
 
     public boolean hasNonJSEventListener(String event) {
         return eventListeners != null && eventListeners.containsKey(event)
@@ -2394,8 +2384,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public KrollProxy createProxyFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties) {
-        return createProxyFromTemplate(template_, rootProxy,
+        long startTime = System.currentTimeMillis();
+        KrollProxy result = createProxyFromTemplate(template_, rootProxy,
                 updateKrollProperties, true);
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - startTime;
+        if (diff > 20) {
+            Log.w(TAG, "createProxyFromTemplate " + diff + "ms");
+        }
+        return result;
     }
     
     private static final String DEFAULT_TEMPLATE_TYPE = "Ti.UI.View";

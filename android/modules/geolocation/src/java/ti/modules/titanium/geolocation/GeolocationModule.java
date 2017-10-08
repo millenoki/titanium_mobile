@@ -29,6 +29,7 @@ import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 import ti.modules.titanium.geolocation.android.LocationRuleProxy;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -41,6 +42,7 @@ import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.util.SparseArray;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -118,6 +120,7 @@ import android.os.Message;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
+@SuppressLint("NewApi")
 // TODO deprecate the frequency and preferredProvider property
 @Kroll.module(propertyAccessors={
 	TiC.PROPERTY_ACCURACY,
@@ -178,7 +181,7 @@ public class GeolocationModule extends KrollModule
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	private HashMap<Integer, Double> legacyLocationAccuracyMap = new HashMap<Integer, Double>();
+	private SparseArray<Double> legacyLocationAccuracyMap = new SparseArray<Double>();
 	public int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
     public double legacyLocationAccuracyLookupResult = 10.0;
     public double legacyLocationFrequency = 5000;
