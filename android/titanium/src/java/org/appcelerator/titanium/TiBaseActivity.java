@@ -2114,7 +2114,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
 			window.releaseViews(isFinishing);
-			window.releaseKroll();
+			window.release();
 			window = null;
 		}
 
@@ -2123,7 +2123,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			menuHelper = null;
 		}
 
-        KrollProxy.releaseProxyFromJava(activityProxy);
+		if (activityProxy != null) {
+			KrollProxy.releaseProxyFromJava(activityProxy);
+			activityProxy = null;
+		}
+		
 
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.

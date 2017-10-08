@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.MenuItemProxy;
@@ -100,7 +101,7 @@ public class TiMenuSupport
 	public void destroy()
 	{
 		if (menuProxy != null) {
-			menuProxy.release();
+			KrollProxy.releaseProxyFromJava(menuProxy);
 			menuProxy = null;
 		}
 		proxy = null;

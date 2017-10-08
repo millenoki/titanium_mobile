@@ -481,6 +481,7 @@ public class ParentingProxy extends KrollProxy {
                     KrollProxy.releaseProxyFromJava(child);
                 }
             }
+            children = null;
         }
         if (holdedProxies != null) {
             holdedProxies.clear();

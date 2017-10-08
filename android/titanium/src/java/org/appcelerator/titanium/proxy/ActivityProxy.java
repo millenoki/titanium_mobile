@@ -406,7 +406,7 @@ public class ActivityProxy extends KrollProxy
 		event.put(TiC.EVENT_PROPERTY_RESULT_CODE, resultCode);
 		event.put(TiC.EVENT_PROPERTY_INTENT, intent);
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		this.resultCallback.callAsync(krollObject, event);
+		this.resultCallback.callAsync(getKrollObject(), event);
 	}
 
 	public void onError(Activity activity, int requestCode, Exception e)
@@ -415,19 +415,20 @@ public class ActivityProxy extends KrollProxy
 		event.put(TiC.EVENT_PROPERTY_REQUEST_CODE, requestCode);
 		event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, e.getMessage());
 		event.put(TiC.EVENT_PROPERTY_SOURCE, this);
-		this.resultCallback.callAsync(krollObject, event);
+		this.resultCallback.callAsync(getKrollObject(), event);
 	}
 
 	public void release()
 	{
 		super.release();
-        KrollProxy.releaseProxyFromJava(actionBarProxy);
-		wrappedActivity = null;
-		
 		KrollProxy.releaseProxyFromJava(savedDecorViewProxy);
 		KrollProxy.releaseProxyFromJava(intentProxy);
 		KrollProxy.releaseProxyFromJava(actionBarProxy);
-		}
+		savedDecorViewProxy = null;
+		intentProxy = null;
+		actionBarProxy = null;
+		wrappedActivity = null;
+	}
 
 	@Override
 	public boolean handleMessage(Message msg)

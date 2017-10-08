@@ -101,7 +101,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     protected Map<String, List<KrollDict>> evaluators;
     protected Map<String, HashMap<Integer, Object>> eventListeners;
-	protected KrollObject krollObject;
+    protected KrollObject krollObject;
     protected boolean krollObjectSupported = false;
 	protected WeakReference<Activity> activity;
 	protected String proxyId;
@@ -635,9 +635,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void initKrollObject() {
         if (!KrollRuntime.isDisposed()) {
-		KrollRuntime.getInstance().initObject(this);
-            
-	}
+            KrollRuntime.getInstance().initObject(this);      
+        }
     }
 
 	/**
@@ -2218,14 +2217,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void GCFinalize() {
         krollObjectSupported = false;
-        release();
-        modelListener = null;
-        evaluators = null;
-        eventListeners = null;
-        eventOverrideDelegate = null;
-        mSyncEvents = null;
-        defaultValues.clear();
-        createdInModule = null;
+       release();
+       modelListener = null;
+       evaluators = null;
+       eventListeners = null;
+       eventOverrideDelegate = null;
+       mSyncEvents = null;
+       defaultValues.clear();
+       createdInModule = null;
     }
     
     public boolean canBeReleasedFromJava() {
@@ -2234,6 +2233,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     
     static public void releaseProxyFromJava(KrollProxy proxy) {
         if (proxy != null && proxy.canBeReleasedFromJava()) {
+            Log.e(TAG, "releaseProxyFromJava", proxy.getClass().getName());
             proxy.release();
         }
     }
@@ -2245,25 +2245,22 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void release()
 	{
-        if (krollObjectSupported) {
-            return;
-        }
-		if (eventListeners != null) {
-			eventListeners.clear();
-			eventListeners = null;
-		}
-		if (properties != null) {
-			properties.clear();
-			properties = null;
-		}
-		if (defaultValues != null) {
-			defaultValues.clear();
-			defaultValues = null;
-		}
-		if (krollObject != null) {
-			krollObject.release();
-			krollObject = null;
-		}
+         if (krollObjectSupported) {
+             return;
+         }
+		// if (eventListeners != null) {
+		// 	eventListeners.clear();
+		// 	eventListeners = null;
+		// }
+		// if (properties != null) {
+		// 	properties.clear();
+		// 	properties = null;
+		// }
+		// if (defaultValues != null) {
+		// 	defaultValues.clear();
+		// 	defaultValues = null;
+		// }
+		releaseKroll();
 //        if (properties != null) {
 //            synchronized (properties) {
 ////                Iterator it = properties.entrySet().iterator();
