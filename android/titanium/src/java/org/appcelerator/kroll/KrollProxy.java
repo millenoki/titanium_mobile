@@ -2074,7 +2074,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
     public void setModelListener(KrollProxyListener modelListener) {
         setModelListener(modelListener, true);
-		}
+	}
 
     public KrollProxyListener getModelListener() {
         if (modelListener == null) {
