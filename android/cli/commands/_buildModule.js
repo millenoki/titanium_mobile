@@ -206,7 +206,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
-		'processResources',
+		// 'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
 		'generateRuntimeBindings',
@@ -220,11 +220,11 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'ndkBuild',
 		'ndkLocalBuild',
 		'compileAllFinal',
-		// 'generateDistJar',
+		'generateDistJar',
 
-		function(next) {
-			if (!compileOnly) {
-				series(this, [
+		function (next) {
+			if (!cli.argv.ide) {
+				appc.async.series(this, [
 					'verifyBuildArch',
 					'packageZip',
 				], next);
@@ -233,10 +233,10 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			}
 		},
 
-		function(next) {
+		function (next) {
 			if (cli.argv.run) {
-				series(this, [
-		'runModule',
+				appc.async.series(this, [
+					'runModule',
 				], next);
 			} else {
 				next();
@@ -2270,5 +2270,5 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 (function (androidModuleBuilder) {
 	exports.config   = androidModuleBuilder.config.bind(androidModuleBuilder);
 	exports.validate = androidModuleBuilder.validate.bind(androidModuleBuilder);
-	exports.run      = androidModuleBuilder.run.bind(androidModuleBuilder);
+	exports.run	  = androidModuleBuilder.run.bind(androidModuleBuilder);
 }(new AndroidModuleBuilder(module)));
