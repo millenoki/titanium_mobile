@@ -2456,7 +2456,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         moduleResPackages = this.moduleResPackages = [],
         htmlJsFiles = this.htmlJsFiles = {},
         symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true),
-        jsonPackageTitanium = fs.existsSync('package.json') &&  JSON.parse(fs.readFileSync('package.json')).titanium
+        jsonPackageTitanium = fs.existsSync(path.join(this.projectDir, 'package.json')) &&  JSON.parse(fs.readFileSync(path.join(this.projectDir, 'package.json'))).titanium
         resourcesToCopy = {},
         _t = this;
 
