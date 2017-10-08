@@ -1,4 +1,3 @@
-require('lib/lodash');
 Ti.API.debug = Ti.API.debug;
 _ = require('lib/lodash');
 var osname = Ti.Platform.osname;
