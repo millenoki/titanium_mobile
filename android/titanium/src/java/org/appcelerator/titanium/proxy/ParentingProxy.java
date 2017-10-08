@@ -547,14 +547,13 @@ public class ParentingProxy extends KrollProxy {
                     ((ParentingProxy) newOne).setParentForBubbling(this);
                 }
             }
-            
             return newOne;
         } else if (arg instanceof HashMap) {
             removeHoldedProxy(key);
             KrollProxy obj = createProxyFromTemplate((HashMap) arg, this, true);
             if (obj != null) {
                 obj.updateKrollObjectProperties();
-                return addProxyToHold(obj, key);
+                return addProxyToHold(obj, key, true, false);
             }
         } else if(arg == null) {
             removeHoldedProxy(key);
