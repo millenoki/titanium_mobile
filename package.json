@@ -43,9 +43,9 @@
     "markdown": "0.5.0",
     "minimatch": "^3.0.3",
     "moment": "2.18.1",
-    "node-appc": "git://github.com/Akylas/node-appc.git",
+    "node-appc": "Akylas/node-appc",
     "node-ios-device": "^1.4.0",
-    "node-titanium-sdk": "0.4.3",
+    "node-titanium-sdk": "Akylas/node-titanium-sdk",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
@@ -55,7 +55,7 @@
     "uglify-js": "2.8.21",
     "windowslib": "0.5.5",
     "wrench": "1.5.9",
-    "xcode": "git://github.com/Akylas/node-xcode.git",
+    "xcode": "Akylas/node-xcode",
     "xmldom": "0.1.22"
   },
   "devDependencies": {
