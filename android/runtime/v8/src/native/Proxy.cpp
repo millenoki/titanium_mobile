@@ -334,7 +334,6 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 
 void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-	LOGD(TAG, "Proxy::proxyConstructor");
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
 
