@@ -42,6 +42,9 @@ public class V8Object extends KrollObject
 	@Override
 	public void setProperty(String name, Object value)
 	{
+	    if (ptr == 0) {
+            return;
+        }
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
 			return;
@@ -52,6 +55,9 @@ public class V8Object extends KrollObject
 	@Override
 	public Object getProperty(String name)
 	{
+	    if (ptr == 0) {
+            return null;
+        }
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
 			return null;
@@ -62,6 +68,9 @@ public class V8Object extends KrollObject
 	@Override
 	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
 	{
+	    if (ptr == 0) {
+            return false;
+        }
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
 			return false;
@@ -76,12 +85,15 @@ public class V8Object extends KrollObject
 
 	@Override
 	public Object callProperty(String propertyName, Object[] args) {
-		if (KrollRuntime.isDisposed()) {
-			if (Log.isDebugModeEnabled()) {
-				Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
-			}
-			return null;
-		}
+	    if (ptr == 0) {
+            return null;
+        }
+        if (!KrollRuntime.isInitialized()) {
+            if (Log.isDebugModeEnabled()) {
+                Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
+            }
+            return null;
+        }
 		return nativeCallProperty(ptr, propertyName, args);
 	}
 
@@ -91,7 +103,7 @@ public class V8Object extends KrollObject
 		if (ptr == 0) {
 			return;
 		}
-
+		Log.e(TAG, "doRelease2");
 		if (nativeRelease(ptr)) {
 			ptr = 0;
 			KrollRuntime.suggestGC();
@@ -101,6 +113,13 @@ public class V8Object extends KrollObject
 	@Override
 	public void doSetWindow(Object windowProxyObject)
 	{
+	    if (ptr == 0) {
+            return;
+        }
+	    if (!KrollRuntime.isInitialized()) {
+            Log.w(TAG, "Runtime disposed, cannot updateNativeProperties");
+            return;
+        }
 		nativeSetWindow(ptr, windowProxyObject);
 	}
 
@@ -108,7 +127,7 @@ public class V8Object extends KrollObject
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
-
+		
 		if (ptr != 0) {
 			release();
 		}
@@ -117,6 +136,9 @@ public class V8Object extends KrollObject
 	@Override
 	public void updateNativeProperties(HashMap<String, Object> properties)
 	{
+	    if (ptr == 0) {
+            return;
+        }
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot updateNativeProperties");
 			return;
