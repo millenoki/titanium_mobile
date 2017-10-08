@@ -445,7 +445,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	}
 	
 	private void handlePushFirst (){
-		if (windows.size() == 0) {
+		if (windows.size() == 0 && this.window != null) {
 			TiWindowProxy firstWindow = this.window;
 			if (preAddedWindows.size() > 0 ) {
 				addWindow(firstWindow, null);
