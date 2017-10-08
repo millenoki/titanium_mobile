@@ -13,6 +13,8 @@ import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.common.Log;
 
+import android.util.LongSparseArray;
+
 public final class ReferenceTable
 {
 	private static String TAG = "ReferenceTable";
@@ -21,7 +23,7 @@ public final class ReferenceTable
 	 * A simple Map used to hold strong/weak reference to the Java objects we have
 	 * paired/wrapped in native titanium::Proxy/JavaObject instances.
 	 */
-	private static HashMap<Long, Object> references = new HashMap<Long, Object>();
+	private static LongSparseArray<Object> references = new LongSparseArray<Object>();
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is
@@ -52,7 +54,8 @@ public final class ReferenceTable
 	public static void destroyReference(long key)
 	{
 		Log.d(TAG, "Destroying reference under key: " + key, Log.DEBUG_MODE);
-		Object obj = references.remove(key);
+        Object obj = references.get(key);
+        references.remove(key);
 		if (obj instanceof WeakReference) {
 			obj = ((WeakReference<?>)obj).get();
 		}
