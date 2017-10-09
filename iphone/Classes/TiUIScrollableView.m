@@ -263,7 +263,7 @@
 }
 #endif
 
-- (UIScrollView *)scrollview
+- (UIScrollView *)scrollView
 {
 #ifdef TI_USE_AUTOLAYOUT
   if (_scrollView == nil) {
@@ -443,7 +443,7 @@
 
 - (NSInteger)currentPage
 {
-  UIScrollView *scrollview = [self scrollview];
+  UIScrollView *scrollview = [self scrollView];
   NSInteger result = currentPage;
   if (scrollview != nil) {
     CGSize scrollFrame = [self bounds].size;
@@ -503,7 +503,7 @@
       viewBounds.size.height -= (showPageControl ? pagingControlHeight : 0);
     }
   }
-  UIScrollView *sv = [self scrollview];
+  UIScrollView *sv = [self scrollView];
 
   NSInteger page = [self currentPage];
 
