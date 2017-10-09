@@ -239,8 +239,7 @@ Packager.prototype.zip = function (next) {
 			return next(err);
 		}
 		// delete the zipdir!
-		// fs.remove(this.zipDir, next);
-		next();
+		fs.remove(this.zipDir, next);
 	}.bind(this));
 };
 
@@ -272,9 +271,8 @@ Packager.prototype.package = function (next) {
 				if (err) {
 					console.log(stdout);
 					console.error(stderr);
-					return cb(err);
 				}
-				cb();
+				cb(err);
 			});
 		}.bind(this),
 		// Remove any remaining binary scripts from node_modules
