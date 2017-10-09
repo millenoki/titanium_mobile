@@ -1,8 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
+ * 
+ * WARNING: This is generated code. Modify at your own risk and without support.
  */
 
 #import "WebFont.h"
@@ -257,14 +259,14 @@
   if (theStyle == nil && inheritedFont != NULL) {
     theStyle = inheritedFont.textStyle;
   }
-  if (![theStyle isEqualToString:textStyle]) {
+  if (theStyle != textStyle && ![theStyle isEqualToString:textStyle]) {
     textStyle = [theStyle retain];
     didChange = YES;
   }
 
   float multiplier = 1.0; //Default is px.
 
-  id sizeObject = [fontDict objectForKey:@"fontSize"];
+  id sizeObject = [fontDict objectForKey:@"size"];
   if ([sizeObject isKindOfClass:[NSString class]]) {
     sizeObject = [sizeObject lowercaseString];
     if ([sizeObject hasSuffix:@"px"]) {
@@ -285,143 +287,73 @@
       didChange = YES;
       self.size = fontSize;
     }
+  }
 
-    float multiplier = 1.0; //Default is px.
-
-    id sizeObject = [fontDict objectForKey:@"size"];
-    if ([sizeObject isKindOfClass:[NSString class]]) {
-      sizeObject = [sizeObject lowercaseString];
-      if ([sizeObject hasSuffix:@"px"]) {
-        sizeObject = [sizeObject substringToIndex:[sizeObject length] - 2];
-      }
-      //TODO: Mod multipler with different suffixes (in, cm, etc)
+  id familyObject = [fontDict objectForKey:@"family"];
+  if ([familyObject isKindOfClass:[NSString class]]) {
+    // Expedient fix for compatibility with Android.  Apparently this is OK.
+    if ([familyObject isEqual:@"monospace"] || [familyObject isEqual:@"monospaced"]) {
+      self.family = @"Courier";
+    } else {
+      self.family = familyObject;
     }
+    didChange = YES;
+  } else if (inheritedFont != nil && inheritedFont.family != nil) {
+    self.family = inheritedFont.family;
+    didChange = YES;
+  }
 
-    if ([sizeObject respondsToSelector:@selector(floatValue)]) {
-      float fontSize = multiplier * [sizeObject floatValue];
-      if (fontSize != self.size) {
-        didChange = YES;
-        self.size = fontSize;
-      }
-    } else if ((inheritedFont != NULL) && (sizeObject == nil)) {
-      float fontSize = inheritedFont.size;
-      if (self.size != fontSize) {
-        didChange = YES;
-        self.size = fontSize;
-      }
-    }
-
-    id familyObject = [fontDict objectForKey:@"family"];
-    if ([familyObject isKindOfClass:[NSString class]]) {
-      // Expedient fix for compatibility with Android.  Apparently this is OK.
-      if ([familyObject isEqual:@"monospace"] || [familyObject isEqual:@"monospaced"]) {
-        self.family = @"Courier";
-      } else {
-        self.family = familyObject;
-      }
-      didChange = YES;
-    } else if (inheritedFont != nil && inheritedFont.family != nil) {
-      self.family = inheritedFont.family;
-      didChange = YES;
-    }
-
-    NSString *fontWeightObject = [fontDict objectForKey:@"weight"];
-    if ([fontWeightObject isKindOfClass:[NSString class]]) {
-      fontWeightObject = [fontWeightObject lowercaseString];
-      if ([fontWeightObject isEqualToString:@"semibold"]) {
-        didChange |= !(self.isSemiboldWeight) || (self.isBoldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
-        self.isSemiboldWeight = YES;
-        self.isBoldWeight = NO;
-        self.isNormalWeight = NO;
-        self.isThinWeight = NO;
-        self.isLightWeight = NO;
-        self.isUltraLightWeight = NO;
-      } else if ([fontWeightObject isEqualToString:@"bold"]) {
-        didChange |= !(self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
-        self.isBoldWeight = YES;
-        self.isSemiboldWeight = NO;
-        self.isNormalWeight = NO;
-        self.isThinWeight = NO;
-        self.isLightWeight = NO;
-        self.isUltraLightWeight = NO;
-      } else if ([fontWeightObject isEqualToString:@"thin"]) {
-        didChange |= !(self.isThinWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
-        self.isThinWeight = YES;
-        self.isBoldWeight = NO;
-        self.isSemiboldWeight = NO;
-        self.isNormalWeight = NO;
-        self.isLightWeight = NO;
-        self.isUltraLightWeight = NO;
-      } else if ([fontWeightObject isEqualToString:@"light"]) {
-        didChange |= !(self.isLightWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isUltraLightWeight);
-        self.isLightWeight = YES;
-        self.isBoldWeight = NO;
-        self.isSemiboldWeight = NO;
-        self.isNormalWeight = NO;
-        self.isThinWeight = NO;
-        self.isUltraLightWeight = NO;
-      } else if ([fontWeightObject isEqualToString:@"ultralight"]) {
-        didChange |= !(self.isUltraLightWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isLightWeight) || (self.isThinWeight);
-        self.isUltraLightWeight = YES;
-        self.isBoldWeight = NO;
-        self.isSemiboldWeight = NO;
-        self.isNormalWeight = NO;
-        self.isLightWeight = NO;
-        self.isThinWeight = NO;
-      } else if ([fontWeightObject isEqualToString:@"normal"]) {
-        didChange |= (self.isBoldWeight) || (self.isSemiboldWeight) || !(self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
-        self.isBoldWeight = NO;
-        self.isSemiboldWeight = NO;
-        self.isNormalWeight = YES;
-        self.isThinWeight = NO;
-        self.isLightWeight = NO;
-        self.isUltraLightWeight = NO;
-      } else if ((inheritedFont != NULL) && (fontWeightObject == nil)) {
-        BOOL isBoldBool = inheritedFont.isBoldWeight;
-        if (self.isBoldWeight != isBoldBool) {
-          didChange = YES;
-          self.isBoldWeight = isBoldBool;
-        }
-        BOOL isNormalBool = inheritedFont.isNormalWeight;
-        if (self.isNormalWeight != isNormalBool) {
-          didChange = YES;
-          self.isNormalWeight = isNormalBool;
-        }
-        BOOL isSemiboldBool = inheritedFont.isSemiboldWeight;
-        if (self.isSemiboldWeight != isSemiboldBool) {
-          didChange = YES;
-          self.isSemiboldWeight = isSemiboldBool;
-        }
-        BOOL thinWeight = inheritedFont.isThinWeight;
-        if (self.isThinWeight != thinWeight) {
-          didChange = YES;
-          self.isThinWeight = thinWeight;
-        }
-        BOOL lightWeight = inheritedFont.isLightWeight;
-        if (self.isLightWeight != lightWeight) {
-          didChange = YES;
-          self.isLightWeight = lightWeight;
-        }
-        BOOL ultraLightWeight = inheritedFont.isUltraLightWeight;
-        if (self.isUltraLightWeight != ultraLightWeight) {
-          didChange = YES;
-          self.isUltraLightWeight = ultraLightWeight;
-        }
-      }
-
-      NSString *fontStyleObject = [fontDict objectForKey:@"style"];
-      if ([fontStyleObject isKindOfClass:[NSString class]]) {
-        fontStyleObject = [fontStyleObject lowercaseString];
-        if ([fontStyleObject isEqualToString:@"italic"]) {
-          didChange |= !(self.isItalicStyle) || (self.isNormalStyle);
-          self.isItalicStyle = YES;
-          self.isNormalStyle = NO;
-        } else if ([fontStyleObject isEqualToString:@"normal"]) {
-          didChange |= (self.isItalicStyle) || !(self.isNormalStyle);
-          self.isItalicStyle = NO;
-          self.isNormalStyle = YES;
-        }
-      }
+  NSString *fontWeightObject = [fontDict objectForKey:@"weight"];
+  if ([fontWeightObject isKindOfClass:[NSString class]]) {
+    fontWeightObject = [fontWeightObject lowercaseString];
+    if ([fontWeightObject isEqualToString:@"semibold"]) {
+      didChange |= !(self.isSemiboldWeight) || (self.isBoldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
+      self.isSemiboldWeight = YES;
+      self.isBoldWeight = NO;
+      self.isNormalWeight = NO;
+      self.isThinWeight = NO;
+      self.isLightWeight = NO;
+      self.isUltraLightWeight = NO;
+    } else if ([fontWeightObject isEqualToString:@"bold"]) {
+      didChange |= !(self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
+      self.isBoldWeight = YES;
+      self.isSemiboldWeight = NO;
+      self.isNormalWeight = NO;
+      self.isThinWeight = NO;
+      self.isLightWeight = NO;
+      self.isUltraLightWeight = NO;
+    } else if ([fontWeightObject isEqualToString:@"thin"]) {
+      didChange |= !(self.isThinWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
+      self.isThinWeight = YES;
+      self.isBoldWeight = NO;
+      self.isSemiboldWeight = NO;
+      self.isNormalWeight = NO;
+      self.isLightWeight = NO;
+      self.isUltraLightWeight = NO;
+    } else if ([fontWeightObject isEqualToString:@"light"]) {
+      didChange |= !(self.isLightWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isThinWeight) || (self.isUltraLightWeight);
+      self.isLightWeight = YES;
+      self.isBoldWeight = NO;
+      self.isSemiboldWeight = NO;
+      self.isNormalWeight = NO;
+      self.isThinWeight = NO;
+      self.isUltraLightWeight = NO;
+    } else if ([fontWeightObject isEqualToString:@"ultralight"]) {
+      didChange |= !(self.isUltraLightWeight) || (self.isBoldWeight) || (self.isSemiboldWeight) || (self.isNormalWeight) || (self.isLightWeight) || (self.isThinWeight);
+      self.isUltraLightWeight = YES;
+      self.isBoldWeight = NO;
+      self.isSemiboldWeight = NO;
+      self.isNormalWeight = NO;
+      self.isLightWeight = NO;
+      self.isThinWeight = NO;
+    } else if ([fontWeightObject isEqualToString:@"normal"]) {
+      didChange |= (self.isBoldWeight) || (self.isSemiboldWeight) || !(self.isNormalWeight) || (self.isThinWeight) || (self.isLightWeight) || (self.isUltraLightWeight);
+      self.isBoldWeight = NO;
+      self.isSemiboldWeight = NO;
+      self.isNormalWeight = YES;
+      self.isThinWeight = NO;
+      self.isLightWeight = NO;
+      self.isUltraLightWeight = NO;
     } else if ((inheritedFont != NULL) && (fontWeightObject == nil)) {
       BOOL isBoldBool = inheritedFont.isBoldWeight;
       if (self.isBoldWeight != isBoldBool) {
@@ -438,9 +370,24 @@
         didChange = YES;
         self.isSemiboldWeight = isSemiboldBool;
       }
+      BOOL thinWeight = inheritedFont.isThinWeight;
+      if (self.isThinWeight != thinWeight) {
+        didChange = YES;
+        self.isThinWeight = thinWeight;
+      }
+      BOOL lightWeight = inheritedFont.isLightWeight;
+      if (self.isLightWeight != lightWeight) {
+        didChange = YES;
+        self.isLightWeight = lightWeight;
+      }
+      BOOL ultraLightWeight = inheritedFont.isUltraLightWeight;
+      if (self.isUltraLightWeight != ultraLightWeight) {
+        didChange = YES;
+        self.isUltraLightWeight = ultraLightWeight;
+      }
     }
 
-    NSString *fontStyleObject = [fontDict objectForKey:@"fontStyle"];
+    NSString *fontStyleObject = [fontDict objectForKey:@"style"];
     if ([fontStyleObject isKindOfClass:[NSString class]]) {
       fontStyleObject = [fontStyleObject lowercaseString];
       if ([fontStyleObject isEqualToString:@"italic"]) {
@@ -452,17 +399,47 @@
         self.isItalicStyle = NO;
         self.isNormalStyle = YES;
       }
-    } else if ((inheritedFont != NULL) && (fontStyleObject == nil)) {
-      BOOL isItalic = inheritedFont.isItalicStyle;
-      if (self.isItalicStyle != isItalic) {
-        didChange = YES;
-        self.isItalicStyle = isItalic;
-      }
-      BOOL isNormal = inheritedFont.isNormalStyle;
-      if (self.isNormalStyle != isNormal) {
-        didChange = YES;
-        self.isNormalStyle = isNormal;
-      }
+    }
+  } else if ((inheritedFont != NULL) && (fontWeightObject == nil)) {
+    BOOL isBoldBool = inheritedFont.isBoldWeight;
+    if (self.isBoldWeight != isBoldBool) {
+      didChange = YES;
+      self.isBoldWeight = isBoldBool;
+    }
+    BOOL isNormalBool = inheritedFont.isNormalWeight;
+    if (self.isNormalWeight != isNormalBool) {
+      didChange = YES;
+      self.isNormalWeight = isNormalBool;
+    }
+    BOOL isSemiboldBool = inheritedFont.isSemiboldWeight;
+    if (self.isSemiboldWeight != isSemiboldBool) {
+      didChange = YES;
+      self.isSemiboldWeight = isSemiboldBool;
+    }
+  }
+
+  NSString *fontStyleObject = [fontDict objectForKey:@"fontStyle"];
+  if ([fontStyleObject isKindOfClass:[NSString class]]) {
+    fontStyleObject = [fontStyleObject lowercaseString];
+    if ([fontStyleObject isEqualToString:@"italic"]) {
+      didChange |= !(self.isItalicStyle) || (self.isNormalStyle);
+      self.isItalicStyle = YES;
+      self.isNormalStyle = NO;
+    } else if ([fontStyleObject isEqualToString:@"normal"]) {
+      didChange |= (self.isItalicStyle) || !(self.isNormalStyle);
+      self.isItalicStyle = NO;
+      self.isNormalStyle = YES;
+    }
+  } else if ((inheritedFont != NULL) && (fontStyleObject == nil)) {
+    BOOL isItalic = inheritedFont.isItalicStyle;
+    if (self.isItalicStyle != isItalic) {
+      didChange = YES;
+      self.isItalicStyle = isItalic;
+    }
+    BOOL isNormal = inheritedFont.isNormalStyle;
+    if (self.isNormalStyle != isNormal) {
+      didChange = YES;
+      self.isNormalStyle = isNormal;
     }
   }
 
