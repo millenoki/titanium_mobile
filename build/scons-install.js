@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 'use strict';
 
-const os = require('os'),
+const exec = require('child_process').exec,
+	os = require('os'),
 	path = require('path'),
 	fs = require('fs-extra'),
 	program = require('commander'),
@@ -41,7 +42,14 @@ function install(versionTag, next) {
 	console.log('Installing %s...', zipfile);
 
 	fs.removeSync(path.join(dest, 'mobilesdk', osName, versionTag));
-	appc.zip.unzip(zipfile, dest, {}, next);
+	// TODO Combine with unzip method in packager.js?
+	// TODO Support unzipping on windows
+	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
+		if (err) {
+			return next(err);
+		}
+		return next();
+	});
 }
 
 install(versionTag, function (err) {

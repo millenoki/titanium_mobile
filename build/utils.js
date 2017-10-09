@@ -11,12 +11,10 @@ const path = require('path'),
 	Utils = {};
 
 Utils.copyFile = function (srcFolder, destFolder, filename, options, next) {
-	// console.log('copyFiles', srcFolder, destFolder, filename);
 	fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename), options, next);
 };
 
 Utils.copyFiles = function (srcFolder, destFolder, files, options, next) {
-	// console.log('copyFiles', srcFolder, destFolder, files);
 	let realNext = options;
 	let hasOptions = false;
 	if (next) {

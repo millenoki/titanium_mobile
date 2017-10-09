@@ -239,7 +239,8 @@ Packager.prototype.zip = function (next) {
 			return next(err);
 		}
 		// delete the zipdir!
-		fs.remove(this.zipDir, next);
+		// fs.remove(this.zipDir, next);
+		next();
 	}.bind(this));
 };
 

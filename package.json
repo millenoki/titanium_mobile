@@ -3,7 +3,7 @@
   "description": "Appcelerator Titanium Mobile",
   "version": "7.0.0",
   "moduleApiVersion": {
-    "iphone": "2",
+    "iphone": "3",
     "android": "4",
     "windows": "3"
   },
@@ -43,9 +43,9 @@
     "markdown": "0.5.0",
     "minimatch": "^3.0.3",
     "moment": "2.18.1",
-    "node-appc": "Akylas/node-appc",
+    "node-appc": "git://github.com/Akylas/node-appc.git",
     "node-ios-device": "^1.4.0",
-    "node-titanium-sdk": "Akylas/node-titanium-sdk",
+    "node-titanium-sdk": "git://github.com/Akylas/node-titanium-sdk.git",
     "node-uuid": "1.4.8",
     "pngjs": "3.0.1",
     "request": "2.81.0",
@@ -55,7 +55,7 @@
     "uglify-js": "2.8.21",
     "windowslib": "0.5.5",
     "wrench": "1.5.9",
-    "xcode": "Akylas/node-xcode",
+    "xcode": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.22"
   },
   "devDependencies": {
