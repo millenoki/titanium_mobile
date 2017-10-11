@@ -466,6 +466,17 @@
 
     tableview.touchDelegate = self;
 
+    // Fixes incorrect heights in iOS 11 as we calculate them internally already
+    tableview.estimatedRowHeight = 0;
+    tableview.estimatedSectionFooterHeight = 0;
+    tableview.estimatedSectionHeaderHeight = 0;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      tableview.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
+
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
@@ -1099,51 +1110,51 @@
 {
   NSMutableDictionary *event = [self dictionaryFromGesture:recognizer];
 
-  BOOL viaSearch = [searchController isActive];
-  UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
-  CGPoint point = [recognizer locationInView:theTableView];
+    BOOL viaSearch = [searchController isActive];
+    UITableView *theTableView = viaSearch ? resultViewController.tableView : [self tableView];
+    CGPoint point = [recognizer locationInView:theTableView];
   //    CGPoint pointInView = [recognizer locationInView:self];
-  NSIndexPath *indexPath = nil;
+    NSIndexPath *indexPath = nil;
 
-  if (viaSearch) {
-    NSIndexPath *index = [theTableView indexPathForRowAtPoint:point];
-    if (index != nil) {
-      indexPath = [self indexPathFromSearchIndex:[index row]];
-    }
-  } else {
-    indexPath = [theTableView indexPathForRowAtPoint:point];
-  }
-
-  [event setObject:NUMBOOL(NO) forKey:@"detail"];
-  [event setObject:NUMBOOL(viaSearch) forKey:@"search"];
-
-  if (indexPath != nil) {
-    //We have index path. Let us fill out section and row information. Also since the
-    NSInteger sectionIdx = [indexPath section];
-    NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
-    TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
-
-    NSInteger rowIndex = [indexPath row];
-    int dataIndex = 0;
-    int c = 0;
-    TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
-
-    // unfortunately, we have to scan to determine our row index
-    for (TiUITableViewSectionProxy *section in sections) {
-      if (c == sectionIdx) {
-        dataIndex += rowIndex;
-        break;
+    if (viaSearch) {
+      NSIndexPath *index = [theTableView indexPathForRowAtPoint:point];
+      if (index != nil) {
+        indexPath = [self indexPathFromSearchIndex:[index row]];
       }
-      dataIndex += [section rowCount];
-      c++;
+    } else {
+      indexPath = [theTableView indexPathForRowAtPoint:point];
     }
-    [event setObject:section forKey:@"section"];
-    [event setObject:row forKey:@"row"];
-    [event setObject:row forKey:@"rowData"];
-    [event setObject:NUMINT(dataIndex) forKey:@"index"];
-  }
+
+    [event setObject:NUMBOOL(NO) forKey:@"detail"];
+    [event setObject:NUMBOOL(viaSearch) forKey:@"search"];
+
+    if (indexPath != nil) {
+      //We have index path. Let us fill out section and row information. Also since the
+      NSInteger sectionIdx = [indexPath section];
+      NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
+      TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
+
+      NSInteger rowIndex = [indexPath row];
+      int dataIndex = 0;
+      int c = 0;
+      TiUITableViewRowProxy *row = [section rowAtIndex:rowIndex];
+
+      // unfortunately, we have to scan to determine our row index
+      for (TiUITableViewSectionProxy *section in sections) {
+        if (c == sectionIdx) {
+          dataIndex += rowIndex;
+          break;
+        }
+        dataIndex += [section rowCount];
+        c++;
+      }
+      [event setObject:section forKey:@"section"];
+      [event setObject:row forKey:@"row"];
+      [event setObject:row forKey:@"rowData"];
+      [event setObject:NUMINT(dataIndex) forKey:@"index"];
+    }
   [self.proxy fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
-}
+  }
 
 - (void)recognizedTap:(UITapGestureRecognizer *)recognizer
 {
@@ -1467,7 +1478,7 @@
   searchActivated = NO;
   NSArray *visibleRows = [tableview indexPathsForVisibleRows];
   if ([visibleRows count] > 0)
-    [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
+  [tableview reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
 
   // We only want to scroll if the following conditions are met:
   // 1. The top row of the first section (and hence searchbar) are visible (or there are no rows)
@@ -2326,7 +2337,7 @@
 
   if ([[self proxy] _hasListeners:@"rowappear"])
     [self triggerActionForIndexPath:index fromPath:nil tableView:ourTableView wasAccessory:NO search:NO name:@"rowappear"];
-}
+    }
 
 - (NSString *)tableView:(UITableView *)ourTableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -2586,7 +2597,7 @@
   if ([(TiViewProxy *)self.proxy _hasListeners:@"dragstart" checkParent:NO]) {
     [self.proxy fireEvent:@"dragstart" propagate:NO checkForListener:NO];
   }
-}
+  }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
@@ -2614,7 +2625,7 @@
   if ([(TiViewProxy *)self.proxy _hasListeners:@"scrollend" checkParent:NO]) {
     [self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
   }
-}
+  }
 
 #pragma mark - UISearchControllerDelegate
 

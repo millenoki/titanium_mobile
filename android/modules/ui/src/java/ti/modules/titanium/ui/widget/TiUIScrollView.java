@@ -16,8 +16,10 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
+
 import ti.modules.titanium.ui.RefreshControlProxy;
 
 import com.akylas.view.DualScrollView;
@@ -31,10 +33,16 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.Canvas;
+import android.os.Build;
+import android.support.v4.widget.NestedScrollView;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 
@@ -55,12 +63,12 @@ public class TiUIScrollView extends TiUIView
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
 	private boolean isTouching = false;
-	
+
 	private boolean mAutoCenter = true;
     private boolean animating = false;
     private ScaleGestureDetector mScaleGestureDetector = null;
     private boolean mIsScaling = false;
-    
+	
     protected static final int TIFLAG_NEEDS_ZOOM               = 0x00000001;
     protected static final int TIFLAG_NEEDS_CONTENT_OFFSET     = 0x00000002;
 
@@ -358,6 +366,17 @@ public class TiUIScrollView extends TiUIView
 		public TiScrollView(Context context)
 		{
 			super(context);
+
+			// TIMOB-25359: allow window to re-size when keyboard is shown
+			if (context instanceof TiBaseActivity) {
+				Window window = ((TiBaseActivity) context).getWindow();
+				int softInputMode = window.getAttributes().softInputMode;
+
+				if ((softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN) == 0) {
+					window.setSoftInputMode(softInputMode | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+				}
+			}
+
 			setScrollBarStyle(SCROLLBARS_INSIDE_OVERLAY);
 			setScrollContainer(true);
 
@@ -403,7 +422,7 @@ public class TiUIScrollView extends TiUIView
 				return false;
 			}
 		}
-		
+
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
             if (mScrollingEnabled && isTouchEnabled) {
@@ -419,7 +438,27 @@ public class TiUIScrollView extends TiUIView
 
 			return false;
 		}
-		
+
+		/**
+		 * Called when a NestedScrollingChild view within the ListView wants to scroll the ListView.
+		 * <p>
+		 * This can happen with a NestedScrollView or a scrollable TiUIEditText where scrolling
+		 * past the top/bottom of the child view should cause the ListView to scroll.
+		 * @param target The NestedScrollingChild view that wants to scroll this view.
+		 * @param dxConsumed Horizontal scroll distance in pixels already consumed by the child.
+		 * @param dyConsumed Vertical scroll distance in pixels already consumed by the child.
+		 * @param dxUnconsumed Horizontal distance in pixels that this view is being requested to scroll by.
+		 * @param dyUnconsumed Vertical distance in pixels that this view is being requested to scroll by.
+		 */
+		@Override
+		public void onNestedScroll(
+			View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
+		{
+			if (mScrollingEnabled) {
+				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+			}
+		}
+
 		@Override
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
@@ -434,11 +473,11 @@ public class TiUIScrollView extends TiUIView
 				isScrolling = true;
 				KrollDict data = new KrollDict();			
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
-		}
+			}
 			mCurrentOffset.set(l , t);
 			if (hasListeners(TiC.EVENT_SCROLL)) {
 				getProxy().fireEvent(TiC.EVENT_SCROLL, getContentOffset(), false, false);
-			}
+		}
 		}
 
 		@Override
@@ -524,7 +563,7 @@ public class TiUIScrollView extends TiUIView
                 clampedX = true;
             } else if (newScrollX < left) {
                 clampedX = true;
-		}
+			}
 		
             boolean clampedY = !canScrollVertical;
             if (newScrollY + getHeight() >= bottom) {
@@ -551,7 +590,7 @@ public class TiUIScrollView extends TiUIView
 	public ViewGroup getParentViewForChild()
 		{
 		return getLayout();
-		}
+			}
 
 		@Override
 	protected View getTouchView()
@@ -647,8 +686,8 @@ public class TiUIScrollView extends TiUIView
             break;
         case TiC.PROPERTY_REFRESH_CONTROL:
             if (newValue instanceof RefreshControlProxy) {
-                Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
-            }
+			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+		}
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

@@ -115,19 +115,19 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
   });
 
   return dpi;
-}
+    }
 
 + (BOOL)isRetinaFourInch
 {
   static BOOL isRetinaFourInch = NO;
   static dispatch_once_t predicate;
   dispatch_once(&predicate, ^{
-    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
     if ([TiUtils isIOS8OrGreater]) {
       isRetinaFourInch = (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
     } else {
       isRetinaFourInch = (mainScreenBoundsSize.height == 568);
-    }
+}
   });
   return isRetinaFourInch;
 }
@@ -138,11 +138,23 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
   static dispatch_once_t predicate;
   dispatch_once(&predicate, ^{
     if ([TiUtils isIOS8OrGreater]) {
-      CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
       isRetinaiPhone6 = (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
-    }
+}
   });
   return isRetinaiPhone6;
+}
+
++ (BOOL)isRetinaiPhone6Plus
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 736 || mainScreenBoundsSize.width == 736);
+}
+
++ (BOOL)isRetinaiPhoneX
+{
+  CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+  return (mainScreenBoundsSize.height == 812 || mainScreenBoundsSize.width == 812);
 }
 
 + (BOOL)isRetinaHDDisplay
@@ -495,7 +507,7 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
   }
   if ([value isKindOfClass:[NSArray class]] && [value count] >= 2) {
     return CGPointMake([[value objectAtIndex:0] floatValue], [[value objectAtIndex:1] floatValue]);
-  }
+}
   return defaultValue;
 }
 
@@ -526,16 +538,16 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
         if (xVal && yVal) {
           if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
             if (isValid) {
-              *isValid = NO;
-            }
-            return CGPointMake(0.0, 0.0);
-          }
-
-          if (isValid) {
-            *isValid = YES;
-          }
-          return CGPointMake([xVal floatValue], [yVal floatValue]);
+          *isValid = NO;
         }
+        return CGPointMake(0.0, 0.0);
+      }
+
+      if (isValid) {
+        *isValid = YES;
+      }
+      return CGPointMake([xVal floatValue], [yVal floatValue]);
+    }
       } else if ([value isKindOfClass:[NSArray class]] && [value count] >= 2) {
         id xVal = [value objectAtIndex:0];
         id yVal = [value objectAtIndex:1];
@@ -543,19 +555,19 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
           if (![xVal respondsToSelector:@selector(floatValue)] || ![yVal respondsToSelector:@selector(floatValue)]) {
             if (isValid) {
               *isValid = NO;
-            }
+  }
             return CGPointMake(0.0, 0.0);
           }
 
-          if (isValid) {
+  if (isValid) {
             *isValid = YES;
           }
           return CGPointMake([xVal floatValue], [yVal floatValue]);
         }
       }
       if (isValid) {
-        *isValid = NO;
-      }
+    *isValid = NO;
+  }
     }
     if (isValid) {
       *isValid = NO;
@@ -726,16 +738,16 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
   if ([TiUtils hexColorUsesRGBA]) {
     return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX",
                      lroundf(alpha * 255),
-                     lroundf(components[0] * 255),
-                     lroundf(components[1] * 255),
-                     lroundf(components[2] * 255)];
+                   lroundf(components[0] * 255),
+                   lroundf(components[1] * 255),
+                   lroundf(components[2] * 255)];
   } else {
     return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX",
                      lroundf(components[0] * 255),
                      lroundf(components[1] * 255),
                      lroundf(components[2] * 255),
                      lroundf(alpha * 255)];
-  }
+}
 }
 
 + (TiDimension)dimensionValue:(id)value
@@ -999,7 +1011,14 @@ const TiCap TiCapUndefined = { { TiDimensionTypeUndefined, 0 }, { TiDimensionTyp
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
     }
-    // second try plain @3x
+
+    // second try -2436h@3x iPhone X specific
+    testpath = [NSString stringWithFormat:@"%@-2436h@3x.%@", partial, ext];
+    if ([fm fileExistsAtPath:testpath]) {
+      return [NSURL fileURLWithPath:testpath];
+    }
+
+    // third try plain @3x
     testpath = [NSString stringWithFormat:@"%@@3x.%@", partial, ext];
     if ([fm fileExistsAtPath:testpath]) {
       return [NSURL fileURLWithPath:testpath];
@@ -1094,8 +1113,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
     //        }
     result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
   } else {
-    result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
-  }
+      result = [NSURL URLWithString:[relativeString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] relativeToURL:rootPath];
+    }
 
   //TIMOB-18262
   if (result && ([[result scheme] isEqualToString:@"file"])) {
@@ -1310,7 +1329,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
       if (exists != NULL)
         *exists = YES;
       return nil;
-    }
+}
     if (value != nil) {
       if (exists != NULL) {
         *exists = YES;
@@ -1725,7 +1744,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     CGFloat newWidth = result.size.height;
     result = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
     break;
-  }
+}
   default: {
     break;
   }
@@ -1754,7 +1773,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   if ([value isKindOfClass:[NSString class]]) {
     NSString *s = [(NSString *)value stringByReplacingOccurrencesOfString:@"px" withString:@""];
     return [[s stringByReplacingOccurrencesOfString:@" " withString:@""] floatValue];
-  }
+}
   return [value floatValue];
 }
 
@@ -2080,9 +2099,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
       id result = [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
       if (result) {
         DebugLog(@"[DEBUG] Loaded: %@, Resource: %@", urlstring, appurlstr);
-      }
-      return result;
     }
+      return result;
+  }
   }
   return nil;
 }
@@ -2579,8 +2598,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
     }
     return resultImage;
   }
-  return nil;
-}
+      return nil;
+    }
 
 + (UIImage *)stretchedImage:(UIImage *)image withCap:(TiCap)cap
 {
@@ -2639,9 +2658,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
     }
     if ((resultImage != nil) && ([resultImage isKindOfClass:[UIImage class]]) && ([resultImage imageOrientation] != UIImageOrientationUp)) {
       return [UIImageResize resizedImage:[(UIImage *)resultImage size]
-                    interpolationQuality:kCGInterpolationNone
-                                   image:resultImage
-                                   hires:NO];
+                           interpolationQuality:kCGInterpolationNone
+                                          image:resultImage
+                                          hires:NO];
     }
     return resultImage;
   } else if ([image isKindOfClass:[TiBlob class]]) {

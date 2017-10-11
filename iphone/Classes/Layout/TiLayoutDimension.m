@@ -52,17 +52,17 @@ CGFloat convertPixelsToDip(CGFloat value)
 {
     return value / [TiUtils screenScale];
 
-}
+    }
 
 CGFloat convertDipToInch(CGFloat value)
 {
     return (value * [TiUtils screenScale])/[TiUtils dpi];
-}
+    }
 
 CGFloat convertDipToPixels(CGFloat value)
 {
     return (value * [TiUtils screenScale]);
-}
+    }
 
 TiDimension TiDimensionFromObject(id object)
 {

@@ -68,7 +68,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private TiWebViewClient client;
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
-    private boolean isLocalHTML = false;
+	private boolean isLocalHTML = false;
     private boolean alwaysInjectTi = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
@@ -104,7 +104,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 		{
 			super(context);
 		}
-		
+
 		@Override
         public boolean onCheckIsTextEditor()
         {
@@ -245,23 +245,23 @@ public class TiUIWebView extends TiUINonViewGroupView
                     break;
                 case MotionEvent.ACTION_UP:
                 {
-                 // In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
-                    // never called. Therefore, we have to manually call performClick() when a click event is detected.
-                    //
-                    // In native Android and in the Ti world, it's possible to to have a touchEvent click on a link in a webview and
-                    // also to be detected as a click on the webview.  So we cannot let handling of the event one way block
-                    // the handling the other way -- it must be passed to both in all cases for everything to work correctly.
-                    //
+			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+			// never called. Therefore, we have to manually call performClick() when a click event is detected.
+			//
+			// In native Android and in the Ti world, it's possible to to have a touchEvent click on a link in a webview and
+			// also to be detected as a click on the webview.  So we cannot let handling of the event one way block
+			// the handling the other way -- it must be passed to both in all cases for everything to work correctly.
+			//
                     if (hierarchyHasListener(TiC.EVENT_CLICK)) {
-                        Rect r = new Rect(0, 0, getWidth(), getHeight());
+				Rect r = new Rect(0, 0, getWidth(), getHeight());
                         if (r.contains((int) event.getX(), (int) event.getY())) {
                             proxy.fireEvent(TiC.EVENT_CLICK, dictFromMotionEvent(event), true, false);
-                        }
-                    }
+				}
+			}
                     break;
-                }
-                    
-            }
+			}
+
+		}
             return super.onTouchEvent(event);
 		}
 
@@ -271,9 +271,9 @@ public class TiUIWebView extends TiUINonViewGroupView
 			super.onLayout(changed, left, top, right, bottom);
             if (changed) {
                 TiUIHelper.firePostLayoutEvent(TiUIWebView.this);
-            }
 		}
-		
+	}
+	
 		@Override
 	    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt)
 	    {
@@ -297,12 +297,12 @@ public class TiUIWebView extends TiUINonViewGroupView
 		public boolean onCheckIsTextEditor()
 		{
 			int value = getFocusState();
-			
-			if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-				return false;
-			} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
-				return true;
-			}
+				
+				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+					return false;
+				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+					return true;
+				}
 			return super.onCheckIsTextEditor();
 		}
 	}
@@ -332,7 +332,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
+	 
 		// We can only support debugging in API 19 and higher
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 			// Only enable webview debugging, when app is debuggable
@@ -340,7 +340,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 				WebView.setWebContentsDebuggingEnabled(true);
 			}
 		}
-
+		
 		this.isFocusable = true;
 		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
@@ -364,7 +364,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 			settings.setAppCachePath(cacheDir.getAbsolutePath());
 		}
 
-//		 enable zoom controls by default
+		// enable zoom controls by default
 		boolean enableZoom = true;
 //
 //		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
@@ -383,7 +383,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 			initializePluginAPI(webView);
 		}
 
-        boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+		boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		chromeClient = new TiWebChromeClient(this);
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
@@ -640,7 +640,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
-	}
+		}
 
 	private boolean mightBeHtml(String url)
 	{
@@ -873,7 +873,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 			getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
 		}
 	}
-	
+
 	public void evalJSAsync(final String expression, final KrollFunction callback) {
 	    if (TiC.KIT_KAT_OR_GREATER) {
 	        final String code  = prepareEvalString(expression);
@@ -937,7 +937,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    final WebView webView = getWebView();
 	    if (webView == null) {
 	        return "";
-	    }
+	}
 	    final String code  = prepareEvalString(expression);
 //	    if (TiC.KIT_KAT_OR_GREATER) {
 //	        final CountDownLatch latch = new CountDownLatch(1);
@@ -980,9 +980,9 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		client.setBasicAuthentication(username, password);
 	}
-	
+
 	public void destroyWebView()
-    {
+	{
         TiWebView webView = (TiWebView) getNativeView();
         if (webView != null) {
             webView.stopLoading();
@@ -996,52 +996,52 @@ public class TiUIWebView extends TiUINonViewGroupView
             webView.destroy();
             
             
-        }
+	}
     }
 	public void setPluginState(int pluginState)
 	{
-		TiWebView webView = (TiWebView) getNativeView();
-		WebSettings webSettings = webView.getSettings();
-		if (webView != null) {
-			try {
-				switch (pluginState) {
-					case PLUGIN_STATE_OFF:
-						internalSetPluginState.invoke(webSettings, enumPluginStateOff);
-						break;
-					case PLUGIN_STATE_ON:
-						internalSetPluginState.invoke(webSettings, enumPluginStateOn);
-						break;
-					case PLUGIN_STATE_ON_DEMAND:
-						internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
-						break;
-					default:
-						Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
+			TiWebView webView = (TiWebView) getNativeView();
+			WebSettings webSettings = webView.getSettings();
+			if (webView != null) {
+				try {
+					switch (pluginState) {
+						case PLUGIN_STATE_OFF:
+							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
+							break;
+						case PLUGIN_STATE_ON:
+							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
+							break;
+						case PLUGIN_STATE_ON_DEMAND:
+							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
+							break;
+						default:
+							Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
+					}
+				} catch (InvocationTargetException e) {
+					Log.e(TAG, "Method not supported", e);
+				} catch (IllegalAccessException e) {
+					Log.e(TAG, "Illegal Access", e);
 				}
-			} catch (InvocationTargetException e) {
-				Log.e(TAG, "Method not supported", e);
-			} catch (IllegalAccessException e) {
-				Log.e(TAG, "Illegal Access", e);
 			}
 		}
-	}
 
 	public void pauseWebView()
 	{
        WebView currWebView = getWebView();
        if (currWebView == null) {
            return;
-       }
+				}
        currWebView.onPause();
-	}
+			}
 
 	public void resumeWebView()
 	{
 	    WebView currWebView = getWebView();
 	       if (currWebView == null) {
 	           return;
-	       }
+				}
 	       currWebView.onResume();
-	}
+			}
 
 	public void setUserAgentString(String userAgentString)
 	{
@@ -1129,7 +1129,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		getWebView().stopLoading();
 	}
-	
+
 	public void onProgressChanged(WebView view, int progress)   
     {
 	    float newProgress = (float)progress/100;
@@ -1189,7 +1189,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		return (isLocalHTML || alwaysInjectTi) && !bindingCodeInjected;
 	}
-	
+
 	public boolean isLocalHTML()
     {
         return isLocalHTML;
@@ -1204,7 +1204,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		return chromeClient.interceptOnBackPressed();
 	}
-	
+
 	public KrollDict eventForURL(String url) {
         KrollDict data = new KrollDict();
         if (url != null) {
@@ -1228,7 +1228,12 @@ public class TiUIWebView extends TiUINonViewGroupView
     }
 
 	@Override
-	protected void disableHWAcceleration(View view) {
-        Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
-    }
+    protected void disableHWAcceleration(View view) {
+	{
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+			super.disableHWAcceleration(view);
+		} else {
+			Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+		}
+	}
 }

@@ -112,26 +112,26 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         OnFocusChangeListener, Handler.Callback, OnTouchListener,
         TiBackgroundDrawableDelegate, OnClickListener {
 
-    private static final String TAG = "TiUIView";
+	private static final String TAG = "TiUIView";
 
-    private static AtomicInteger idGenerator;
+	private static AtomicInteger idGenerator;
 
-    public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
-    public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
-    public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
+	public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = 0;
+	public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
+	public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
 
-    public static final int TRANSITION_NONE = 0;
-    public static final int TRANSITION_EXPLODE = 1;
-    public static final int TRANSITION_FADE_IN = 2;
-    public static final int TRANSITION_FADE_OUT = 3;
-    public static final int TRANSITION_SLIDE_TOP = 4;
-    public static final int TRANSITION_SLIDE_RIGHT = 5;
-    public static final int TRANSITION_SLIDE_BOTTOM = 6;
-    public static final int TRANSITION_SLIDE_LEFT = 7;
-    public static final int TRANSITION_CHANGE_BOUNDS = 8;
-    public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
-    public static final int TRANSITION_CHANGE_TRANSFORM = 10;
-    public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
+	public static final int TRANSITION_NONE = 0;
+	public static final int TRANSITION_EXPLODE = 1;
+	public static final int TRANSITION_FADE_IN = 2;
+	public static final int TRANSITION_FADE_OUT = 3;
+	public static final int TRANSITION_SLIDE_TOP = 4;
+	public static final int TRANSITION_SLIDE_RIGHT = 5;
+	public static final int TRANSITION_SLIDE_BOTTOM = 6;
+	public static final int TRANSITION_SLIDE_LEFT = 7;
+	public static final int TRANSITION_CHANGE_BOUNDS = 8;
+	public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
+	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
+	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
 
     private static final int MSG_FIRST_ID = 100;
     private static final int MSG_SET_BACKGROUND = MSG_FIRST_ID + 1;
@@ -145,14 +145,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public static final int TIFLAG_NEEDS_INVALIDATE = 0x40000000;
     public static final int TIFLAG_NEEDS_STATE_LIST_ANIMATOR = 0x80000000;
 
-    protected View nativeView; // Native View object
+	protected View nativeView; // Native View object
 
-    protected TiViewProxy proxy;
+	protected TiViewProxy proxy;
     // protected TiViewProxy parent;
-    protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
+	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
-    protected LayoutParams layoutParams;
-    protected TiBackgroundDrawable background;
+	protected LayoutParams layoutParams;
+	protected TiBackgroundDrawable background;
     protected ShapeDrawable rippleMaskDrawable;
 
     protected boolean preventListViewSelection = false;
@@ -168,10 +168,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected MotionEvent lastUpEvent = null;
     protected MotionEvent lastDownEvent = null;
 
-    // In the case of heavy-weight windows, the "nativeView" is null,
-    // so this holds a reference to the view which is used for touching,
-    // i.e., the view passed to registerForTouch.
-    private WeakReference<View> touchView = null;
+	// In the case of heavy-weight windows, the "nativeView" is null,
+	// so this holds a reference to the view which is used for touching,
+	// i.e., the view passed to registerForTouch.
+	private WeakReference<View> touchView = null;
 
     // private boolean zIndexChanged = false;
     protected TiBorderWrapperView borderView;
@@ -183,9 +183,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     // to maintain sync visibility between borderview and view. Default is
     // visible
-    private int visibility = View.VISIBLE;
-    private int hiddenBehavior = View.INVISIBLE;
-    
+	private int visibility = View.VISIBLE;
+	private int hiddenBehavior = View.INVISIBLE;
+
     protected Handler handler;
 
     protected boolean exclusiveTouch = false;
@@ -200,146 +200,146 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected int focusKeyboardState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 
-    /**
-     * Constructs a TiUIView object with the associated proxy.
+	/**
+	 * Constructs a TiUIView object with the associated proxy.
      * 
      * @param proxy
      *            the associated proxy.
-     * @module.api
-     */
+	 * @module.api
+	 */
     public TiUIView(TiViewProxy proxy, TiCompositeLayout.LayoutParams params) {
-        if (idGenerator == null) {
-            idGenerator = new AtomicInteger(0);
-        }
-        this.proxy = proxy;
+		if (idGenerator == null) {
+			idGenerator = new AtomicInteger(0);
+		}
+		this.proxy = proxy;
         this.layoutParams = params;
         handler = new Handler(Looper.getMainLooper(), this);
-    }
+	}
 
     public TiUIView(TiViewProxy proxy) {
         this(proxy, new TiCompositeLayout.LayoutParams());
     }
 
-    /**
-     * Adds a child view into the ViewGroup.
+	/**
+	 * Adds a child view into the ViewGroup.
      * 
      * @param child
      *            the view to be added.
-     */
+	 */
     public void add(TiUIView child) {
-        add(child, -1);
-    }
+		add(child, -1);
+	}
 
-    /**
-     * Adds a child view into the ViewGroup in specific position.
+	/**
+	 * Adds a child view into the ViewGroup in specific position.
      * 
      * @param child
      *            the view to be added.
      * @param position
      *            position the view to be added.
-     */
+	 */
     public void insertAt(TiUIView child, int position) {
-        add(child, position);
-    }
+		add(child, position);
+	}
 
     protected void add(TiUIView child, int childIndex) {
-        if (child != null) {
-            View cv = child.getOuterView();
-            if (cv != null) {
+		if (child != null) {
+			View cv = child.getOuterView();
+			if (cv != null) {
                 TiUIHelper.removeViewFromSuperView(cv);
                 if (!isEnabled) {
                     child.setEnabled(isEnabled, true);
                 }
                 View nv = getParentViewForChild();
-                if (nv instanceof ViewGroup) {
-                    if (cv.getParent() == null) {
-                        if (childIndex != -1) {
+				if (nv instanceof ViewGroup) {
+					if (cv.getParent() == null) {
+						if (childIndex != -1) {
                             final int childCount = ((ViewGroup) nv)
                                     .getChildCount();
                             ((ViewGroup) nv).addView(cv,
                                     Math.min(childCount, childIndex),
                                     child.getLayoutParams());
-                        } else {
+						} else {
                             ((ViewGroup) nv).addView(cv,
                                     child.getLayoutParams());
-                        }
-                    }
+						}
+					}
                     synchronized (children) {
-                        if (children.contains(child)) {
-                            children.remove(child);
-                        }
-                        if (childIndex == -1) {
-                            children.add(child);
-                        } else {
+					if(children.contains(child)) {
+						children.remove(child);
+					}
+					if(childIndex == -1) {
+						children.add(child);
+					} else {
                             final int childCount = children.size();
                             children.add(Math.min(childCount, childIndex),
                                     child);
-                        }
-                    }
+					}
+				}
 
                     // child.parent = proxy;
 
                     if (!child.getClipChildren()) {
                         ((ViewGroup) nv).setClipChildren(false);
-                    }
-                }
-            }
-        }
+				}
+			}
+		}
+	}
     }
 
-    /**
-     * Removes the child view from the ViewGroup, if child exists.
+	/**
+	 * Removes the child view from the ViewGroup, if child exists.
      * 
      * @param child
      *            the view to be removed.
-     */
+	 */
     public void remove(TiUIView child) {
-        if (child != null) {
-            View cv = child.getOuterView();
-            if (cv != null) {
+		if (child != null) {
+			View cv = child.getOuterView();
+			if (cv != null) {
                 View nv = getParentViewForChild();
-                if (nv instanceof ViewGroup) {
-                    ((ViewGroup) nv).removeView(cv);
+				if (nv instanceof ViewGroup) {
+					((ViewGroup) nv).removeView(cv);
                     synchronized (children) {
-                        children.remove(child);
-                    }
+					children.remove(child);
+				}
                     // child.parent = null;
-                }
-            }
-        }
-    }
+			}
+		}
+	}
+	}
 
-    /**
-     * @return list of views added.
-     */
+	/**
+	 * @return list of views added.
+	 */
     public List<TiUIView> getChildren() {
         synchronized (children) {
             return new ArrayList<TiUIView>(children);
-        }
+	}
     }
 
-    /**
-     * @return the view proxy.
-     * @module.api
-     */
+	/**
+	 * @return the view proxy.
+	 * @module.api
+	 */
     public TiViewProxy getProxy() {
-        return proxy;
-    }
+		return proxy;
+	}
 
-    /**
-     * Sets the view proxy.
+	/**
+	 * Sets the view proxy.
      * 
      * @param proxy
      *            the proxy to set.
-     * @module.api
-     */
+	 * @module.api
+	 */
     public void setProxy(TiViewProxy proxy) {
-        this.proxy = proxy;
-    }
+		this.proxy = proxy;
+	}
 
     public ParentingProxy getParent() {
         return proxy.getParent();
-    }
+	}
 
     // public void setParent(TiViewProxy parent) {
     // this.parent = parent;
@@ -347,15 +347,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     public void setTouchDelegate(TiTouchDelegate delegate) {
         mTouchDelegate = delegate;
-    }
+	}
 
-    /**
-     * @return the view's layout params.
-     * @module.api
-     */
+	/**
+	 * @return the view's layout params.
+	 * @module.api
+	 */
     public LayoutParams getLayoutParams() {
-        return layoutParams;
-    }
+		return layoutParams;
+	}
 
     public Context getContext() {
         if (nativeView != null) {
@@ -387,43 +387,43 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return false;
     }
 
-    /**
-     * @return the Android native view.
-     * @module.api
-     */
+	/**
+	 * @return the Android native view.
+	 * @module.api
+	 */
     public View getNativeView() {
-        return nativeView;
-    }
+		return nativeView;
+	}
 
     public ViewGroup getParentViewForChild() {
         if (nativeView instanceof ViewGroup) {
             return (ViewGroup) nativeView;
-        }
+		}
         if (borderView != null) {
             return borderView;
-        }
+		}
         return null;
-    }
+	}
 
     protected boolean isClickable() {
         return isTouchEnabled;
-    }
+	}
 
-    /**
+	/**
      * Sets the nativeView to view.
      * 
      * @param view
      *            the view to set
      * @module.api
-     */
+	 */
     protected void setNativeView(View view) {
         if (view != null && view.getId() == View.NO_ID) {
             view.setId(idGenerator.incrementAndGet());
-        }
+		}
 
         if (this.nativeView == view) {
-            return;
-        }
+				return;
+			}
         if (this.nativeView != null) {
             // if the nativeView already has a parent make sure to add the
             // newOne to it
@@ -435,8 +435,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     savedParent = (ViewGroup) nativeParent;
                     savedIndex = savedParent.indexOfChild(this.nativeView);
                     savedParent.removeView(this.nativeView);
-                }
-            }
+		}
+		}
             if (savedParent != null) {
                 savedParent.addView(view, savedIndex, getLayoutParams());
             }
@@ -456,15 +456,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             // background.setNativeView(nativeView);
             if (TiApplication.isUIThread()) {
                 applyCustomBackground();
-            } else {
+			} else {
                 handler.sendEmptyMessage(MSG_SET_BACKGROUND);
-            }
-        }
+			}
+		}
         nativeView.setTag(this);
 
         if (TiC.LOLLIPOP_OR_GREATER) {
             nativeView.setClipToOutline(clipChildren);
-        }
+		}
 
         if (borderView != null) {
             addBorderView();
@@ -472,13 +472,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
         if (TiC.HONEYCOMB_OR_GREATER && hardwareAccEnabled == false) {
             disableHWAcceleration(getOuterView());
-        }
+		}
         applyAccessibilityProperties();
-    }
+	}
 
     public void setLayoutParams(LayoutParams layoutParams) {
         this.layoutParams = layoutParams;
-    }
+	}
 
     public void cleanAnimatedParams(boolean autoreverse) {
         if (layoutParams instanceof AnimationLayoutParams) {
@@ -488,8 +488,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     : new TiCompositeLayout.LayoutParams(layoutParams));
             if (getOuterView() != null)
                 getOuterView().setLayoutParams(layoutParams);
-        }
-    }
+	}
+	}
 
     public void cleanAnimatedParams(View theView, boolean autoreverse) {
         ViewGroup.LayoutParams params = theView.getLayoutParams();
@@ -508,7 +508,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         | NoSuchMethodException e) {
                     // TODO Auto-generated catch block
                     params = animParams.oldParams;
-                }
+	}
             }
             theView.setLayoutParams(params);
             if (animParams == layoutParams) {
@@ -520,7 +520,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public void resetAnimatedParams() {
         if (layoutParams instanceof AnimationLayoutParams) {
             ((AnimationLayoutParams) layoutParams).animationFraction = 0.0f;
-        }
+	}
     }
 
     @Override
@@ -549,7 +549,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             break;
         default:
             break;
-        }
+	}
     }
 
     @Override
@@ -582,21 +582,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             break;
         default:
             break;
-        }
+	}
     }
 
     public float[] getPreTranslationValue(float[] points) {
         View view = getOuterView();
         if (view != null && layoutParams.matrix != null) {
             Matrix m = layoutParams.matrix.getMatrix(view);
-            // Get the translation values
-            float[] values = new float[9];
-            m.getValues(values);
-            points[0] = points[0] - values[2];
-            points[1] = points[1] - values[5];
-        }
-        return points;
-    }
+			// Get the translation values
+			float[] values = new float[9];
+			m.getValues(values);
+			points[0] = points[0] - values[2];
+			points[1] = points[1] - values[5];
+		}
+		return points;
+	}
 
     public void applyTransform(Object timatrix) {
         View view = getOuterView();
@@ -607,23 +607,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (view.getVisibility() == View.VISIBLE
                     && viewParent instanceof View) {
                 ((View) viewParent).postInvalidate();
-            }
-        }
-    }
+		}
+		}
+		}
 
     protected void invalidate() {
         View view = getOuterView();
         if (view != null) {
             if (!useCustomLayoutParams) {
                 view.setLayoutParams(layoutParams);
-            }
+		}
             ViewParent viewParent = view.getParent();
             if (view.getVisibility() == View.VISIBLE
                     && viewParent instanceof View) {
                 ((View) viewParent).postInvalidate();
-            }
-        }
-    }
+	}
+					}
+					}
 
     public void applyAnchorPoint(Object anchorPoint) {
         View view = getOuterView();
@@ -632,25 +632,25 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (point != null) {
                 layoutParams.anchorX = point.x;
                 layoutParams.anchorY = point.y;
-            } else {
+					} else {
                 layoutParams.anchorX = layoutParams.anchorY = 0.5f;
-            }
+					}
             view.setLayoutParams(layoutParams);
             ViewParent viewParent = view.getParent();
             if (view.getVisibility() == View.VISIBLE
                     && viewParent instanceof View) {
                 ((View) viewParent).postInvalidate();
-            }
-        }
-    }
+					}
+				}
+			}
 
     public void forceLayoutNativeView(boolean informParent) {
-        layoutNativeView(informParent);
-    }
+		layoutNativeView(informParent);
+	}
 
     protected void layoutNativeView() {
-        layoutNativeView(false);
-    }
+		layoutNativeView(false);
+	}
 
     protected void redrawNativeView() {
         if (nativeView != null)
@@ -660,7 +660,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // for listview
     public void setReusing(boolean value) {
         reusing = value;
-    }
+	}
 
     protected void layoutNativeView(boolean informParent) {
         // if (parent != null) {
@@ -668,32 +668,32 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         ViewParent nativeParent = null;
         if (outerView != null) {
             nativeParent = outerView.getParent();
-        }
+			}
         if (nativeParent != null) {
             if (((View) nativeParent).getVisibility() == View.INVISIBLE
                     || ((View) nativeParent).getVisibility() == View.GONE) {
                 // if we have a parent which is hidden, we are hidden, so no
                 // need to layout
                 return;
-            }
+					}
             if (informParent && nativeParent instanceof TiCompositeLayout) {
                 ((TiCompositeLayout) nativeParent).resort();
-            }
-        }
+				}
+			}
         // }
 
         View childHolder = getParentViewForChild();
         if (childHolder != null) {
             childHolder.requestLayout();
-        }
-    }
+		}
+	}
 
     public void resort() {
-        View v = getNativeView();
-        if (v instanceof TiCompositeLayout) {
-            ((TiCompositeLayout) v).resort();
-        }
-    }
+		View v = getNativeView();
+		if (v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+	}
 
     // public boolean iszIndexChanged() {
     // return zIndexChanged;
@@ -701,15 +701,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected void setNeedsLayout() {
         setNeedsLayout(false);
-    }
+	}
 
     protected void setNeedsLayout(final boolean informParent) {
         mProcessUpdateFlags |= TIFLAG_NEEDS_LAYOUT;
         if (informParent) {
             mProcessUpdateFlags |= TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
-        }
+	}
 
-    }
+		}
 
     // public void setzIndexChanged(boolean zIndexChanged) {
     // this.zIndexChanged = zIndexChanged;
@@ -717,11 +717,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected int fillLayout(String key, Object value, boolean withMatrix) {
         return TiConvert.fillLayout(key, value, layoutParams, true);
-    }
+	}
 
     protected int fillLayout(HashMap d) {
         return TiConvert.fillLayout(d, layoutParams, true);
-    }
+		}
 
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -731,8 +731,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 // it means it is a layout property so already handled
                 mProcessUpdateFlags |= layoutPropsFlags;
                 return;
-            }
-        }
+			}
+			}
         if (key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
             TiBackgroundDrawable bgdDrawable = getOrCreateBackground();
             switch (key) {
@@ -764,21 +764,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 bgdDrawable.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_SELECTED_STATE, drawable);
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_FOCUSED_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
                 bgdDrawable.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE, drawable);
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_DISABLED_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
                 bgdDrawable.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DISABLED_STATE, drawable);
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
@@ -787,7 +787,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 bgdDrawable.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_2, drawable);
                 break;
-            }
+				}
             case TiC.PROPERTY_BACKGROUND_IMAGE: {
                 boolean repeat = proxy.getProperties()
                         .optBoolean(TiC.PROPERTY_BACKGROUND_REPEAT, false);
@@ -795,28 +795,28 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         new int[][] { TiUIHelper.BACKGROUND_DEFAULT_STATE_1,
                                 TiUIHelper.BACKGROUND_DEFAULT_STATE_2 });
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE: {
                 boolean repeat = proxy.getProperties()
                         .optBoolean(TiC.PROPERTY_BACKGROUND_REPEAT, false);
                 setBackgroundImageDrawable(newValue, repeat,
                         new int[][] { TiUIHelper.BACKGROUND_SELECTED_STATE });
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE: {
                 boolean repeat = proxy.getProperties()
                         .optBoolean(TiC.PROPERTY_BACKGROUND_REPEAT, false);
                 setBackgroundImageDrawable(newValue, repeat,
                         new int[][] { TiUIHelper.BACKGROUND_FOCUSED_STATE });
                 break;
-            }
+				}
             case TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE: {
                 boolean repeat = proxy.getProperties()
                         .optBoolean(TiC.PROPERTY_BACKGROUND_REPEAT, false);
                 setBackgroundImageDrawable(newValue, repeat,
                         new int[][] { TiUIHelper.BACKGROUND_DISABLED_STATE });
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_SELECTED_INNERSHADOWS: {
                 Shadow[] shadows = TiConvert.toShadowArray((Object[]) newValue);
                 bgdDrawable.setInnerShadowsForState(
@@ -824,7 +824,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 // bgdDrawable.setInnerShadowsForState(
                 // TiUIHelper.BACKGROUND_FOCUSED_STATE, shadows);
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_FOCUSED_INNERSHADOWS:
                 bgdDrawable.setInnerShadowsForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE,
@@ -842,7 +842,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 bgdDrawable.setInnerShadowsForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_2, shadows);
                 break;
-            }
+			}
             case TiC.PROPERTY_BACKGROUND_OPACITY:
                 if (background != null)
                     TiUIHelper.setDrawableOpacity(background,
@@ -852,11 +852,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 break;
             case TiC.PROPERTY_BACKGROUND_PADDING:
                 background.setPadding(TiConvert.toPaddingRect(newValue, null));
-                Log.i(TAG, key + " not yet implemented.");
+			Log.i(TAG, key + " not yet implemented.");
                 break;
             default:
                 break;
-            }
+			}
             if (changedProperty)
                 bgdDrawable.invalidateSelf();
             return;
@@ -867,43 +867,43 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 int color = TiConvert.toColor(newValue);
                 view.setColor(color);
                 break;
-            }
+				}
             case TiC.PROPERTY_BORDER_SELECTED_COLOR: {
                 view.setColorForState(TiUIHelper.BACKGROUND_SELECTED_STATE,
                         TiConvert.toColor(newValue));
                 break;
-            }
+						}
             case TiC.PROPERTY_BORDER_FOCUSED_COLOR: {
                 view.setColorForState(TiUIHelper.BACKGROUND_FOCUSED_STATE,
                         TiConvert.toColor(newValue));
                 break;
-            }
+					}
             case TiC.PROPERTY_BORDER_DISABLED_COLOR: {
                 view.setColorForState(TiUIHelper.BACKGROUND_DISABLED_STATE,
                         TiConvert.toColor(newValue));
                 break;
-            }
+				}
             case TiC.PROPERTY_BORDER_SELECTED_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
                 view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_SELECTED_STATE, drawable);
                 break;
-            }
+				}
             case TiC.PROPERTY_BORDER_FOCUSED_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
                 view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE, drawable);
                 break;
-            }
+						}
             case TiC.PROPERTY_BORDER_DISABLED_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
                 view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DISABLED_STATE, drawable);
                 break;
-            }
+					}
             case TiC.PROPERTY_BORDER_GRADIENT: {
                 Drawable drawable = TiUIHelper
                         .buildGradientDrawable(TiConvert.toKrollDict(newValue));
@@ -912,7 +912,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_2, drawable);
                 break;
-            }
+				}
             case TiC.PROPERTY_BORDER_RADIUS:
                 setBorderRadius(newValue);
                 break;
@@ -924,7 +924,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         mBorderPadding);
                 getOrCreateBorderView().setBorderPadding(mBorderPadding);
                 break;
-            }
+					}
             if (changedProperty)
                 view.postInvalidate();
             return;
@@ -936,7 +936,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             default:
                 applyContentDescription();
                 break;
-            }
+				}
             return;
         }
 
@@ -946,16 +946,16 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (parentViewForChild instanceof TiCompositeLayout) {
                 ((TiCompositeLayout) parentViewForChild)
                         .setLayoutArrangement(TiConvert.toString(newValue));
-            }
+						}
             setNeedsLayout();
             break;
-        }
+					}
         case TiC.PROPERTY_HORIZONTAL_WRAP:
             if (nativeView instanceof TiCompositeLayout) {
                 ((TiCompositeLayout) getParentViewForChild())
                         .setEnableHorizontalWrap(
                                 TiConvert.toBoolean(newValue, false));
-            }
+					}
             setNeedsLayout(changedProperty);
             break;
         case TiC.PROPERTY_FOCUSABLE:
@@ -979,7 +979,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
             if (this.visibility == View.INVISIBLE) {
                 this.setVisibility(hiddenBehavior);
-            }
+				}
             break;
         case TiC.PROPERTY_ENABLED:
             boolean oldEnabled = isEnabled;
@@ -996,7 +996,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             setViewMask(newValue);
             break;
         case TiC.PROPERTY_OPACITY:
-            setOpacity(TiConvert.toFloat(newValue, 1f));
+				setOpacity(TiConvert.toFloat(newValue, 1f));
             break;
         case TiC.PROPERTY_TRANSFORM:
             applyTransform(newValue);
@@ -1005,10 +1005,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             applyAnchorPoint(newValue);
             break;
         case TiC.PROPERTY_KEEP_SCREEN_ON:
-            if (nativeView != null) {
+			if (nativeView != null) {
                 nativeView
                         .setKeepScreenOn(TiConvert.toBoolean(newValue, false));
-            }
+			}
             break;
         case TiC.PROPERTY_TOUCH_PASSTHROUGH:
             touchPassThrough = TiConvert.toBoolean(newValue, false);
@@ -1030,27 +1030,27 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (TiC.LOLLIPOP_OR_GREATER) {
                     ((ViewGroup) parentViewForChild)
                             .setClipToOutline(clipChildren);
-                }
+			}
                 ((ViewGroup) parentViewForChild).setClipChildren(clipChildren);
-            }
+			}
             if (borderView != null) {
                 if (TiC.LOLLIPOP_OR_GREATER) {
                     borderView.setClipToOutline(clipChildren);
-                }
+			}
                 borderView.setClipChildren(clipChildren);
-            }
+			}
             if (!clipChildren) {
                 ViewGroup theParent = (ViewGroup) getOuterView().getParent();
                 if (theParent != null) {
                     theParent.setClipChildren(clipChildren);
                     if (TiC.LOLLIPOP_OR_GREATER) {
                         theParent.setClipToOutline(clipChildren);
-                    }
-                }
-            }
+			}
+			}
+			}
 
             break;
-        }
+			}
         case TiC.PROPERTY_TRANSLATION_Z: {
             if (TiC.LOLLIPOP_OR_GREATER) {
                 mTranslationZ = TiConvert.toTiDimension(newValue,
@@ -1058,9 +1058,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 mCurrentTranslationZ = (mTranslationZ != null)?mTranslationZ.getAsPixels(getOuterView()):0;
                 setTranslationZ(mCurrentTranslationZ);
                 mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
-            }
+			}
             break;
-        }
+			}
         case TiC.PROPERTY_ELEVATION: {
             if (TiC.LOLLIPOP_OR_GREATER) {
                 mElevation = TiConvert.toTiDimension(newValue,
@@ -1090,29 +1090,29 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                                         outline.setRect(0, 0,
                                                 view.getMeasuredWidth(),
                                                 view.getMeasuredHeight());
-                                    }
-                                }
+		}
+	}
 
-                            }
-                        }
+		}
+			}
                     };
                     if (view != null) {
                         view.setOutlineProvider(mOutlineProvider);
-                    }
-                }
+		}
+		}
                 mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
-            }
+			}
             break;
-        }
+		}
         case TiC.PROPERTY_SELECTOR:
             if (newValue instanceof Boolean) {
                 int color = TiUIHelper.getColorAccent(getContext());
                 applyCustomForeground(color,
                         TiConvert.toBoolean(newValue, false));
-            } else {
+			} else {
                 int color = TiConvert.toColor(newValue);
                 applyCustomForeground(color, true);
-            }
+					}
             break;
 
         case TiC.PROPERTY_DISABLE_HW:
@@ -1126,7 +1126,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             antiAlias = TiConvert.toBoolean(newValue);
             if (getBorderView() != null) {
                 getBorderView().setAntiAlias(antiAlias);
-            }
+				}
             break;
         case TiC.PROPERTY_MASK_FROM_VIEW:
             KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
@@ -1136,11 +1136,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (tiView.getParent() == null) {
                     view.setVisibility(View.GONE);
                     add(tiView);
-                }
+			}
                 getOrCreateBorderView().setMaskView(view);
             } else if (getBorderView() != null) {
                 getBorderView().setMaskView(null);
-            }
+		}
             break;
         case TiC.PROPERTY_TRANSITION_NAME: {
             if (TiC.LOLLIPOP_OR_GREATER) {
@@ -1148,13 +1148,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (view != null) {
                     ViewCompat.setTransitionName(view,
                             TiConvert.toString(newValue));
-                }
-            }
-        }
+			}
+		}
+			}
         case TiC.PROPERTY_HIT_RECT: {
             mHitRect = TiConvert.toRect(newValue);
             break;
-       }
+		}
         case "panDirection": {
             String directionString = TiConvert.toString(newValue);
             int direction = -1;
@@ -1168,23 +1168,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     break;
                 default:
                     break;
-                }
+		}
             }
-            
+
             getOrCreateGestureHandler().setPanDirection(direction);
             break;
 
-        }
+		}
         default:
             break;
-        }
-    }
+			}
+		}
 
     protected void updateStateListAnimator() {
         View view = getOuterView();
         if (view == null) {
             return;
-        }
+		}
         final float elevation = mCurrentElevation;
         final float translationZ = mCurrentTranslationZ;
         final float translationSelectedZ = (translationZ > 0) ? (translationZ * 2.0f)
@@ -1245,7 +1245,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         listAnimator.addState(new int[] {}, set);
 
         view.setStateListAnimator(listAnimator);
-    }
+		}
 
     protected void setBackgroundImageDrawable(Object object,
             boolean backgroundRepeat, int[][] states) {
@@ -1254,7 +1254,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 nativeView.getContext(), object, backgroundRepeat, proxy);
         if (drawable == null) {
             return;
-        }
+		}
         for (int i = 0; i < states.length; i++) {
             bgdDrawable.setImageDrawableForState(states[i], drawable);
         }
@@ -1268,14 +1268,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 //            }
 //            view.invalidateOutline();
 //        }
-    }
+		}
 
     public static void setFocusable(View view, boolean focusable) {
         view.setFocusable(focusable);
         // so dumb setFocusable to false set setFocusableInTouchMode
         // but not when using true :s so we have to do it
         view.setFocusableInTouchMode(focusable);
-    }
+		}
 
     protected void setEnabled(View view, boolean enabled, boolean focusable,
             boolean setChildren) {
@@ -1291,7 +1291,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     ((TiUIView) tag).setEnabled(enabled, setChildren);
                 } else {
                     setEnabled(child, enabled, focusable, setChildren);
-                }
+		}
             }
         }
     }
@@ -1299,11 +1299,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected void setEnabled(boolean enabled, boolean setChildren) {
         setEnabled(getOuterView(), enabled && isEnabled, enabled && isFocusable,
                 setChildren);
-    }
+		}
 
     protected ArrayList<String> keySequence() {
         return null;
-    }
+		}
 
     protected void handleProperties(HashMap<String, Object> d,
             final boolean changed) {
@@ -1315,8 +1315,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     propertySet(key, d.get(key),
                             changed ? currents.get(key) : null, changed);
                     d.remove(key);
-                }
-            }
+		}
+	}
         }
         for (Map.Entry entry : d.entrySet()) {
             final Object key = entry.getKey();
@@ -1327,12 +1327,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    @Override
+	@Override
     public void processApplyProperties(HashMap d) {
         aboutToProcessProperties(d);
         handleProperties(d, true);
         didProcessProperties();
-    }
+		}
 
     @Override
     public void processProperties(HashMap d) {
@@ -1345,7 +1345,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (diff > 20) {
             Log.w(TAG, "processProperties " + diff + "ms, "
                     + this.getClass().toString());
-        }
+	}
         if (!(layoutParams instanceof AnimationLayoutParams)
                 && getOuterView() != null && !useCustomLayoutParams) {
             getOuterView().setLayoutParams(layoutParams);
@@ -1354,7 +1354,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (touchView == null || touchView.get() != getTouchView()) {
             registerForTouch();
             registerForKeyPress();
-        }
+	}
     }
 
     protected void aboutToProcessProperties(HashMap d) {
@@ -1373,26 +1373,26 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     & TIFLAG_NEEDS_LAYOUT_INFORMPARENT) != 0));
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LAYOUT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
-        }
+						}
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_STATE_LIST_ANIMATOR) != 0) {
             updateStateListAnimator();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
-        }
+					}
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_INVALIDATE) != 0) {
             View view = getOuterView();
             if (view != null) {
                 if (!useCustomLayoutParams) {
                     view.setLayoutParams(layoutParams);
-                }
+				}
                 ViewParent viewParent = view.getParent();
                 if (view.getVisibility() == View.VISIBLE
                         && viewParent instanceof View) {
                     ((View) viewParent).postInvalidate();
-                }
-            }
+			}
+		}
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_INVALIDATE;
-        }
+	}
     }
 
     @Override
@@ -1400,54 +1400,54 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             KrollProxy proxy) {
         propertySet(key, newValue, oldValue, true);
         didProcessProperties();
-    }
-
+	}
+	
     @Override
     public void propertiesChanged(List<KrollPropertyChange> changes,
             KrollProxy proxy) {
         for (KrollPropertyChange change : changes) {
             propertySet(change.getName(), change.getNewValue(),
                     change.getOldValue(), true);
-        }
+			}
         didProcessProperties();
-    }
+		}
     
     public void runInUiThread(final CommandNoReturn command) {
         if (proxy != null) {
             proxy.runInUiThread(command, true);
-        }
+	}
     }
 
     public void onFocusChange(final View v, final boolean hasFocus) {
         if (!TiApplication.isUIThread()) {
             proxy.getActivity().runOnUiThread(new Runnable() {
                 @Override
-                public void run() {
+				public void run() {
                     onFocusChange(v, hasFocus);
-                }
-            });
+				}
+			});
             return;
         }
         if (hasFocus) {
             TiUIHelper.requestSoftInputChange(TiUIView.this, v);
             fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus), false,
                     true);
-        } else {
+		} else {
             fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus), false,
                     true);
-        }
-    }
+		}
+	}
 
     protected KrollDict getFocusEventObject(boolean hasFocus) {
-        return null;
-    }
+		return null;
+	}
 
     protected InputMethodManager getIMM() {
-        InputMethodManager imm = null;
+		InputMethodManager imm = null;
         imm = (InputMethodManager) TiApplication.getInstance()
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        return imm;
-    }
+		return imm;
+	}
 
     public static void handleFocus(View view) {
         int oldDesc = ViewGroup.FOCUS_AFTER_DESCENDANTS;
@@ -1462,9 +1462,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    /**
-     * Focuses the view.
-     */
+	/**
+	 * Focuses the view.
+	 */
     public boolean focus() {
         View view = getFocusView();
         if (view != null && !hasFocus()) {
@@ -1473,9 +1473,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             } else {
                 TiMessenger.sendBlockingMainMessage(
                         proxy.getMainHandler().obtainMessage(MSG_FOCUS), view);
-            }
+		}
             return true;
-        }
+	}
         return false;
     }
 
@@ -1483,7 +1483,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         View view = getFocusView();
         if (view != null) {
             return view.hasFocus();
-        }
+					}
         return false;
     }
 
@@ -1497,20 +1497,20 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 oldDesc = ((ViewGroup) root).getDescendantFocusability();
                 ((ViewGroup) root).setDescendantFocusability(
                         ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-            }
+				}
             oldValue = root.isFocusable();
             setFocusable(root, false);
-        }
+		}
         view.clearFocus();
         if (root != null) {
             setFocusable(root, oldValue);
             if (root instanceof ViewGroup) {
                 ((ViewGroup) root).setDescendantFocusability(oldDesc);
-            }
+	}
         }
 
         TiUIHelper.hideSoftKeyboard(view);
-    }
+		}
 
     protected void clearFocus(View view) {
         if (TiApplication.isUIThread()) {
@@ -1538,50 +1538,50 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         // Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
         proxy.cancelAllAnimations();
         View nv = getRootView();
-        if (nv != null) {
-            if (nv instanceof ViewGroup) {
-                ViewGroup vg = (ViewGroup) nv;
-                if (!(vg instanceof AdapterView<?>)) {
-                    vg.removeAllViews();
-                }
-            }
-            Drawable d = nv.getBackground();
-            if (d != null) {
+		if (nv != null) {
+			if (nv instanceof ViewGroup) {
+				ViewGroup vg = (ViewGroup) nv;
+				if (!(vg instanceof AdapterView<?>)) {
+					vg.removeAllViews();
+				}
+			}
+			Drawable d = nv.getBackground();
+			if (d != null) {
                 setBackgroundDrawable(nv, null);
-                d.setCallback(null);
-                if (d instanceof TiBackgroundDrawable) {
-                    ((TiBackgroundDrawable) d).releaseDelegate();
-                }
-                d = null;
-            }
+				d.setCallback(null);
+				if (d instanceof TiBackgroundDrawable) {
+					((TiBackgroundDrawable)d).releaseDelegate();
+				}
+				d = null;
+			}
             TiUIHelper.removeViewFromSuperView(getOuterView());
-            nativeView = null;
-            borderView = null;
-            if (proxy != null) {
-                proxy.setModelListener(null);
-            }
-        }
-    }
+			nativeView = null;
+			borderView = null;
+			if (proxy != null) {
+				proxy.setModelListener(null);
+			}
+		}
+			}
 
     public void setVisibility(int visibility) {
         if (this.visibility == visibility)
             return;
         forceLayoutNativeView(true);
-        if (visibility == View.INVISIBLE) {
+		if (visibility == View.INVISIBLE) {
 			this.visibility = hiddenBehavior;
 		} else {
-            this.visibility = visibility;
-        }
+		this.visibility = visibility;
+		}
         proxy.setProperty(TiC.PROPERTY_VISIBLE, (visibility == View.VISIBLE));
         if (visibility != View.VISIBLE) {
             blur();
-        }
+		}
 
         View view = getRootView();
         if (view != null) {
             view.clearAnimation();
             view.setVisibility(this.visibility);
-        }
+	}
         view = getOuterView();
         if (view != null) {
             view.clearAnimation();
@@ -1590,19 +1590,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     }
 
-    /**
-     * Shows the view, changing the view's visibility to View.VISIBLE.
-     */
+	/**
+	 * Shows the view, changing the view's visibility to View.VISIBLE.
+	 */
     public void show() {
-        this.setVisibility(View.VISIBLE);
-    }
+		this.setVisibility(View.VISIBLE);
+		}
 
-    /**
-     * Hides the view, changing the view's visibility to View.INVISIBLE.
-     */
+	/**
+	 * Hides the view, changing the view's visibility to View.INVISIBLE.
+	 */
     public void hide() {
         this.setVisibility(View.GONE);
-    }
+		}
 
     // public void propagateChildDrawableState(View child) {
     // propagateDrawableState(child, child.getDrawableState());
@@ -1623,12 +1623,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             Drawable drawable = nativeView.getBackground();
             if (drawable != null && drawable.isStateful()) {
                 drawable.setState(state);
-            }
+	}
         }
 
         if (borderView != null) {
             borderView.setDrawableState(state);
-        }
+	}
     }
 
     public boolean propagateSetPressed(final View view, final boolean pressed) {
@@ -1650,11 +1650,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             view.setBackground(drawable);
             if (drawable != null) {
                 drawable.setCallback(view);
-            }
+		}
         } else {
             view.setBackgroundDrawable(drawable);
-        }
-    }
+		}
+		}
 
     protected void applyCustomBackground() {
         if (background == null) {
@@ -1665,21 +1665,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (proxy.hasProperty(TiC.PROPERTY_OPACITY))
                     alpha *= TiConvert
                             .toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY));
-            }
+		}
             if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_OPACITY))
                 alpha *= TiConvert.toFloat(
                         proxy.getProperty(TiC.PROPERTY_BACKGROUND_OPACITY));
 
             if (alpha < 1.0) {
                 TiUIHelper.setDrawableOpacity(background, alpha);
-            }
+				}
             if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
                 background.setImageRepeat(TiConvert.toBoolean(
                         proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
             if (getBorderView() != null) {
                 background.setRadius(getBorderView().getRadius());
-            }
-        }
+			}
+			}
         View view = getNativeView();
         if (view != null) {
             Drawable currentDrawable = view.getBackground();
@@ -1687,9 +1687,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 currentDrawable.setCallback(null);
                 if (currentDrawable instanceof TiBackgroundDrawable) {
                     ((TiBackgroundDrawable) currentDrawable).releaseDelegate();
-                }
+		}
                 // setBackgroundDrawable(view, null);
-            }
+			}
             setBackgroundDrawable(view, background);
             if (background.isStateful()) {
                 if (background.setState(view.getDrawableState())) {
@@ -1709,14 +1709,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (enabled) {
                     if (rippleMaskDrawable == null) {
                         rippleMaskDrawable = new ShapeDrawable();
-                    }
+			}
                     rippleMaskDrawable.getPaint().setColor(pressedColor);
                     float[] radius = background.getRadius();
                     if (radius != null) {
                         rippleMaskDrawable.setShape(new RoundRectShape(radius, null, null));
                     } else {
                         rippleMaskDrawable.setShape(null);
-                    }
+		}
                     RippleDrawable drawable = new RippleDrawable(
                             new ColorStateList(
                                     new int[][] {
@@ -1730,7 +1730,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     background.setCallback(drawable);
                 } else {
                     setBackgroundDrawable(view, background);
-                }
+	}
             }
         } else {
             getOrCreateBackground().setColorForState(
@@ -1740,25 +1740,25 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     private void addBorderView() {
         View rootView = getRootView();
-        // Create new layout params for the child view since we just want the
-        // wrapper to control the layout
+					// Create new layout params for the child view since we just want the
+					// wrapper to control the layout
         LayoutParams params = new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         params.ignoreInFill = true;
         // If the view already has a parent, we need to detach it from the
         // parent
-        // and add the borderView to the parent as the child
-        ViewGroup savedParent = null;
+					// and add the borderView to the parent as the child
+					ViewGroup savedParent = null;
         int savedIndex = 0;
         if (rootView.getParent() != null) {
             ViewParent nativeParent = rootView.getParent();
-            if (nativeParent instanceof ViewGroup) {
-                savedParent = (ViewGroup) nativeParent;
+						if (nativeParent instanceof ViewGroup) {
+							savedParent = (ViewGroup) nativeParent;
                 savedIndex = savedParent.indexOfChild(rootView);
                 savedParent.removeView(rootView);
-            }
-        }
+						}
+					}
         nativeView.setTag(null);
         borderView.setTag(this);
         borderView.setLayoutParams(getLayoutParams());
@@ -1784,22 +1784,22 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         borderView.setClipChildren(clipChildren);
 
-        if (savedParent != null) {
+					if (savedParent != null) {
             savedParent.addView(borderView, savedIndex);
-        }
-    }
+					}
+				}
 
     protected TiBorderWrapperView getBorderView() {
         if (nativeView instanceof TiBorderWrapperView) {
             return (TiBorderWrapperView) nativeView;
-        }
+					}
         return borderView;
-    }
+					}
 
     protected TiBorderWrapperView getOrCreateBorderView() {
         if (nativeView instanceof TiBorderWrapperView) {
             return (TiBorderWrapperView) nativeView;
-        }
+				}
         if (borderView == null) {
             Activity currentActivity = proxy.getActivity();
             if (currentActivity == null) {
@@ -1813,14 +1813,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             borderView.setVisibility(this.visibility);
             borderView.setEnabled(isEnabled);
             borderView.setAntiAlias(antiAlias);
-
+				
             if (mBorderPadding != null)
                 borderView.setBorderPadding(mBorderPadding);
             if (hardwareAccEnabled == false) {
                 disableHWAcceleration(borderView);
-            }
+				}
             addBorderView();
-        }
+				}
         return borderView;
     }
 
@@ -1830,13 +1830,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             result = getBorderRadius(TiConvert.toFloatArray((Object[]) value));
         } else {
             result = getBorderRadius(TiConvert.toFloat(value, 0f));
-        }
+					}
         setBorderRadius(result);
-    }
+				}
 
     public void setBorderRadius(float value) {
         setBorderRadius(Float.valueOf(value));
-    }
+			}
 
     public float getBorderRadius() {
         float[] result = null;
@@ -1844,33 +1844,33 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             result = background.getRadius();
         } else if (borderView != null) {
             result = borderView.getRadius();
-        }
+			}
         if (result != null) {
             return result[0] / TiApplication.getAppDensity();
-        }
+		}
         return 0;
-    }
+	}
 
     protected void setBorderRadius(float[] radius) {
         if (background != null) {
             background.setRadius(radius);
-        }
+			}
         if (rippleMaskDrawable != null) {
             if (radius != null) {
                 rippleMaskDrawable.setShape(new RoundRectShape(radius, null, null));                
             } else {
                 rippleMaskDrawable.setShape(null);                
-            }
-        }
+			}
+			}
         getOrCreateBorderView().setRadius(radius);
-    }
+			}
 
     private float[] getBorderRadius(float radius) {
         realRadius = radius * TiApplication.getAppDensity();
         float[] result = new float[8];
         Arrays.fill(result, realRadius);
         return result;
-    }
+		}
 
     private float[] getBorderRadius(float[] radius) {
         float factor = TiApplication.getAppDensity();
@@ -1879,7 +1879,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             result = new float[8];
             for (int i = 0; i < radius.length; i++) {
                 result[i * 2] = result[i * 2 + 1] = radius[i] * factor;
-            }
+	}
         } else if (radius.length == 8) {
             result = new float[8];
             if (radius.length == 4) {
@@ -1895,36 +1895,36 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         // float realWidth = (new TiDimension(Float.toString(width),
         // TiDimension.TYPE_WIDTH)).getAsPixels(nativeView);
         getOrCreateBorderView().setBorderWidth(width);
-    }
-    
+	}
+
     
     public void setElevation(float value) {
         View view = getOuterView();
         if (view != null) {
             view.setElevation(value);
-        }
+	}
     }
 
     public float getElevation() {
         View view = getOuterView();
         if (view != null) {
             return view.getElevation();
-        }
+		}
         return 0;
-    }
+		}
     
     public void setTranslationZ(float value) {
         View view = getOuterView();
         if (view != null) {
             view.setTranslationZ(value);
-        }
-    }
+		}
+		}
 
     public float getTranslationZ() {
         View view = getOuterView();
         if (view != null) {
             return view.getTranslationZ();
-        }
+	}
         return 0;
     }
 
@@ -1961,27 +1961,27 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // }
 
     protected boolean allowRegisterForTouch() {
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @module.api
-     */
+	/**
+	 * @module.api
+	 */
     protected boolean allowRegisterForKeyPress() {
-        return true;
-    }
+		return true;
+	}
 
     public View getOuterView() {
         return borderView == null ? nativeView : borderView;
-    }
+	}
 
     public View getRootView() {
         return nativeView;
-    }
+		}
 
     public View getFocusView() {
         return nativeView;
-    }
+	}
 
     public int getFocusState() {
         return focusKeyboardState;
@@ -1990,8 +1990,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public void registerForTouch() {
         if (allowRegisterForTouch()) {
             registerForTouch(getTouchView());
-        }
-    }
+						}
+					}
 
     public void checkUpEventSent(MotionEvent event) {
         if (pointerDown) {
@@ -1999,26 +1999,26 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         } else {
             for (TiUIView child : children) {
                 child.checkUpEventSent(event);
-            }
-        }
+					}
+				}
     }
 
     protected void setPointerDown(final boolean value) {
         pointerDown = value;
-    }
+				}
 
     protected boolean pointerDown = false;
 
-    @Override
+			@Override
     public boolean onTouch(View v, MotionEvent event) {
         if (mTouchDelegate != null) {
             mTouchDelegate.onTouchEvent(event, TiUIView.this);
-        }
+				}
 
         if (TiC.LOLLIPOP_OR_GREATER) {
             if (nativeView != v) {
                 nativeView.drawableHotspotChanged(event.getX(), event.getY());
-            }
+			}
             if (borderView != null) {
                 borderView.drawableHotspotChanged(event.getX(), event.getY());
             }
@@ -2037,21 +2037,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 case MotionEvent.ACTION_CANCEL:
                     parent.requestDisallowInterceptTouchEvent(false);
                     break;
-                }
-            }
+				}
+			}
 
-        }
+					}
         if (action == MotionEvent.ACTION_UP
                 || action == MotionEvent.ACTION_CANCEL
                 || action == MotionEvent.ACTION_OUTSIDE) {
             lastUpEvent = MotionEvent.obtain(event);
             setPointerDown(false);
-        }
+				}
 
         if (action == MotionEvent.ACTION_DOWN) {
             lastDownEvent = MotionEvent.obtain(event);
             setPointerDown(true);
-        }
+			}
         onChildTouchEvent(this, v, event);
 
         handleTouchEvent(event);
@@ -2061,12 +2061,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected void cancelParentGestures() {
         if (mGestureHandler != null) {
             mGestureHandler.cancelGestures();
-        }
+				}
         ParentingProxy parent = getParent();
         if (parent instanceof TiViewProxy
                 && ((TiViewProxy) parent).peekView() != null) {
             ((TiViewProxy) parent).peekView().cancelParentGestures();
-        }
+			}
     }
 
     protected void onChildTouchEvent(TiUIView view, View v, MotionEvent event) {
@@ -2076,13 +2076,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             mGestureHandler.onTouch(v, event);
             if (action == MotionEvent.ACTION_DOWN) {
                 mGestureHandler.setTouchedView(view);
-            }
-        }
+				}
+					}
         KrollProxy parent = proxy.getParentForBubbling();
         if (parent instanceof TiViewProxy
                 && ((TiViewProxy) parent).peekView() != null) {
             ((TiViewProxy) parent).peekView().onChildTouchEvent(view, v, event);
-        }
+				}
     }
 
     private TiViewGestureHandler mGestureHandler;
@@ -2090,7 +2090,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     private TiViewGestureHandler getOrCreateGestureHandler() {
         if (mGestureHandler == null) {
             mGestureHandler = new TiViewGestureHandler(this);
-        }
+				}
         return mGestureHandler;
     }
 
@@ -2104,19 +2104,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 || proxy._hasListeners(TiC.EVENT_DOUBLE_TAP);
         if (gestureEnabled) {
             getOrCreateGestureHandler().setGlobalEnabled(gestureEnabled);
-        }
+						}
         if (proxy._hasListeners(TiC.EVENT_PAN)) {
             getOrCreateGestureHandler().setPanEnabled(true);
-        }
+					}
         if (proxy._hasListeners(TiC.EVENT_ROTATE)) {
             getOrCreateGestureHandler().setRotationEnabled(true);
-        }
+						}
         if (proxy._hasListeners(TiC.EVENT_PINCH)) {
             getOrCreateGestureHandler().setScaleEnabled(true);
-        }
+					}
         if (proxy._hasListeners(TiC.EVENT_SHOVE)) {
             getOrCreateGestureHandler().setShoveEnabled(true);
-        }
+				}
         if (proxy._hasListeners(TiC.EVENT_TWOFINGERTAP)) {
             getOrCreateGestureHandler().setTwoFingersTapEnabled(true);
         }
@@ -2125,24 +2125,24 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     protected void handleTouchEvent(MotionEvent event) {
-        String motionEvent = motionEvents.get(event.getAction());
-        if (motionEvent != null) {
+				String motionEvent = motionEvents.get(event.getAction());
+				if (motionEvent != null) {
             if (hierarchyHasListener(motionEvent)) {
                 fireEventNoCheck(motionEvent, dictFromMotionEvent(event));
-            }
-        }
-    }
+					}
+				}
+			}
 
     protected KrollDict dictFromMotionEvent(MotionEvent e) {
         return TiViewHelper.dictFromMotionEvent(getTouchView(), e);
-    }
+	}
 
     protected void registerForTouch(final View touchable) {
-        if (touchable == null) {
-            return;
-        }
+		if (touchable == null) {
+			return;
+		}
 
-        if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
+		if (proxy.hasProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED)) {
 			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
 			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
@@ -2150,8 +2150,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         boolean clickable = isClickable();
         if (clickable) {
             if (touchView == null || touchView.get() != touchable)
-                registerTouchEvents(touchable);
-            
+		registerTouchEvents(touchable);
+
             // Previously, we used the single tap handling above to fire our
             // click event. It doesn't
             // work: a single tap is not the same as a click. A click can be
@@ -2178,93 +2178,93 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
 
         doSetClickable(touchable, clickable);
-    }
+	}
 
     public void registerForKeyPress() {
-        if (allowRegisterForKeyPress()) {
-            registerForKeyPress(getNativeView());
-        }
-    }
+		if (allowRegisterForKeyPress()) {
+			registerForKeyPress(getNativeView());
+		}
+	}
 
     protected void registerForKeyPress(final View v) {
-        if (v == null) {
-            return;
-        }
+		if (v == null) {
+			return;
+		}
 
         registerForKeyPress(v, isFocusable);
-    }
+		}
 
     protected void registerForKeyPress(final View v, boolean focusable) {
-        if (v == null) {
-            return;
-        }
+		if (v == null) {
+			return;
+		}
 
         setFocusable(v, focusable);
 
         // The listener for the "keypressed" event is only triggered when the
         // view has focus. So we only register the
-        // "keypressed" event when the view is focusable.
-        if (focusable) {
-            registerForKeyPressEvents(v);
-        } else {
-            v.setOnKeyListener(null);
-        }
-    }
+		// "keypressed" event when the view is focusable.
+		if (focusable) {
+			registerForKeyPressEvents(v);
+		} else {
+			v.setOnKeyListener(null);
+		}
+	}
 
-    /**
+	/**
      * Registers a callback to be invoked when a hardware key is pressed in this
      * view.
-     *
+	 *
      * @param v
      *            The view to have the key listener to attach to.
-     */
+	 */
     protected void registerForKeyPressEvents(final View v) {
-        if (v == null) {
-            return;
-        }
+		if (v == null) {
+			return;
+		}
 
         v.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View view, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				if (event.getAction() == KeyEvent.ACTION_UP) {
                     if (hierarchyHasListener(TiC.EVENT_KEY_PRESSED)) {
-                        KrollDict data = new KrollDict();
-                        data.put(TiC.EVENT_PROPERTY_KEYCODE, keyCode);
+					KrollDict data = new KrollDict();
+					data.put(TiC.EVENT_PROPERTY_KEYCODE, keyCode);
                         fireEventNoCheck(TiC.EVENT_KEY_PRESSED, data);
                     }
 
-                    switch (keyCode) {
-                    case KeyEvent.KEYCODE_ENTER:
-                    case KeyEvent.KEYCODE_DPAD_CENTER:
+					switch (keyCode) {
+						case KeyEvent.KEYCODE_ENTER:
+						case KeyEvent.KEYCODE_DPAD_CENTER:
                         if (hierarchyHasListener(TiC.EVENT_CLICK)) {
                             fireEventNoCheck(TiC.EVENT_CLICK, null);
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-        });
-    }
+								return true;
+							}
+					}
+				}
+				return false;
+			}
+		});
+	}
 
-    /**
-     * Sets the nativeView's opacity.
+	/**
+	 * Sets the nativeView's opacity.
      * 
      * @param opacity
      *            the opacity to set.
-     */
+	 */
     public void setOpacity(float opacity) {
         opacity = Math.min(1, Math.max(0, opacity));
         View view = getOuterView();
         if (view != null) {
             view.setAlpha(opacity);
             // ViewHelper.setAlpha(view, opacity);
-        }
+		}
     }
 
     public float getOpacity() {
         return getOuterView().getAlpha();
         // return ViewHelper.getAlpha(getOuterView());
-    }
+		}
 
     // public void clearOpacity(View view)
     // {
@@ -2278,7 +2278,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         } else {
             if (touchView != null) {
                 return touchView.get();
-            }
+	}
         }
         return null;
     }
@@ -2287,7 +2287,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             final double rawx, final double rawy, int[] location) {
         if (location == null) {
             location = new int[2];
-        }
+	}
         view.getLocationOnScreen(location);
         return (location[0] <= rawx && rawx <= (location[0] + view.getWidth())
                 && location[1] <= rawy
@@ -2297,7 +2297,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected boolean viewShouldPassThrough(final View view,
             final MotionEvent event) {
         return true;
-    }
+		}
 
     protected TiUIView associatedTiViewForView(View childView) {
         TiUIView result = null;
@@ -2305,20 +2305,20 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             result = ((TiCompositeLayout) childView).getView();
             if (result != null) {
                 return result;
-            }
+		}
         }
         Object tag = childView.getTag();
 
         if (tag != null && tag instanceof TiUIView) {
             result = (TiUIView) tag;
-        }
+		}
         return result;
-    }
+	}
 
     public boolean touchPassThrough(final View view, final MotionEvent event) {
         if (!isTouchEnabled || getOpacity() == 0) {
             return true;
-        }
+	}
         final float x = event.getRawX();
         final float y = event.getRawY();
         final int action = event.getAction();
@@ -2370,55 +2370,55 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     public boolean getTouchPassThrough() {
         return touchPassThrough;
-    }
+	}
 
     public boolean getDispatchPressed() {
         return dispatchPressed;
-    }
+			}
 
     public boolean getPreventListViewSelection() {
         return preventListViewSelection;
-    }
+		}
 
     public boolean getClipChildren() {
         return clipChildren;
-    }
+	}
 
     protected void doSetClickable(View view, boolean clickable) {
-        if (view == null) {
-            return;
-        }
-        if (!clickable) {
+		if (view == null) {
+			return;
+		}
+		if (!clickable) {
             removeOnClickListener(view);
             removeOnLongClickListener(view);
         } else {
-            // n.b.: AdapterView throws if click listener set.
+			// n.b.: AdapterView throws if click listener set.
             // n.b.: setting onclicklistener automatically sets clickable to
             // true.
-            setOnClickListener(view);
-            setOnLongClickListener(view);
-        }
+			setOnClickListener(view);
+			setOnLongClickListener(view);
+		}
         view.setClickable(clickable);
         view.setLongClickable(clickable);
-    }
+	}
 
     private void doSetClickable(boolean clickable) {
-        doSetClickable(getTouchView(), clickable);
-    }
+		doSetClickable(getTouchView(), clickable);
+	}
 
     protected void doSetClickable() {
         doSetClickable(getTouchView(), isClickable());
     }
 
-    /*
-     * Used just to setup the click listener if applicable.
-     */
+	/*
+	 * Used just to setup the click listener if applicable.
+	 */
     protected void doSetClickable(View view) {
-        if (view == null) {
-            return;
-        }
-        doSetClickable(view, view.isClickable());
-    }
+		if (view == null) {
+			return;
+		}
+		doSetClickable(view, view.isClickable());
+	}
 
     public void onClick(View view) {
         // if singletap is active dont send click
@@ -2428,71 +2428,71 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    /**
+	/**
      * Can be overriden by inheriting views for special click handling. For
      * example, the Facebook module's login button view needs special click
      * handling.
-     */
+	 */
     protected void setOnClickListener(View view) {
         if (view instanceof AdapterView)
             return;
 
         view.setOnClickListener(this);
-    }
+			}
 
     protected void removeOnClickListener(View view) {
         view.setOnClickListener(null);
-    }
+	}
 
-    public boolean fireEvent(String eventName, KrollDict data) {
+	public boolean fireEvent(String eventName, KrollDict data) {
         return fireEvent(eventName, data, true, true);
-    }
+	}
 
     public boolean fireEventNoCheck(String eventName, KrollDict data) {
         return fireEvent(eventName, data, true, false);
-    }
+		}
 
     public boolean fireEvent(String eventName, KrollDict data,
             boolean bubbles) {
         return fireEvent(eventName, data, bubbles, true);
-    }
+		}
 
     public boolean hasListeners(String event, boolean checkParent) {
         return proxy.hasListeners(event, checkParent);
-    }
+	}
 
     public boolean hasListeners(String event) {
         return hasListeners(event, false);
-    }
+			}
 
     public boolean hierarchyHasListener(String event) {
         return proxy.hierarchyHasListener(event);
-    }
+	}
 
     public boolean fireEvent(String eventName, KrollDict data, boolean bubbles,
             boolean checkListeners) {
         return proxy.fireEvent(eventName, data, bubbles, checkListeners);
-    }
+		}
 
     protected void setOnLongClickListener(View view) {
 
         if (view instanceof AdapterView)
-            return;
+			return;
         view.setOnLongClickListener(new OnLongClickListener() {
             public boolean onLongClick(View view) {
                 if (hierarchyHasListener(TiC.EVENT_LONGCLICK)) {
                     return fireEvent(TiC.EVENT_LONGCLICK, TiViewHelper
                             .dictFromMotionEvent(getTouchView(), lastDownEvent),
                             true, false);
-                }
+		}
                 return false;
-            }
+		}
         });
-    }
+	}
 
     protected void removeOnLongClickListener(View view) {
         view.setOnLongClickListener(null);
-    }
+	}
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void disableHWAcceleration(View view) {
@@ -2500,62 +2500,62 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             view.setWillNotCacheDrawing(false);
             // view.setDrawingCacheBackgroundColor(0);
             view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        }
-    }
+	}
+	}
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void enableHWAcceleration(View view) {
         if (TiC.HONEYCOMB_OR_GREATER) {
             view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        }
+	}
     }
 
     protected void disableHWAcceleration() {
         if (hardwareAccEnabled == true) {
             disableHWAcceleration(getOuterView());
             hardwareAccEnabled = false;
-        }
+	}
     }
 
     protected void enableHWAcceleration() {
         if (hardwareAccEnabled == false) {
             enableHWAcceleration(getOuterView());
             hardwareAccEnabled = true;
-        }
+	}
     }
 
     public boolean hWAccelerationDisabled() {
         return !hardwareAccEnabled;
-    }
+	}
 
     private void applyContentDescription() {
-        if (proxy == null || nativeView == null) {
-            return;
-        }
-        String contentDescription = composeContentDescription();
-        if (contentDescription != null) {
-            nativeView.setContentDescription(contentDescription);
-        }
-    }
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			nativeView.setContentDescription(contentDescription);
+		}
+	}
 
-    /**
+	/**
      * Our view proxy supports three properties to match iOS regarding the text
      * that is read aloud (or otherwise communicated) by the assistive
      * technology: accessibilityLabel, accessibilityHint and accessibilityValue.
-     *
+	 *
      * We combine these to create the single Android property
      * contentDescription. (e.g., View.setContentDescription(...));
-     */
+	 */
     protected String composeContentDescription() {
-        if (proxy == null) {
-            return null;
-        }
+		if (proxy == null) {
+			return null;
+		}
 
-        final String punctuationPattern = "^.*\\p{Punct}\\s*$";
-        StringBuilder buffer = new StringBuilder();
+		final String punctuationPattern = "^.*\\p{Punct}\\s*$";
+		StringBuilder buffer = new StringBuilder();
 
-        KrollDict properties = proxy.getProperties();
-        String label, hint, value;
+		KrollDict properties = proxy.getProperties();
+		String label, hint, value;
         label = TiConvert
                 .toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_LABEL));
         hint = TiConvert
@@ -2563,67 +2563,67 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         value = TiConvert
                 .toString(properties.get(TiC.PROPERTY_ACCESSIBILITY_VALUE));
 
-        if (!TextUtils.isEmpty(label)) {
-            buffer.append(label);
-            if (!label.matches(punctuationPattern)) {
-                buffer.append(".");
-            }
-        }
+		if (!TextUtils.isEmpty(label)) {
+			buffer.append(label);
+			if (!label.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
 
-        if (!TextUtils.isEmpty(value)) {
-            if (buffer.length() > 0) {
-                buffer.append(" ");
-            }
-            buffer.append(value);
-            if (!value.matches(punctuationPattern)) {
-                buffer.append(".");
-            }
-        }
+		if (!TextUtils.isEmpty(value)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(value);
+			if (!value.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
 
-        if (!TextUtils.isEmpty(hint)) {
-            if (buffer.length() > 0) {
-                buffer.append(" ");
-            }
-            buffer.append(hint);
-            if (!hint.matches(punctuationPattern)) {
-                buffer.append(".");
-            }
-        }
+		if (!TextUtils.isEmpty(hint)) {
+			if (buffer.length() > 0) {
+				buffer.append(" ");
+			}
+			buffer.append(hint);
+			if (!hint.matches(punctuationPattern)) {
+				buffer.append(".");
+			}
+		}
 
-        return buffer.toString();
-    }
+		return buffer.toString();
+	}
 
     private void applyAccessibilityProperties() {
-        if (nativeView != null) {
-            applyContentDescription();
-            applyAccessibilityHidden();
-        }
+		if (nativeView != null) {
+			applyContentDescription();
+			applyAccessibilityHidden();
+		}
 
-    }
+	}
 
     private void applyAccessibilityHidden() {
-        if (nativeView == null || proxy == null) {
-            return;
-        }
+		if (nativeView == null || proxy == null) {
+			return;
+		}
 
         applyAccessibilityHidden(
                 proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
-    }
+	}
 
     private void applyAccessibilityHidden(Object hiddenPropertyValue) {
-        if (nativeView == null) {
-            return;
-        }
+		if (nativeView == null) {
+			return;
+		}
 
-        int importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+		int importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 
         if (hiddenPropertyValue != null
                 && TiConvert.toBoolean(hiddenPropertyValue, false)) {
-            importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
-        }
+				importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+		}
 
-        ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
-    }
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
+	}
 
     public void setBackgroundColor(int color) {
         int currentColor = getBackgroundColor();
@@ -2637,7 +2637,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             View outerView = getOuterView();
             if (outerView != null) {
                 outerView.postInvalidate();
-            }
+}
         }
     }
 

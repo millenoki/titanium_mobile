@@ -21,7 +21,7 @@
     ;
   });
   return keySequence;
-}
+  }
 
 - (NSString *)apiName
 {
