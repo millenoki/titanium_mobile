@@ -2300,7 +2300,7 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	var lastBuildFiles = this.lastBuildFiles = {};
-	if (!fs.existsSync(this.buildDir)) {
+	if (this.forceRebuild || !fs.existsSync(this.buildDir)) {
 		next();
 		return;
 	}
@@ -2368,9 +2368,15 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
 	const ignoreDirs = this.ignoreDirs;
 	const ignoreFiles = this.ignoreFiles;
+	let currentFile, isDir;
 	fs.readdirSync(currentPath).forEach(function (name, i, arr) {
-		var currentFile = path.join(currentPath, name);
-		var isDir = fs.statSync(currentFile).isDirectory();
+		currentFile = path.join(currentPath, name);
+		try {
+			isDir = fs.statSync(currentFile).isDirectory();
+		} catch(e){
+			//missing symlink original file
+			fs.unlinkSync(currentFile);
+		}
 		if (isDir) {
 			if (!ignoreDirs || !ignoreDirs.test(name)) {
 				this.dirWalker(currentFile, callback);
@@ -2680,26 +2686,26 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						case 'ts':
 						{
 							const relativeFilePath = path.relative(info.origSrc, info.src),
-								tsRealPath = path.join(_t.buildTsDir, relativeFilePath),
-								from = info.src,
-								fromStat = fs.statSync(from),
-								fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
-								prev = _t.previousBuildManifest.files && _t.previousBuildManifest.files[relativeFilePath];
-							let contents = null,
-								hash = null,
-								fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = _t.hash(contents = fs.readFileSync(from)));
-							_t.currentBuildManifest.files[relativeFilePath] = {
-								hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
-								mtime: contents === null && prev ? prev.mtime : fromMtime,
-								size:  contents === null && prev ? prev.size  : fromStat.size
-							};
-							if (fileChanged) {
+								tsRealPath = path.join(_t.buildTsDir, relativeFilePath);
+							// 	from = info.src,
+							// 	fromStat = fs.statSync(from),
+							// 	fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
+							// 	prev = _t.previousBuildManifest.files && _t.previousBuildManifest.files[relativeFilePath];
+							// let contents = null,
+							// 	hash = null,
+							// 	fileChanged = !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = _t.hash(contents = fs.readFileSync(from)));
+							// _t.currentBuildManifest.files[relativeFilePath] = {
+							// 	hash:  contents === null && prev ? prev.hash  : hash || _t.hash(contents || ''),
+							// 	mtime: contents === null && prev ? prev.mtime : fromMtime,
+							// 	size:  contents === null && prev ? prev.size  : fromStat.size
+							// };
+							// if (fileChanged) {
 
-								tsFiles.push(tsRealPath);
-								copyFile.call(_t, info.src, tsRealPath);
-							} else {
-								_t.logger.trace(__('No change, skipping %s', from.cyan));
-							}
+							tsFiles.push(tsRealPath);
+							copyFile.call(_t, info.src, tsRealPath);
+							// } else {
+							// 	_t.logger.trace(__('No change, skipping %s', from.cyan));
+							// }
 
 							break;
 						}
@@ -2918,9 +2924,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					tsFiles.unshift(tiTsDef);
 
 					// we need to make sure that babel is used in that case (if not forced to no) 
-					if (this.tiapp.properties['use-babel'] !== false) {
-						this.currentBuildManifest.useBabel = this.useBabel = true;				
-					}
+					// if (this.tiapp.properties['use-babel'] !== false) {
+					// 	this.currentBuildManifest.useBabel = this.useBabel = true;				
+					// }
 					if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
 						this.dirWalker(path.join(this.projectDir, 'typings'), function (file) {
 							if (/\.d\.ts$/.test(file)) {
