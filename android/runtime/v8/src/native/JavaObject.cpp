@@ -200,7 +200,7 @@ void JavaObject::MakeJavaWeak()
 		ASSERT(javaObject_ != NULL);
 		// Convert our global ref to a weak global ref
 		jweak weakRef = env->NewWeakGlobalRef(javaObject_);
-		JNIUtil::removePointer(javaObject_);
+//		JNIUtil::removePointer(javaObject_);
 		env->DeleteGlobalRef(javaObject_);
 		javaObject_ = weakRef;
 	} else {
