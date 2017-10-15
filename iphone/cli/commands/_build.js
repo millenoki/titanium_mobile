@@ -5623,6 +5623,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	const filenameRegExp = /^(.*)\.(\w+)$/,
 		useAppThinning = this.useAppThinning,
 
+		jsonPackageTitanium = fs.existsSync(path.join(this.projectDir, 'package.json')) &&  JSON.parse(fs.readFileSync(path.join(this.projectDir, 'package.json'))).titanium,
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
@@ -5648,11 +5649,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	var that = this;
 	var toIgnore;
-	if (this.packageJson.ignores) {
+	if (jsonPackageTitanium && jsonPackageTitanium.ignores) {
 		toIgnore = [];
-		this.packageJson.ignores.forEach(function (r) {
+		jsonPackageTitanium.ignores.forEach(function(r) {
 			toIgnore.push(r);
-		});
+		})
 	}
 
 	function walk(src, dest, ignore, origSrc, prefix) {
