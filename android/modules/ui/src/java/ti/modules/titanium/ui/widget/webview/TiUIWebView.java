@@ -1229,7 +1229,6 @@ public class TiUIWebView extends TiUINonViewGroupView
 
 	@Override
     protected void disableHWAcceleration(View view) {
-	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
 			super.disableHWAcceleration(view);
 		} else {
