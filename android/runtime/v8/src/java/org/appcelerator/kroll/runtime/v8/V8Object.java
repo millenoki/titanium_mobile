@@ -59,7 +59,7 @@ public class V8Object extends KrollObject
             return null;
         }
 		if (!KrollRuntime.isInitialized()) {
-			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
+			Log.w(TAG, "Runtime disposed, cannot get property '" + name + "'");
 			return null;
 		}
 		return nativeGetProperty(ptr, name);
@@ -117,7 +117,7 @@ public class V8Object extends KrollObject
             return;
         }
 	    if (!KrollRuntime.isInitialized()) {
-            Log.w(TAG, "Runtime disposed, cannot updateNativeProperties");
+            Log.w(TAG, "Runtime disposed, cannot doSetWindow");
             return;
         }
 		nativeSetWindow(ptr, windowProxyObject);
