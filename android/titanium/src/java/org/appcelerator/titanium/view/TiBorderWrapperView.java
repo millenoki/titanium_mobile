@@ -14,7 +14,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
