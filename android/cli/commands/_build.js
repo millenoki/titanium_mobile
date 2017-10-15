@@ -518,6 +518,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						validate: function (device, callback) {
 							const dev = device.toLowerCase();
 							findTargetDevices(cli.argv.target, function (err, devices) {
+								if (cli.argv.target === 'dist-adhoc' || cli.argv.target === 'dist-playstore') {
+									// we let 'all' slide by
+									return callback(null, dev);
+								}
 								if (cli.argv.target === 'device' && dev === 'all') {
 									// we let 'all' slide by
 									return callback(null, dev);
@@ -1693,6 +1697,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 	Builder.prototype.run.apply(this, arguments);
+	console.log('run test', cli.argv.ide, cli.argv);
 
 	appc.async.series(this, [
 		function (next) {
@@ -1718,7 +1723,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'copyModuleResources', // has to be done after process symbols
 
 		function (next) {
-			if (!cli.argv.ide || this.forceRebuild) {
+			if (!cli.argv['ide'] || this.forceRebuild) {
 				appc.async.series(this, [
 					// 'removeOldFiles',
 					'generateJavaFiles',
@@ -1744,7 +1749,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 			if (!cli.argv.ide) {
 				appc.async.series(this, [
 					'packageApp',
-					'generateRClasses',
+					// 'generateRClasses',
 
 					// provide a hook event before javac
 					function (next) {
@@ -1907,12 +1912,13 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
 	this.buildGenDir                = path.join(this.buildDir, 'gen');
-	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
+    this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildIntermediatesDir      = path.join(this.buildDir, 'intermediates');
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable');
 	this.buildSrcDir                = path.join(this.buildDir, 'src');
 	this.buildLibDir                = path.join(this.buildDir, 'lib');
+    this.buildSrcPackageDir         = path.join(this.buildSrcDir, this.appid.split('.').join(path.sep));
 	this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
 	this.buildTsDir                 = path.join(this.buildDir, 'ts');
 	this.buildTsOutputDir           = path.join(this.buildDir, 'tsoutput');
@@ -2283,14 +2289,21 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
 		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
 	}
-	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
-		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
-	}
+	if (this.forceRebuild && fs.existsSync(this.buildSrcPackageDir)) {
+        wrench.rmdirSyncRecursive(this.buildSrcPackageDir);
+    }
+	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+	fs.existsSync(this.buildSrcPackageDir) || wrench.mkdirSyncRecursive(this.buildSrcPackageDir);
+	
 	next();
 };
 
 AndroidBuilder.prototype.getLastBuildState = function getLastBuildState(next) {
 	var lastBuildFiles = this.lastBuildFiles = {};
+	if (!fs.existsSync(this.buildDir)) {
+		next();
+		return;
+	}
 
 	// walk the entire build dir and build a map of all files
 	this.dirWalker(this.buildDir, function (file) {
@@ -2454,7 +2467,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		jsFiles = {},
 		tsFiles = [],
 		isProduction = this.deployType === 'production',
-		// moduleResPackages = this.moduleResPackages = [],
+		moduleResPackages = this.moduleResPackages = [],
 		htmlJsFiles = this.htmlJsFiles = {},
 		symlinkFiles = process.platform !== 'win32' && this.config.get('android.symlinkResources', true),
 		resourcesToCopy = {},
@@ -2526,13 +2539,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			},
 
 			function (next) {
+				let destDir = dest;
 				const filename = files.shift(),
 					from = path.join(src, filename),
 					relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, ''),
 					to = path.join(destDir, replaceat2x ? filename.replace('@2x', '') : filename),
 					srcStat = fs.statSync(from),
 					isDir = srcStat.isDirectory();
-				let destDir = dest;
 				// let ignored = false;
 				if (toIgnore) {
 					for (let i = 0; i < toIgnore.length; i++) {
@@ -2557,7 +2570,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 				// if this is a directory, recurse
 				if (isDir) {
-					return recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
+					setImmediate(function () {
+						recursivelyCopy.call(_t, from, path.join(destDir, filename), null, opts, next);
+					});
+					return;
 				}
 				const parts = filename.match(filenameRegExp),
 					info = {
@@ -2822,7 +2838,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		if (fs.existsSync(respackagepath)) {
 			const data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
 			if (data.length > 0) {
-				this.moduleResPackages.push(data);
+				moduleResPackages.push(data);
 			}
 		}
 	}, this);
@@ -3348,7 +3364,6 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		moduleJarMap = {},
 		tiNamespaces = this.tiNamespaces = {}, // map of namespace => titanium functions (i.e. ui => createWindow)
 		jarLibraries = this.jarLibraries = {},
-		// resPackages = this.resPackages = {},
 		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
 		googlePlayServicesFeaturesKey = 'googleplayservices_features',
@@ -3750,8 +3765,10 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
-	var _t = this;
-	var isProduction = this.deployType === 'production';
+	const _t = this,
+		isProduction = this.deployType === 'production',
+		resPackages = this.resPackages = {};
+
 
 	function copy(src, dest, ignore) {
 		fs.readdirSync(src).forEach(function (filename) {
@@ -3780,7 +3797,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 				resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
 
 			if (fs.existsSync(resPkgFile) && fs.existsSync(resFile)) {
-				this.resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
+				resPackages[resFile] = fs.readFileSync(resPkgFile).toString().split('\n').shift().trim();
 			}
 
 			if (!fs.existsSync(resFile)) {
@@ -3872,12 +3889,12 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 		}.bind(this);
 
 	// copy and populate templates
-	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, this.classname + 'AppInfo.java'));
-	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
-	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'));
+	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildSrcPackageDir, this.classname + 'AppInfo.java'));
+	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildSrcPackageDir, this.classname + 'Application.java'));
+	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildSrcPackageDir, this.classname + 'Activity.java'));
 
 	if (this.tiNamespaces['audio']) {
-		copyTemplate(path.join(this.templatesDir, 'TiMediaButtonEventReceiver.java'), path.join(this.buildGenAppIdDir, 'TiMediaButtonEventReceiver.java'));
+		copyTemplate(path.join(this.templatesDir, 'TiMediaButtonEventReceiver.java'), path.join(this.buildSrcPackageDir, 'TiMediaButtonEventReceiver.java'));
 	}
 
 	copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
@@ -3909,7 +3926,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 		Object.keys(android.activities).forEach(function (name) {
 			var activity = android.activities[name];
 			this.logger.debug(__('Generating activity class: %s', activity.classname.cyan));
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, activity.classname + '.java'), ejs.render(activityTemplate, {
+			fs.writeFileSync(path.join(this.buildSrcPackageDir, activity.classname + '.java'), ejs.render(activityTemplate, {
 				appid: this.appid,
 				activity: activity
 			}));
@@ -3929,7 +3946,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, service.classname + '.java'), ejs.render(tpl, {
+			fs.writeFileSync(path.join(this.buildSrcPackageDir, service.classname + '.java'), ejs.render(tpl, {
 				appid: this.appid,
 				service: service
 			}));
@@ -3981,7 +3998,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file ],
+				[ '-p' + this.androidCompileSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildSrcPackageDir, file ],
 				{},
 				callback
 			);

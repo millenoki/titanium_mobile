@@ -315,7 +315,7 @@ AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
 				}
 				const depsFile = path.join(_t.platformPath, 'modules', 'gms', gmsModuleName + '.dependencies');
 				if (fs.existsSync(depsFile)) {
-					deps = fs.readFileSync(deps, 'utf8').toString().split(',');
+					deps = fs.readFileSync(depsFile, 'utf8').toString().split(',');
 					googlePlayServicesKeep = googlePlayServicesKeep.concat(deps);
 				}
 			}
@@ -938,7 +938,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		invocationJS = '';
 
 	const Kroll_DEFAULT = 'org.appcelerator.kroll.annotations.Kroll.DEFAULT',
-		JS_DEPENDENCY = '// Ensure <%- name %> is initialized\n var dep<%- index %> = module.<%- name %>;\n',
+		JS_DEPENDENCY = '// Ensure <%- name %> is initialized\n const dep<%- index %> = module.<%- name %>;\n',
 		JS_LAZY_GET = '<%- decl %> lazyGet(this, "<%- className %>", "<%- api %>", "<%- namespace %>");\n',
 		JS_GETTER = '"<%- child %>": {\nget: function() {\n',
 		JS_CLOSE_GETTER = '},\nconfigurable: true\n},\n',
@@ -948,13 +948,15 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		JS_INVOCATION_API = 'addInvocationAPI(module, "<%- moduleNamespace %>", "<%- namespace %>", "<%- api %>");\n';
 
 	function getParentModuleClass(proxyMap) {
-		let name,
-			proxyAttrs = proxyMap['proxyAttrs'];
+		let name;
+		const proxyAttrs = proxyMap['proxyAttrs'],
+			creatableInModule = proxyMap["proxyAttrs"]["creatableInModule"],
+			parentModule = proxyMap["proxyAttrs"]["parentModule"];
 
-		if (proxyAttrs['creatableInModule'] && (proxyAttrs['creatableInModule'] !== Kroll_DEFAULT)) {
-			name = proxyAttrs['creatableInModule'];
-		} else if (proxyAttrs['parentModule'] && (proxyAttrs['parentModule'] !== Kroll_DEFAULT)) {
-			name = proxyAttrs['parentModule'];
+		if (creatableInModule && (creatableInModule !== Kroll_DEFAULT)) {
+			name = creatableInModule;
+		} else if (parentModule && (parentModule !== Kroll_DEFAULT)) {
+			name = parentModule;
 		}
 
 		return name;
@@ -962,13 +964,17 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 	function getFullApiName(proxyMap) {
 		let fullApiName = proxyMap['proxyAttrs']['name'],
-			parentModuleClass = getParentModuleClass(proxyMap);
+			parentModuleClass = getParentModuleClass(proxyMap),
+			parent, proxyAttrs, parentName;
 
 		while (parentModuleClass) {
-			const parent = bindingJson.proxies[parentModuleClass],
-				parentName = parent['proxyAttrs']['name'];
+			parent = bindingJson.proxies[parentModuleClass];
+			proxyAttrs = parent["proxyAttrs"];
 
-			fullApiName = parentName + '.' + fullApiName;
+			if (!proxyAttrs.hasOwnProperty("creatable") || proxyAttrs["creatable"]) {
+				parentName = proxyAttrs["name"];
+				fullApiName = parentName + "." + fullApiName;
+			}
 			parentModuleClass = getParentModuleClass(parent);
 		}
 
@@ -998,7 +1004,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		let apiName = namespace.split('.'),
 			varName,
 			decl;
-		if (namespace === '') {
+		if (apiName === '') {
 			varName = 'module';
 			namespace = moduleName;
 			apiName = moduleName;
@@ -1041,7 +1047,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		const needsReturn = hasChildren || hasCreateProxies || hasInvocationAPIs || true;
 
 		if (namespace !== moduleName) {
-			decl = 'var ' + varName + ' = ';
+			decl = 'const ' + varName + ' = ';
 			if (!needsReturn) {
 				decl = 'return';
 			}
