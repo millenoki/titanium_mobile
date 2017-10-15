@@ -1375,7 +1375,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
 						}
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_STATE_LIST_ANIMATOR) != 0) {
-            updateStateListAnimator();
+//            updateStateListAnimator();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
 					}
 
