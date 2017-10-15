@@ -6,7 +6,7 @@
  *
  * Warning: This file is GENERATED, and should not be modified
  */
-var bootstrap = kroll.NativeModule.require("bootstrap"),
+const bootstrap = kroll.NativeModule.require("bootstrap"),
 	invoker = kroll.NativeModule.require("invoker"),
 	Titanium = kroll.binding("Titanium").Titanium;
 
@@ -16,8 +16,8 @@ function moduleBootstrap(moduleBinding) {
 			name, namespace, moduleBinding.getBinding);
 	}
 
-	var module = moduleBinding.getBinding("<%- moduleClass %>")["<%- moduleName %>"];
-	var invocationAPIs = module.invocationAPIs = [];
+	const module = moduleBinding.getBinding("<%- moduleClass %>")["<%- moduleName %>"];
+	const invocationAPIs = module.invocationAPIs = [];
 	module.apiName = "<%- moduleName %>";
 
 	function addInvocationAPI(module, moduleNamespace, namespace, api) {
