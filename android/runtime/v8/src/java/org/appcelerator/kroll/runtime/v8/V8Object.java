@@ -103,7 +103,6 @@ public class V8Object extends KrollObject
 		if (ptr == 0) {
 			return;
 		}
-		Log.e(TAG, "doRelease2");
 		if (nativeRelease(ptr)) {
 			ptr = 0;
 			KrollRuntime.suggestGC();
