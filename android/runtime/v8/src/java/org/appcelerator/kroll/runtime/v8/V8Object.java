@@ -66,7 +66,7 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
-	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
+	public boolean fireEvent(Object source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
 	{
 	    if (ptr == 0) {
             return false;
