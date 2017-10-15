@@ -6,37 +6,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-var tiBinding = kroll.binding('Titanium'),
-	Titanium = tiBinding.Titanium,
+const tiBinding = kroll.binding('Titanium'),
 	Proxy = tiBinding.Proxy,
 	assets = kroll.binding('assets'),
 	Script = kroll.binding('evals').Script,
 	bootstrap = require('bootstrap'),
 	path = require('path'),
 	url = require('url'),
-	invoker = require('invoker');
+	invoker = require('invoker'),
+	TAG = 'Titanium';
 
-var TAG = "Titanium";
-
-Function.prototype.bind = function(oThis) {
-    if (typeof this !== "function") {
-        // closest thing possible to the ECMAScript 5 internal IsCallable function
-        throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-    }
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP = function() {},
-        fBound = function() {
-            return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(
-                arguments)));
-        };
-    fNOP.prototype = this.prototype;
-    fBound.prototype = new fNOP();
-    return fBound;
-};
+var Titanium = tiBinding.Titanium;
 
 // The app entry point
-Titanium.sourceUrl = "app://app.js";
+Titanium.sourceUrl = 'app://app.js';
 
 // A list of java APIs that need an invocation-specific URL
 // passed in as the first argument
@@ -49,14 +32,14 @@ Titanium.externalModules = [];
 bootstrap.bootstrap(Titanium);
 
 // Custom JS extensions to Java modules
-require("ui").bootstrap(Titanium);
-require("network").bootstrap(Titanium);
+require('ui').bootstrap(Titanium);
+require('network').bootstrap(Titanium);
 
-var Properties = require("properties");
+const Properties = require('properties');
 Properties.bootstrap(Titanium);
 
 // Custom native modules
-bootstrap.defineLazyBinding(Titanium, "API")
+bootstrap.defineLazyBinding(Titanium, 'API');
 
 // Context-bound modules -------------------------------------------------
 //
@@ -64,23 +47,21 @@ bootstrap.defineLazyBinding(Titanium, "API")
 // within a script execution scope. This is how Ti.UI.currentWindow,
 // Ti.Android.currentActivity, and others are implemented.
 function TitaniumWrapper(context) {
-	var sourceUrl = this.sourceUrl = context.sourceUrl;
-	
+	const sourceUrl = this.sourceUrl = context.sourceUrl;
 
 	// The "context" specific global object
 	this.global = context.global;
-	var self = this;
-	
-	{
-		var value = sourceUrl.replace("app://", "");
-		var splitValue = value.split('/');
-		if (splitValue.length > 1 || stringEndsWith(value, '.js')) 
-			value = splitValue.slice(0, -1).join('/');
-		this.resourcesRelativePath = value;
+	const self = this;
+
+	let value = sourceUrl.replace('app://', '');
+	const splitValue = value.split('/');
+	if (splitValue.length > 1 || stringEndsWith(value, '.js')) {
+		value = splitValue.slice(0, -1).join('/');
 	}
+	this.resourcesRelativePath = value;
 
 	// Special version of include to handle relative paths based on sourceUrl.
-	this.include = function() {
+	this.include = function () {
 		var baseUrl, scopeVars;
 		var fileCount = arguments.length;
 		var info = arguments[fileCount - 1];
@@ -95,18 +76,18 @@ function TitaniumWrapper(context) {
 		}
 
 		scopeVars.global = self.global;
-		for (var i = 0; i < fileCount; i++) {
+		for (let i = 0; i < fileCount; i++) {
 			TiInclude(arguments[i], baseUrl, scopeVars);
 		}
-	}
+	};
 
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	var scopeVars = new kroll.ScopeVars({
+	const scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
 		module: context.module,
-//		currentActivity: this.Android.currentActivity,
+		// currentActivity: this.Android.currentActivity,
 		currentService: this.Android.currentService
 	});
 	Titanium.bindInvocationAPIs(this, scopeVars);
@@ -115,30 +96,30 @@ TitaniumWrapper.prototype = Titanium;
 Titanium.Wrapper = TitaniumWrapper;
 
 function UIWrapper(context, Android) {
-//	this.currentWindow = context.currentWindow;
-//	this.currentTab = context.currentTab;
-//	this.currentTabGroup = context.currentTabGroup;
+	//	this.currentWindow = context.currentWindow;
+	//	this.currentTab = context.currentTab;
+	//	this.currentTabGroup = context.currentTabGroup;
 
-//	if (!context.currentWindow && Android.currentActivity) {
-//		this.currentWindow = Android.currentActivity.window;
-//	}
+	//	if (!context.currentWindow && Android.currentActivity) {
+	//		this.currentWindow = Android.currentActivity.window;
+	//	}
 }
 UIWrapper.prototype = Titanium.UI;
 
 function AndroidWrapper(context) {
-//	this.currentActivity = context.currentActivity;
+	//	this.currentActivity = context.currentActivity;
 	this.currentService = context.currentService;
-//	var currentWindow = context.currentWindow;
+	//	var currentWindow = context.currentWindow;
 
-//	if (!this.currentActivity) {
-//		var topActivity;
-//		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
-//			this.currentActivity = currentWindow.activity;
-//
-//		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
-//			this.currentActivity = topActivity;
-//		}
-//	}
+	//	if (!this.currentActivity) {
+	//		var topActivity;
+	//		if (currentWindow && currentWindow.window && currentWindow.window.activity) {
+	//			this.currentActivity = currentWindow.activity;
+	//
+	//		} else if (topActivity = Titanium.App.Android.getTopActivity()) {
+	//			this.currentActivity = topActivity;
+	//		}
+	//	}
 }
 AndroidWrapper.prototype = Titanium.Android;
 
@@ -151,10 +132,10 @@ function createSandbox(ti, sourceUrl) {
 	};
 
 	// The require function we want to wrap for this context
-	var contextRequire = undefined;
+	let contextRequire;
 
 	// Wrap require in Ti.include contexts so the relative sourceUrl is correct
-	newSandbox.require = function(path, context) {
+	newSandbox.require = function (path, context) {
 		if (context === undefined) {
 			context = {};
 		}
@@ -168,7 +149,7 @@ function createSandbox(ti, sourceUrl) {
 		}
 
 		return contextRequire(path, context, sourceUrl);
-	}
+	};
 
 	return newSandbox;
 }
@@ -188,7 +169,7 @@ function getUrlSource(filename, sourceUrl) {
 
 function stringEndsWith(str, suffix) {
 	return str.indexOf(suffix, str.length - suffix.length) !== -1;
-};
+}
 
 // Gets the source string for a specified URL / filename combo
 function getUrlSourceInternal(filename, sourceUrl, inModule) {
@@ -198,24 +179,25 @@ function getUrlSourceInternal(filename, sourceUrl, inModule) {
 	if (!('protocol' in sourceUrl)) {
 		source = assets.readAsset(filename);
 	} else if (sourceUrl.filePath) {
-		var filepath = url.toFilePath(sourceUrl);
+		const filepath = url.toFilePath(sourceUrl);
 		source = assets.readFile(filepath);
 	} else if (sourceUrl.assetPath) {
 		if (inModule) {
-			var filepath = filename;
-			if (filepath[0] === '/')
+			let filepath = filename;
+			if (filepath[0] === '/') {
 				filepath = filepath.slice(1);
-			if (stringEndsWith(filepath, '.js'))
-				filepath = filepath.slice(0,-3);
+			}
+			if (stringEndsWith(filepath, '.js')) {
+				filepath = filepath.slice(0, -3);
+			}
 			source = kroll.getExternalCommonJsModule(filepath);
-		}
-		else {
-			var assetPath = url.toAssetPath(sourceUrl);
+		} else {
+			const assetPath = url.toAssetPath(sourceUrl);
 			source = assets.readAsset(assetPath);
 		}
-		
+
 	} else {
-		throw new Error("Unable to load source for filename: " + filename);
+		throw new Error('Unable to load source for filename: ' + filename);
 	}
 	return source;
 }
@@ -235,28 +217,27 @@ function TiInclude(filename, baseUrl, scopeVars) {
 	var sourceUrl = url.resolve(baseUrl, filename);
 
 	scopeVars = initScopeVars(scopeVars, sourceUrl.href);
-	
-	// Create a context-bound Titanium module.
-	var ti = new TitaniumWrapper(scopeVars);
 
-	var inModule = false;
-	var modulePath = filename;
+	// Create a context-bound Titanium module.
+	const ti = new TitaniumWrapper(scopeVars);
+
+	let inModule = false;
+	let modulePath = filename;
 	if (modulePath[0] === '/') {
 		modulePath = modulePath.slice(1);
 	}
 	modulePath = modulePath.split('/')[0];
-	if (!stringEndsWith(modulePath, '.js')) //discard case app.js
-	{
+	if (!stringEndsWith(modulePath, '.js')) { // discard case app.js
 		inModule = kroll.isExternalCommonJsModule(modulePath);
 	}
 
 	// This is called "localSandbox" so we don't overshadow the "sandbox" on global scope
-	var localSandbox = createSandbox(ti, scopeVars.sourceUrl);
+	const localSandbox = createSandbox(ti, scopeVars.sourceUrl);
 
-	var contextGlobal = ti.global,
+	const contextGlobal = ti.global,
 		source = getUrlSourceInternal(filename, sourceUrl, inModule),
-		wrappedSource = "with(sandbox) { " + source + "\n }",
-		filePath = sourceUrl.href.replace("app://", "");
+		wrappedSource = 'with(sandbox) { ' + source + '\n }',
+		filePath = sourceUrl.href.replace('app://', '');
 
 	if (contextGlobal) {
 		// We're running inside another window, so we run against it's context
@@ -267,7 +248,7 @@ function TiInclude(filename, baseUrl, scopeVars) {
 		// We're running inside modules. Since we don't create a new context for modules 
 		// due to TIMOB-11752, we use the global V8 Context directly.
 		// Put sandbox on the global scope
-		sandbox = localSandbox;
+		this.sandbox = localSandbox;
 		return Script.runInThisContext(wrappedSource, filePath, true);
 	}
 }
@@ -277,28 +258,28 @@ Titanium.include = TiInclude;
 // This loops through all known APIs that require an
 // Invocation object and wraps them so we can pass a
 // source URL as the first argument
-Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
-	var len = Titanium.invocationAPIs.length;
-	for (var i = 0; i < len; ++i) {
+Titanium.bindInvocationAPIs = function (wrapperTi, scopeVars) {
+	const len = Titanium.invocationAPIs.length;
+	for (let i = 0; i < len; ++i) {
 		// separate each invoker into it's own private scope
 		invoker.genInvoker(wrapperTi, tiBinding.Titanium,
-			"Titanium", Titanium.invocationAPIs[i], scopeVars);
+			'Titanium', Titanium.invocationAPIs[i], scopeVars);
 	}
-}
+};
 
 Titanium.Proxy = Proxy;
 
-Proxy.defineProperties = function(proxyPrototype, names) {
+Proxy.defineProperties = function (proxyPrototype, names) {
 	var properties = {};
 	var len = names.length;
 
-	for (var i = 0; i < len; ++i) {
-		var name = names[i];
+	for (let i = 0; i < len; ++i) {
+		const name = names[i];
 		properties[name] = {
-			get: function() {
+			get: function () {
 				return this.getProperty(name);
 			},
-			set: function(value) {
+			set: function (value) {
 				this.setPropertyAndFire(name, value);
 			},
 			enumerable: true
@@ -306,17 +287,17 @@ Proxy.defineProperties = function(proxyPrototype, names) {
 	}
 
 	Object.defineProperties(proxyPrototype, properties);
-}
+};
 
-Object.defineProperty(Proxy.prototype, "getProperty", {
-	value: function(property) {
+Object.defineProperty(Proxy.prototype, 'getProperty', {
+	value: function (property) {
 		return this._properties[property];
 	},
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "setProperty", {
-	value: function(property, value) {
+Object.defineProperty(Proxy.prototype, 'setProperty', {
+	value: function (property, value) {
 		var oldValue = this._properties[property];
 		if (oldValue != value) {
 			this._properties[property] = value;
@@ -330,26 +311,28 @@ Object.defineProperty(Proxy.prototype, "setProperty", {
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "applyProperties", {
-	value: function(properties) {
+Object.defineProperty(Proxy.prototype, 'applyProperties', {
+	value: function (properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
 		var len = ownNames.length;
 		var changes = {};
 		var needsChanged = false;
 
-		for (var i = 0; i < len; ++i) {
-			var property = ownNames[i];
-			var value = properties[property];
+		for (let i = 0; i < len; ++i) {
+			const property = ownNames[i];
+			const value = properties[property];
 
-			if (!property) continue;
+			if (!property) {
+				continue;
+			}
 
-			var oldValue = this._properties[property];
+			const oldValue = this._properties[property];
 
-			if (value != oldValue) {
+			if (value !== oldValue) {
 				this._properties[property] = value;
 				changes[property] = value;
 				needsChanged = true;
-//				changes.push([property, oldValue, value]);
+				//				changes.push([property, oldValue, value]);
 			}
 		}
 
@@ -360,26 +343,28 @@ Object.defineProperty(Proxy.prototype, "applyProperties", {
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
-	value: function(properties) {
+Object.defineProperty(Proxy.prototype, 'setPropertiesAndFire', {
+	value: function (properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
 		var len = ownNames.length;
 		var changes = {};
 		var needsChanged = false;
 
-		for (var i = 0; i < len; ++i) {
-			var property = ownNames[i];
-			var value = properties[property];
+		for (let i = 0; i < len; ++i) {
+			const property = ownNames[i];
+			const value = properties[property];
 
-			if (!property) continue;
+			if (!property) {
+				continue;
+			}
 
-			var oldValue = this._properties[property];
+			const oldValue = this._properties[property];
 
-			if (value != oldValue) {
+			if (value !== oldValue) {
 				this._properties[property] = value;
 				changes[property] = value;
 				needsChanged = true;
-//				changes.push([property, oldValue, value]);
+				//				changes.push([property, oldValue, value]);
 			}
 		}
 
@@ -391,28 +376,32 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 });
 
 // Custom native modules
-bootstrap.defineLazyBinding(Titanium, "API");
+bootstrap.defineLazyBinding(Titanium, 'API');
 
-function diffArray(a, b) {
-	  var seen = [], diff = [];
-	  for ( var i = 0; i < b.length; i++)
-	      seen[b[i]] = true;
-	  for ( var i = 0; i < a.length; i++)
-	      if (!seen[a[i]])
-	          diff.push(a[i]);
-	  return diff;
-	}
+// function diffArray(a, b) {
+// 	const seen = [],
+// 		diff = [];
+// 	for (let i = 0; i < b.length; i++) {
+// 		seen[b[i]] = true;
+// 	}
+// 	for (let i = 0; i < a.length; i++) {
+// 		if (!seen[a[i]]) {
+// 			diff.push(a[i]);
+// 		}
+// 	}
+// 	return diff;
+// }
 
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
-Object.defineProperty(Proxy.prototype, "toJSON", {
-	value: function() {
+Object.defineProperty(Proxy.prototype, 'toJSON', {
+	value: function () {
 		var keys = Object.keys(this);
 		var keyCount = keys.length;
 		var serialized = {},
 			k;
 
-		for (var i = 0; i < keyCount; i++) {
+		for (let i = 0; i < keyCount; i++) {
 			k = keys[i];
 			serialized[k] = this[k];
 		}
