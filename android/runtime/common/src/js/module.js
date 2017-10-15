@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-var NativeModule = require('native_module'),
+const NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
@@ -12,7 +12,7 @@ var NativeModule = require('native_module'),
 	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
 
-var TAG = "Module";
+var TAG = 'Module';
 
 /**
  * [Module description]
@@ -48,10 +48,10 @@ Module.wrap = NativeModule.wrap;
 Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
 	if (!Module.main) {
-		id = ".";
+		id = '.';
 	}
 
-	var module,
+	let module,
 		isService = (activityOrService instanceof Titanium.Service);
 
 	if (isService) {
@@ -72,10 +72,9 @@ Module.runModule = function (source, filename, activityOrService) {
 		Module.main = module;
 	}
 	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
-	module.load(filename, source)
+	module.load(filename, source);
 	return module;
-}
-
+};
 
 /**
  * Attempts to load the module. If no file is found
@@ -91,19 +90,19 @@ Module.runModule = function (source, filename, activityOrService) {
  */
 Module.prototype.load = function (filename, source) {
 	if (this.loaded) {
-		throw new Error("Module already loaded.");
+		throw new Error('Module already loaded.');
 	}
 
 	this.filename = filename;
 	this.path = path.dirname(filename);
 
 	if (!source) {
-		var name = filename;
-		if (name[0] == '/') {
+		let name = filename;
+		if (name[0] === '/') {
 			name = 'Resources' + name;
 		} else {
 			name = 'Resources/' + name;
-	}
+		}
 		source = assets.readAsset(name);
 	}
 
@@ -113,25 +112,25 @@ Module.prototype.load = function (filename, source) {
 	this._runScript(source, this.filename);
 
 	this.loaded = true;
+};
+
+const ModuleWrapper = {
+	toString: function () {
+		return '[module ModuleWrapper]';
+	}
+};
+
+function fromPrototype(prototype, object) {
+	const newObject = Object.create(prototype);
+
+	for (let prop in object) {
+		if (object.hasOwnProperty(prop)) {
+			newObject[prop] = object[prop];
+		}
+	}
+
+	return newObject;
 }
-
-
-var ModuleWrapper = {  
-  toString: function() {
-    return  '[module ModuleWrapper]';
-  }
-};
-var fromPrototype = function(prototype, object) {  
-  var newObject = Object.create(prototype);
-
-  for (var prop in object) {
-    if (object.hasOwnProperty(prop)) {
-      newObject[prop] = object[prop];      
-    }
-  }
-
-  return newObject; 
-};
 
 /**
  * Generates a context-specific module wrapper, and wraps
@@ -141,19 +140,19 @@ var fromPrototype = function(prototype, object) {
  * @param  {[type]} sourceUrl      [description]
  * @return {[type]}                [description]
  */
-Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
+Module.prototype.createModuleWrapper = function (externalModule, sourceUrl) {
 
 	// The module wrapper forwards on using the original as a prototype
-//	function ModuleWrapper() {}
-//	ModuleWrapper.prototype = externalModule;
+	//	function ModuleWrapper() {}
+	//	ModuleWrapper.prototype = externalModule;
 
 	var wrapper = fromPrototype(externalModule, ModuleWrapper);
 	var invocationAPIs = externalModule.invocationAPIs;
 	var invocationsLen = invocationAPIs.length;
 
-	for (var j = 0; j < invocationsLen; ++j) {
-		var api = invocationAPIs[j].api;
-		var delegate = externalModule[api];
+	for (let j = 0; j < invocationsLen; ++j) {
+		const api = invocationAPIs[j].api;
+		const delegate = externalModule[api];
 		if (!delegate) {
 			continue;
 		}
@@ -164,26 +163,26 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
-	wrapper.on = wrapper.addEventListener = function() {
+	wrapper.on = wrapper.addEventListener = function () {
 		externalModule.addEventListener.apply(externalModule, arguments);
 		return wrapper;
-	}
-	wrapper.once = function() {
+	};
+	wrapper.once = function () {
 		externalModule.once.apply(externalModule, arguments);
 		return wrapper;
-	}
+	};
 
-	wrapper.off = wrapper.removeEventListener = function() {
+	wrapper.off = wrapper.removeEventListener = function () {
 		externalModule.removeEventListener.apply(externalModule, arguments);
 		return wrapper;
-	}
+	};
 
-	wrapper.emit = wrapper.fireEvent = function() {
+	wrapper.emit = wrapper.fireEvent = function () {
 		externalModule.fireEvent.apply(externalModule, arguments);
-	}
+	};
 
 	return wrapper;
-}
+};
 
 /**
  * [extendModuleWithCommonJs description]
@@ -194,15 +193,15 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
  */
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
-		var jsModule = new Module(id + ".commonjs", thiss, context);
+		const jsModule = new Module(id + '.commonjs', thiss, context);
 		// Load under fake name, or the commonjs side of the native module gets cached in place of the native module!
 		// See TIMOB-24932
-		jsModule.load(id + ".commonjs", kroll.getExternalCommonJsModule(id));
+		jsModule.load(id + '.commonjs', kroll.getExternalCommonJsModule(id));
 		if (jsModule.exports) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "Extending native module '" + id + "' with the CommonJS module that was packaged with it.");
+				kroll.log(TAG, 'Extending native module \'' + id + '\' with the CommonJS module that was packaged with it.');
 			}
-			kroll.extend(externalModule, jsModule.exports);
+			Object.assign(externalModule, jsModule.exports);
 		}
 	}
 }
@@ -214,23 +213,24 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
  * @param  {Object} context         [description]
  * @return {Object}                 The exported module
  */
-Module.prototype.loadExternalModule = function(id, externalBinding, context) {
-	var sourceUrl = (context === undefined) ? "app://app.js" : context.sourceUrl,
-		externalModule,
-		returnObj;
+Module.prototype.loadExternalModule = function (id, externalBinding, context) {
+	var sourceUrl = (context === undefined) ? 'app://app.js' : context.sourceUrl,
+		externalModule;
 
 	externalModule = Module.cache[id];
 
 	if (!externalModule) {
 		// Get the compiled bootstrap JS
-		var source = externalBinding.bootstrap;
-
+		const source = externalBinding.bootstrap;
+		if (kroll.DBG) {
+			kroll.log(TAG, 'loadExternalModule: ' + id);
+		}
 		// Load the native module's bootstrap JS
-		var module = new Module(id, this, context);
-		module.load(id + "/bootstrap.js", source);
+		const module = new Module(id, this, context);
+		module.load(id + '/bootstrap.js', source);
 
 		// Bootstrap and load the module using the native bindings
-		var result = module.exports.bootstrap(externalBinding);
+		const result = module.exports.bootstrap(externalBinding);
 
 		// Cache the external module instance
 		externalModule = Module.cache[id] = result;
@@ -239,7 +239,7 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	if (externalModule) {
 		// We cache each context-specific module wrapper
 		// on the parent module, rather than in the Module.cache
-		var wrapper = this.wrapperCache[id];
+		let wrapper = this.wrapperCache[id];
 		if (wrapper) {
 			return wrapper;
 		}
@@ -254,9 +254,9 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 	}
 
 	if (kroll.DBG) {
-		kroll.log(TAG, "Unable to load external module: " + id);
+		kroll.log(TAG, 'Unable to load external module: ' + id);
 	}
-}
+};
 
 // See https://nodejs.org/api/modules.html#modules_all_together
 
@@ -275,14 +275,14 @@ Module.prototype.require = function (request, context) {
 		loaded; // variable to hold the possibly loaded module...
 
 	start = request.substring(0, 2);
-	var isrelative = false;
+	let isrelative = false;
 	if (start === './' || start === '..') {
 		request = path.normalize(this.path + '/' + request);
 		isrelative = true;
 	} else {
 		request = path.normalize(request);
 	}
-	 
+
 	// 1. If X is a core module,
 	loaded = this.loadCoreModule(request, context);
 	if (loaded) {
@@ -298,7 +298,7 @@ Module.prototype.require = function (request, context) {
 		}
 	} else {
 		// Look for CommonJS module
-		if (request.indexOf('/') == -1) {
+		if (request.indexOf('/') === -1) {
 			// For CommonJS we need to look for module.id/module.id.js first...
 			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
 			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
@@ -312,11 +312,9 @@ Module.prototype.require = function (request, context) {
 			}
 		}
 
-		
-
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-//		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
+		//		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
 		loaded = this.loadAsFileOrDirectory(request, context);
 		if (loaded) {
@@ -331,8 +329,8 @@ Module.prototype.require = function (request, context) {
 		}
 	}
 	// 4. THROW "not found"
-	throw new Error("Requested module not found: " + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
-}
+	throw new Error('Requested module not found: ' + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
+};
 
 /**
  * Loads the core module if it exists. If not, returns null.
@@ -369,7 +367,7 @@ Module.prototype.loadCoreModule = function (id, context) {
 			if (externalCommonJsContents) {
 				// found it
 				// FIXME Re-use loadAsJavaScriptText?
-				var module = new Module(id, this, context);
+				const module = new Module(id, this, context);
 				module.load(id, externalCommonJsContents);
 				return module.exports;
 			}
@@ -377,7 +375,7 @@ Module.prototype.loadCoreModule = function (id, context) {
 	}
 
 	return null; // failed to load
-}
+};
 
 /**
  * Attempts to load a node module by id from the starting path
@@ -395,8 +393,7 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 	// 1. let DIRS=NODE_MODULES_PATHS(START)
 	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
-	for (i = 0; i < dirs.length; i++)
-	{
+	for (i = 0; i < dirs.length; i++) {
 		dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
@@ -406,7 +403,7 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		}
 	}
 	return null;
-}
+};
 
 /**
  * Determine the set of paths to search for node_modules
@@ -421,10 +418,10 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	// and also returning an array with duplicate entries
 	// e.g. ["/node_modules", "/node_modules"]
 	if (startDir === '/') {
-		return ['/node_modules'];
+		return [ '/node_modules' ];
 	}
 	// 1. let PARTS = path split(START)
-	var parts = startDir.split('/'),
+	let parts = startDir.split('/'),
 		// 2. let I = count of PARTS - 1
 		i = parts.length - 1,
 		// 3. let DIRS = []
@@ -435,7 +432,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
 		if (parts[i] === 'node_modules' || parts[i] === '') {
-  			i = i - 1;
+			i -= 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -443,12 +440,12 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// c. DIRS = DIRS + DIR
 		dirs.push(dir);
 		// d. let I = I - 1
-		i = i - 1;
+		i -= 1;
 	}
 	// Always add /node_modules to the search path
 	dirs.push('/node_modules');
 	return dirs;
-}
+};
 
 /**
  * Attempts to load a given path as a file or directory.
@@ -469,12 +466,12 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
 	}
 
 	return null;
-}
+};
 
 /**
  * Loads a given file as a Javascript file, returning the module.exports.
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context
+ * @param  {Object} context the context
  * @return {Object}          module.exports of the file.
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
@@ -489,15 +486,15 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 
 	// Stick it in the cache
 	Module.cache[filename] = module;
-	
+
 	return module.exports || true;
-}
+};
 
 /**
  * Loads a JSON file by reading it's contents, doing a JSON.parse and returning the parsed object.
  *
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context
+ * @param  {Object} context the context
  * @return {Object}          The parsed JSON object from the file
  */
 Module.prototype.loadJavascriptObject = function (filename, context) {
@@ -512,13 +509,11 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module = new Module(filename, this, context);
 	module.filename = filename;
 	module.path = path.dirname(filename);
-	if (filename[0] == '/') {
-	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	if (filename[0] === '/') {
+		source = assets.readAsset('Resources' + filename); // Assumes Resources/!
 	} else {
 		source = assets.readAsset('Resources/' + filename); // Assumes Resources/!
 	}
-
-		
 
 	// Stick it in the cache
 	Module.cache[filename] = module;
@@ -527,20 +522,19 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.loaded = true;
 
 	return module.exports || true;
-}
+};
 
 /**
  * Attempts to load a file by it's full filename according to NodeJS rules.
  *
  * @param  {String} id The filename
- * @param  {Object} context
+ * @param  {Object} context the context
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsFile = function (id, context) {
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	var filename = id;
 	var ext = path.extname(filename);
-
 
 	if (this.filenameExists(filename)) {
 		// If the file has a .json extension, load as JavascriptObject
@@ -563,13 +557,13 @@ Module.prototype.loadAsFile = function (id, context) {
 	}
 	// failed to load anything!
 	return null;
-}
+};
 
 /**
  * Attempts to load a directory according to NodeJS rules.
  *
  * @param  {String} id The directory name
- * @param  {Object} context
+ * @param  {Object} context the context
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsDirectory = function (id, context) {
@@ -577,10 +571,10 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	var filename = path.resolve(id, 'package.json');
 	if (this.filenameExists(filename)) {
 		// a. Parse X/package.json, and look for "main" field.
-		var object = this.loadJavascriptObject(filename, context);
+		const object = this.loadJavascriptObject(filename, context);
 		if (object && object.main) {
 			// b. let M = X + (json main field)
-			var m = path.resolve(id, object.main);
+			const m = path.resolve(id, object.main);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFile(m, context);
 		}
@@ -598,7 +592,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	}
 
 	return null;
-}
+};
 
 /**
  * Setup a sandbox and run the module's script inside it.
@@ -609,7 +603,7 @@ Module.prototype.loadAsDirectory = function (id, context) {
  */
 Module.prototype._runScript = function (source, filename) {
 	var self = this,
-		url = "app://" + filename;
+		url = 'app://' + filename;
 
 	function require(path, context) {
 		return self.require(path, context);
@@ -619,7 +613,7 @@ Module.prototype._runScript = function (source, filename) {
 	// This "first time" run is really only for app.js, AFAICT, and needs
 	// an activity. If app was restarted for Service only, we don't want
 	// to go this route. So added currentActivity check. (bill)
-	if (self.id == '.' && self.context.currentActivity) {
+	if (self.id === '.' && self.context.currentActivity) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 
@@ -627,14 +621,13 @@ Module.prototype._runScript = function (source, filename) {
 	}
 
 	// Create context-bound modules.
-	var context = self.context || {};
+	const context = self.context || {};
 	context.sourceUrl = url;
 	context.module = this;
 
-	var ti = new Titanium.Wrapper(context);
-	var dirname = path.dirname(filename);
-	if (dirname === '.' && !filename.endsWith('.js')) //root we need to set dirname to module name
-	{
+	const ti = new Titanium.Wrapper(context);
+	let dirname = path.dirname(filename);
+	if (dirname === '.' && !filename.endsWith('.js')) { // root we need to set dirname to module name
 		dirname = filename;
 	}
 
@@ -644,15 +637,15 @@ Module.prototype._runScript = function (source, filename) {
 	// occurs as a result of creating a new context during startup in TIMOB-12286.
 	source = Module.wrap(source);
 
-	var f = Script.runInThisContext(source, filename, true);
+	const f = Script.runInThisContext(source, filename, true);
 	return f(this.exports, require, this, filename, dirname, ti, ti, global, kroll);
-}
+};
 
 /**
  * The loaded index.json file from the app. Used to store the encrypted JS assets'
  * filenames/offsets.
  */
-var fileIndex;
+let fileIndex;
 
 /**
  * Look up a filename in the app's index.json file
@@ -661,19 +654,19 @@ var fileIndex;
  */
 Module.prototype.filenameExists = function (filename) {
 	var name = filename;
-	if (filename[0] == '/') {
+	if (filename[0] === '/') {
 		name = 'Resources' + filename;
 	} else {
 		name = 'Resources/' + filename;
 	}
 	if (!fileIndex) {
-		var json = assets.readAsset('index.json');
+		const json = assets.readAsset('index.json');
 		fileIndex = JSON.parse(json);
 	}
 
 	return name in fileIndex;
-}
+};
 
 Module.prototype.toString = function () {
 	return '[module ' + this.id + ']';
-}
+};
