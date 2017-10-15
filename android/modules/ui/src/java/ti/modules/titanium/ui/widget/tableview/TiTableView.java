@@ -25,10 +25,8 @@ import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
 import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.widget.listview.TiNestedListView;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
-import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -45,7 +43,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 
 public class TiTableView extends TiSwipeRefreshLayout
 	implements OnSearchChangeListener
@@ -377,7 +374,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		rowTypes.put(TableViewProxy.CLASSNAME_DEFAULT, rowTypeCounter.incrementAndGet());
 
 		this.viewModel = new TableViewModel(proxy);
-		this.listView = TiNestedListView.createUsing(getContext());
+		this.listView = new CustomListView(getContext());
 		listView.setId(TI_TABLE_VIEW_ID);
 
 		listView.setFocusable(true);
