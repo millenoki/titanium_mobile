@@ -218,7 +218,7 @@ static TiValueRef SetTimeoutCallback(TiContextRef jsContext, TiObjectRef jsFunct
                                                 name:@"setTimeout"];
 #endif
 
-  if (argCount != 2) {
+  if (argCount < 1) {
     return ThrowException(jsContext, @"setTimeout (native): invalid number of arguments", exception);
   }
 
