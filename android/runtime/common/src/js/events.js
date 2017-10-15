@@ -21,7 +21,7 @@
 
 // Modifications Copyright 2011-2012 Appcelerator, Inc.
 
-var TAG = "EventEmitter";
+var TAG = "TiEvent";
 var EventEmitter = exports.EventEmitter = kroll.EventEmitter;
 var isArray = Array.isArray;
 
@@ -31,16 +31,15 @@ var isArray = Array.isArray;
 
 Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	value: function(handler, type, data) {
-		//kroll.log(TAG, "calling event handler: type:" + type + ", data: " + data + ", handler: " + handler);
+//		kroll.log(TAG, "calling event handler: type:" + type + ", data: " + JSON.stringify(data) + ", handler: " + handler);
 
-		var handled = false,
-			cancelBubble = data.cancelBubble,
-			event;
+		let handled = false,
+			cancelBubble = data.cancelBubble;
 
 		if (handler.listener && handler.listener.call) {
 			// Create event object, copy any custom event data, and set the "type" and "source" properties.
-			event = { type: type, source: this };
-			kroll.extend(event, data);
+			const event = { type: type };
+			Object.assign(event, data);
 
 			if (handler.self && (event.source == handler.self.view)) {
 				event.source = handler.self;
