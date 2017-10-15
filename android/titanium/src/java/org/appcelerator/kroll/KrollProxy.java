@@ -1460,7 +1460,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             } else {
                 dict.put(TiC.EVENT_PROPERTY_SOURCE, sourceProxy);
 			}
-				}
+		}
         if (sourceProxy instanceof KrollProxy) {
             Object bindId = ((KrollProxy) sourceProxy).getBindId();
             if (bindId != null) {
