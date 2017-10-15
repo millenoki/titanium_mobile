@@ -2901,8 +2901,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					const tiTsDef = path.join(this.platformPath, '..', 'titanium.d.ts');
 					tsFiles.unshift(tiTsDef);
 
-					// we need to make sure that babel is used in that case 
-					useBabel = this.useBabel = true;
+					// we need to make sure that babel is used in that case (if not forced to no) 
+					if (this.tiapp.properties['use-babel'] !== false) {
+						this.currentBuildManifest.useBabel = this.useBabel = true;				
+					}
 					if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
 						this.dirWalker(path.join(this.projectDir, 'typings'), function (file) {
 							if (/\.d\.ts$/.test(file)) {
