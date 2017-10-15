@@ -61,6 +61,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 
+@SuppressLint("NewApi")
 @SuppressWarnings("deprecation")
 @Kroll.module
 public class NetworkModule extends KrollModule {
