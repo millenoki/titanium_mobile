@@ -1000,11 +1000,10 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				js += ejs.render(JS_DEPENDENCY, { 'name': dependency, 'index': index });
 			});
 		}
-
 		let apiName = namespace.split('.'),
 			varName,
 			decl;
-		if (apiName === '') {
+		if (namespace === '') {
 			varName = 'module';
 			namespace = moduleName;
 			apiName = moduleName;
