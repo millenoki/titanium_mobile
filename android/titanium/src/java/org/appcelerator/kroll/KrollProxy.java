@@ -1667,19 +1667,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
     public void onHasListenersChanged(String event, boolean hasListeners) {
-        if (TiApplication.isUIThread()) {
+//        if (TiApplication.isUIThread()) {
             if (hasListeners) {
                 eventListenerAdded(event, 1, this);
 
             } else {
                 eventListenerRemoved(event, 0, this);
             }
-        } else {
-            Message msg = getMainHandler().obtainMessage(
-                    hasListeners ? MSG_LISTENER_ADDED : MSG_LISTENER_REMOVED);
-    		msg.obj = event;
-    		TiMessenger.getMainMessenger().sendMessage(msg);
-    	}
+//        } else {
+//            Message msg = getMainHandler().obtainMessage(
+//                    hasListeners ? MSG_LISTENER_ADDED : MSG_LISTENER_REMOVED);
+//    		msg.obj = event;
+//    		TiMessenger.getMainMessenger().sendMessage(msg);
+//    	}
     }
 
 	/**
