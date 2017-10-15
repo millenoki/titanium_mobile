@@ -55,6 +55,9 @@ exports.config = function config(logger, config, cli) {
 							abbr: 'b',
 							desc: __('only perform the build; if true, does not install or run the app')
 						},
+						'ide': {
+							desc: __('when building for ide')
+						},
 						force: {
 							abbr: 'f',
 							desc: __('force a full rebuild')
