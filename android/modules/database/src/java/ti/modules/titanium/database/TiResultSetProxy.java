@@ -230,19 +230,39 @@ public class TiResultSetProxy extends KrollProxy
 		return getFieldName(index);
 	}
 
-	@Kroll.method
-	public String getFieldName(int index)
-	{
-		if (rs != null) {
-			try {
-				return rs.getColumnName(index);
-			} catch (SQLException e) {
-				Log.e(TAG, "No column at index: " + index);
-				throw e;
-			}
-		}
-		return null;
-	}
+    @Kroll.method
+    public String getFieldName(int index)
+    {
+        if (rs != null) {
+            try {
+                return rs.getColumnName(index);
+            } catch (SQLException e) {
+                Log.e(TAG, "No column at index: " + index);
+                throw e;
+            }
+        }
+        return null;
+    }
+    
+    @Kroll.method
+    public Object[] getAll()
+    {
+        if (rs != null) {
+            try {
+                int type = DatabaseModule.FIELD_TYPE_UNKNOWN;
+                int count = rs.getCount();
+                Object[] result = new Object[count];
+                for (int i = 0; i < count; i++) {
+                    result[i] = internalGetField(i, type);
+                }
+                return result;
+            } catch (SQLException e) {
+                Log.e(TAG, "getAll error: ", e.getLocalizedMessage());
+                throw e;
+            }
+        }
+        return null;
+    }
 
 	@Kroll.getProperty @Kroll.method
 	public int getRowCount()
