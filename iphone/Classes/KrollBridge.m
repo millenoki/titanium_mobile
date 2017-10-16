@@ -1086,6 +1086,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 #endif
 
   if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
+      return nil;
     @throw [NSException exceptionWithName:@"org.appcelerator.kroll"
                                    reason:[NSString stringWithFormat:@"Module \"%@\" failed to leave a valid exports object", filename]
                                  userInfo:nil];
