@@ -2846,9 +2846,9 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
 	}
 
-	this.currentBuildManifest.useBabel = this.useBabel = !!this.tiapp.properties['use-babel'];
+	this.currentBuildManifest.useBabel = this.useBabel = !this.tiapp['use-babel'];
 	// we test the package.json hash in case babel settings changed
-	this.currentBuildManifest.packageJSONHash            = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')) : '';
+	this.currentBuildManifest.packageJSONHash = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')) : '';
 
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
@@ -6746,9 +6746,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.debug(__('Compiling TS files: %s', tsFiles));
 
 			// we need to make sure that babel is used in that case (if not forced to no) 
-			if (this.tiapp.properties['use-babel'] !== false) {
-				this.currentBuildManifest.useBabel = this.useBabel = true;				
-			}
+			// if (this.tiapp.properties['use-babel'] !== false) {
+			// 	this.currentBuildManifest.useBabel = this.useBabel = true;				
+			// }
 
 			fs.existsSync(path.join(this.projectDir, 'typings')) && this.dirWalker(path.join(this.projectDir, 'typings'), function (file) {
 				if (/\.d\.ts$/.test(file)) {
