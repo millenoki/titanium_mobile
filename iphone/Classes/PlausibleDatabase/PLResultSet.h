@@ -250,4 +250,6 @@
  * @param columnIndex Index of column value to return.
  */
 - (id) objectForColumnIndex: (int) columnIndex;
+
+- (NSDictionary*)resultDictionary;
 @end

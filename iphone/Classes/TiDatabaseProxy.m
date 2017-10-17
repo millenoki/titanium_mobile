@@ -286,6 +286,28 @@
   return database;
 }
 
+
+- (void)executeStatements:(id)args
+{
+    ENSURE_TYPE(args, NSArray);
+    
+    NSString *sql = [[args objectAtIndex:0] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+//    [[self database] sqliteDB]
+    
+    int rc;
+    char *errmsg = nil;
+    
+    rc = sqlite3_exec([[self database] sqliteDB], [sql UTF8String], nil, nil, &errmsg);
+    
+    if (errmsg) {
+//        NSLog(@"Error inserting batch: %s", errmsg);
+        [self throwException:@"error executing statements" subreason:[NSString stringWithUTF8String:errmsg] location:CODELOCATION];
+        sqlite3_free(errmsg);
+    }
+    
+//    return (rc == SQLITE_OK);
+}
+
 @end
 
 #endif

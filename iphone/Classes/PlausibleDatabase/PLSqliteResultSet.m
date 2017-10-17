@@ -283,6 +283,32 @@ VALUE_ACCESSORS(NSData *, data, SQLITE_BLOB, [NSData dataWithBytes: sqlite3_colu
     abort();
 }
 
+- (NSDictionary*)resultDictionary {
+    
+    NSUInteger num_cols = (NSUInteger)sqlite3_data_count(_sqlite_stmt);
+    
+    if (num_cols > 0) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:num_cols];
+        
+        int columnCount = sqlite3_column_count(_sqlite_stmt);
+        
+        int columnIdx = 0;
+        for (columnIdx = 0; columnIdx < columnCount; columnIdx++) {
+            
+            NSString *columnName = [NSString stringWithUTF8String:sqlite3_column_name(_sqlite_stmt, columnIdx)];
+            id objectValue = [self objectForColumnIndex:columnIdx];
+            [dict setObject:objectValue forKey:columnName];
+        }
+        
+        return dict;
+    }
+    else {
+        NSLog(@"Warning: There seem to be no columns in this set.");
+    }
+    
+    return nil;
+}
+
 
 /* From PLResultSet */
 - (id) objectForColumn: (NSString *) columnName {

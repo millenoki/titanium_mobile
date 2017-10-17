@@ -222,13 +222,15 @@
   return NUMINT(0);
 }
 
-- (NSArray*)all
+- (NSArray*)all:(id)unused
 {
     if (results != nil) {
         NSInteger count = [[self rowCount] integerValue];
         NSMutableArray* result = [NSMutableArray array];
         for (NSUInteger i = 0; i < count; i++) {
-            [result addObject:[results objectForColumnIndex:(int)i]];
+            id test = [results resultDictionary];
+            [result addObject:test];
+            [results next];
         }
         return result;
     }
