@@ -42,6 +42,7 @@
       [self replaceValue:@"iphone" forKey:@"osname" notification:NO];
     }
     model = [[self deviceName:[theDevice model]] retain];
+
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
@@ -106,6 +107,9 @@
 
     return defaultValue;
   }
+#if TARGET_IPHONE_SIMULATOR
+    deviceName = [deviceName stringByAppendingString:@" Simulator"];
+#endif
 
   return deviceName;
 }
