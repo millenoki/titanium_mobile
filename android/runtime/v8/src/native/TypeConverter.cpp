@@ -99,6 +99,9 @@ jstring TypeConverter::jsStringToJavaString(v8::Local<v8::String> jsString)
 
 jstring TypeConverter::jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString)
 {
+	if(jsString.IsEmpty()){
+		return NULL;
+	}
 	titanium::TwoByteValue string(jsString);
 	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
@@ -114,7 +117,7 @@ jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, v8::Local<v8::V
 
 jstring TypeConverter::jsValueToJavaString(v8::Isolate* isolate, JNIEnv *env, v8::Local<v8::Value> jsValue)
 {
-	if (jsValue->IsNull()) {
+	if (jsValue.IsEmpty() || jsValue->IsNull()) {
 		return NULL;
 	}
 
