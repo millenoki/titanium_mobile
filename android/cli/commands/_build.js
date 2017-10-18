@@ -1836,7 +1836,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.currentBuildManifest.mergeCustomAndroidManifest	= this.config.get('android.mergeCustomAndroidManifest', true);
 	this.currentBuildManifest.minSDK						= this.minSDK;
 	this.currentBuildManifest.targetSDK						= this.targetSDK;
-	this.currentBuildManifest.useBabel						= this.useBabel = !!this.tiapp.properties['use-babel'];
+	this.currentBuildManifest.useBabel						= this.useBabel = !!this.tiapp['use-babel'];
 	// we test the package.json hash in case babel settings changed
 	this.currentBuildManifest.packageJSONHash				= this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')) : '';
 
@@ -3032,6 +3032,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 											if (fs.existsSync(from + '.map')) {
 												inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
 											}
+											this.logger.debug(__('babel transform %s', from));
 											babel.transformFile(from, {
 												sourceMaps:this.cli.argv.target !== 'dist-playstore',
 												sourceFileName:file,
