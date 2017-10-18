@@ -76,6 +76,10 @@ public class TiFileProxy extends KrollProxy
 			pb.clear();
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
+			uri = Uri.parse(sourceUrl);
+			if (uri.getScheme() != null) {
+	            scheme = uri.getScheme() + ":";
+            }
 		}
 		if (resolve) {
 			path = resolveUrl(scheme, path);
