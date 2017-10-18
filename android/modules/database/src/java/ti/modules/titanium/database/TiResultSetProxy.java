@@ -244,16 +244,39 @@ public class TiResultSetProxy extends KrollProxy
         return null;
     }
     
+    public HashMap getCurrentResultMap() {
+        
+        int num_cols = getFieldCount();
+        
+        if (num_cols > 0) {
+            HashMap result = new HashMap();
+            
+            
+            int columnIdx = 0;
+            for (columnIdx = 0; columnIdx < num_cols; columnIdx++) {
+                result.put(getFieldName(columnIdx), internalGetField(columnIdx, DatabaseModule.FIELD_TYPE_UNKNOWN));
+            }
+            
+            return result;
+        }
+        else {
+            Log.w(TAG, "Warning: There seem to be no columns in this set.");
+        }
+        
+        return null;
+    }
+
+    
     @Kroll.method
-    public Object[] getAll()
+    public Object[] all()
     {
         if (rs != null) {
             try {
-                int type = DatabaseModule.FIELD_TYPE_UNKNOWN;
                 int count = rs.getCount();
                 Object[] result = new Object[count];
                 for (int i = 0; i < count; i++) {
-                    result[i] = internalGetField(i, type);
+                    result[i] = getCurrentResultMap();
+                    next();
                 }
                 return result;
             } catch (SQLException e) {
@@ -268,7 +291,9 @@ public class TiResultSetProxy extends KrollProxy
 	public int getRowCount()
 	{
 		if (rs != null) {
-			return rs.getCount();
+		    int result = rs.getCount();
+			rs.moveToFirst();
+			return result;
 		}
 
 		return 0;

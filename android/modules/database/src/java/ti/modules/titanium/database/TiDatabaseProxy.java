@@ -156,20 +156,28 @@ public class TiDatabaseProxy extends KrollProxy
 		return rs;
 	}
 	
-	@Kroll.method
-    public int executeStatements(String sql)
-    {
-	    try {
-	        String[] queries = sql.split(";");
-	    for(String query : queries){
-	           db.execSQL(query);
-	        }
-	    } catch (Exception e) {
-	        String msg = "Error executing sql: " + e.getMessage();
-            Log.e(TAG, msg, e);
-            throw e; 
-	    }
-	    return 0;
+    @Kroll.method
+    public int executeStatements(String sql) {
+        String[] queries = sql.split(";");
+        for (String query : queries) {
+            try {
+                if (!query.startsWith("--")) {
+                    Log.d(TAG, "executing batch query: " + query);
+                    db.execSQL(query);
+                }
+            } catch (SQLException e) {
+                if (e.getMessage().contains("not an error")) {
+                    Log.w(TAG, e.getMessage(), e);
+                } else {
+                    String msg = "Error executing sql: " + e.getMessage();
+                    Log.e(TAG, msg, e);
+                    throw e;
+                }
+
+            }
+        }
+
+        return 0;
     }
 
 	@Kroll.getProperty @Kroll.method
