@@ -51,15 +51,27 @@ public class DatabaseModule extends KrollModule
 		TiDatabaseProxy dbp = null;
 
 		try {
-			if (file instanceof TiFileProxy) {
-				TiFileProxy tiFile = (TiFileProxy) file;
-				String absolutePath = tiFile.getBaseFile().getNativeFile().getAbsolutePath();
+		    String absolutePath = null;
+		    String name = null;
+		    if (file instanceof TiFileProxy) {
+                TiFileProxy tiFile = (TiFileProxy) file;
+                absolutePath = tiFile.getNativePath();
+		    } else {
+		        name = TiConvert.toString(file);
+		        if (name != null && name.contains("/") ) {
+		            TiBaseFile srcDb = TiFileFactory.createTitaniumFile(name, false);
+                    absolutePath = srcDb.getNativeFile().getAbsolutePath();
+//		            if (srcDb.isFile()) {
+	                    name = null;
+//		            }
+		            
+		        }
+		    }
+			if (absolutePath != null) {
 				Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-
 				SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 				dbp = new TiDatabaseProxy(db);
 			} else {
-				String name = TiConvert.toString(file);
 				SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(name, Context.MODE_PRIVATE, null);
 				dbp = new TiDatabaseProxy(name, db);
 			}
