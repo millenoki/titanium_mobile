@@ -2846,7 +2846,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp.properties && this.tiapp.properties.hasOwnProperty('run-on-main-thread') && this.tiapp.properties['run-on-main-thread'].value || false);
 	}
 
-	this.currentBuildManifest.useBabel = this.useBabel = !this.tiapp['use-babel'];
+	this.currentBuildManifest.useBabel = this.useBabel = !!this.tiapp['use-babel'];
 	// we test the package.json hash in case babel settings changed
 	this.currentBuildManifest.packageJSONHash = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')) : '';
 
