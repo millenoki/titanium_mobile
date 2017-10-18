@@ -73,6 +73,7 @@ Module.runModule = function (source, filename, activityOrService) {
 	}
 	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 	module.load(filename, source);
+	
 	return module;
 };
 
@@ -369,7 +370,7 @@ Module.prototype.loadCoreModule = function (id, context) {
 				// FIXME Re-use loadAsJavaScriptText?
 				const module = new Module(id, this, context);
 				module.load(id, externalCommonJsContents);
-				return module.exports;
+				return module.exports || true;
 			}
 		}
 	}
@@ -486,7 +487,6 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 
 	// Stick it in the cache
 	Module.cache[filename] = module;
-
 	return module.exports || true;
 };
 
@@ -505,7 +505,6 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	if (Module.cache[filename]) {
 		return Module.cache[filename].exports || true;
 	}
-
 	module = new Module(filename, this, context);
 	module.filename = filename;
 	module.path = path.dirname(filename);
@@ -532,6 +531,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsFile = function (id, context) {
+	
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	var filename = id;
 	var ext = path.extname(filename);
