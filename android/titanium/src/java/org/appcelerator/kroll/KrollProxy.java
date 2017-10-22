@@ -1509,7 +1509,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public boolean doFireEvent(String event, Object data, boolean bubbles) {
         boolean reportSuccess = false;
         int code = 0;
-        KrollProxy source = null;
+        KrollProxy source = this;
         String message = null;
 
         HashMap<String, Object> krollData = null;
@@ -1556,13 +1556,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //                        }
 //                        break;
                     case TiC.PROPERTY_SOURCE:
-                        hashValue = entry.getValue();
-        				if (hashValue != this) {
-        					source = ((KrollProxy)hashValue);
-        					source.getKrollObject();
-        					it.remove();
-        				}
-                        break;
+                        source = null;
+//                        hashValue = entry.getValue();
+//        				if (hashValue != this) {
+//        					source = ((KrollProxy)hashValue);
+//        					source.getKrollObject();
+//        					it.remove();
+//        				}
+//                        break;
                     default:
                         hashValue = entry.getValue();
                         if (hashValue instanceof KrollProxy) {

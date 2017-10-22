@@ -158,12 +158,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	}
 
 	Local<Object> source;
-	if ((jsource == NULL) || (jsource == jEmitter)) {
+	if (jsource == jEmitter) {
 		source = emitter;
 	} else if (sourcePtr != 0) {
 		titanium::Proxy* proxy = (titanium::Proxy*) sourcePtr;
 		source = proxy->handle(V8Runtime::v8_isolate);
-	} else {
+	} else if (jsource != NULL){
 		source = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, jsource).As<Object>();
 	}
 
@@ -173,7 +173,9 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "bubbles"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, bubble));
 
-	jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "source"), source);
+	if (!source.IsEmpty()) {
+		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "source"), source);
+	}
 
 	if (reportSuccess || code != 0) {
 		jsData->Set(NEW_SYMBOL(V8Runtime::v8_isolate, "success"), TypeConverter::javaBooleanToJsBoolean(V8Runtime::v8_isolate, code == 0));
