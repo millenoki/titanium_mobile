@@ -1389,6 +1389,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (int)intValue:(NSString *)name properties:(NSDictionary *)props def:(int)def;
 {
+  return [self intValue:name properties:props def:def exists:NULL];
+}
+
++ (double)doubleValue:(NSString *)name properties:(NSDictionary *)props def:(double)def;
+{
   return [self doubleValue:name properties:props def:def exists:NULL];
 }
 
