@@ -205,13 +205,13 @@ Object.defineProperty(EventEmitter.prototype, "addEventListener", {
 Object.defineProperty(EventEmitter.prototype, "once", {
 	value: function(type, listener) {
 		var self = this;
-		function g() {
-			self.removeListener(type, g);
+		function once() {
+			self.removeListener(type, once);
 			listener.apply(this, arguments);
 		};
 
 //		g.listener = listener;
-		self.addListener(type, g);
+		self.addListener(type, once);
 
 		return this;
 	},
