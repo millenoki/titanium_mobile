@@ -42,6 +42,9 @@
 
 #import "UIImage+Resize.h"
 
+#import "Mimetypes.h"
+
+
 #if TARGET_IPHONE_SIMULATOR
 extern NSString *const TI_APPLICATION_RESOURCE_DIR;
 #endif
@@ -3095,6 +3098,28 @@ If the new path starts with / and the base url is app://..., we have to massage 
   }
 
   return [NSArray arrayWithArray:hexArray];
+}
+
++ (NSString *)mimeTypeForObject:(id)value
+{
+    if (value == nil) {
+        return nil;
+    }
+    
+    if ([value isKindOfClass:[NSString class]]) {
+        return @"";
+    }else if ([value isKindOfClass:[TiBlob class]]) {
+        return [(TiBlob *)value mimeType];
+    }
+    else if ([value isKindOfClass:[NSURL class]]) {
+        return [Mimetypes mimeTypeForExtension:[(NSURL *)value absoluteString]];
+    } else if ([value isKindOfClass:[NSNull class]]) {
+        return nil;
+    }
+    else if ([value isKindOfClass:[NSData class]]) {
+        return @"application/octet-stream";
+    }
+    return [value description];
 }
 
 @end

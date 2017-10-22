@@ -819,5 +819,5 @@ typedef enum {
  */
 + (UIImage *)imageWithColor:(UIColor *)color;
 + (NSArray *)byteArray:(NSData *)data;
-
++ (NSString *)mimeTypeForObject:(id)value;
 @end
