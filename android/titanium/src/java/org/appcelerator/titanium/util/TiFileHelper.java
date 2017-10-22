@@ -813,8 +813,26 @@ public class TiFileHelper implements Handler.Callback
 		}
 		return result;
 	}
+	
+	
+	public File getTempFileWithName(String filename, boolean destroyOnExit)
+            throws IOException
+    {
+	    File result = null;
+        Context context = softContext.get();
 
+        if(context != null) {
+            result = getTempFile(context.getCacheDir(), null, filename, destroyOnExit);
+        }
+        return result;
+   }
 	public File getTempFile(File dir, String suffix, boolean destroyOnExit)
+	        throws IOException
+    {
+	    return getTempFile(dir, null, suffix, destroyOnExit);
+    }
+
+	public File getTempFile(File dir, String filename,  String suffix, boolean destroyOnExit)
 		throws IOException
 	{
 		File result = null;
@@ -824,7 +842,17 @@ public class TiFileHelper implements Handler.Callback
 				Log.w(TAG, "getTempFile: Directory '" + dir.getAbsolutePath()
 					+ "' does not exist. Call to File.createTempFile() will fail.");
 			}
-			result = File.createTempFile("tia", suffix, dir);
+			if (filename != null) {
+			    int idx = filename.lastIndexOf(".");
+		        if (idx != -1)
+		        {
+	                result = File.createTempFile(filename.substring(0, idx), filename.substring(idx+1), dir);
+		        } else {
+	                result = File.createTempFile(filename, suffix, dir);
+		        }
+			} else {
+	            result = File.createTempFile("tia", suffix, dir);
+			}
 
 			if (destroyOnExit) {
 				tempFiles.add(result);

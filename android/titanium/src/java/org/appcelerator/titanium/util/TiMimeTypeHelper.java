@@ -16,7 +16,9 @@ public class TiMimeTypeHelper
 
 	public static final HashMap<String, String> EXTRA_TEXT_MIMETYPES = new HashMap<String, String>();
 	static {
-		EXTRA_TEXT_MIMETYPES.put("js", "javascript");
+        EXTRA_TEXT_MIMETYPES.put("txt", "text");
+        EXTRA_TEXT_MIMETYPES.put("log", "text");
+        EXTRA_TEXT_MIMETYPES.put("js", "javascript");
 		EXTRA_TEXT_MIMETYPES.put("html", "html");
 		EXTRA_TEXT_MIMETYPES.put("htm", "html");
 	}
