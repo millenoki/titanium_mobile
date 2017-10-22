@@ -192,7 +192,7 @@ public class TiBlob extends KrollProxy {
             TiBaseFile file = (TiBaseFile) object;
             if (mimetype == null || mimetype.length() == 0) {
                 mimetype = TiMimeTypeHelper.getMimeType(file.nativePath());
-	}
+            }
             TiBlob blob = new TiBlob(TYPE_FILE, file, mimetype);
             blob.loadBitmapInfo();
             return blob;
