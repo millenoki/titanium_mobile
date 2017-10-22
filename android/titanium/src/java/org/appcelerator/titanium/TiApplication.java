@@ -1157,6 +1157,12 @@ public abstract class TiApplication extends Application implements
         return runOnMainThread;
     }
 	
+	public static boolean isRuntimeThread() {
+	    if (runOnMainThread) {
+	        return true;
+	    }
+	    return KrollRuntime.getInstance().isRuntimeThread();
+	}
 
 	public boolean intentFilterNewTask()
 	{
