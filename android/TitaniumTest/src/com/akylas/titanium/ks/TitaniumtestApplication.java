@@ -35,9 +35,9 @@ public final class TitaniumtestApplication extends TiApplication {
                 put("akylas.shapes", new Class[] {
                         akylas.shapes.AkylasShapesBootstrap.class,
                         akylas.shapes.AkylasShapesModule.class });
-                put("akylas.commonjs", new Class[] {
-                        akylas.commonjs.AkylasCommonjsBootstrap.class,
-                        akylas.commonjs.AkylasCommonjsModule.class });
+//                put("akylas.commonjs", new Class[] {
+//                        akylas.commonjs.AkylasCommonjsBootstrap.class,
+//                        akylas.commonjs.AkylasCommonjsModule.class });
                 put("akylas.slidemenu", new Class[] {
                         akylas.slidemenu.AkylasSlidemenuBootstrap.class,
                         akylas.slidemenu.AkylasSlidemenuModule.class });
@@ -55,8 +55,8 @@ public final class TitaniumtestApplication extends TiApplication {
                     (Class<? extends KrollExternalModule>) (((Class[]) (pairs
                             .getValue()))[0]));
         }
-        runtime.addExternalCommonJsModule("akylas.commonjs",
-                akylas.commonjs.CommonJsSourceProvider.class);
+//        runtime.addExternalCommonJsModule("akylas.commonjs",
+//                akylas.commonjs.CommonJsSourceProvider.class);
 
 
         // Custom modules
