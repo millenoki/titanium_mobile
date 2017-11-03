@@ -102,16 +102,20 @@
 
   NSString *deviceName = [deviceNamesByCode objectForKey:code];
 
-  if (!deviceName) {
-    // Not found on database. At least guess main device type from string contents:
-
-    return defaultValue;
-  }
+    if (!deviceName) {
+        // Not found on database. At least guess main device type from string contents:
+#if TARGET_IPHONE_SIMULATOR
+        return [defaultValue stringByAppendingString:@" Simulator"];
+#else
+        return defaultValue;
+#endif
+        // Not found on database. At least guess main device type from string contents:
+    }
 #if TARGET_IPHONE_SIMULATOR
     deviceName = [deviceName stringByAppendingString:@" Simulator"];
 #endif
-
-  return deviceName;
+    
+    return deviceName;
 }
 
 - (void)dealloc
