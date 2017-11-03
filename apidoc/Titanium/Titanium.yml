@@ -125,6 +125,16 @@ methods:
 
                 var buffer = Ti.createBuffer({ value: 1.234567, type: Ti.Codec.TYPE_DOUBLE, byteOrder: Ti.Codec.BIG_ENDIAN });
 
+  - name: createBlob
+    summary: Creates a new blob based on the params.
+    parameters:
+      - name: params
+        summary: creation arguments
+        type: CreateBlobArgs
+    returns:
+        type: Titanium.Blob
+        summary: The new blob.
+    platforms: [android, iphone, ipad]
 
 ---
 name: CreateBufferArgs
@@ -152,3 +162,20 @@ properties:
     summary: The byte order of this buffer.
     optional: true
     default: The OS native byte order is used by default. See <Titanium.Codec.getNativeByteOrder>
+
+---
+name: CreateBlobArgs
+summary: Arguments to be passed to createBlob
+since: "1.7"
+platforms: [android, iphone, ipad]
+
+properties:
+  - name: value
+    type: [String, Number, Array<Number>]
+    summary: the data contained in the blob
+    optional: true
+  - name: mimetype
+    type: String
+    summary: The mimetype of the data.
+    optional: true
+    default: application/octet-stream
