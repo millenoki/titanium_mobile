@@ -20,7 +20,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -35,6 +35,7 @@ import android.widget.TextView;
 /**
  * A utility class for creating a dialog that displays Javascript errors
  */
+@SuppressLint("NewApi")
 public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandler
 {
 	private static final String TAG = "TiExceptionHandler";
