@@ -5,11 +5,6 @@
 	<projects>
 	</projects>
 	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
@@ -18,7 +13,7 @@
 		<link>
 			<name>lib</name>
 			<type>2</type>
-			<location>PARENT-3-PROJECT_LOC/dist/android</location>
+			<location>/Volumes/data/dev/titanium/titanium_mobile/dist/android</location>
 		</link>
 	</linkedResources>
 </projectDescription>
