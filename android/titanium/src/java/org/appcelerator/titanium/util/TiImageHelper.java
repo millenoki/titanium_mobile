@@ -649,4 +649,29 @@ public class TiImageHelper {
             }
         }
     }
+    
+    
+    public static Bitmap getBitmap(final HashMap props,
+            TiDrawableReference imageref) {
+        imageref.httpOptions = TiConvert.toHashMap(props.get(TiC.PROPERTY_HTTP_OPTIONS));
+        String cacheKey = imageref.getCacheKey();
+        Cache cache = TiApplication.getImageMemoryCache();
+        Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
+        if (bitmap != null) {
+            return bitmap;
+        }
+        if (imageref.isNetworkUrl()) {
+            bitmap = downloadDrawableReferenceBitmap(imageref);
+        } else {
+            Drawable drawable = imageref.getDrawable();
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+            }
+        }
+        if (bitmap != null && cacheKey != null) {
+            cache.set(cacheKey, bitmap);
+        }
+        return bitmap;
+    }
+
 }
