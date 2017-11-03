@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.URLConnection;
 import java.util.HashMap;
 
@@ -43,12 +42,16 @@ import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.Pair;
 import pl.droidsonroids.gif.GifDrawable;
+import ti.modules.titanium.TitaniumModule;
 import android.util.Base64;
 
 /** 
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
  */
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=TitaniumModule.class, name="Blob", propertyAccessors = {
+        TiC.PROPERTY_MIMETYPE,
+        TiC.PROPERTY_VALUE
+    })
 public class TiBlob extends KrollProxy {
 	private static final String TAG = "TiBlob";
 
@@ -98,7 +101,24 @@ public class TiBlob extends KrollProxy {
 	private int width, height;
     private KrollDict extraInfo;
     private String cacheKey = null;
+    
+    public TiBlob()
+    {
+        this(TYPE_DATA, null, null);
+    }
+    
 
+    @Override
+    public void handleCreationDict(HashMap dict)
+    {
+        super.handleCreationDict(dict);
+
+        this.mimetype = TiConvert.toString(dict, TiC.PROPERTY_MIMETYPE, "application/octet-stream");
+
+        Object value = dict.get(TiC.PROPERTY_VALUE);
+        this.data =  TiConvert.toBytes(value);
+
+    }
 
     private TiBlob(int type, Object data, String mimetype) {
 		super();

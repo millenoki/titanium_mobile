@@ -120,6 +120,25 @@
 }
 #endif
 
+
+- (TiBlob *)createBlob:(id)arg
+{
+    ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
+    
+    id data;
+    NSString *mimetype;
+    
+    ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"value", NSObject);
+    ENSURE_ARG_OR_NIL_FOR_KEY(mimetype, arg, @"mimetype", NSString);
+    if (mimetype == nil) {
+        mimetype = @"application/octet-stream";
+    }
+    
+    TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:[TiUtils dataValue:data] mimetype:mimetype] autorelease];
+    
+    return blob;
+}
+
 - (TiBuffer *)createBuffer:(id)arg
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
