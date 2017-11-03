@@ -987,10 +987,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.proguard = false;
 	}
 
-	if (cli.tiapp.properties['ti.android.compilejs']) {
-		logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option to bypass JavaScript minification', 'ti.android.compilejs'.cyan, '--skip-js-minify'.cyan));
-	}
-
 	if (cli.argv['skip-js-minify']) {
 		this.minifyJS = false;
 	}
@@ -1883,17 +1879,17 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 
 	if (argv.target !== 'dist-playstore') {
 		// determine if we're going to be minifying javascript
-		const compileJSProp = this.tiapp.properties['ti.compilejs'];
+		const compileJSProp = this.tiapp['compile-js'];
 		if (argv['skip-js-minify']) {
 			if (this.minifyJS) {
 				this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
 			}
 			this.encryptJS = this.minifyJS = false;
-		} else if (compileJSProp) {
+		} else if (compileJSProp !== undefined) {
 			if (this.minifyJS && !compileJSProp.value) {
 				this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
 			}
-			this.encryptJS = this.minifyJS = !!compileJSProp.value;
+			this.encryptJS = this.minifyJS = !!compileJSProp;
 		}
 		this.currentBuildManifest.encryptJS = !!this.encryptJS;
 	}
@@ -2381,12 +2377,12 @@ AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
 			if (!ignoreDirs || !ignoreDirs.test(name)) {
 				this.dirWalker(currentFile, callback);
 			} else {
-				this.logger.warn(__('ignoring dir %s', name.cyan));
+				this.logger.warn(__('Ignoring dir %s', name.cyan));
 			}
 		} else if (!ignoreFiles || !ignoreFiles.test(name)) {
 			callback(currentFile, name, i, arr);
 		} else {
-			this.logger.warn(__('ignoring file %s', name.cyan));
+			this.logger.warn(__('Ignoring file %s', name.cyan));
 		}
 	}, this);
 };
@@ -2492,7 +2488,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
 			opts.origSrc = opts.origSrc || opts.src;
 			opts.origDest = opts.dest;
-			recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
+			setImmediate(function () {
+				recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
+			});
 		} else {
 			callback();
 		}
@@ -2558,20 +2556,20 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						if (minimatch(relPath, toIgnore[i], { dot:true })) {
 							// ignored = true;
 							_t.logger.debug(__('Ignoring %s', from.cyan));
-							return next();
+							return process.nextTick(next);
 						}
 					}
 				}
 
 				// check that the file actually exists and isn't a broken symlink
 				if (!fs.existsSync(from)) {
-					return next();
+					return process.nextTick(next);
 				}
 
 				// check if we are ignoring this file
 				if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) !== -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
 					_t.logger.debug(__('Ignoring %s ', from.cyan));
-					return next();
+					return process.nextTick(next);
 				}
 
 				// if this is a directory, recurse
@@ -2594,7 +2592,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					};
 				_t.cli.createHook('build.android.walkResource', _t, function (info, cb) {
 					if (info.ignored) {
-						return cb();
+						return process.nextTick(cb);
 					}
 					// we have a file, now we need to see what sort of file
 					// check if it's a drawable resource
@@ -2750,7 +2748,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 							resourcesToCopy[info.relPath] = info;
 							break;
 					}
-					cb();
+					process.nextTick(cb);
 				})(info, next);
 			},
 
@@ -3032,7 +3030,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 											if (fs.existsSync(from + '.map')) {
 												inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
 											}
-											this.logger.debug(__('babel transform %s', from));
 											babel.transformFile(from, {
 												sourceMaps:this.cli.argv.target !== 'dist-playstore',
 												sourceFileName:file,
@@ -3216,6 +3213,8 @@ AndroidBuilder.prototype.generateResourcesAssetsIndex = function generateResourc
 	const assetsDir = path.join(this.buildAssetsDir, 'Resources').replace(/\\/g, '/'),
 		destFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildAssetsDir, '__assets_list__.index');
 	this.dirWalker(assetsDir, function (file) {
+		this.logger.info(__('__assets_list__ '  + file));
+		
 		result += file.replace(/\\/g, '/').replace(assetsDir + '/', '') + '\n';
 	});
 
