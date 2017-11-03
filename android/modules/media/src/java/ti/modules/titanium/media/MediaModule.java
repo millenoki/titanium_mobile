@@ -1222,7 +1222,7 @@ public class MediaModule extends KrollModule
 				Bitmap bitmap = TiUIHelper.viewToBitmap(null, winParam.getDecorView());
 				if (winScale != 1.0f) {
 					bitmap = TiImageHelper.imageScaled(bitmap, winScale);
-		}
+				}
 				TiBlob blob = TiBlob.blobFromObject(bitmap);
 				KrollDict result = new KrollDict();
 				result.put("image", blob);
