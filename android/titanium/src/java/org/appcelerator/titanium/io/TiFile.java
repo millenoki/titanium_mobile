@@ -26,6 +26,7 @@ import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.net.Uri;
 import android.os.StatFs;
@@ -407,6 +408,11 @@ public class TiFile extends TiBaseFile
             write(((TiFileProxy) arg).read(), append);
          } else if (arg instanceof BufferProxy) {
              write(((BufferProxy) arg).getBuffer(), append);
+         } else {
+             byte[] data = TiConvert.toBytes(arg);
+             if (data != null) {
+                 write(data, append);
+             }
          }
 
         if (needsClosing) {
