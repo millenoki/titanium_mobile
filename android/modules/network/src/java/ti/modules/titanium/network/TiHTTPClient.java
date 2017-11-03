@@ -66,6 +66,9 @@ import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUrl;
 import org.json.JSONObject;
 
+import ti.modules.titanium.BufferProxy;
+import ti.modules.titanium.network.httpurlconnection.AbstractContentBody;
+import ti.modules.titanium.network.httpurlconnection.ByteBody;
 import ti.modules.titanium.network.httpurlconnection.ContentBody;
 import ti.modules.titanium.network.httpurlconnection.Entity;
 import ti.modules.titanium.network.httpurlconnection.FileEntity;
@@ -80,10 +83,12 @@ import ti.modules.titanium.network.httpurlconnection.FileBody;
 import ti.modules.titanium.network.httpurlconnection.UrlEncodedFormEntity;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Base64OutputStream;
 
+@SuppressLint("NewApi")
 public class TiHTTPClient
 {
 	private static final String TAG = "TiHTTPClient";
@@ -901,28 +906,40 @@ public class TiHTTPClient
 				parts.put(name, body);
 				return (int)baseFile.getNativeFile().length();
 
-			} else if (value instanceof TiBlob || value instanceof TiResourceFile) {
+			} else if (value instanceof TiBlob || value instanceof TiResourceFile || value instanceof BufferProxy) {
 				TiBlob blob;
+				AbstractContentBody body = null;
 				if (value instanceof TiBlob) {
 					blob = (TiBlob) value;
-				} else {
+//					body = new ByteBody(blob.getBytes(), blob.getMimeType());
+				} else if (value instanceof BufferProxy) {
+				    blob = ((BufferProxy) value).toBlob();
+//                    body = new ByteBody(blob.getBytes(), blob.getMimeType());
+                } else {
 					blob = ((TiResourceFile) value).read();
+					
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-					FileOutputStream fos = new FileOutputStream(tmpFile);
-					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
-					fos.close();
-				} else {
-					createFileFromBlob(blob, tmpFile);
+                File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+                if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+                    FileOutputStream fos = new FileOutputStream(tmpFile);
+                    TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
+                    fos.close();
+                } else {
+                    createFileFromBlob(blob, tmpFile);
+                }
+
+                tmpFiles.add(tmpFile);
+                body = new FileBody(tmpFile, mimeType);
+				if (body != null) {
+				    parts.put(name, body);
+	                return (int) body.getContentLength();
 				}
+				return 0;
 
-				tmpFiles.add(tmpFile);
-
-				FileBody body = new FileBody(tmpFile, mimeType);
-				parts.put(name, body);
-				return (int)tmpFile.length();
+//				FileBody body = new FileBody(tmpFile, mimeType);
+//				parts.put(name, body);
+//				return (int)tmpFile.length();
 			} else if (value instanceof HashMap) {
 				// If value is a HashMap, it is actually a JSON
 				JSONObject jsonObject = TiConvert.toJSON( (HashMap<String, Object>) value);
@@ -1019,12 +1036,14 @@ public class TiHTTPClient
 		if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {
 			TiBaseFile baseFile = (TiBaseFile) value;
 			return new FileEntity(baseFile.getNativeFile(), TiMimeTypeHelper.getMimeType(baseFile.nativePath()));
-		} else if (value instanceof TiBlob || value instanceof TiResourceFile) {
+		} else if (value instanceof TiBlob || value instanceof BufferProxy || value instanceof TiResourceFile) {
 			try {
 				TiBlob blob;
 				if (value instanceof TiBlob) {
 					blob = (TiBlob) value;
-				} else {
+				} else if (value instanceof BufferProxy) {
+                    blob = ((BufferProxy) value).toBlob();
+                } else {
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
@@ -1075,7 +1094,7 @@ public class TiHTTPClient
 							value = ((TiFileProxy) value).getBaseFile();
 						}
 
-						if (value instanceof TiBaseFile || value instanceof TiBlob) {
+						if (value instanceof TiBaseFile || value instanceof TiBlob|| value instanceof BufferProxy) {
 							needMultipart = true;
 							break;
 						}
@@ -1091,7 +1110,7 @@ public class TiHTTPClient
 							value = ((TiFileProxy) value).getBaseFile();
 						}
 
-						if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof HashMap) {
+						if (value instanceof TiBaseFile || value instanceof TiBlob|| value instanceof BufferProxy || value instanceof HashMap) {
 							totalLength += addTitaniumFileAsPostData(key, value);
 
 						} else {
@@ -1110,12 +1129,12 @@ public class TiHTTPClient
 				if (queryStringAltered) {
 					this.url = uri.toString();
 				}
-			} else if (userData instanceof TiFileProxy || userData instanceof TiBaseFile || userData instanceof TiBlob) {
+			} else if (userData instanceof TiFileProxy || userData instanceof TiBaseFile || userData instanceof TiBlob || userData instanceof BufferProxy) {
 				Object value = userData;
 				if (value instanceof TiFileProxy) {
 					value = ((TiFileProxy) value).getBaseFile();
 				}
-				if (value instanceof TiBaseFile || value instanceof TiBlob) {
+				if (value instanceof TiBaseFile || value instanceof TiBlob || value instanceof BufferProxy) {
 					setRawData(titaniumFileAsPutData(value));
 				} else {
 					setRawData(TiConvert.toString(value));
