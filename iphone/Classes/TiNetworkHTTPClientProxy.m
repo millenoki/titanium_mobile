@@ -194,12 +194,17 @@ extern NSString *const TI_APPLICATION_GUID;
       } else {
         for (NSString *key in dict) {
           id value = [dict objectForKey:key];
-          if ([value isKindOfClass:[TiBlob class]] || [value isKindOfClass:[TiFile class]]) {
+          if ([value isKindOfClass:[TiBlob class]] || [value isKindOfClass:[TiBuffer class]] || [value isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
             NSString *name = nil;
             NSString *mime = nil;
             if ([value isKindOfClass:[TiBlob class]]) {
               blob = (TiBlob *)value;
+              if ([blob path] != nil) {
+                name = [[blob path] lastPathComponent];
+              }
+            } else if ([value isKindOfClass:[TiBuffer class]]) {
+              blob = [((TiBuffer *)value) toBlob:nil];
               if ([blob path] != nil) {
                 name = [[blob path] lastPathComponent];
               }
