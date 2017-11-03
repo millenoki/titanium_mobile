@@ -42,7 +42,6 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
 import android.graphics.PorterDuff.Mode;
-import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends MaskableView implements Handler.Callback, OnClickListener
 {
@@ -85,7 +84,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 
 	private int orientation;
 	private int tintColor;
-	private WeakReference<TiUIView> tiView;
+//	private WeakReference<TiUIView> tiView;
 
 	private InternalImageView oldImageView = null;
 	
@@ -258,7 +257,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	public TiImageView(@NonNull Context context, TiUIView tiView)
 	{
 		this(context);
-		this.tiView = new WeakReference<TiUIView>(tiView);
+//		this.tiView = new WeakReference<TiUIView>(tiView);
 	}
 
 	public void setEnableScale(boolean enableScale)
