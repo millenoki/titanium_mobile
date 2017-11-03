@@ -845,11 +845,18 @@ public class TiUIHelper
 	public static Drawable buildImageDrawable(final Context context, final Object object, final boolean tileImage, final KrollProxy proxy) {
         
 	    if (object instanceof TiBlob) {
+	        
 	        switch (((TiBlob) object).getType()) {
             case TiBlob.TYPE_DRAWABLE:
                 return buildImageDrawable(context, ((TiBlob) object).getDrawable(), tileImage, proxy);
+            case TiBlob.TYPE_FILE:
             case TiBlob.TYPE_IMAGE:
-                return buildImageDrawable(context, ((TiBlob) object).getImage(), tileImage, proxy);
+                final String cacheKey = ((TiBlob) object).getCacheKey();
+                Bitmap b = TiApplication.getImageMemoryCache().get(cacheKey);
+                if (b == null) {
+                    b = ((TiBlob) object).getImage();
+                }
+                return buildImageDrawable(context, b, tileImage, proxy);
             default:
                 return null;
 		}
