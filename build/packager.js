@@ -194,7 +194,7 @@ Packager.prototype.includePackagedModules = function (next) {
 		// FIXME Don't show progress bars, because they clobber each other
 		downloadURL(url, function (err, file) {
 			if (err) {
-				return cb(err);
+				return cb();
 			}
 			zipFiles.push(file);
 			cb();
