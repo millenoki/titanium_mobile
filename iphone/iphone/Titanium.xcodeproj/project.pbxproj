@@ -564,6 +564,13 @@
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.shapes;
 		};
+		D5A19C1E1FA5EACE0012AA67 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5A19C151FA5EACE0012AA67 /* akylas.motion.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = akylas.motion;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -1494,6 +1501,7 @@
 		D59EC23B180FDC5D00FDDD11 /* TiTransitionFold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionFold.h; sourceTree = "<group>"; };
 		D59EC23C180FDC5D00FDDD11 /* TiTransitionFold.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionFold.m; sourceTree = "<group>"; };
 		D5A016C91926109E0005158A /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		D5A19C151FA5EACE0012AA67 /* akylas.motion.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.motion.xcodeproj; path = ../../../modules/akylas_modules/motion/ios/akylas.motion.xcodeproj; sourceTree = "<group>"; };
 		D5AADFA917EC32A6008987EF /* UIControl+TiUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIControl+TiUIView.h"; sourceTree = "<group>"; };
 		D5AADFAA17EC32A6008987EF /* UIControl+TiUIView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+TiUIView.m"; sourceTree = "<group>"; };
 		D5AC1AEA1F7CE92400B489C1 /* TiUIToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbar.h; sourceTree = "<group>"; };
@@ -3686,6 +3694,7 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
+				D5A19C151FA5EACE0012AA67 /* akylas.motion.xcodeproj */,
 				D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */,
 				D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */,
 				D5E75A6E187C58F00016542B /* icon.png */,
@@ -3861,6 +3870,14 @@
 			isa = PBXGroup;
 			children = (
 				D514F5C61B80C01D00C13E78 /* libakylas.charts.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D5A19C161FA5EACE0012AA67 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D5A19C1F1FA5EACE0012AA67 /* libakylas.motion.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4102,6 +4119,10 @@
 					ProjectRef = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
 				},
 				{
+					ProductGroup = D5A19C161FA5EACE0012AA67 /* Products */;
+					ProjectRef = D5A19C151FA5EACE0012AA67 /* akylas.motion.xcodeproj */;
+				},
+				{
 					ProductGroup = D58ED8EA1928E6F700BA0E04 /* Products */;
 					ProjectRef = D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */;
 				},
@@ -4151,6 +4172,13 @@
 			fileType = archive.ar;
 			path = libakylas.slidemenu.a;
 			remoteRef = D514F5D11B80C01D00C13E78 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D5A19C1F1FA5EACE0012AA67 /* libakylas.motion.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libakylas.motion.a;
+			remoteRef = D5A19C1E1FA5EACE0012AA67 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
