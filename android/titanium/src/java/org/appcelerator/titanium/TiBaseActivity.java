@@ -2113,8 +2113,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
-			window.releaseViews(isFinishing);
-			window.release();
 			window = null;
 		}
 
