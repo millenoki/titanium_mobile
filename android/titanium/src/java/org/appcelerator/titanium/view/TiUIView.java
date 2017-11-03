@@ -1312,17 +1312,32 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (keySequence() != null) {
             for (final String key : keySequence()) {
                 if (d.containsKey(key)) {
+                    long startTime = System.currentTimeMillis();
                     propertySet(key, d.get(key),
                             changed ? currents.get(key) : null, changed);
                     d.remove(key);
+                    long endTime = System.currentTimeMillis();
+                    long diff = endTime - startTime;
+                    if (diff > 20) {
+                        Log.w(TAG, "handleProperty " + key + " " + diff + "ms, "
+                                + this.getClass().toString());
+                    }
 		}
 	}
         }
         for (Map.Entry entry : d.entrySet()) {
             final Object key = entry.getKey();
             if (key instanceof String) {
+                long startTime = System.currentTimeMillis();
+
                 propertySet((String) key, entry.getValue(),
                         changed ? currents.get(key) : null, changed);
+                long endTime = System.currentTimeMillis();
+                long diff = endTime - startTime;
+                if (diff > 20) {
+                    Log.w(TAG, "handleProperty " + key + " " + diff + "ms, "
+                            + this.getClass().toString());
+                }
             }
         }
     }
@@ -1345,7 +1360,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (diff > 20) {
             Log.w(TAG, "processProperties " + diff + "ms, "
                     + this.getClass().toString());
-	}
+        }
         if (!(layoutParams instanceof AnimationLayoutParams)
                 && getOuterView() != null && !useCustomLayoutParams) {
             getOuterView().setLayoutParams(layoutParams);
@@ -2136,6 +2151,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected KrollDict dictFromMotionEvent(MotionEvent e) {
         return TiViewHelper.dictFromMotionEvent(getTouchView(), e);
 	}
+    
+    protected KrollDict dictFromMotionEvent(String type, MotionEvent e) {
+        return dictFromMotionEvent(e);
+    }
 
     protected void registerForTouch(final View touchable) {
 		if (touchable == null) {
