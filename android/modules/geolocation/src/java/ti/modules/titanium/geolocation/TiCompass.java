@@ -60,6 +60,7 @@ public class TiCompass
 		}
 		listening = true;
 		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
+		TiSensorHelper.registerListener(Sensor.TYPE_MAGNETIC_FIELD, this, SensorManager.SENSOR_DELAY_UI);
 		if (geolocationModule.hasListeners("state", false)) {
             KrollDict data = new KrollDict();
             data.put("monitor", TiC.EVENT_HEADING);
@@ -74,7 +75,8 @@ public class TiCompass
             return;
         }
         listening = false;
-		TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+        TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+		TiSensorHelper.unregisterListener(Sensor.TYPE_MAGNETIC_FIELD, this);
 		if (geolocationModule.hasListeners("state", false)) {
             KrollDict data = new KrollDict();
             data.put("monitor", TiC.EVENT_HEADING);
@@ -85,6 +87,12 @@ public class TiCompass
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
+	    
+        if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            KrollDict data = new KrollDict();
+            data.put(TiC.PROPERTY_ACCURACY, accuracy);
+            geolocationModule.fireEvent(TiC.EVENT_HEADING_ACCURACY, data);
+        }
 	}
 
 	public void onSensorChanged(SensorEvent event)

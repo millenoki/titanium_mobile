@@ -216,6 +216,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_HEADING = "heading";
+	
+	public static final String EVENT_HEADING_ACCURACY = "headingAccuracy";
 
 	/**
 	 * @module.api
