@@ -112,7 +112,7 @@ public class TiDatabaseProxy extends KrollProxy
 					// Thanks to brion for working through the logic, based off of commit
 					// https://github.com/brion/titanium_mobile/commit/8d3251fca69e10df6a96a2a9ae513159494d17c3
 					if (c.getColumnCount() > 0) {
-						rs = new TiResultSetProxy(c);
+						rs = new TiResultSetProxy(c, getLastInsertRowId(), sql);
 						if (rs.isValidRow()) {
 							rs.next(); // Position on first row if we have data.
 						}
@@ -124,7 +124,7 @@ public class TiDatabaseProxy extends KrollProxy
 				} else {
 					// Leaving for historical purposes, but walking through several different
 					// types of statements never hit this branch. (create, drop, select, pragma)
-					rs = new TiResultSetProxy(null); // because iPhone does it this way.
+					rs = new TiResultSetProxy(null, getLastInsertRowId(), sql); // because iPhone does it this way.
 				}
 			} else {
 				Object[] newArgs = null;
