@@ -421,10 +421,12 @@ public class GeolocationModule extends KrollModule
 					LocationProviderProxy locationProvider = legacyLocationProviders.get(providerKey);
 					locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
 				}
+		        if (androidModule != null) {
+				    for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
+	                    locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
+	                }
+				}
 				
-				for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
-                    locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
-	            }
 			}
 			enableLocationProviders();
 		// is this a simple accuracy property?
