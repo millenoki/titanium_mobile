@@ -399,8 +399,6 @@ public class GeolocationModule extends KrollModule
 	 */
 	private void propertyChangedAccuracy(Object newValue)
 	{
-		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
-
 		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
 		boolean simpleModeEnabled = false;
 		if (!legacyModeActive && !(getManualMode()) && (numLocationListeners > 0)) {
