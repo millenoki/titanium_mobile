@@ -25,14 +25,18 @@ public class TiResultSetProxy extends KrollProxy
 	private static final String TAG = "TiResultSet";
 
 	protected Cursor rs;
+	protected String sql;
+	protected int lastID;
 	protected String lastException;
 	protected HashMap<String, Integer> columnNames; // workaround case-sensitive matching in Google's implementation
 
-	public TiResultSetProxy(Cursor rs)
+	public TiResultSetProxy(Cursor rs, int lastID, String sql)
 	{
 		super();
 
 		this.rs = rs;
+		this.sql = sql;
+		this.lastID = lastID;
 		String[] names = rs.getColumnNames();
 		this.columnNames = new HashMap<String, Integer>(names.length);
 		for(int i=0; i < names.length; i++) {
@@ -51,6 +55,13 @@ public class TiResultSetProxy extends KrollProxy
 		}
 
 	}
+	
+
+    @Kroll.method
+    public void finalize()
+    {
+        close();
+    }
 
 	@Kroll.method
 	public Object field(Object[] args)
@@ -207,22 +218,28 @@ public class TiResultSetProxy extends KrollProxy
 
 		return result;
 	}
-
-	@Kroll.getProperty @Kroll.method
-	public int getFieldCount()
-	{
-		if (rs != null) {
-			try {
-				return rs.getColumnCount();
-			} catch (SQLException e) {
-				Log.e(TAG, "No fields exist");
-				throw e;
-			}
-		}
-
-		return 0;
-
-	}
+    
+    @Kroll.getProperty @Kroll.method
+    public int getFieldCount()
+    {
+        if (rs != null) {
+            try {
+                return rs.getColumnCount();
+            } catch (SQLException e) {
+                Log.e(TAG, "No fields exist");
+                throw e;
+            }
+        }
+        
+        return 0;
+        
+    }
+    
+    @Kroll.getProperty @Kroll.method
+    public int getLastID()
+    {
+        return this.lastID;
+    }
 
 	@Kroll.method
 	public String fieldName(int index)
