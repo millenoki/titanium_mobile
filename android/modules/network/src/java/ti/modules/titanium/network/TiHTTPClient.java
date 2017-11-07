@@ -484,10 +484,10 @@ public class TiHTTPClient
 			return null;
 		}
 
-		CharsetDecoder decoder = charset.newDecoder();
-		ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
 
 		try {
+	        CharsetDecoder decoder = charset.newDecoder();
+	        ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
 			CharBuffer decodedText = decoder.decode(in);
 			return decodedText.toString();
 
@@ -495,6 +495,7 @@ public class TiHTTPClient
 			return null;
 
 		} catch (OutOfMemoryError e) {
+	        System.gc();
 			Log.e(TAG, "Not enough memory to decode response data.");
 			return null;
 		}
