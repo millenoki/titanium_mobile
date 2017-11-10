@@ -70,7 +70,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
 	private static final String PROPERTY_LOAD_URL = "loadUrl";
 
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
 //	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
@@ -86,7 +86,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public WindowProxy()
 	{
 		super();
-	}  
+	}
 
 	@Override
 	protected KrollDict getLangConversionTable()
@@ -95,7 +95,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		table.put(TiC.PROPERTY_TITLE, TiC.PROPERTY_TITLEID);
 		return table;
 	}
-	
+
 	private class TiWindowView extends TiUIView{
 		public TiWindowView(TiViewProxy proxy) {
 			super(proxy);
@@ -106,7 +106,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity(), this);
 			setNativeView(layout);
 		}
-        @Override
+	@Override
 	    protected int fillLayout(String key, Object value, boolean withMatrix) {
             if (!lightweight && (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT))) {
                 Object width = getProperty(TiC.PROPERTY_WIDTH);
@@ -283,11 +283,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		HashMap<String, Object> option = null;
 		if (arg instanceof HashMap) {
 			option = (HashMap<String, Object>) arg;
-			if (option != null) {
+		if (option != null) {
 	            KrollDict props = TiConvert.toKrollDict(option);
 	            props.keySet().retainAll(KEYS_TO_KEEP);
 	            properties.putAll(props);
-	        }
+		}
 		}
 		if (hasProperty(TiC.PROPERTY_ORIENTATION_MODES)) {
 			Object obj = getProperty(TiC.PROPERTY_ORIENTATION_MODES);
@@ -321,21 +321,21 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 //		if (lightweight) {
 //			addLightweightWindowToStack();
 //		} else {
-			// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+		// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 //			properties.remove(TiC.PROPERTY_TOP);
 //			properties.remove(TiC.PROPERTY_BOTTOM);
 //			properties.remove(TiC.PROPERTY_LEFT);
 //			properties.remove(TiC.PROPERTY_RIGHT);
-			super.open(arg);
+		super.open(arg);
 //		}
 	}
-	
+
 	@Override
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
 	    if (!isOpenedOrOpening()) { 
-            return; 
-        }
+			return;
+		}
 		if (lightweight) {
 			if (TiApplication.isUIThread()) {
 				removeLightweightWindowFromStack();
@@ -343,8 +343,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				getMainHandler().obtainMessage(MSG_REMOVE_LIGHTWEIGHT).sendToTarget();
 			}
 		} else {
-			super.close(arg);
-		}
+		super.close(arg);
+	}
 	}
     private TiAnimator _openingAnim = null;
     private TiAnimator _closingAnim = null;
@@ -352,11 +352,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(HashMap options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
-		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
-			return;
-		}
+	    Activity topActivity = TiApplication.getAppCurrentActivity();
+	    // Don't open if app is closing or closed
+	    if (topActivity == null || topActivity.isFinishing()) {
+	        return;
+	    }
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
         if (options.containsKey("_anim")) {
             animated = false;
@@ -368,35 +368,35 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		    return;
 		}
 		
-		Intent intent = new Intent(topActivity, TiActivity.class);
-		fillIntent(topActivity, intent);
+	    Intent intent = new Intent(topActivity, TiActivity.class);
+	    fillIntent(topActivity, intent);
 
-		int windowId = TiActivityWindows.addWindow(this);
-		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
-		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
-		
+	    int windowId = TiActivityWindows.addWindow(this);
+	    intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
+	    intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+
         int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
         int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
         
         
-        if (!animated) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+	    if (!animated) {
+	        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             enterAnimation = 0;
             exitAnimation = 0;
         }
 		if (enterAnimation != -1 || exitAnimation != -1) {
-			topActivity.startActivity(intent);
-			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
-		} else {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+	        topActivity.startActivity(intent);
+	        topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+	    } else {
+	        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 	            topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
 	        } else {
 	            topActivity.startActivity(intent);
 	        }
-		}
+	    }
 	}
-	
-    @Override
+
+	@Override
     public void animationFinished(TiAnimator animation) {
         super.animationFinished(animation);
         if (_openingAnim == animation) {
@@ -440,19 +440,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	        int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
 	        int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
 	        boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-	        if (!animated) {
+			if (!animated) {
 	            enterAnimation = 0;
 	            exitAnimation = 0;
 	        }
 	        if (enterAnimation != -1 || exitAnimation != -1) {
-	            activity.overridePendingTransition(enterAnimation, exitAnimation);
-	        }
+				activity.overridePendingTransition(enterAnimation, exitAnimation);
+			}
 			// Finishing an activity is not synchronous, so we remove the activity from the activity stack here
 			TiApplication.removeFromActivityStack(activity);
 			windowActivity = null;
 		}
 	}
-	
+
 	private Window getWindow() {
 	    if (windowActivity != null) {
 	        return windowActivity.get().getWindow();
@@ -509,7 +509,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
-		
+
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
 		callPropertyAsync(PROPERTY_POST_WINDOW_CREATED, null);
@@ -517,11 +517,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	public void onWindowActivityCreated()
-	{		
+	{
         TiBaseActivity activity = getWindowActivity();
 		if (parent == null && winManager == null && activity != null) {
-			// Fire the open event after setContentView() because getActionBar() need to be called
-			// after setContentView(). (TIMOB-14914)
+		// Fire the open event after setContentView() because getActionBar() need to be called
+		// after setContentView(). (TIMOB-14914)
 			activity.getActivityProxy().getDecorView().add(this);
 			activity.addWindowToStack(this);
 		}
@@ -530,7 +530,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		super.onWindowActivityCreated();
 	}
-	
+
 	@Override
 	public void closeFromActivity(boolean activityIsFinishing)
 	{
@@ -553,7 +553,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		return (windowActivity != null) ? windowActivity.get() : null;
 	}
-	
+
 	@Override
 	public void setActivity(final Activity activity)
 	{
@@ -651,7 +651,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
 			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN), false));
 		}
-		
+
 		if (hasProperty(TiC.PROPERTY_WINDOW_TYPE)) {
             intent.putExtra(TiC.PROPERTY_WINDOW_TYPE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_TYPE), WindowManager.LayoutParams.TYPE_APPLICATION));
         }
@@ -665,7 +665,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (modal || hasProperty(TiC.PROPERTY_OPACITY) || (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR) && 
 				Color.alpha(TiConvert.toColor(getProperty(TiC.PROPERTY_BACKGROUND_COLOR))) < 255 )) {
 			intent.setClass(activity, TiTranslucentActivity.class);
-		}
+			}
 		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
 		}
@@ -692,26 +692,26 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                         TiRHelper.getResource("layout." + layoutId.replaceAll("[^A-Za-z0-9_]", "_")));
                 } catch (Exception e) {
                     Log.w(TAG, "Cannot find the layoutId: " + layoutId);
-                }
-            }
-        }
-		
+			}
+		}
+	}
+
 		// Set the actionBarOverlay property
 		if (hasProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY)) {
 			boolean overlay = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY), false);
 			if (overlay){
 				intent.putExtra(TiC.PROPERTY_ACTIONBAR_OVERLAY, overlay);
+				}
 			}
-		}
-		
+
 		// Set the splitActionBar property
         if (hasProperty(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
             boolean splitActionBar = TiConvert.toBoolean(getProperty(TiC.PROPERTY_SPLIT_ACTIONBAR), false);
             if (splitActionBar){
                 intent.putExtra(TiC.PROPERTY_SPLIT_ACTIONBAR, splitActionBar);
-            }
-        }
 	}
+				}
+			}
 
 //	@Override
 //	@Kroll.setProperty(retain=false) @Kroll.method
@@ -942,6 +942,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         if (activity != null) {
             activity.closeFrontActivities();
 //            activity.closeStackWindowsInFrontOf(this);
-        }
+}
     }
 }

@@ -4,11 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "TiModule.h"
 
 #ifdef USE_TI_GEOLOCATION
 
-#import <CoreLocation/CoreLocation.h>
+#import "TiModule.h"
+
+NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseUsageDescription";
+NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDescription";
+NSString *const kTiGeolocationUsageDescriptionAlwaysAndWhenInUse = @"NSLocationAlwaysAndWhenInUseUsageDescription";
 
 @interface GeolocationModule : TiModule <CLLocationManagerDelegate> {
 }

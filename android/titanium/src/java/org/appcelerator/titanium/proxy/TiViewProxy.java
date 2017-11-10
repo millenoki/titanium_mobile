@@ -241,10 +241,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
 						View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
-                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						}
 					}
-				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
 					d.put(TiC.PROPERTY_WIDTH, 0);
 					d.put(TiC.PROPERTY_HEIGHT, 0);
@@ -305,11 +305,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 //                            View decorView = TiApplication.getAppRootOrCurrentActivity().getWindow().getDecorView();
 	                        TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
 	                        TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
-	                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-	                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+							d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
 	                        d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault(decorView));
 	                        d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault(decorView));
-					}
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
@@ -723,7 +723,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (enableModelListener)
 		{
-		    setModelListener(view);
+		setModelListener(view);
 		}
 		else if (processProperties)
 		{
@@ -742,13 +742,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		        for (KrollProxy p : children) {
                     if (p instanceof TiViewProxy) {
                         TiUIView cv = ((TiViewProxy) p).getOrCreateView(enableModelListener, processProperties);
-                        view.add(cv);
+					view.add(cv);
                         if (p instanceof TiWindowProxy && !((TiWindowProxy)p).isOpenedOrOpening()) {
                             ((TiWindowProxy)p).onWindowActivityCreated();
                             ((TiViewProxy) p).focus();
-                        }
-                    }
-		        }
+				}
+			}
+		}
 	        }
 		}
 		viewDidRealize(enableModelListener, processProperties);

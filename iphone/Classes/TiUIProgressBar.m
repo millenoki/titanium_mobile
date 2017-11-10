@@ -65,15 +65,19 @@
 
 - (CGSize)contentSizeForSize:(CGSize)size
 {
-  //    CGSize fontSize = [self sizeForFont:size.width];
+    //CGSize fontSize = [self sizeForFont:width];
+    //CGSize progressSize = [progress sizeThatFits:fontSize];
+    //if (messageLabel == nil) {
+    //    return fontSize.height + progressSize.height;
+    //}
+    //return fontSize.height + progressSize.height + 5;
   return [progress sizeThatFits:size];
-  //    return CGSizeMake(fontSize.width, fontSize.height + progressSize.height);
 }
 
 - (id)accessibilityElement
 {
   return [self progress];
-}
+  }
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {

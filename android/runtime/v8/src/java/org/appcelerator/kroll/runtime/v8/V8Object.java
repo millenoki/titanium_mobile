@@ -89,11 +89,11 @@ public class V8Object extends KrollObject
             return null;
         }
         if (!KrollRuntime.isInitialized()) {
-            if (Log.isDebugModeEnabled()) {
-                Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
-            }
-            return null;
-        }
+			if (Log.isDebugModeEnabled()) {
+				Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
+			}
+			return null;
+		}
 		return nativeCallProperty(ptr, propertyName, args);
 	}
 
@@ -103,7 +103,8 @@ public class V8Object extends KrollObject
 		if (ptr == 0) {
 			return;
 		}
-		if (nativeRelease(ptr)) {
+
+		if (!KrollRuntime.isDisposed() && nativeRelease(ptr)) {
 			ptr = 0;
 			KrollRuntime.suggestGC();
 		}
@@ -126,7 +127,7 @@ public class V8Object extends KrollObject
 	protected void finalize() throws Throwable
 	{
 		super.finalize();
-		
+
 		if (ptr != 0) {
 			release();
 		}

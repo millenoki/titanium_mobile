@@ -23,13 +23,13 @@
 // much smoother on the new window during a tab transition
 #define EXTERNAL_JS_WAIT_TIME (150 / 1000)
 
-/**
+/** 
  * This class is a helper that will be used when we have an external
  * window w/ JS so that we can attempt to wait for the window context
  * to be fully loaded on the UI thread (since JS runs in a different
  * thread) and attempt to wait up til EXTERNAL_JS_WAIT_TIME before
  * timing out. If timed out, will go ahead and start opening the window
- * and as the JS context finishes, will continue opening from there -
+ * and as the JS context finishes, will continue opening from there - 
  * this has a nice effect of immediately opening if fast but not delaying
  * if slow (so you get weird button delay effects for example)
  *
@@ -358,10 +358,10 @@
   BOOL isInteracting = NO;
   if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
     isInteracting = [delegate isInteracting];
-  }
+}
   if (!isInteracting) {
     [self setupWindowDecorations:animated];
-  }
+}
   [super viewWillAppear:animated];
 }
 
@@ -376,7 +376,7 @@
     [self setupWindowDecorations:animated];
     ((ADNavigationControllerDelegate *)delegate).isInteracting = NO;
   } else {
-    [self updateTitleView];
+  [self updateTitleView];
   }
   [super viewDidAppear:animated];
 }
@@ -493,13 +493,13 @@
   NSString *color = [TiUtils stringValue:colorString];
   [self replaceValue:color forKey:@"navTintColor" notification:NO];
 
-  if (controller != nil) {
+    if (controller != nil) {
     id navController = [self navControllerForController:controller];
-    TiColor *newColor = [TiUtils colorValue:color];
-    if (newColor == nil) {
-      //Get from TabGroup
-      newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-    }
+      TiColor *newColor = [TiUtils colorValue:color];
+      if (newColor == nil) {
+        //Get from TabGroup
+        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+      }
 
     UINavigationBar *navBar = [navController navigationBar];
     if (newColor == nil) {
@@ -510,7 +510,7 @@
     if (!_setingUpWindowDecorations) {
       [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
-  }
+}
 }
 
 - (void)setBarColor:(id)colorString
@@ -534,9 +534,9 @@
     [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
 
     if (!_setingUpWindowDecorations) {
-      [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-    }
+    [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
   }
+}
 }
 
 - (void)setBarDeltaY:(id)value
@@ -621,7 +621,12 @@
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     id navController = [self navControllerForController:controller];
     [[controller navigationItem] setTitle:@""];
-    [[navController navigationBar] setTitleTextAttributes:theAttributes];
+#if IS_XCODE_9
+      if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+          [[navController navigationBar] setLargeTitleTextAttributes:theAttributes];
+      }
+#endif
+      [[navController navigationBar] setTitleTextAttributes:theAttributes];
   }
 }
 
@@ -645,15 +650,15 @@
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
     [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
   }
-  id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+    id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
   UIImage *theShadowImage = [TiUtils toImage:shadowImageValue proxy:self];
 
   if (theShadowImage != nil) {
-    UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
-    ourNB.shadowImage = resizableImage;
-  } else {
-    BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
-    if (clipValue) {
+      UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+      ourNB.shadowImage = resizableImage;
+    } else {
+      BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+      if (clipValue) {
 
       if (theImage == nil) {
         TiColor *barColor = [TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]];
@@ -663,13 +668,13 @@
           [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
         }
       }
-      //Set an empty Image.
-      ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
-    } else {
-      ourNB.shadowImage = nil;
+        //Set an empty Image.
+        ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+      } else {
+        ourNB.shadowImage = nil;
+      }
     }
   }
-}
 
 - (void)setBarImage:(id)value
 {
@@ -697,7 +702,7 @@
   ENSURE_UI_THREAD(setShadowImage, value);
   [self replaceValue:value forKey:@"shadowImage" notification:NO];
   if (controller != nil) {
-    [self updateBarImage];
+      [self updateBarImage];
   }
 }
 
@@ -706,7 +711,7 @@
   ENSURE_UI_THREAD(setHideShadow, value);
   [self replaceValue:value forKey:@"hideShadow" notification:NO];
   if (controller != nil) {
-    [self updateBarImage];
+      [self updateBarImage];
   }
 }
 
@@ -743,7 +748,7 @@
   //    }
   [self refreshLeftNavButtons:nil];
   [self refreshRightNavButtons:nil];
-}
+  }
 
 - (void)refreshRightNavButtons:(id)unused
 {
@@ -1050,7 +1055,7 @@
     return; // No need to update the title if not in a nav controller
   }
   TiThreadPerformOnMainThread(^{
-    [self updateTitleView];
+      [self updateTitleView];
   },
       NO);
 }
@@ -1083,6 +1088,18 @@
   if ([oldView isKindOfClass:[TiUIView class]]) {
     TiViewProxy *oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
     if (oldProxy == titleControl) {
+      //relayout titleControl
+      CGRect barBounds;
+      barBounds.origin = CGPointZero;
+#ifndef TI_USE_AUTOLAYOUT
+      barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
+#endif
+      [oldView setBounds:barBounds];
+      [oldView setAutoresizingMask:UIViewAutoresizingNone];
+
+      //layout the titleControl children
+      [titleControl layoutChildren:NO];
+
       return;
     }
   }
@@ -1115,7 +1132,7 @@
   [self addObjectToHold:proxy forKey:@"titleView"];
   if (controller != nil) {
     TiThreadPerformBlockOnMainThread(^{
-      [self updateTitleView];
+    [self updateTitleView];
     },
         NO);
   }
@@ -1143,6 +1160,32 @@
   },
       YES);
 }
+
+#if IS_XCODE_9
+- (void)setLargeTitleEnabled:(id)value
+{
+  ENSURE_UI_THREAD(setLargeTitleEnabled, value);
+  ENSURE_TYPE(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
+
+  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
+  }
+}
+
+- (void)setLargeTitleDisplayMode:(id)value
+{
+  ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
+  ENSURE_TYPE(value, NSNumber);
+
+  [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
+
+  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+    [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
+  }
+}
+#endif
 
 - (void)setTitlePrompt:(NSString *)title_
 {
@@ -1329,6 +1372,8 @@
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
   SETPROP(@"titlePrompt", setTitlePrompt);
+  SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
+  SETPROP(@"largeTitleDisplayMode", setLargeTitleDisplayMode);
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
@@ -1343,7 +1388,7 @@
   if (animated) {
     [UIView beginAnimations:@"navbarAnim" context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
-  }
+}
 
   BOOL navBarHidden = [TiUtils boolValue:[self valueForKey:@"navBarHidden"] def:[navController isNavigationBarHidden]];
   if (navBarHidden != [navController isNavigationBarHidden]) {

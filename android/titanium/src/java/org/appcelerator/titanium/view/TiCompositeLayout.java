@@ -335,6 +335,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	        float autoFillWidthTotalWeight = 0;
 	        float autoFillHeightTotalWeight = 0;
         for (int i = 0; i < childCount; i++) {
+            // Apply a width and height to the next child view owned by this layout.
             View child = getChildAt(i);
 	            if (child.getVisibility() == View.GONE) {
 	                continue;

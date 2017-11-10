@@ -146,6 +146,10 @@ static NSDictionary *replaceKeysForRow;
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
@@ -162,6 +166,8 @@ static NSDictionary *replaceKeysForRow;
   RELEASE_TO_NIL(_defaultItemTemplate)
   RELEASE_TO_NIL(_searchString)
   RELEASE_TO_NIL(_searchResults)
+    [searchController setDelegate:nil];
+    [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(searchController);
   RELEASE_TO_NIL(resultViewController);
 
@@ -194,10 +200,10 @@ static NSDictionary *replaceKeysForRow;
       @"touchPassThrough" : @(YES),
       @"width" : @"FILL",
       @"height" : @"SIZE"
-    }
+  }
                                                    forKey:@"headerWrapper"];
     vp.canBeResizedByFrame = YES;
-  }
+}
   [self setHeaderFooter:vp isHeader:YES];
   return vp;
 }
@@ -212,6 +218,12 @@ static NSDictionary *replaceKeysForRow;
     _searchTableView.delegate = self;
     _searchTableView.dataSource = self;
     _tableView.touchDelegate = self;
+
+#if IS_XCODE_9
+    if ([TiUtils isIOS11OrGreater]) {
+      _searchTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#endif
 
 #if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
@@ -329,7 +341,7 @@ static NSDictionary *replaceKeysForRow;
 
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (searchViewProxy) {
-      [searchViewProxy ensureSearchBarHierarchy];
+    [searchViewProxy ensureSearchBarHierarchy];
 #ifndef TI_USE_AUTOLAYOUT
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
@@ -354,7 +366,7 @@ static NSDictionary *replaceKeysForRow;
   //    if (_pullViewWrapper != nil) {
   //        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
   //    }
-}
+  }
 
 - (id)accessibilityElement
 {
@@ -431,7 +443,7 @@ static NSDictionary *replaceKeysForRow;
       [[self tableView] setTableFooterView:footerView];
       [((TiUIListViewProxy *)[self proxy])contentsWillChange];
     }
-  }
+}
   [super proxyDidRelayout:sender];
 }
 
@@ -498,13 +510,13 @@ static NSDictionary *replaceKeysForRow;
 {
   TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
   return [sectionProxy sectionViewForLocation:location inListView:self];
-}
+    }
 
 - (TiViewProxy *)currentSectionViewProxy:(NSInteger)section forLocation:(NSString *)location
 {
   TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
   return [sectionProxy currentViewForLocation:location inListView:self];
-}
+  }
 
 - (UIView *)sectionView:(NSInteger)section forLocation:(NSString *)location section:(TiUIListSectionProxy **)sectionResult
 {
@@ -536,7 +548,7 @@ static NSDictionary *replaceKeysForRow;
     if (vp) {
       resultHeight += [vp contentSizeForSize:refSize].height;
     }
-  }
+    }
 
   //Footer auto height
   vp = [self holdedProxyForKey:@"footerView"];
@@ -666,7 +678,7 @@ static NSDictionary *replaceKeysForRow;
     }
     if (theValue == nil) {
       theValue = [self.proxy valueForKey:key];
-    }
+  }
   }
 
   return theValue;
@@ -871,7 +883,7 @@ static NSDictionary *replaceKeysForRow;
   [_defaultItemTemplate release];
   _defaultItemTemplate = [args copy];
   [self reloadTableViewData];
-}
+  }
 
 - (void)setRowHeight_:(id)height
 {
@@ -911,7 +923,7 @@ static NSDictionary *replaceKeysForRow;
       @"autocapitalization" : @(YES),
       @"text" : [TiUtils stringValue:args],
       @"color" : @"#333333",
-    }
+}
                                                                 forKey:@"headerView"];
     [vp setProxyObserver:self];
     [[self getOrCreateHeaderHolder] addProxy:vp atIndex:1 shouldRelayout:YES];
@@ -986,25 +998,25 @@ static NSDictionary *replaceKeysForRow;
     [self buildResultsForSearchText];
     [[resultViewController tableView] reloadData];
     //    [self reloadTableViewData];
-  }
-}
+    }
+    }
 
 - (void)setAllowsSelection_:(id)value
 {
   allowsSelection = [TiUtils boolValue:value];
   //    [[self tableView] setAllowsSelection:allowsSelection];
   //    [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
-}
+    }
 
 - (void)setAllowsSelectionDuringEditing_:(id)value
 {
   [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:value]];
-}
+    }
 
 - (void)setAllowsMultipleSelection_:(id)value
 {
   [[self tableView] setAllowsMultipleSelection:[TiUtils boolValue:value]];
-}
+    }
 
 - (void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
@@ -1071,12 +1083,12 @@ static NSDictionary *replaceKeysForRow;
   RELEASE_TO_NIL(_appearAnimation)
   if (IS_OF_CLASS(TiAnimation, value)) {
     _appearAnimation = [value retain];
-  } else {
+    } else {
     ENSURE_SINGLE_ARG(value, NSDictionary);
     _appearAnimation = [value retain];
-  }
+    }
   _useAppearAnimation = _useAppearAnimation || _appearAnimation != nil;
-}
+  }
 
 - (void)setUseAppearAnimation_:(id)value
 {
@@ -1124,7 +1136,7 @@ static NSDictionary *replaceKeysForRow;
   [[resultViewController tableView] reloadData];
   if ([[self viewProxy] isConfigurationSet]) {
     [[self viewProxy] contentsWillChange];
-  }
+}
 }
 
 - (void)setSearchIgnoreExactMatch_:(id)args
@@ -1208,7 +1220,7 @@ static NSDictionary *replaceKeysForRow;
   view = [[self tableView] tableFooterView];
   if (IS_OF_CLASS(view, TiUIView)) {
     [[(TiUIView *)view viewProxy] detachView:YES];
-  }
+}
 }
 
 #pragma mark - SectionIndexTitle Support
@@ -1288,7 +1300,7 @@ static NSDictionary *replaceKeysForRow;
                        @"title" : title,
                        @"index" : @(index),
                        @"sectionIndex" : @(sectionIndex),
-                     }
+      }
                       propagate:NO
                checkForListener:NO];
       }
@@ -1314,7 +1326,7 @@ static NSDictionary *replaceKeysForRow;
                      @"title" : title,
                      @"index" : @(index),
                      @"sectionIndex" : @(sectionIndex),
-                   }
+    }
                     propagate:NO
              checkForListener:NO];
     }
@@ -1625,7 +1637,7 @@ static NSDictionary *replaceKeysForRow;
       NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                                           self.proxy, @"listView",
                                                                       theItem, @"item",
-                                                                      theSection, @"section",
+                                                                          theSection, @"section",
                                                                       NUMINTEGER(fromSectionIndex), @"sectionIndex",
                                                                       NUMINTEGER(fromRowIndex), @"itemIndex",
                                                                       theSection, @"targetSection",
@@ -1819,9 +1831,9 @@ static NSDictionary *replaceKeysForRow;
 
     [cellProxy release];
     [cell autorelease];
-  } else {
+      } else {
     [cell setPosition:position isGrouped:grouped];
-  }
+      }
 
   if (_rowSeparatorInsets.left != 0 || _rowSeparatorInsets.right != 0) {
     [cell setSeparatorInset:_rowSeparatorInsets];
@@ -2027,7 +2039,7 @@ static NSDictionary *replaceKeysForRow;
     };
     if (hasOnDisplayCell) {
       [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
-    }
+  }
     if (firesOnDisplay) {
       [self.proxy fireEvent:@"onDisplayItem" withObject:propertiesDict propagate:NO checkForListener:NO];
     }
@@ -2050,8 +2062,8 @@ static NSDictionary *replaceKeysForRow;
   }
 
   //Tell the proxy about the cell to be displayed
-  [self.listViewProxy willDisplayCell:indexPath];
-}
+    [self.listViewProxy willDisplayCell:indexPath];
+  }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
@@ -2071,7 +2083,7 @@ static NSDictionary *replaceKeysForRow;
   TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
   if ([sectionProxy isHidden] || [sectionProxy.headerTitle length] > 0) {
     return nil;
-  }
+}
 
   return [self sectionView:realSection forLocation:@"headerView" section:nil];
 }
@@ -2115,7 +2127,7 @@ static NSDictionary *replaceKeysForRow;
   TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
   if ([sectionProxy isHidden]) {
     return 0.0;
-  }
+    }
   if ([sectionProxy.headerTitle length] > 0) {
     return [tableView sectionHeaderHeight];
   }
@@ -2141,7 +2153,7 @@ static NSDictionary *replaceKeysForRow;
     //                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
     //                break;
     //        }
-  }
+    }
   return size;
 }
 
@@ -2187,16 +2199,16 @@ static NSDictionary *replaceKeysForRow;
     //                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
     //                break;
     //        }
-  }
-  return size;
-}
+    }
+      return size;
+    }
 
 - (CGFloat)computeRowWidth
 {
   CGFloat rowWidth = _tableView.bounds.size.width;
   if (rowWidth == 0) {
     return rowWidth;
-  }
+    }
 
   // Apple does not provide a good way to get information about the index sidebar size
   // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -2214,8 +2226,8 @@ static NSDictionary *replaceKeysForRow;
     for (UIView *view in subviews) {
       if ([view isKindOfClass:indexview]) {
         rowWidth -= [view frame].size.width;
-      }
-    }
+  }
+}
   }
 
   return rowWidth;
@@ -2300,33 +2312,33 @@ static NSDictionary *replaceKeysForRow;
     //        }
     if (!cellProxy) {
       cellProxy = [self.listViewProxy.measureProxies objectForKey:templateId];
-    }
+              }
     if (cellProxy != nil) {
       CGFloat width = [cellProxy sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
       if (width > 0) {
         [cellProxy setDataItem:item];
         return [self tableView:tableView rowHeight:[cellProxy minimumParentSizeForSize:CGSizeMake(width, 0)].height];
-      }
-    }
+            }
+          }
   } else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
     return [self tableView:tableView rowHeight:TiDimensionCalculateValue(height, tableView.bounds.size.height)];
-  }
+          }
   return 44;
-}
+        }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (!_editing && allowsSelection == NO) {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-  }
+      }
   [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
-}
+    }
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
 {
   if (_editing) {
     [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
-  }
+}
 }
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
@@ -2353,7 +2365,7 @@ static NSDictionary *replaceKeysForRow;
       TiViewProxy *headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
       if (headerView) {
         [event setObject:headerView forKey:@"headerView"];
-      }
+  }
       [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
     }
   }
@@ -2364,34 +2376,34 @@ static NSDictionary *replaceKeysForRow;
   NSMutableDictionary *eventArgs = [super eventObjectForScrollView:scrollView];
   NSArray *indexPaths = [_tableView indexPathsForVisibleRows];
   NSUInteger visibleItemCount = [indexPaths count];
-  TiUIListSectionProxy *section;
-  if ([indexPaths count] > 0) {
-    NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-    section = [[self listViewProxy] sectionForIndex:[indexPath section]];
+    TiUIListSectionProxy *section;
+    if ([indexPaths count] > 0) {
+      NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+      section = [[self listViewProxy] sectionForIndex:[indexPath section]];
 
-    [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-    [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-    [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-    [eventArgs setValue:section forKey:@"firstVisibleSection"];
-    [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-  } else {
-    section = [[self listViewProxy] sectionForIndex:0];
+      [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+      [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+      [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+      [eventArgs setValue:section forKey:@"firstVisibleSection"];
+      [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+    } else {
+      section = [[self listViewProxy] sectionForIndex:0];
 
-    [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
-    [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
-    [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
-    [eventArgs setValue:section forKey:@"firstVisibleSection"];
-    [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
-  }
+      [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+      [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+      [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+      [eventArgs setValue:section forKey:@"firstVisibleSection"];
+      [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+    }
   return eventArgs;
-}
+  }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
   [super scrollViewDidScroll:scrollView];
 
   [self detectSectionChange];
-}
+  }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
@@ -2399,7 +2411,7 @@ static NSDictionary *replaceKeysForRow;
     [[ImageLoader sharedLoader] suspend];
   }
   [super scrollViewWillBeginDragging:scrollView];
-}
+  }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
@@ -2437,7 +2449,7 @@ static NSDictionary *replaceKeysForRow;
   }
   [self detectSectionChange];
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-}
+  }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
@@ -2446,7 +2458,7 @@ static NSDictionary *replaceKeysForRow;
   }
   [self detectSectionChange];
   [super scrollViewDidEndDecelerating:scrollView];
-}
+  }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
@@ -2611,7 +2623,7 @@ static NSDictionary *replaceKeysForRow;
   if (!searchActive || !resultViewController) {
     // Reload since some cells could be reused as part of previous search.
     [self reloadTableViewData];
-  }
+}
 }
 #pragma mark - UISearchControllerDelegate
 - (void)willDismissSearchController:(UISearchController *)searchController
@@ -2649,7 +2661,7 @@ static NSDictionary *replaceKeysForRow;
 
   if (!searchButtonTitle) {
     return;
-  }
+}
 
   // TODO: Use [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]];
   // as soon as we remove iOS < 9 support
@@ -2702,10 +2714,12 @@ static NSDictionary *replaceKeysForRow;
   [viewController presentViewController:controller
                                animated:NO
                              completion:^{
+                               CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:viewController.view];
+
                                UIView *view = controller.searchBar.superview;
-                               view.frame = CGRectMake(view.frame.origin.x, self.frame.origin.y, view.frame.size.width, view.frame.size.height);
+                               view.frame = CGRectMake(view.frame.origin.x, convertedOrigin.y, view.frame.size.width, view.frame.size.height);
                                controller.searchBar.frame = CGRectMake(0, 0, view.frame.size.width, view.frame.size.height);
-                               resultViewController.tableView.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
+                               resultViewController.tableView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y + view.frame.size.height, self.frame.size.width, self.frame.size.height);
                              }];
 
   TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
@@ -2790,11 +2804,11 @@ static NSDictionary *replaceKeysForRow;
   if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
     UIView *contentView = cell.contentView;
     CGPoint convertedPoint = [tableView convertPoint:point toView:contentView];
-    // if searchController is active, tableView.contentOffset.y = -44
-    // else tableView.contentOffset.y = 0
-    if ([searchController isActive]) {
-      convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
-    }
+  // if searchController is active, tableView.contentOffset.y = -44
+  // else tableView.contentOffset.y = 0
+  if ([searchController isActive]) {
+    convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
+  }
     TiViewProxy *tapViewProxy = [TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:convertedPoint];
     if (tapViewProxy != nil && tapViewProxy.bindId) {
       [eventObject setObject:tapViewProxy.bindId forKey:@"bindId"];
@@ -2814,7 +2828,7 @@ static NSDictionary *replaceKeysForRow;
   [event setObject:@(point.x) forKey:@"x"];
   [event setObject:@(point.y) forKey:@"y"];
   return event;
-}
+  }
 
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
@@ -2837,8 +2851,8 @@ static NSDictionary *replaceKeysForRow;
     return [NSIndexPath indexPathForRow:0 inSection:nextSection];
   } else {
     return [NSIndexPath indexPathForRow:(indexPath.row + 1) inSection:indexPath.section];
+    }
   }
-}
 
 //- (void)clearSearchController:(id)sender
 //{
@@ -2858,24 +2872,24 @@ static NSDictionary *replaceKeysForRow;
   if (sender == self && searchController == nil) {
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (!searchViewProxy.canHaveSearchDisplayController) {
-      resultViewController = [[UITableViewController alloc] init];
-      resultViewController.tableView = [self searchTableView];
-      searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
-      searchController.delegate = self;
-      searchController.searchResultsUpdater = self;
-      searchController.hidesNavigationBarDuringPresentation = NO;
-      searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
+    resultViewController = [[UITableViewController alloc] init];
+    resultViewController.tableView = [self searchTableView];
+    searchController = [[[UISearchController alloc] initWithSearchResultsController:resultViewController] retain];
+    searchController.delegate = self;
+    searchController.searchResultsUpdater = self;
+    searchController.hidesNavigationBarDuringPresentation = NO;
+    searchController.dimsBackgroundDuringPresentation = _dimsBackgroundDuringPresentation;
 
-      searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
-      searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-      searchController.searchBar.placeholder = [[searchViewProxy searchBar] placeholder];
-      searchController.searchBar.text = [[searchViewProxy searchBar] text];
-      [searchViewProxy setSearchBar:searchController.searchBar];
+    searchController.searchBar.frame = CGRectMake(searchController.searchBar.frame.origin.x, searchController.searchBar.frame.origin.y, 0, 44.0);
+    searchController.searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    searchController.searchBar.placeholder = [[searchViewProxy searchBar] placeholder];
+    searchController.searchBar.text = [[searchViewProxy searchBar] text];
+    [searchViewProxy setSearchBar:searchController.searchBar];
 
-      [TiUtils configureController:resultViewController withObject:self.proxy];
-      [TiUtils configureController:searchController withObject:self.proxy];
-    }
+    [TiUtils configureController:resultViewController withObject:self.proxy];
+    [TiUtils configureController:searchController withObject:self.proxy];
   }
+}
 }
 
 - (void)fireEditEventWithName:(NSString *)name andSection:(TiUIListSectionProxy *)section atIndexPath:(NSIndexPath *)indexPath item:(NSDictionary *)item

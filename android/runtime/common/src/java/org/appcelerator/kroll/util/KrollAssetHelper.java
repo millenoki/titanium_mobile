@@ -23,7 +23,7 @@ import android.content.res.AssetManager;
 public class KrollAssetHelper
 {
 	private static final String TAG = "TiAssetHelper";
-	private static WeakReference<AssetManager> manager;
+	private static AssetManager assetManager;
 	private static String packageName, cacheDir;
 	private static AssetCrypt assetCrypt;
 
@@ -41,10 +41,7 @@ public class KrollAssetHelper
 
 	public static void init(Context context)
 	{
-	    if (KrollAssetHelper.manager != null) {
-	        return;
-	    }
-		KrollAssetHelper.manager = new WeakReference<AssetManager>(context.getAssets());
+		KrollAssetHelper.assetManager = context.getAssets();
 		KrollAssetHelper.packageName = context.getPackageName();
 		KrollAssetHelper.cacheDir = context.getCacheDir().getAbsolutePath();
 	}
@@ -57,15 +54,14 @@ public class KrollAssetHelper
 		if (assetCrypt != null) {
 			String asset = assetCrypt.readAsset(resourcePath);
 			if (asset != null) {
-			    if (Log.isDebugModeEnabled()) {
-	                Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetCrypt...");
-			    }
+				if (Log.isDebugModeEnabled()) {
+					Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetCrypt...");
+				}
 				return asset;
 			}
 		}
 
 		try {
-			AssetManager assetManager = manager.get();
 			if (assetManager == null) {
 				Log.e(TAG, "AssetManager is null, can't read asset: " + path);
 				return null;
@@ -85,9 +81,9 @@ public class KrollAssetHelper
 //				}
 //			}
 
-            if (Log.isDebugModeEnabled()) {
-                Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetManager...");
-            }
+			if (Log.isDebugModeEnabled()) {
+				Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetManager...");
+				}
 			return new String(buffer);
 
 		} catch (IOException e) {
@@ -125,25 +121,37 @@ public class KrollAssetHelper
 
 	public static boolean fileExists(String path)
 	{
-		String resourcePath = path;
-		if (resourcePath != null && resourcePath.startsWith("Resources/")) {
-			resourcePath = resourcePath.replace("Resources/", "");
+		if (assetCrypt != null) {
+			boolean exists = assetCrypt.assetExists(path.replace("Resources/", ""));
+			if (exists) {
+				return exists;
+			}
 		}
-
-		return (assetCrypt != null && assetCrypt.assetExists(resourcePath));
+		if (assetManager != null) {
+			try {
+				return assetManager.open(path) != null;
+			} catch (IOException e) {}
+		}
 	}
 
 	public static void getDirectoryListing(String path, List<String> listing)
 	{
-		if (assetCrypt == null || path == null) return;
-		String resourcePath = path;
-		if (resourcePath.startsWith("Resources/")) {
-			resourcePath = resourcePath.replace("Resources/", "");
+		if (path == null) return;
+		if (assetCrypt != null) {
+			String resourcePath = path;
+			if (resourcePath.startsWith("Resources/")) {
+				resourcePath = resourcePath.replace("Resources/", "");
+			}
+			if (resourcePath.endsWith("/")) { 
+				resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf("/"));
+			}
+			listing.addAll(assetCrypt.list(resourcePath));
 		}
-		if (resourcePath.endsWith("/")) { 
-			resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf("/"));
+		if (assetManager != null) {
+			try {
+				listing.addAll(assetManager.list(path));
+			} catch (IOException e) {}
 		}
-		listing.addAll(assetCrypt.list(resourcePath));
 	}
 
 	public static String getPackageName()

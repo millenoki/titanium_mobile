@@ -52,8 +52,6 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
-	private static final String REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE =
-			"Ti.UI.ScrollView does not support a RefreshControl on Android, yet.";
 
 	private Point mCurrentOffset = new Point();
     private float mZoomScale = 1.0f;
@@ -68,7 +66,7 @@ public class TiUIScrollView extends TiUIView
     private boolean animating = false;
     private ScaleGestureDetector mScaleGestureDetector = null;
     private boolean mIsScaling = false;
-	
+
     protected static final int TIFLAG_NEEDS_ZOOM               = 0x00000001;
     protected static final int TIFLAG_NEEDS_CONTENT_OFFSET     = 0x00000002;
 
@@ -76,8 +74,8 @@ public class TiUIScrollView extends TiUIView
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
 		private static final int AUTO = Integer.MAX_VALUE;
-		private int parentWidth = 0;
-		private int parentHeight = 0;
+		private int parentContentWidth = 0;
+		private int parentContentHeight = 0;
 		private boolean canCancelEvents = true;
 		
 	    protected TiDimension contentWidth = null;
@@ -88,14 +86,78 @@ public class TiUIScrollView extends TiUIView
 			super(context, TiUIScrollView.this);
 					}
 
-		public void setParentWidth(int width)
+		/**
+		 * Sets the width of this view's parent, excluding its left/right padding.
+		 * @param width The parent view's width, excluding padding.
+		 */
+		public void setParentContentWidth(int width)
 		{
-			parentWidth = width;
+			if (width < 0) {
+				width = 0;
+			}
+			this.parentContentWidth = width;
 		}
 
-		public void setParentHeight(int height)
+		/**
+		 * Gets the value set via the setParentContentWidth() method.
+		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * @return Returns the parent view's width, excluding its left/right padding.
+		 */
+		public int getParentContentWidth()
 		{
-			parentHeight = height;
+			return this.parentContentWidth;
+		}
+
+		/**
+		 * Sets the height of this view's parent, excluding its top/bottom padding.
+		 * @param width The parent view's height, excluding padding.
+		 */
+		public void setParentContentHeight(int height)
+		{
+			if (height < 0) {
+				height = 0;
+			}
+			this.parentContentHeight = height;
+		}
+
+		/**
+		 * Gets the value set via the setParentContentHeight() method.
+		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * @return Returns the parent view's height, excluding its top/bottom padding.
+		 */
+		public int getParentContentHeight()
+		{
+			return this.parentContentHeight;
+		}
+
+		@Override
+		public void setMinimumWidth(int value)
+		{
+			// Make sure given minimum is valid.
+			if (value < 0) {
+				value = 0;
+			}
+
+			// Update the minimum value, but only if it is changing.
+			// Note: This is an optimization. Avoids unnecessary requestLayout() calls in UI tree.
+			if (value != getMinimumWidth()) {
+				super.setMinimumWidth(value);
+			}
+		}
+
+		@Override
+		public void setMinimumHeight(int value)
+		{
+			// Make sure given minimum is valid.
+			if (value < 0) {
+				value = 0;
+			}
+
+			// Update the minimum value, but only if it is changing.
+			// Note: This is an optimization. Avoids unnecessary requestLayout() calls in UI tree.
+			if (value != getMinimumHeight()) {
+				super.setMinimumHeight(value);
+			}
 		}
 
 		public void setCanCancelEvents(boolean value)
@@ -273,7 +335,7 @@ public class TiUIScrollView extends TiUIView
 		{
 			Object value = getProxy().getProperty(property);
 			if (value != null) {
-				if (value.equals(TiC.SIZE_AUTO)) {
+				if (value.equals(TiC.SIZE_AUTO) || value.equals(TiC.LAYOUT_SIZE)) {
 					return AUTO;
 				} else {
 					int type = 0;
@@ -316,7 +378,7 @@ public class TiUIScrollView extends TiUIView
 		    int theWidth;
 		    if (contentWidth == null) {
 		        theWidth = parentWidth;
-			}		
+			}
             else if (contentWidth.isUnitAuto()) {
 			    theWidth = maxWidth;
 			} else {

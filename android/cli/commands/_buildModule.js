@@ -125,15 +125,15 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 					);
 					logger.log();
 					logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-					logger.log('	<android>'.grey);
-					logger.log('		<manifest>'.grey);
-					logger.log(('			<uses-sdk '
+					logger.log('    <android>'.grey);
+					logger.log('        <manifest>'.grey);
+					logger.log(('            <uses-sdk '
 						+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
 						+ 'android:targetSdkVersion="' + sdks[0] + '" '
 						+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
 						+ '/>').magenta);
-					logger.log('		</manifest>'.grey);
-					logger.log('	</android>'.grey);
+					logger.log('        </manifest>'.grey);
+					logger.log('    </android>'.grey);
 					logger.log('</ti:app>'.grey);
 					logger.log();
 				} else {
@@ -226,7 +226,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			if (!cli.argv.ide) {
 				appc.async.series(this, [
 					'verifyBuildArch',
-					'packageZip',
+		'packageZip',
 				], next);
 			} else {
 				next();
@@ -236,7 +236,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		function (next) {
 			if (cli.argv.run) {
 				appc.async.series(this, [
-					'runModule',
+		'runModule',
 				], next);
 			} else {
 				next();
@@ -263,8 +263,8 @@ AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callb
 		const isDir = fs.statSync(currentFile).isDirectory();
 		if (isDir) {
 			if (!ignoreDirs || !ignoreDirs.test(name)) {
-				this.dirWalker(currentFile, callback);
-			} else {
+			this.dirWalker(currentFile, callback);
+		} else {
 				this.logger.warn(__('ignoring dir %s', name.cyan));
 			}
 		} else if (!ignoreFiles || !ignoreFiles.test(name)) {
@@ -533,7 +533,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 					}
 					/**
 					 * @param  {string}   resArchivePathAndFilename path
-					 * @param  {Function} done					  callback function
+					 * @param  {Function} done                      callback function
 					 * @return {undefined}
 					 */
 					async.eachSeries(resArchives, function (resArchivePathAndFilename, done) {
@@ -1262,15 +1262,15 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 	this.logger.info(__('Generating v8 bindings'));
 
 	if (fs.existsSync(this.dependencyJsonFile)) {
-		const dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
-		Array.prototype.push.apply(this.metaData, dependsMap.required);
-		Object.keys(dependsMap.dependencies).forEach(function (key) {
-			dependsMap.dependencies[key].forEach(function (item) {
-				if (this.metaData.indexOf(item) === -1) {
-					this.metaData.push(item);
-				}
-			}, this);
+	const dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	Array.prototype.push.apply(this.metaData, dependsMap.required);
+	Object.keys(dependsMap.dependencies).forEach(function (key) {
+		dependsMap.dependencies[key].forEach(function (item) {
+			if (this.metaData.indexOf(item) === -1) {
+				this.metaData.push(item);
+			}
 		}, this);
+	}, this);
 	}
 
 	// Compiling JS
@@ -2275,5 +2275,5 @@ AndroidModuleBuilder.prototype.runModule = function (next) {
 (function (androidModuleBuilder) {
 	exports.config   = androidModuleBuilder.config.bind(androidModuleBuilder);
 	exports.validate = androidModuleBuilder.validate.bind(androidModuleBuilder);
-	exports.run	  = androidModuleBuilder.run.bind(androidModuleBuilder);
+	exports.run      = androidModuleBuilder.run.bind(androidModuleBuilder);
 }(new AndroidModuleBuilder(module)));

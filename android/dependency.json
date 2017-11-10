@@ -27,7 +27,7 @@
 		"xml":[]
 	},
     "gmsDependencies":
-    {
+	{
         "network": ["gcm"],
         "geolocation": ["base", "basement","location"]
     },
@@ -42,7 +42,7 @@
                     "filesystem.jar",
                     "gifdrawable.jar"
                     ],
-        "xml": ["jaxen-1.1.1.jar"],
+		"xml":["jaxen-1.1.1.jar"],
         "ui": [
                "android-support-v7-recyclerview.jar",
                "stickylistheadersview.jar",
@@ -54,14 +54,15 @@
                "picasso.jar"
                ],
         "network": ["thirdparty.jar"],
-        "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar", "android-support-v7-recyclerview.jar"],
+		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar", "android-support-v7-recyclerview.jar"],
 		"cardview":["android-support-v7-cardview.jar"],
 		"compat":["android-support-compat.jar"],
-        "design":["android-support-design.jar"],
-        "analytics":["aps-analytics.jar"]
-    },
-	"runtimes": {
-		"v8":["kroll-v8.jar"],
+		"design":["android-support-design.jar"],
+		"analytics":["aps-analytics.jar"]
+	},
+	"runtimes":
+	{
+		"v8":["kroll-v8.jar", "java_websocket.jar"],
 		"defaultRuntime":"v8"
 	},
 	"modulepackage": {

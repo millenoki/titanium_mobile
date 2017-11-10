@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ const NativeModule = require('native_module'),
 	assets = kroll.binding('assets'),
 	path = require('path'),
 	Script = kroll.binding('evals').Script,
-	runInThisContext = require('vm').runInThisContext,
 	bootstrap = require('bootstrap'),
 	invoker = require('invoker');
 
@@ -16,9 +15,9 @@ var TAG = 'Module';
 
 /**
  * [Module description]
- * @param {String} id      [description]
- * @param {Module} parent  [description]
- * @param {Object} context [description]
+ * @param {String} id      module id
+ * @param {Module} parent  parent module
+ * @param {Object} context context object
  */
 function Module(id, parent, context) {
 	this.id = id;
@@ -40,10 +39,10 @@ Module.wrap = NativeModule.wrap;
 
 /**
  * [runModule description]
- * @param  {String} source            [description]
- * @param  {String} filename          [description]
- * @param  {[type]} activityOrService [description]
- * @return {Module}                   [description]
+ * @param  {String} source            JS Source code
+ * @param  {String} filename          Filename of the module
+ * @param  {object} activityOrService [description]
+ * @return {Module}                   The loaded Module
  */
 Module.runModule = function (source, filename, activityOrService) {
 	var id = filename;
@@ -73,7 +72,6 @@ Module.runModule = function (source, filename, activityOrService) {
 	}
 	filename = filename.replace('Resources/', '/'); // normalize back to absolute paths (which really are relative to Resources under the hood)
 	module.load(filename, source);
-	
 	return module;
 };
 
@@ -103,7 +101,7 @@ Module.prototype.load = function (filename, source) {
 			name = 'Resources' + name;
 		} else {
 			name = 'Resources/' + name;
-		}
+	}
 		source = assets.readAsset(name);
 	}
 
@@ -186,11 +184,11 @@ Module.prototype.createModuleWrapper = function (externalModule, sourceUrl) {
 };
 
 /**
- * [extendModuleWithCommonJs description]
- * @param  {Object} externalModule [description]
- * @param  {String} id             [description]
- * @param  {[type]} thiss          [description]
- * @param  {Object} context        [description]
+ * Takes a CommonJS module and uses it to extend an existing external/native module. The exports are added to the external module.
+ * @param  {Object} externalModule The external/native module we're extending
+ * @param  {String} id             module id
+ * @param  {Object} thiss          The object to use for `this`
+ * @param  {Object} context        context object
  */
 function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 	if (kroll.isExternalCommonJsModule(id)) {
@@ -210,8 +208,8 @@ function extendModuleWithCommonJs(externalModule, id, thiss, context) {
 /**
  * Loads a native / external (3rd party) module
  * @param  {String} id              module id
- * @param  {[type]} externalBinding [description]
- * @param  {Object} context         [description]
+ * @param  {object} externalBinding external binding object
+ * @param  {Object} context         context object
  * @return {Object}                 The exported module
  */
 Module.prototype.loadExternalModule = function (id, externalBinding, context) {
@@ -268,7 +266,7 @@ Module.prototype.loadExternalModule = function (id, externalBinding, context) {
  * of the child module.
  *
  * @param  {String} request  The path to the requested module
- * @param  {Object} context  [description]
+ * @param  {Object} context  context object
  * @return {Object}          The loaded module
  */
 Module.prototype.require = function (request, context) {
@@ -382,7 +380,7 @@ Module.prototype.loadCoreModule = function (id, context) {
  * Attempts to load a node module by id from the starting path
  * @param  {String} moduleId       The path of the module to load.
  * @param  {String} startDir       The starting directory
- * @param  {Object} context        [description]
+ * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
@@ -451,7 +449,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 /**
  * Attempts to load a given path as a file or directory.
  * @param  {String} normalizedPath The path of the module to load.
- * @param  {Object} context        [description]
+ * @param  {Object} context        context object
  * @return {Object}                The module's exports, if loaded. null if not.
  */
 Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
@@ -472,7 +470,7 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
 /**
  * Loads a given file as a Javascript file, returning the module.exports.
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context the context
+ * @param  {Object} context context object
  * @return {Object}          module.exports of the file.
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
@@ -494,7 +492,7 @@ Module.prototype.loadJavascriptText = function (filename, context) {
  * Loads a JSON file by reading it's contents, doing a JSON.parse and returning the parsed object.
  *
  * @param  {String} filename File we're attempting to load
- * @param  {Object} context the context
+ * @param  {Object} context context object
  * @return {Object}          The parsed JSON object from the file
  */
 Module.prototype.loadJavascriptObject = function (filename, context) {
@@ -509,7 +507,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.filename = filename;
 	module.path = path.dirname(filename);
 	if (filename[0] === '/') {
-		source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
 	} else {
 		source = assets.readAsset('Resources/' + filename); // Assumes Resources/!
 	}
@@ -527,7 +525,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
  * Attempts to load a file by it's full filename according to NodeJS rules.
  *
  * @param  {String} id The filename
- * @param  {Object} context the context
+ * @param  {Object} context context object
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsFile = function (id, context) {
@@ -563,7 +561,7 @@ Module.prototype.loadAsFile = function (id, context) {
  * Attempts to load a directory according to NodeJS rules.
  *
  * @param  {String} id The directory name
- * @param  {Object} context the context
+ * @param  {Object} context context object
  * @return {Object}    String for Javascript text, Object for JSON file, null if not found.
  */
 Module.prototype.loadAsDirectory = function (id, context) {
@@ -617,7 +615,22 @@ Module.prototype._runScript = function (source, filename) {
 		global.require = require;
 		Titanium.Android.currentActivity = self.context.currentActivity;
 
-		return runInThisContext(source, filename, true);
+		// check if we have an inspector binding...
+		var inspector = kroll.binding('inspector');
+		if (inspector) {
+			// If debugger is enabled, load app.js and pause right before we execute it
+			var inspectorWrapper = inspector.callAndPauseOnStart;
+			if (inspectorWrapper) {
+				// FIXME Why can't we do normal Module.wrap(source) here?
+				// I get "Uncaught TypeError: Cannot read property 'createTabGroup' of undefined" for "Ti.UI.createTabGroup();"
+				// Not sure why app.js is special case and can't be run under normal self-invoking wrapping function that gets passed in global/kroll/Ti/etc
+				// Instead, let's use a slightly modified version of callAndPauseOnStart:
+				// It will compile the source as-is, schedule a pause and then run the source.
+				return inspectorWrapper(source, filename);
+			}
+		}
+		// run app.js "normally" (i.e. not under debugger/inspector)
+		return Script.runInThisContext(source, filename, true);
 	}
 
 	// Create context-bound modules.

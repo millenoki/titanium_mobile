@@ -22,6 +22,7 @@ import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
@@ -151,14 +152,14 @@ public class TiUISlider extends TiUIView
                     seekBar.getThumb().setColorFilter(null);
 		}
                 seekBar.getProgressDrawable().setColorFilter(null);
-            }
+		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_CONTROLS;
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
+			}
+		}
     
     private SeekBar getSeekBar() {
         return (SeekBar) getNativeView();

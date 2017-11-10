@@ -61,7 +61,7 @@
 	NativeModule._cache = {};
 
 	NativeModule.require = function (id) {
-		if (id == 'native_module') {
+		if (id === 'native_module') {
 			return NativeModule;
 		}
 
