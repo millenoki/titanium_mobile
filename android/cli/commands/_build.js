@@ -3212,9 +3212,8 @@ AndroidBuilder.prototype.generateResourcesAssetsIndex = function generateResourc
 	let result = '';
 	const assetsDir = path.join(this.buildAssetsDir, 'Resources').replace(/\\/g, '/'),
 		destFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildAssetsDir, '__assets_list__.index');
-	this.dirWalker(assetsDir, function (file) {
+	this.dirWalker(assetsDir, (file) => {
 		this.logger.info(__('__assets_list__ '  + file));
-		
 		result += file.replace(/\\/g, '/').replace(assetsDir + '/', '') + '\n';
 	});
 
