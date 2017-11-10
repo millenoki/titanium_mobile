@@ -613,14 +613,14 @@ public class TiImageHelper {
 
     public static void downloadDrawable(final TiDrawableReference imageref, final boolean localLoadSync,
             final TiDrawableTarget target) {
-        Picasso picasso = TiApplication.getPicassoInstance();
-        picasso.cancelRequest(target);
+        final Picasso picasso = TiApplication.getPicassoInstance();
         if (imageref.isNetworkUrl()) {
             TiActivityHelper.runInUiThread(
                     TiApplication.getAppCurrentActivity(),
                     new CommandNoReturn() {
                         @Override
                         public void execute() {
+                            picasso.cancelRequest(target);
                             downloadDrawableReference(imageref, target);
                         }
                     });
