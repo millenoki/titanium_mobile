@@ -20,8 +20,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.RefreshControlProxy;
-
 import com.akylas.view.DualScrollView;
 
 import android.animation.Animator;
@@ -33,10 +31,6 @@ import android.animation.Animator.AnimatorListener;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.Canvas;
-import android.os.Build;
-import android.support.v4.widget.NestedScrollView;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -377,14 +371,14 @@ public class TiUIScrollView extends TiUIView
 		{
 		    int theWidth;
 		    if (contentWidth == null) {
-		        theWidth = parentWidth;
+		        theWidth = parentContentWidth;
 			}
             else if (contentWidth.isUnitAuto()) {
 			    theWidth = maxWidth;
 			} else {
-                theWidth = contentWidth.getAsPixels(parentWidth, parentWidth);
+                theWidth = contentWidth.getAsPixels(parentContentWidth, parentContentWidth);
 			}
-			if (theWidth > parentWidth) {
+			if (theWidth > parentContentWidth) {
 				return theWidth;
 			} else {
 				return resolveSize(theWidth, widthSpec);
@@ -396,14 +390,14 @@ public class TiUIScrollView extends TiUIView
 		{
 		    int theHeight;
 		    if (contentHeight == null) {
-		        theHeight = parentHeight;
+		        theHeight = parentContentHeight;
 			}
 		    else if (contentHeight.isUnitAuto()) {
                 theHeight = maxHeight;
 			} else {
-                theHeight = contentHeight.getAsPixels(parentHeight, parentHeight);
+                theHeight = contentHeight.getAsPixels(parentContentHeight, parentContentHeight);
 			}
-			if (theHeight > parentHeight) {
+			if (theHeight > parentContentHeight) {
 				return theHeight;
 			} else {
 				return resolveSize(theHeight, heightSpec);
@@ -545,8 +539,8 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			layout.setParentHeight(MeasureSpec.getSize(heightMeasureSpec));
-			layout.setParentWidth(MeasureSpec.getSize(widthMeasureSpec));
+			layout.setParentContentHeight(MeasureSpec.getSize(heightMeasureSpec));
+			layout.setParentContentWidth(MeasureSpec.getSize(widthMeasureSpec));
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
 			// This is essentially doing the same logic as if you did setFillViewPort(true). In native Android, they
@@ -747,9 +741,9 @@ public class TiUIScrollView extends TiUIView
             mProcessUpdateFlags |= TIFLAG_NEEDS_ZOOM;
             break;
         case TiC.PROPERTY_REFRESH_CONTROL:
-            if (newValue instanceof RefreshControlProxy) {
-			Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
-		}
+//            if (newValue instanceof RefreshControlProxy) {
+//                Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
+//            }
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
