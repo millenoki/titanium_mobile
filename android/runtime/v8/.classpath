@@ -6,5 +6,6 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.andmore.LIBRARIES"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.andmore.DEPENDENCIES"/>
+	<classpathentry exported="true" kind="lib" path="lib/java_websocket.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
