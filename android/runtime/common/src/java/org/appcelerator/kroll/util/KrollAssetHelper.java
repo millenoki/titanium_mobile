@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -132,6 +133,7 @@ public class KrollAssetHelper
 				return assetManager.open(path) != null;
 			} catch (IOException e) {}
 		}
+        return false;
 	}
 
 	public static void getDirectoryListing(String path, List<String> listing)
@@ -149,7 +151,7 @@ public class KrollAssetHelper
 		}
 		if (assetManager != null) {
 			try {
-				listing.addAll(assetManager.list(path));
+				listing.addAll(Arrays.asList(assetManager.list(path)));
 			} catch (IOException e) {}
 		}
 	}
