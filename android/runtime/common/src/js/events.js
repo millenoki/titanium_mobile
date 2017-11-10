@@ -298,6 +298,11 @@ Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {
 		if (type && this._events && this._events[type]) {
 			this._events[type] = null;
 			this._hasListenersForEventType(type, false);
+		} else {
+			for (var type in this._events) {
+				this._events[type] = null;
+				this._hasListenersForEventType(type, false);
+			}
 		}
 		return this;
 	},

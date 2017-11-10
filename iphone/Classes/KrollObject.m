@@ -1357,6 +1357,20 @@ TiThreadPerformBlockOnMainThread(mainBlock, NO);
   }
 }
 
+- (void)removeListeners:(NSString *)eventName
+{
+  if (finalized || (propsObject == NULL)) {
+    return;
+  }
+  TiStringRef jsEventTypeString = TiStringCreateWithCFString((CFStringRef)eventName);
+  TiObjectRef jsEventHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, NULL);
+  if ((jsEventHash == NULL) || (TiValueGetType(jsContext, jsEventHash) != kTITypeObject)) { //We did not have any event listeners on this proxy. Perfectly normal.
+    return;
+  }
+  TiObjectDeleteProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+  TiStringRelease(jsEventTypeString);
+}
+
 - (void)removeAllListeners
 {
   if ((propsObject == NULL) || finalized) {

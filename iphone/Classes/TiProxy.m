@@ -996,14 +996,32 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)removeAllListeners:(id)args
 {
-  RELEASE_TO_NIL(evaluators)
-      [[self getContext].krollContext invokeBlockOnThread:^{
-        [[self krollObjectForContext:[self getContext].krollContext] removeAllListeners];
-      }];
-  pthread_rwlock_wrlock(&listenerLock);
-  RELEASE_TO_NIL(listenersOnce);
-  RELEASE_TO_NIL(listeners);
-  pthread_rwlock_unlock(&listenerLock);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSString);
+  if (args) {
+    if (evaluators) {
+      [evaluators removeObjectForKey:type];
+    }
+    [[self getContext].krollContext invokeBlockOnThread:^{
+      KrollObject *ourObject = [self krollObjectForContext:[listener context]];
+      [ourObject removeListeners:args];
+    }];
+    pthread_rwlock_wrlock(&listenerLock);
+    [listenersOnce removeObjectForKey:args];
+    [listeners removeObjectForKey:args];
+    pthread_rwlock_unlock(&listenerLock);
+
+    [self _listenerRemoved:type count:0];
+  } else {
+    RELEASE_TO_NIL(evaluators)
+    [[self getContext].krollContext invokeBlockOnThread:^{
+      [[self krollObjectForContext:[self getContext].krollContext] removeAllListeners];
+    }];
+    pthread_rwlock_wrlock(&listenerLock);
+    RELEASE_TO_NIL(listenersOnce);
+    RELEASE_TO_NIL(listeners);
+    pthread_rwlock_unlock(&listenerLock);
+  }
+  return self;
 }
 
 - (void)fireEvent:(id)args
