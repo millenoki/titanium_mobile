@@ -161,10 +161,10 @@ public class TiDatabaseProxy extends KrollProxy
         String[] queries = sql.split(";");
         for (String query : queries) {
             try {
-                if (!query.startsWith("--")) {
+//                if (!query.startsWith("--")) {
                     Log.d(TAG, "executing batch query: " + query);
                     db.execSQL(query);
-                }
+//                }
             } catch (SQLException e) {
                 if (e.getMessage().contains("not an error")) {
                     Log.w(TAG, e.getMessage(), e);
