@@ -938,9 +938,9 @@ public abstract class TiApplication extends Application implements
 		// Register the default cache handler
         if (sExceptionHandler == null) {
             sExceptionHandler = new TiExceptionHandler();
-	}
+        }
         KrollRuntime.setPrimaryExceptionHandler(sExceptionHandler);
-		}
+	}
 
 //    private File getRemoteCacheDir() {
 //        File cacheDir = new File(tempFileHelper.getTempDirectory(),
