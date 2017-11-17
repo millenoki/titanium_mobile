@@ -610,6 +610,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             propertiesToUpdateNativeSide = null;
         }
     }
+    
+    private boolean isRuntimeThread() {
+        return TiApplication.isRuntimeThread();
+    }
 
 	/**
      * @return the KrollObject associated with this proxy if it exists.
@@ -617,7 +621,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @module.api
 	 */
     public KrollObject getKrollObject() {
-        final boolean runtimeThread = KrollRuntime.getInstance().isRuntimeThread();
+        final boolean runtimeThread = isRuntimeThread();
 		if (krollObject == null) {
             if (runtimeThread) {
 				initKrollObject();
@@ -820,7 +824,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void setProperty(String name, Object value, boolean wait) {
         setPropertyJava(name, value);
 
-        if (wait && KrollRuntime.getInstance().isRuntimeThread()) {
+        if (wait && isRuntimeThread()) {
 			doSetProperty(name, value);
 		} else {
             if (wait && !TiApplication.appRunOnMainThread()) {
@@ -842,7 +846,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void updateKrollObjectProperties() {
 
         //use a shallow copy because properties is synchronized
-        if (krollObject == null && KrollRuntime.getInstance().isRuntimeThread()) {
+        if (krollObject == null && isRuntimeThread()) {
             initKrollObject();
         }
         if (krollObject != null) {
@@ -868,7 +872,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void internalUpdateKrollObjectProperties(
             HashMap<String, Object> props, final boolean wait) {
         long startTime = System.currentTimeMillis();
-        if (wait && KrollRuntime.getInstance().isRuntimeThread()) {
+        if (wait && isRuntimeThread()) {
             doUpdateKrollObjectProperties(props);
 
         } else {
@@ -1088,7 +1092,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      *            the arguments to pass when calling the function.
 	 */
     public void callPropertySync(String name, Object[] args) {
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
+		if (isRuntimeThread()) {
 			getKrollObject().callProperty(name, args);
 		} else {
             Message msg = getRuntimeHandler().obtainMessage(
@@ -1099,7 +1103,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	}
 
     public Object getJsPropertySync(String name) {
-        if (KrollRuntime.getInstance().isRuntimeThread()) {
+        if (isRuntimeThread()) {
             return getKrollObject().getProperty(name);
         } else {
             Message msg = getRuntimeHandler().obtainMessage(
@@ -1357,7 +1361,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (checkListeners && !hasListeners(event, bubble)) {
             return false;
         }
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
+		if (isRuntimeThread()) {
             return doFireEvent(event, data, bubble);
 
 		} else {
@@ -1389,7 +1393,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (!hasListeners(event, true)) {
             return false;
         }
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
+		if (isRuntimeThread()) {
 			return doFireEvent(event, data);
 
 		} else {
@@ -1487,7 +1491,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			}
             return true;
 		}
-        final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
+        final boolean isRuntimeThread = isRuntimeThread();
 //        
         if (isRuntimeThread) {
             doFireEvent(event, data, bubbles);
