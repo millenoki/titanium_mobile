@@ -1466,9 +1466,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     					return -1;
     				}
     				position += sectionItemIndex;
-    				if (section.hasHeader()) {
-    				    position += 1;			
-    				}
+//    				if (section.hasHeader()) {
+//    				    position += 1;			
+//    				}
     				if (section.hasFooter()) {
     					position += 1;			
     				}
