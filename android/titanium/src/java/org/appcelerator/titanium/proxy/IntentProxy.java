@@ -235,7 +235,7 @@ public class IntentProxy extends KrollProxy
 		// if you have both you _must_ call setDataAndType
 		if (data != null) {
 			Uri dataUri = null;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && data.startsWith("file://")) {
+			if (TiC.M_OR_GREATER && data.startsWith("file://")) {
 				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				dataUri = TiFileProvider.createUriFrom(data);
 			} else {
@@ -279,13 +279,13 @@ public class IntentProxy extends KrollProxy
 	@Kroll.method
 	public IntentProxy putExtraUri(String key, Object value) {
         if (value == null) {
-            return;
+            return this;
         }
         
         if (value instanceof String) {
             String extraString = (String) value;
             
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && extraString.startsWith("file://")) {
+            if (TiC.M_OR_GREATER && extraString.startsWith("file://")) {
                 Uri contentUri = TiFileProvider.createUriFrom(extraString);
                 ClipData clipData = ClipData.newRawUri("FILE", contentUri);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -301,7 +301,7 @@ public class IntentProxy extends KrollProxy
                 ArrayList<Uri> imageUris = new ArrayList<Uri>();
                 ClipData clipData = null;
                 for(String s : stringArray) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {
+                    if (TiC.M_OR_GREATER && s.startsWith("file://")) {
                         Uri contentUri = TiFileProvider.createUriFrom(s);
                         imageUris.add(contentUri);
                         if (clipData == null) {
@@ -313,7 +313,7 @@ public class IntentProxy extends KrollProxy
                         imageUris.add(Uri.parse(s));
                     }
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (TiC.M_OR_GREATER) {
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     intent.setClipData(clipData);
                 }

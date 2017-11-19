@@ -15,6 +15,8 @@ import android.os.Build;
 public class TiC
 
 {
+    public static boolean O_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    public static boolean M_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
 	public static boolean LOLLIPOP_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
 	public static boolean HONEYCOMB_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
 	public static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH);

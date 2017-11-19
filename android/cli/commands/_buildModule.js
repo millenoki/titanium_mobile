@@ -1994,6 +1994,51 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			cb();
 		},
 
+		/**
+		 * Generates the module jar file.
+		 *
+		 * To be able to filter what's being added to the jar we create the archive
+		 * manually instead of using jar command line.
+		 *
+		 * Currently we only filter R.class files, those will be regenerated in the
+		 * final App build.
+		 *
+		 * @param {Function} cb Function to call once the .jar file was generated
+		 */
+		function generateModuleJar(cb) {
+			const moduleJarStream = fs.createWriteStream(this.moduleJarFile);
+			const moduleJarArchive = archiver('zip', {
+				options: {
+					zlib: {
+						level: 9
+					}
+				}
+			});
+			moduleJarStream.on('close', cb);
+			moduleJarArchive.on('error', cb);
+			moduleJarArchive.pipe(moduleJarStream);
+
+			const excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
+
+			const assetsParentDir = path.join(this.assetsDir, '..');
+			this.dirWalker(this.assetsDir, function (file) {
+				if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+					moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
+				}
+			});
+
+			/**
+			 * @param  {string} file file path
+			 */
+			this.dirWalker(this.buildClassesDir, function (file) {
+				if (!excludeRegex.test(file)) {
+					moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(this.buildClassesDir, file) });
+				}
+			}.bind(this));
+
+			moduleJarArchive.finalize();
+		},
+
 		function (cb) {
 			// Package zip
 			const dest = archiver('zip', {

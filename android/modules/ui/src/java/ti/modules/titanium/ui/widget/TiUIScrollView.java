@@ -822,11 +822,11 @@ public class TiUIScrollView extends TiUIView
         // Disable smooth scrolling for vertical scroll views if not at top of view.
         // Note: This works-around a bug in Google's NestedScrollView where attempting to
         //       smooth scrolls will move to a totally different position or opposite directions.
-        if (smoothScroll && (view instanceof TiVerticalScrollView)) {
-            if (((TiVerticalScrollView)view).getScrollY() > 0) {
-                smoothScroll = false;
-            }
-        }
+//        if (smoothScroll && (view instanceof TiVerticalScrollView)) {
+//            if (((TiVerticalScrollView)view).getScrollY() > 0) {
+//                smoothScroll = false;
+//            }
+//        }
 		if (smoothScroll) {
 	        ((TiScrollView)getNativeView()).smoothScrollTo(x, y);
 		} else {
@@ -846,7 +846,15 @@ public class TiUIScrollView extends TiUIView
 
 		TiScrollView scrollView = (TiScrollView) view;
 		scrollView.fullScroll(View.FOCUS_DOWN, false);
-		}
+	}
+	
+	   public void scrollToTop()
+	    {
+	        View view = getNativeView();
+
+	        TiScrollView scrollView = (TiScrollView) view;
+	        scrollView.fullScroll(View.FOCUS_UP, false);
+	    }
 
 	@Override
 	public void add(TiUIView child, int index)

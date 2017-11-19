@@ -26,10 +26,10 @@ import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiUIView;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
@@ -38,11 +38,10 @@ import android.os.Bundle;
 import android.os.Message;
 import android.view.MotionEvent;
 import android.support.annotation.Nullable;
-import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.Display;
 import android.view.View;
 
+@SuppressLint("NewApi")
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,

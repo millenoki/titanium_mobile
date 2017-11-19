@@ -103,11 +103,11 @@ public class TiUIDialog extends TiUIView
                         int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
                         if (newValue != null && TiConvert.toBoolean(newValue)) {
                             importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
-		}
+                        }
                         ViewCompat.setImportantForAccessibility(listView, importance);
                     } else {
                         listView.setContentDescription(composeContentDescription());
-		}
+                    }
                 }
             }
             return;
@@ -186,8 +186,7 @@ public class TiUIDialog extends TiUIView
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_OPTIONS;
 		}
 	    super.didProcessProperties();
-		
-		}
+	}
 
 	@Override
 	public void processProperties(HashMap d)
@@ -208,18 +207,21 @@ public class TiUIDialog extends TiUIView
 	        getBuilder().setItems(optionText , new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     handleEvent(which, true);
-                    if (hideOnClick == true) hide(null);
+                    if (hideOnClick == true) {
+                        hide(null);
+                    }
+                }
+            });
+	    } else {
+	        getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    handleEvent(which, true);
+                    if (hideOnClick == true) {
+                        hide(null);
+                    }
                 }
             });
 	    }
-	    else {
-		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-                    handleEvent(which, true);
-                    if (hideOnClick == true) hide(null);
-			}
-		});
-	}
 
 		optionsCount = (optionText != null) ? optionText.length : 0;
 	}
@@ -431,6 +433,5 @@ public class TiUIDialog extends TiUIView
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
 		data.put(TiC.PROPERTY_CANCEL, (id == realcancelIndex));
 		fireEvent(TiC.EVENT_CLICK, data, false);
-		}
 	}
 }

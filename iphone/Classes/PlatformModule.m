@@ -59,9 +59,9 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
     // needed for platform displayCaps orientation to be correct
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-  }
+    }
   return self;
-}
+    }
 
 - (NSString *)deviceId
 {
@@ -71,7 +71,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
   return [NSString stringWithCString:systemInfo.machine
                             encoding:NSUTF8StringEncoding];
-}
+    }
 
 - (NSString *)deviceName:(NSString *)defaultValue
 {
@@ -110,7 +110,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
       @"iPad4,4" : @"iPad Mini", // (2nd Generation iPad Mini - Wifi)
       @"iPad4,5" : @"iPad Mini" // (2nd Generation iPad Mini - Cellular)
     };
-  }
+    }
 
   NSString *deviceName = [deviceNamesByCode objectForKey:code];
 
@@ -126,9 +126,9 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 #if TARGET_IPHONE_SIMULATOR
     deviceName = [deviceName stringByAppendingString:@" Simulator"];
 #endif
-    
+
     return deviceName;
-}
+  }
 
 - (void)dealloc
 {
@@ -316,9 +316,9 @@ NSString *const DATA_IFACE = @"pdp_ip0";
     }
     return @(-1);
   } else {
-    NSURL *url = [TiUtils toURL:arg proxy:self];
-    return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
-  }
+  NSURL *url = [TiUtils toURL:arg proxy:self];
+  return NUMBOOL([[UIApplication sharedApplication] canOpenURL:url]);
+}
 }
 
 - (TiPlatformDisplayCaps *)displayCaps
@@ -387,7 +387,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   UIImage *defaultImage = [TiRootViewController splashImageForOrientation:
                                                     [[UIDevice currentDevice] orientation]];
   return [[[TiBlob alloc] initWithImage:defaultImage] autorelease];
-}
+    }
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN, UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED, UIDeviceBatteryStateUnplugged);

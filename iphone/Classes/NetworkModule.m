@@ -162,11 +162,11 @@ static NetworkModule *_sharedInstance = nil;
     dispatch_semaphore_signal(_startingSema);
   }
   [TiApp app].networkConnected = [[self online] boolValue];
-  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                          [self networkType], @"networkType",
-                                      [self online], @"online",
-                                      [self networkTypeName], @"networkTypeName",
-                                      nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                            [self networkType], @"networkType",
+                                        [self online], @"online",
+                                        [self networkTypeName], @"networkTypeName",
+                                        nil];
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiNetworkChangedNotification object:self userInfo:event];
   if ([self _hasListeners:@"change"]) {
     [self fireEvent:@"change" withObject:event];

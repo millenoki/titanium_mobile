@@ -298,7 +298,7 @@ static NSDictionary *listViewKeysToReplace;
 - (void)willShow
 {
   if (view) {
-    [self.listView deselectAll:YES];
+  [self.listView deselectAll:YES];
   }
   [super willShow];
 }
@@ -344,7 +344,7 @@ static NSDictionary *listViewKeysToReplace;
       id<TiEvaluator> context = self.executionContext;
       if (context == nil) {
         context = self.pageContext;
-      }
+    }
       TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self inContext:context];
       [cellProxy unarchiveFromTemplate:template withEvents:NO];
       //            [cellProxy bindings];
@@ -362,14 +362,14 @@ static NSDictionary *listViewKeysToReplace;
   [measureProxies release];
   if (![self isConfigurationSet]) {
     _needsReload = YES;
-  }
+}
   [self replaceValue:args forKey:@"templates" notification:YES];
 }
 
 - (NSArray *)sections
 {
   //	return [self dispatchBlockWithResult:^() {
-  return [[_sections copy] autorelease];
+    return [[_sections copy] autorelease];
   //	}];
 }
 
@@ -391,7 +391,7 @@ static NSDictionary *listViewKeysToReplace;
       section = [[[TiUIListSectionProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:section]] autorelease];
       [insertedSections replaceObjectAtIndex:i withObject:section];
     } else {
-      ENSURE_TYPE(section, TiUIListSectionProxy);
+    ENSURE_TYPE(section, TiUIListSectionProxy);
     }
     [self rememberProxy:section];
   }
@@ -447,7 +447,7 @@ static NSDictionary *listViewKeysToReplace;
       //wer support directly sending a dictionnary
       section = [[[TiUIListSectionProxy alloc] _initWithPageContext:[self executionContext] args:[NSArray arrayWithObject:section]] autorelease];
     } else {
-      ENSURE_TYPE(section, TiUIListSectionProxy);
+    ENSURE_TYPE(section, TiUIListSectionProxy);
     }
     [self rememberProxy:section];
     [insertedSections addObject:section];
@@ -469,7 +469,7 @@ static NSDictionary *listViewKeysToReplace;
       [tableView insertSections:indexSet withRowAnimation:animation];
     }
     [indexSet release];
-  }
+}
                     animated:(animation != UITableViewRowAnimationNone)];
 }
 
@@ -492,7 +492,7 @@ static NSDictionary *listViewKeysToReplace;
     }];
     [tableView deleteSections:[NSIndexSet indexSetWithIndex:deleteIndex] withRowAnimation:animation];
     [self forgetProxy:section];
-  }
+}
                     animated:(animation != UITableViewRowAnimationNone)];
 }
 
@@ -536,7 +536,7 @@ static NSDictionary *listViewKeysToReplace;
     }];
     [tableView insertSections:indexSet withRowAnimation:animation];
     [indexSet release];
-  }
+}
                     animated:(animation != UITableViewRowAnimationNone)];
 }
 
@@ -570,7 +570,7 @@ static NSDictionary *listViewKeysToReplace;
     [tableView deleteSections:indexSet withRowAnimation:animation];
     [tableView insertSections:indexSet withRowAnimation:animation];
     [self forgetProxy:prevSection];
-  }
+}
                     animated:(animation != UITableViewRowAnimationNone)];
 }
 
@@ -636,26 +636,27 @@ static NSDictionary *listViewKeysToReplace;
 
 - (void)selectItem:(id)args
 {
+  ENSURE_ARG_COUNT(args, 2);
+
   if (view != nil) {
-    ENSURE_ARG_COUNT(args, 2);
     NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
     NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
     NSDictionary *options = [args count] > 2 ? [args objectAtIndex:2] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
     TiThreadPerformOnMainThread(^{
-      if ([_sections count] <= sectionIndex) {
-        DebugLog(@"[WARN] ListView: Select section index is out of range");
-        return;
-      }
-      TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
-      if (section.itemCount <= itemIndex) {
-        DebugLog(@"[WARN] ListView: Select item index is out of range");
-        return;
-      }
-      NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
+    if ([_sections count] <= sectionIndex) {
+      DebugLog(@"[WARN] ListView: Select section index is out of range");
+      return;
+    }
+    TiUIListSectionProxy *section = [_sections objectAtIndex:sectionIndex];
+    if (section.itemCount <= itemIndex) {
+      DebugLog(@"[WARN] ListView: Select item index is out of range");
+      return;
+    }
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
       [self.listView selectItem:indexPath animated:animated];
     },
-        NO);
+        [NSThread isMainThread]);
   }
 }
 

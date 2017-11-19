@@ -36,7 +36,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
-import android.os.Build;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
@@ -240,7 +239,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             wakeParams = TiConvert.toHashMap(newValue);
             break;
         case TiC.PROPERTY_COLOR:
-            notificationBuilder.setColor(TiColorHelper.parseColor(color));
+            notificationBuilder.setColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_CHANNEL_ID:
             notificationBuilder.setChannelId(TiConvert.toString(newValue));

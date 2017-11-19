@@ -470,9 +470,8 @@ public class TiHTTPClient
 		if (readyState == READY_STATE_DONE) {
 			KrollDict data1 = new KrollDict();
             final int status = getStatus();
-			data1.putCodeAndMessage(getStatus(), getStatusText();
-				dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
-			}
+			data1.putCodeAndMessage(getStatus(), getStatusText());
+			dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
 		}
 	}
 

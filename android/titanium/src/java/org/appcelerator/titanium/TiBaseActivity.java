@@ -146,7 +146,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
-    protected TiWeakList<OrientationChangedListener> orientationChangedListeners = null;
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
     private boolean sustainMode = false;
 
@@ -1539,29 +1538,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 		}
 	}
-
-	public void addOrientationChangedListener (OrientationChangedListener listener)
-    {
-	    if (orientationChangedListeners == null) {
-	        orientationChangedListeners = new TiWeakList<OrientationChangedListener>();
-	    }
-        orientationChangedListeners.add(new WeakReference<OrientationChangedListener>(listener));
-    }
-
-    public void removeOrientationChangedListener(OrientationChangedListener listener)
-    {
-        if (orientationChangedListeners == null) {
-            return;
-        }
-        for (int i = 0; i < orientationChangedListeners.size(); i++) {
-            OrientationChangedListener iListener = orientationChangedListeners.get(i).get();
-            if (listener == iListener) {
-                orientationChangedListeners.remove(i);
-                return;
-            }
-        }
-    }
-    
 
 	private void dispatchCallback(final String name, KrollDict data) {
 		if (data == null) {

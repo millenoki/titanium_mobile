@@ -612,7 +612,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
-			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
+			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(d, TiC.PROPERTY_USER_AGENT));
 		}
 	}
 

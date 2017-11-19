@@ -484,7 +484,7 @@ public class TitaniumModule extends KrollModule
                             if (result instanceof HashMap) {
                                 e.clear();
                                 e.putAll((Map) result);
-                            }
+}
                         }
                     }
                     

@@ -6,17 +6,17 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
-import org.appcelerator.kroll.KrollDict;
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.android.AndroidModule;
 
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
-import android.os.Build;
 
 @TargetApi(26)
 @Kroll.proxy(propertyAccessors = {
@@ -44,37 +44,37 @@ public class NotificationChannelProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict d)
+	public void handleCreationDict(HashMap d)
 	{
 		super.handleCreationDict(d);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && d != null &&
+		if (TiC.O_OR_GREATER && d != null &&
 				d.containsKey(TiC.PROPERTY_ID) && d.containsKey(TiC.PROPERTY_NAME) && d.containsKey(TiC.PROPERTY_IMPORTANCE)) {
 			
-			channel = new NotificationChannel(d.getString(TiC.PROPERTY_ID), d.getString(TiC.PROPERTY_NAME), d.getInt(TiC.PROPERTY_IMPORTANCE));
+			channel = new NotificationChannel(TiConvert.toString(d, TiC.PROPERTY_ID), TiConvert.toString(d, TiC.PROPERTY_NAME), TiConvert.toInt(d, TiC.PROPERTY_IMPORTANCE));
 
 			if (d.containsKey(TiC.PROPERTY_BYPASS_DND)) {
-				setBypassDnd(d.getBoolean(TiC.PROPERTY_BYPASS_DND));
+				setBypassDnd(TiConvert.toBoolean(d, TiC.PROPERTY_BYPASS_DND));
 			}
 			if (d.containsKey(TiC.PROPERTY_DESCRIPTION)) {
-				setDescription(d.getString(TiC.PROPERTY_DESCRIPTION));
+				setDescription(TiConvert.toString(d, TiC.PROPERTY_DESCRIPTION));
 			}
 			if (d.containsKey(TiC.PROPERTY_ENABLE_LIGHTS)) {
-				setEnableLights(d.getBoolean(TiC.PROPERTY_ENABLE_LIGHTS));
+				setEnableLights(TiConvert.toBoolean(TiC.PROPERTY_ENABLE_LIGHTS));
 			}
 			if (d.containsKey(TiC.PROPERTY_ENABLE_VIBRATION)) {
-				setEnableVibration(d.getBoolean(TiC.PROPERTY_ENABLE_VIBRATION));
+				setEnableVibration(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_VIBRATION));
 			}
 			if (d.containsKey(TiC.PROPERTY_GROUP_ID)) {
-				setGroupId(d.getString(TiC.PROPERTY_GROUP_ID));
+				setGroupId(TiConvert.toString(d, TiC.PROPERTY_GROUP_ID));
 			}
 			if (d.containsKey(TiC.PROPERTY_LIGHT_COLOR)) {
-				setLightColor(d.getInt(TiC.PROPERTY_LIGHT_COLOR));
+				setLightColor(TiConvert.toInt(d, TiC.PROPERTY_LIGHT_COLOR));
 			}
 			if (d.containsKey(TiC.PROPERTY_LOCKSCREEN_VISIBILITY)) {
-				setLockscreenVisibility(d.getInt(TiC.PROPERTY_LOCKSCREEN_VISIBILITY));
+				setLockscreenVisibility(TiConvert.toInt(d, TiC.PROPERTY_LOCKSCREEN_VISIBILITY));
 			}
 			if (d.containsKey(TiC.PROPERTY_SHOW_BADGE)) {
-				setShowBadge(d.getBoolean(TiC.PROPERTY_SHOW_BADGE));
+				setShowBadge(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_BADGE));
 			}
 			if (d.containsKey(TiC.PROPERTY_VIBRATE_PATTERN)) {
 				setVibrationPattern(d.get(TiC.PROPERTY_VIBRATE_PATTERN));

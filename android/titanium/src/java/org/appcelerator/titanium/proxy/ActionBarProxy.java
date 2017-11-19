@@ -63,7 +63,6 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         public void invalidateDrawable(Drawable who) {
             actionBar.setBackgroundDrawable(who);
 		}
-	}
 
         @Override
         public void scheduleDrawable(Drawable who, Runnable what, long when) {
