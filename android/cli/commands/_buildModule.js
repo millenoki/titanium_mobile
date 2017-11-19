@@ -25,6 +25,7 @@ const AdmZip = require('adm-zip'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	babel = require('babel-core'),
 	ts = require('typescript'),
@@ -62,6 +63,14 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		this.logger = logger;
 
 		this.manifest = this.cli.manifest;
+
+		const sdkModuleAPIVersion = this.cli.sdk && this.cli.sdk.manifest && this.cli.sdk.manifest.moduleAPIVersion && this.cli.sdk.manifest.moduleAPIVersion['android'];
+		if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
+			logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
+			logger.error(__('Titanium SDK %s Android module apiversion is at %s', this.titaniumSdkVersion, sdkModuleAPIVersion));
+			logger.error(__('Please update module manifest apiversion to match Titanium SDK module apiversion.'));
+			process.exit(1);
+		}
 
 		// detect android environment
 		androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
@@ -206,6 +215,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			cli.emit('build.module.pre.compile', this, next);
 		},
 
+		'replaceBundledSupportLibraries',
 		// 'processResources',
 		'compileAidlFiles',
 		'compileModuleJavaSrc',
@@ -226,7 +236,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 			if (!cli.argv.ide) {
 				appc.async.series(this, [
 					'verifyBuildArch',
-		'packageZip',
+					'packageZip',
 				], next);
 			} else {
 				next();
@@ -405,7 +415,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	// Original templates under this.titaniumSdkPath/module/android/generated
 	this.moduleGenTemplateDir = path.join(this.platformPath, 'templates', 'module', 'generated');
 	this.jsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.js.ejs');
-	this.gperfTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.gperf.ejs');
+	this.bindingsTemplateFile = path.join(this.moduleGenTemplateDir, 'bootstrap.cpp.ejs');
 	this.javaTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.java.ejs');
 	this.cppTemplateFile = path.join(this.moduleGenTemplateDir, '{{ModuleIdAsIdentifier}}Bootstrap.cpp.ejs');
 	this.btJsToCppTemplateFile = path.join(this.moduleGenTemplateDir, 'BootstrapJS.cpp.ejs');
@@ -449,6 +459,27 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 };
 
 /**
+ * Replaces any .jar file in the Class Path that comes bundled with our SDK
+ * with a user provided one if available.
+ *
+ * We need to do this in this in an extra step because by the time our bundled
+ * Support Libraries will be added, we haven't parsed any other Android
+ * Libraries yet.
+ *
+ * @param {Function} next Callback function
+ */
+AndroidModuleBuilder.prototype.replaceBundledSupportLibraries = function replaceBundledSupportLibraries(next) {
+	Object.keys(this.classPaths).forEach(function (libraryPathAndFilename) {
+		if (this.isExternalAndroidLibraryAvailable(libraryPathAndFilename)) {
+			this.logger.debug('Excluding library ' + libraryPathAndFilename.cyan);
+			delete this.classPaths[libraryPathAndFilename];
+		}
+	}, this);
+
+	next();
+};
+
+/**
  * Processes resources for this module.
  *
  * This step will generate R classes for this module, our core modules and any
@@ -461,7 +492,7 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 	const mergedResPath = path.join(this.buildIntermediatesDir, 'res/merged');
 	const extraPackages = [];
 	const merge = function (src, dest) {
-		fs.readdirSync(src).forEach(function (filename) {
+		fs.existsSync(src) && fs.readdirSync(src).forEach(function (filename) {
 			const from = path.join(src, filename),
 				to = path.join(dest, filename);
 			if (fs.existsSync(from)) {
@@ -519,8 +550,13 @@ AndroidModuleBuilder.prototype.processResources = function processResources(next
 						const resArchivePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.res.zip'));
 						const respackagePathAndFilename = path.join(modulesPath, file.replace(/\.jar$/, '.respackage'));
 						if (fs.existsSync(resArchivePathAndFilename) && fs.existsSync(respackagePathAndFilename)) {
-							extraPackages.push(fs.readFileSync(respackagePathAndFilename).toString().split('\n').shift().trim());
-							resArchives.push(resArchivePathAndFilename);
+							const packageName = fs.readFileSync(respackagePathAndFilename).toString().split(/\r?\n/).shift().trim();
+							if (!this.hasAndroidLibrary(packageName)) {
+								extraPackages.push(packageName);
+								resArchives.push(resArchivePathAndFilename);
+							} else {
+								this.logger.info(__('Excluding core module resources of %s (%s) because Android Library with same package name is available.', file, packageName));
+							}
 						}
 					}, this);
 
@@ -911,7 +947,7 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 		[ModuleName]Bootstrap.java,
 		[ModuleName]Bootstrap.cpp,
 		bootstrap.js,
-		KrollGeneratedBindings.gperf.
+		KrollGeneratedBindings.cpp.
 
 */
 AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
@@ -1147,7 +1183,7 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				const initFunction = '::' + className + '::bindProxy';
 				const disposeFunction = '::' + className + '::dispose';
 
-				initTable.unshift([ proxy, initFunction, disposeFunction ].join(',').toString());
+				initTable.unshift('{' + [ '"' + proxy + '"', initFunction, disposeFunction ].join(', ').toString() + '}');
 
 			}, this);
 			cb();
@@ -1165,9 +1201,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				'moduleName': moduleName
 			};
 
-			const gperfContext = {
+			var bindingsContext = {
 				'headers': headers,
-				'bindings': initTable.join('\n'),
+				'bindings': initTable,
 				'moduleName': fileNamePrefix
 			};
 
@@ -1177,13 +1213,9 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			);
 
 			fs.writeFileSync(
-				path.join(this.buildGenDir, 'KrollGeneratedBindings.gperf'),
-				ejs.render(fs.readFileSync(this.gperfTemplateFile).toString(), gperfContext)
+				path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp'),
+				ejs.render(fs.readFileSync(this.bindingsTemplateFile).toString(), bindingsContext)
 			);
-
-			// clean any old 'KrollGeneratedBindings.cpp'
-			const krollGeneratedBindingsCpp = path.join(this.buildGenDir, 'KrollGeneratedBindings.cpp');
-			fs.existsSync(krollGeneratedBindingsCpp) && fs.unlinkSync(krollGeneratedBindingsCpp);
 
 			cb();
 		},

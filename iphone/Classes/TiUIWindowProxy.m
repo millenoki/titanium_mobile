@@ -190,6 +190,7 @@
 
 - (void)dealloc
 {
+
   [super dealloc];
 }
 
@@ -344,10 +345,20 @@
     return [theController transitionController];
   return [theController navigationController];
 }
+- (void)processForSafeArea
+{
+  return [[self view] processForSafeArea];
+}
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+#if IS_XCODE_9
+  [self performSelector:@selector(processForSafeArea)
+             withObject:nil
+             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+#endif
+  [super viewWillTransitionToSize:size
+        withTransitionCoordinator:coordinator];
   [self willChangeSize];
 }
 
@@ -358,10 +369,10 @@
   BOOL isInteracting = NO;
   if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
     isInteracting = [delegate isInteracting];
-}
+  }
   if (!isInteracting) {
     [self setupWindowDecorations:animated];
-}
+  }
   [super viewWillAppear:animated];
 }
 
@@ -376,7 +387,7 @@
     [self setupWindowDecorations:animated];
     ((ADNavigationControllerDelegate *)delegate).isInteracting = NO;
   } else {
-  [self updateTitleView];
+    [self updateTitleView];
   }
   [super viewDidAppear:animated];
 }
@@ -493,13 +504,13 @@
   NSString *color = [TiUtils stringValue:colorString];
   [self replaceValue:color forKey:@"navTintColor" notification:NO];
 
-    if (controller != nil) {
+  if (controller != nil) {
     id navController = [self navControllerForController:controller];
-      TiColor *newColor = [TiUtils colorValue:color];
-      if (newColor == nil) {
-        //Get from TabGroup
-        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-      }
+    TiColor *newColor = [TiUtils colorValue:color];
+    if (newColor == nil) {
+      //Get from TabGroup
+      newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+    }
 
     UINavigationBar *navBar = [navController navigationBar];
     if (newColor == nil) {
@@ -510,7 +521,7 @@
     if (!_setingUpWindowDecorations) {
       [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
-}
+  }
 }
 
 - (void)setBarColor:(id)colorString
@@ -534,9 +545,9 @@
     [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
 
     if (!_setingUpWindowDecorations) {
-    [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+      [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    }
   }
-}
 }
 
 - (void)setBarDeltaY:(id)value
@@ -622,11 +633,11 @@
     id navController = [self navControllerForController:controller];
     [[controller navigationItem] setTitle:@""];
 #if IS_XCODE_9
-      if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-          [[navController navigationBar] setLargeTitleTextAttributes:theAttributes];
-      }
+    if ([TiUtils isIOS11OrGreater] && [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      [[navController navigationBar] setLargeTitleTextAttributes:theAttributes];
+    }
 #endif
-      [[navController navigationBar] setTitleTextAttributes:theAttributes];
+    [[navController navigationBar] setTitleTextAttributes:theAttributes];
   }
 }
 
@@ -650,15 +661,15 @@
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
     [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
   }
-    id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+  id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
   UIImage *theShadowImage = [TiUtils toImage:shadowImageValue proxy:self];
 
   if (theShadowImage != nil) {
-      UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
-      ourNB.shadowImage = resizableImage;
-    } else {
-      BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
-      if (clipValue) {
+    UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+    ourNB.shadowImage = resizableImage;
+  } else {
+    BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+    if (clipValue) {
 
       if (theImage == nil) {
         TiColor *barColor = [TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]];
@@ -668,13 +679,13 @@
           [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
         }
       }
-        //Set an empty Image.
-        ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
-      } else {
-        ourNB.shadowImage = nil;
-      }
+      //Set an empty Image.
+      ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+    } else {
+      ourNB.shadowImage = nil;
     }
   }
+}
 
 - (void)setBarImage:(id)value
 {
@@ -702,7 +713,7 @@
   ENSURE_UI_THREAD(setShadowImage, value);
   [self replaceValue:value forKey:@"shadowImage" notification:NO];
   if (controller != nil) {
-      [self updateBarImage];
+    [self updateBarImage];
   }
 }
 
@@ -711,7 +722,7 @@
   ENSURE_UI_THREAD(setHideShadow, value);
   [self replaceValue:value forKey:@"hideShadow" notification:NO];
   if (controller != nil) {
-      [self updateBarImage];
+    [self updateBarImage];
   }
 }
 
@@ -748,7 +759,7 @@
   //    }
   [self refreshLeftNavButtons:nil];
   [self refreshRightNavButtons:nil];
-  }
+}
 
 - (void)refreshRightNavButtons:(id)unused
 {
@@ -1055,7 +1066,7 @@
     return; // No need to update the title if not in a nav controller
   }
   TiThreadPerformOnMainThread(^{
-      [self updateTitleView];
+    [self updateTitleView];
   },
       NO);
 }
@@ -1132,7 +1143,7 @@
   [self addObjectToHold:proxy forKey:@"titleView"];
   if (controller != nil) {
     TiThreadPerformBlockOnMainThread(^{
-    [self updateTitleView];
+      [self updateTitleView];
     },
         NO);
   }
@@ -1161,31 +1172,33 @@
       YES);
 }
 
-#if IS_XCODE_9
 - (void)setLargeTitleEnabled:(id)value
 {
+#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleEnabled, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleEnabled" notification:NO];
 
-  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[[controller navigationController] navigationBar] setPrefersLargeTitles:[TiUtils boolValue:value def:NO]];
   }
+#endif
 }
 
 - (void)setLargeTitleDisplayMode:(id)value
 {
+#if IS_XCODE_9
   ENSURE_UI_THREAD(setLargeTitleDisplayMode, value);
-  ENSURE_TYPE(value, NSNumber);
+  ENSURE_TYPE_OR_NIL(value, NSNumber);
 
   [self replaceValue:value forKey:@"largeTitleDisplayMode" notification:NO];
 
-  if (@available(iOS 11.0, *) && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
+  if ([TiUtils isIOS11OrGreater] && shouldUpdateNavBar && controller != nil && [controller navigationController] != nil) {
     [[controller navigationItem] setLargeTitleDisplayMode:[TiUtils intValue:value def:UINavigationItemLargeTitleDisplayModeAutomatic]];
   }
-}
 #endif
+}
 
 - (void)setTitlePrompt:(NSString *)title_
 {
@@ -1388,7 +1401,7 @@
   if (animated) {
     [UIView beginAnimations:@"navbarAnim" context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
-}
+  }
 
   BOOL navBarHidden = [TiUtils boolValue:[self valueForKey:@"navBarHidden"] def:[navController isNavigationBarHidden]];
   if (navBarHidden != [navController isNavigationBarHidden]) {
@@ -1478,6 +1491,7 @@
                      }];
   }
 }
+
 @end
 
 #endif

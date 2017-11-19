@@ -103,11 +103,11 @@ public class TiUIDialog extends TiUIView
                         int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
                         if (newValue != null && TiConvert.toBoolean(newValue)) {
                             importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
-                        }
+		}
                         ViewCompat.setImportantForAccessibility(listView, importance);
                     } else {
                         listView.setContentDescription(composeContentDescription());
-                    }
+		}
                 }
             }
             return;
@@ -146,10 +146,10 @@ public class TiUIDialog extends TiUIView
             cancelIndex = TiConvert.toInt(newValue, -1);
             break;
         case TiC.PROPERTY_OPTIONS:
-        {
+		{
             mProcessUpdateFlags |= TIFLAG_NEEDS_OPTIONS;
             break;
-        }
+		}
         case TiC.PROPERTY_SELECTED_INDEX:
         {
             mProcessUpdateFlags |= TIFLAG_NEEDS_OPTIONS;
@@ -179,22 +179,22 @@ public class TiUIDialog extends TiUIView
             getBuilder().setView(null);
             String[] optionText = TiConvert.toStringArray(proxy.getProperty(TiC.PROPERTY_OPTIONS));
             int selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX), -1); 
-            if(selectedIndex >= optionText.length){
-                selectedIndex = -1;
-            }
-            processOptions(optionText, selectedIndex);
+			if(selectedIndex >= optionText.length){
+				selectedIndex = -1;
+			}
+			processOptions(optionText, selectedIndex);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_OPTIONS;
-        }
+		}
 	    super.didProcessProperties();
-        
-    }
-	
+		
+		}
+
 	@Override
 	public void processProperties(HashMap d)
 	{
         if (d.get(TiC.PROPERTY_BUTTON_NAMES) != null && d.containsKey(TiC.PROPERTY_OK) ) {
             d.remove(TiC.PROPERTY_OK);
-        }
+		}
         
         if (d.get(TiC.PROPERTY_CUSTOM_VIEW) != null && d.containsKey(TiC.PROPERTY_OPTIONS) ) {
             d.remove(TiC.PROPERTY_OPTIONS);
@@ -213,14 +213,14 @@ public class TiUIDialog extends TiUIView
             });
 	    }
 	    else {
-	        getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
+		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
                     handleEvent(which, true);
                     if (hideOnClick == true) hide(null);
-                }
-            });
-	    }
-		
+			}
+		});
+	}
+
 		optionsCount = (optionText != null) ? optionText.length : 0;
 	}
 
@@ -277,23 +277,23 @@ public class TiUIDialog extends TiUIView
             this.customView.releaseViews(false);
             this.customView.setParent(null);
             this.customView = null;
-        }
+				}
 	    if (customView instanceof HashMap) {
 	        this.customView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) customView,
                    proxy, true);
             if (this.customView != null) {
                 this.customView.updateKrollObjectProperties();
                 this.proxy.updateKrollObjectProperties();
-            }
-        }
+			}
+		}
         else if (customView instanceof TiViewProxy) {
             this.customView = (TiViewProxy)customView;
-        }
+	}
 	    if (this.customView != null) {
 	        this.customView.setActivity(dialogWrapper.getActivity());
             getBuilder().setView(this.customView.getOrCreateView().getOuterView());
-	    }
-	}
+			}
+			}
 
 	public void show(KrollDict options)
 	{
@@ -334,12 +334,12 @@ public class TiUIDialog extends TiUIView
                         }
                         else if (hideOnClick){
                             handleEvent(cancelIndex, false);
-                            hide(null);
-                        }
+					hide(null);
+				}
                     }
                     return true;
                 }
-            });
+			});
 
 
 			// Initially apply accessibility properties here, the first time
@@ -415,15 +415,15 @@ public class TiUIDialog extends TiUIView
 	{
 		KrollDict data = new KrollDict();
 		if (id != -1 && (id & BUTTON_MASK) != 0) {
-			data.put(TiC.PROPERTY_BUTTON, true);
-			id &= ~BUTTON_MASK;
-		} else {
-			data.put(TiC.PROPERTY_BUTTON, false);
-			// If an option was selected and the user accepted it, update the proxy.
+				data.put(TiC.PROPERTY_BUTTON, true);
+				id &= ~BUTTON_MASK;
+			} else {
+				data.put(TiC.PROPERTY_BUTTON, false);
+				// If an option was selected and the user accepted it, update the proxy.
 			if (id != -1 && proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+					proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
+				}
 			}
-		}
 		int realcancelIndex = cancelIndex;
 		if (realcancelIndex != -1 && isOption) {
 		    realcancelIndex += optionsCount;
@@ -431,5 +431,6 @@ public class TiUIDialog extends TiUIView
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
 		data.put(TiC.PROPERTY_CANCEL, (id == realcancelIndex));
 		fireEvent(TiC.EVENT_CLICK, data, false);
+		}
 	}
 }

@@ -46,7 +46,8 @@ public class ScrollViewProxy extends ViewProxy
 
 	private static final int MSG_SCROLL_TO = MSG_FIRST_ID + 100;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_CONTENT_OFFSET = MSG_FIRST_ID + 102;
+	private static final int MSG_SCROLL_TO_TOP = MSG_FIRST_ID + 102;
+	private static final int MSG_SET_CONTENT_OFFSET = MSG_FIRST_ID + 103;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	public ScrollViewProxy()
@@ -93,7 +94,7 @@ public class ScrollViewProxy extends ViewProxy
 		Boolean animated = true;
 		if (obj instanceof HashMap) {
 			animated = TiConvert.toBoolean(((HashMap)obj), "animated", animated);
-		}
+	}
 		if (!TiApplication.isUIThread()) {
 			getMainHandler().removeMessages(MSG_SET_CONTENT_OFFSET);
 			getMainHandler().obtainMessage(MSG_SET_CONTENT_OFFSET, animated?1:0, 0, offset).sendToTarget();
@@ -155,6 +156,15 @@ public class ScrollViewProxy extends ViewProxy
 		}
 	}
 
+	@Kroll.method
+	public void scrollToTop() {
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SCROLL_TO_TOP), getActivity());
+		} else {
+			handleScrollToTop();
+		}
+	}
+
 	@Override
 	public boolean handleMessage(Message msg) {
 		if (msg.what == MSG_SCROLL_TO) {
@@ -171,12 +181,17 @@ public class ScrollViewProxy extends ViewProxy
 			AsyncResult result = (AsyncResult) msg.obj;
 			result.setResult(null); // signal scrolled
 			return true;
+		} else if (msg.what == MSG_SCROLL_TO_TOP) {
+			handleScrollToTop();
+			AsyncResult result = (AsyncResult) msg.obj;
+			result.setResult(null); // signal scrolled
+			return true;
 		}
 		return super.handleMessage(msg);
 	}
 
 	public void handleScrollTo(int x, int y, boolean smoothScroll) {
-	    getScrollView().scrollTo(x, y, smoothScroll);
+		getScrollView().scrollTo(x, y, smoothScroll);
 	}
 
 	public void handleSetContentOffset(Object offset, boolean animated) {
@@ -186,6 +201,10 @@ public class ScrollViewProxy extends ViewProxy
 	
 	public void handleScrollToBottom() {
 		getScrollView().scrollToBottom();
+	}
+
+	public void handleScrollToTop() {
+		getScrollView().scrollToTop();
 	}
 
 	@Override

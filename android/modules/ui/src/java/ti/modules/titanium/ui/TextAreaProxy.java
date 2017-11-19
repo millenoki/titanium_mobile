@@ -35,6 +35,7 @@ import android.os.Message;
 	TiC.PROPERTY_FULLSCREEN,
 	TiC.PROPERTY_HINT_TEXT,
 	TiC.PROPERTY_HINT_TEXT_COLOR,
+    TiC.PROPERTY_HINT_TYPE,
 	TiC.PROPERTY_KEYBOARD_TYPE,
 	TiC.PROPERTY_MAX_LENGTH,
 	TiC.PROPERTY_PASSWORD_MASK,
@@ -147,7 +148,7 @@ public class TextAreaProxy extends ViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.TextArea";
-	}
+}
 	
     @SuppressWarnings("null")
     @Override

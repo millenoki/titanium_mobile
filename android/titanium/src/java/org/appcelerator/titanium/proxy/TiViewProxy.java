@@ -523,7 +523,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         if (view != null)
             return view.getDispatchPressed();
         return false;
-    }
+	}
 
     @Kroll.getProperty
     @Kroll.method
@@ -665,13 +665,9 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	public TiUIView getOrCreateView(final boolean enableModelListener, final boolean processProperties)
 	{
-	    if (activity == null) {
-	        Log.e(TAG, "calling getOrCreateView with a null activity");
-	        return null;
+        if (activity == null || activity.isDestroyed() || view != null) {
+	        return view;
 	    }
-		if (view != null) {
-			return view;
-		}
 
 		if (TiApplication.isUIThread()) {
 			return handleGetView(enableModelListener, processProperties);

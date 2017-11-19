@@ -199,7 +199,7 @@ DEFINE_EXCEPTIONS
       editButton.title = editTitle;
     } else {
       // TODO: Need to get the localized value here
-      editButton.title = @"Edit";
+      editButton.title = NSLocalizedString(@"Edit", @"Edit");
     }
   }
 }

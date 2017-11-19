@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import android.support.v7.widget.Toolbar;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollObject;
@@ -54,6 +53,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
@@ -67,9 +67,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -133,9 +135,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
     
 	private static final String TAG = "TiBaseActivity";
 
-	private static OrientationChangedListener orientationChangedListener = null;
-	private OrientationEventListener orientationListener;
-
 	private boolean onDestroyFired = false;
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
@@ -149,6 +148,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
     protected TiWeakList<OrientationChangedListener> orientationChangedListeners = null;
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
+    private boolean sustainMode = false;
 
 	private static SparseArray<ArrayList<Object>> sPermissionCallback = new SparseArray();
     protected ViewGroup layout;
@@ -159,12 +159,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected TiViewProxy view;
 	protected ActivityProxy activityProxy;
 	protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
-	protected int orientationDegrees;
 	protected TiMenuSupport menuHelper;
 	protected Messenger messenger;
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
-	protected static int previousOrientation = -1;
 	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
@@ -339,84 +337,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
             windowStack.remove(i);
         }
     }
-
-	// could use a normal ConfigurationChangedListener but since only orientation changes are
-	// forwarded, create a separate interface in order to limit scope and maintain clarity
-	public static interface OrientationChangedListener
-	{
-		public void onOrientationChanged (int configOrientationMode, int width, int height);
-	}
-
-	private void setupOrientationListener() {
-	    if (orientationListener == null) {
-	        orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-	            @Override
-	            public void onOrientationChanged(int orientation) {
-	                DisplayMetrics dm = new DisplayMetrics();
-	                getWindowManager().getDefaultDisplay().getMetrics(dm);
-	                int width = dm.widthPixels;
-	                int height = dm.heightPixels;
-	                int rotation = getWindowManager().getDefaultDisplay().getRotation();
-
-	                if (((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
-	                        && rotation != previousOrientation) ||
-	                        ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
-	                        && rotation != previousOrientation)) {
-	                    callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
-	                    if (orientationChangedListeners != null) {
-	                        synchronized (orientationChangedListeners.synchronizedList()) {
-	                            int currentOrientation = getWindowManager().getDefaultDisplay().getRotation();
-	                            for (OrientationChangedListener listener : orientationChangedListeners.nonNull()) {
-	                                listener.onOrientationChanged(currentOrientation, width, height);;
-	                            }
-	                        }
-	                    }
-	                    
-	                }
-	            }
-	        };
-	        if (orientationListener.canDetectOrientation() == true) {
-	            orientationListener.enable();
-	        } else {
-	            Log.w(TAG, "Cannot detect orientation");
-	            orientationListener.disable();
-	        }
-	    }
-	}
-	
-   private void unsetupOrientationListener() {
-       if (orientationListener != null) {
-           orientationListener.disable();
-           orientationListener = null;
-       }
-   }
-
-
-	public static void registerOrientationListener (OrientationChangedListener listener)
-	{
-		orientationChangedListener = listener;
-		SparseArray<TiActivityWindow> windows = TiActivityWindows.getWindows();
-		for(int i = 0, arraySize= windows.size(); i < arraySize; i++) {
-		    TiActivityWindow window = windows.get(windows.keyAt(i));
-		    Activity activity = window.getActivity();
-		    if (activity instanceof TiBaseActivity) {
-		        ((TiBaseActivity) activity).setupOrientationListener();
-	}
-		 }
-	}
-
-	public static void deregisterOrientationListener()
-	{
-		orientationChangedListener = null;
-		SparseArray<TiActivityWindow> windows = TiActivityWindows.getWindows();
-        for(int i = 0, arraySize= windows.size(); i < arraySize; i++) {
-            TiActivityWindow window = windows.get(windows.keyAt(i));
-            Activity activity = window.getActivity();
-            if (activity instanceof TiBaseActivity) {
-                ((TiBaseActivity) activity).unsetupOrientationListener();
-	}
-         }
-	}
 
 	public static interface ConfigurationChangedListener
 	{
@@ -664,16 +584,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		configChangedListeners.remove(listener);
 	}
 
-	public void registerOrientationChangedListener (OrientationChangedListener listener)
-	{
-		orientationChangedListener = listener;
-	}
-
-	public void deregisterOrientationChangedListener()
-	{
-		orientationChangedListener = null;
-	}
-
 	protected boolean getIntentBoolean(String property, boolean defaultValue)
 	{
 		Intent intent = getIntent();
@@ -885,11 +795,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	                ((PermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
 	            } else if (command instanceof  KrollPermissionCallback) {
                     ((KrollPermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
-	            }
-	        }
+			}
+		}
 	        sPermissionCallback.remove(requestCode);
-	    }
 	}
+		}
 
 	public void setFullscreen(boolean fullscreen)
 	{
@@ -1084,7 +994,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		super.onCreate(savedInstanceState);
 		
-		// set the current activity back to what it was originally
+		// set the current activity back to what it was originally 
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
@@ -1163,6 +1073,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	public boolean isActivityPaused()
 	{
 		return isPaused;
+	}
+
+	public boolean isDestroyed()
+	{
+		return onDestroyFired;
 	}
 
 	protected void sendMessage(final int msgId)
@@ -1499,17 +1414,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 		}
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
-	}
-
-	public static void callOrientationChangedListener(Activity activity, int width, int height, int rotation)
-	{
-		if (activity != null) {
-			int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
-			if (orientationChangedListener != null && previousOrientation != currentOrientation) {
-				previousOrientation = currentOrientation;
-				orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
-			}
-		}
 	}
 
 	@Override
@@ -1915,9 +1819,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
-		// store current configuration orientation
-		// This fixed bug with double orientation chnage firing when activity starts in landscape
-		previousOrientation = getWindowManager().getDefaultDisplay().getRotation();
 	}
 
 	@Override
@@ -2077,13 +1978,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		lifecycleListeners.clear();
 
-		unsetupOrientationListener();
-
-		if (orientationListener != null) {
-			orientationListener.disable();
-			orientationListener = null;
-		}
-
 		super.onDestroy();
 
 		boolean isFinishing = isFinishing();
@@ -2125,7 +2019,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			KrollProxy.releaseProxyFromJava(activityProxy);
 			activityProxy = null;
 		}
-		
+
 
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.
@@ -2283,12 +2177,31 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		return false;
 	}
+    
+    public boolean hasSustainMode()
+    {
+        PowerManager manager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return manager.isSustainedPerformanceModeSupported();
+        }
+        return false;
+    }
+    
+    public void setSustainMode(boolean sustainMode)
+    {
+        if (hasSustainMode() && this.sustainMode != sustainMode) {
+            getWindow().setSustainedPerformanceMode(sustainMode);
+            this.sustainMode = sustainMode;
+        } else {
+            Log.w(TAG, "sustainedPerformanceMode is not supported on this device");
+        }
+    }
 	
 	@Override
 	protected Dialog onCreateDialog (int id, Bundle args) {
 		TiApplication.getInstance().cancelPauseEvent();
 		return super.onCreateDialog(id, args);
-}
+		}
 	
 	public boolean getDefaultFullscreen() {
 	    return defaultFullscreen;

@@ -166,8 +166,8 @@ static NSDictionary *replaceKeysForRow;
   RELEASE_TO_NIL(_defaultItemTemplate)
   RELEASE_TO_NIL(_searchString)
   RELEASE_TO_NIL(_searchResults)
-    [searchController setDelegate:nil];
-    [searchController setSearchResultsUpdater:nil];
+  [searchController setDelegate:nil];
+  [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(searchController);
   RELEASE_TO_NIL(resultViewController);
 
@@ -1100,6 +1100,16 @@ static NSDictionary *replaceKeysForRow;
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
+- (void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self proxy] replaceValue:value forKey:@"allowsMultipleSelectionDuringEditing" notification:NO];
+
+  [[self tableView] beginUpdates];
+  [[self tableView] setAllowsMultipleSelectionDuringEditing:[TiUtils boolValue:value]];
+  [[self tableView] endUpdates];
+}
+
 #pragma mark - Search Support
 
 - (UISearchController *)searchController
@@ -1171,6 +1181,10 @@ static NSDictionary *replaceKeysForRow;
     [(TiUISearchBarProxy *)vp setReadyToCreateView:YES];
     [(TiUISearchBarProxy *)vp setDelegate:self];
     ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = [TiUtils boolValue:@"dontUseResultView" def:NO];
+    NSString *curPlaceHolder = [[searchViewProxy searchBar] placeholder];
+    if (curPlaceHolder == nil) {
+      [[((TiUISearchBarProxy *)vp searchBar] setPlaceholder:NSLocalizedString(@"Search", @"Search")];
+    }
     [[self getOrCreateHeaderHolder] addProxy:vp atIndex:0 shouldRelayout:YES];
     self.searchString = [[vp searchBar] text];
     [self initSearchController:self];

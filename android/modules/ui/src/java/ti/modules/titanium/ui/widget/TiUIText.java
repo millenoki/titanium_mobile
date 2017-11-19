@@ -590,8 +590,13 @@ public class TiUIText extends TiUINonViewGroupView
            break;
         case TiC.PROPERTY_RIGHT_BUTTON:
             tv.setRightView(newValue);
-            break;
-        default:
+			break;
+		case TiC.PROPERTY_AUTOFILL_TYPE:
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				tv.setAutofillHints(TiConvert.toString(newValue));
+			}
+			break;
+		default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
 	}

@@ -21,7 +21,7 @@ import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
-import org.appcelerator.titanium.util.TiOrientationHelper;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
@@ -89,6 +89,20 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int AUTOLINK_URLS = Linkify.WEB_URLS;
 	@Kroll.constant public static final int AUTOLINK_NONE = 16;
 
+	@Kroll.constant public static final String AUTOFILL_TYPE_USERNAME = View.AUTOFILL_HINT_USERNAME;
+	@Kroll.constant public static final String AUTOFILL_TYPE_PASSWORD = View.AUTOFILL_HINT_PASSWORD;
+	@Kroll.constant public static final String AUTOFILL_TYPE_EMAIL = View.AUTOFILL_HINT_EMAIL_ADDRESS;
+	@Kroll.constant public static final String AUTOFILL_TYPE_NAME = View.AUTOFILL_HINT_NAME;
+	@Kroll.constant public static final String AUTOFILL_TYPE_PHONE = View.AUTOFILL_HINT_PHONE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_ADDRESS = View.AUTOFILL_HINT_POSTAL_ADDRESS;
+	@Kroll.constant public static final String AUTOFILL_TYPE_POSTAL_CODE = View.AUTOFILL_HINT_POSTAL_CODE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_NUMBER = View.AUTOFILL_HINT_CREDIT_CARD_NUMBER;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_SECURITY_CODE = View.AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DATE = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_DAY = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_MONTH = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH;
+	@Kroll.constant public static final String AUTOFILL_TYPE_CARD_EXPIRATION_YEAR = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR;
+
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_NONE = 0;
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_ROUNDED = 1;
 	@Kroll.constant public static final int INPUT_BORDERSTYLE_BEZEL = 2;
@@ -107,7 +121,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int MAP_VIEW_STANDARD = 1;
 	@Kroll.constant public static final int MAP_VIEW_SATELLITE = 2;
 	@Kroll.constant public static final int MAP_VIEW_HYBRID = 3;
-	
+
 	@Kroll.constant public static final int SCALE_TYPE_SCALE_TO_FILL = 0; //ImageView.ScaleType.FIT_XY
 	@Kroll.constant public static final int SCALE_TYPE_ASPECT_FIT = 1; //ImageView.ScaleType.FIT_CENTER
 	@Kroll.constant public static final int SCALE_TYPE_ASPECT_FILL = 2; //ImageView.ScaleType.CENTER_CROP
@@ -130,14 +144,14 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_HEAD = "START";
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_MIDDLE = "MIDDLE";
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_TAIL = "END";
-	
-	@Kroll.constant public static final int PORTRAIT = TiOrientationHelper.ORIENTATION_PORTRAIT;
-	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE;
-	@Kroll.constant public static final int LANDSCAPE_LEFT = TiOrientationHelper.ORIENTATION_LANDSCAPE;
-	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE;
-	@Kroll.constant public static final int FACE_UP = TiUIHelper.FACE_UP;
-	@Kroll.constant public static final int FACE_DOWN = TiUIHelper.FACE_DOWN;
-	@Kroll.constant public static final int UNKNOWN = TiOrientationHelper.ORIENTATION_UNKNOWN;
+
+	@Kroll.constant public static final int PORTRAIT = TiDeviceOrientation.PORTRAIT.toTiIntId();
+	@Kroll.constant public static final int UPSIDE_PORTRAIT = TiDeviceOrientation.UPSIDE_PORTRAIT.toTiIntId();
+	@Kroll.constant public static final int LANDSCAPE_LEFT = TiDeviceOrientation.LANDSCAPE_LEFT.toTiIntId();
+	@Kroll.constant public static final int LANDSCAPE_RIGHT = TiDeviceOrientation.LANDSCAPE_RIGHT.toTiIntId();
+	@Kroll.constant public static final int FACE_UP = TiDeviceOrientation.FACE_UP.toTiIntId();
+	@Kroll.constant public static final int FACE_DOWN = TiDeviceOrientation.FACE_DOWN.toTiIntId();
+	@Kroll.constant public static final int UNKNOWN = TiDeviceOrientation.UNKNOWN.toTiIntId();
 
 	@Kroll.constant public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant public static final int PICKER_TYPE_TIME = 0;
@@ -155,14 +169,14 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
-	
+
 //	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_START = 0;
 //	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MIDDLE = 1;
 //	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_END = 2;
 //	@Kroll.constant public static final int TEXT_ELLIPSIZE_TRUNCATE_MARQUEE = 3;
 
 	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
-    @Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
+	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
     @Kroll.constant public static final String MATCH = TiC.LAYOUT_MATCH;
 	@Kroll.constant public static final String UNIT_PX = TiDimension.UNIT_PX;
 	@Kroll.constant public static final String UNIT_MM = TiDimension.UNIT_MM;
@@ -192,7 +206,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int ATTRIBUTE_UNDERLINE_COLOR = 6;
 	@Kroll.constant public static final int ATTRIBUTE_SUPERSCRIPT_STYLE = 7;
 	@Kroll.constant public static final int ATTRIBUTE_SUBSCRIPT_STYLE = 8;
-	
+	@Kroll.constant public static final int ATTRIBUTE_BASELINE_OFFSET = 9;
+
 	@Kroll.constant public static final int LEFT_VIEW = 0;
     @Kroll.constant public static final int RIGHT_VIEW = 1;
     
@@ -303,7 +318,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	protected static final int MSG_SET_BACKGROUND_COLOR = KrollProxy.MSG_LAST_ID + 100;
 	protected static final int MSG_SET_BACKGROUND_IMAGE = KrollProxy.MSG_LAST_ID + 101;
 	protected static final int MSG_LAST_ID = MSG_SET_BACKGROUND_IMAGE;
-	
+
 	public UIModule()
 	{
 		super();
@@ -346,8 +361,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
 			root.setBackgroundImage(TiUIHelper.getResourceDrawable(image));
-		}
-	}
+				}
+			}
 
 
 	@Kroll.method
@@ -396,9 +411,9 @@ public class UIModule extends KrollModule implements Handler.Callback
 			TiBaseActivity tiBaseActivity = (TiBaseActivity)activity;
 			TiWindowProxy windowProxy = tiBaseActivity.getWindowProxy();
 
-			windowProxy.setOrientationModes(orientationModes);
-		}	
-	}
+				windowProxy.setOrientationModes(orientationModes);
+			}
+		}
 
 	public boolean handleMessage(Message message)
 	{
@@ -433,7 +448,7 @@ public class UIModule extends KrollModule implements Handler.Callback
             result = ((TiBaseActivity)activity).getWindowProxy();
             if (result instanceof TiWindowManager) {
                 result = ((TiWindowManager)result).getTopWindow();
-            }
+}
         }
         return result;
     }

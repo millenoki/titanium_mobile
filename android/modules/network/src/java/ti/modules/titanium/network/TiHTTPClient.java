@@ -469,8 +469,10 @@ public class TiHTTPClient
 
 		if (readyState == READY_STATE_DONE) {
 			KrollDict data1 = new KrollDict();
-			data1.putCodeAndMessage(getStatus(), null);
-			dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
+            final int status = getStatus();
+			data1.putCodeAndMessage(getStatus(), getStatusText();
+				dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
+			}
 		}
 	}
 
@@ -486,8 +488,8 @@ public class TiHTTPClient
 
 
 		try {
-	        CharsetDecoder decoder = charset.newDecoder();
-	        ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
+		CharsetDecoder decoder = charset.newDecoder();
+		ByteBuffer in = ByteBuffer.wrap(responseData.getBytes());
 			CharBuffer decodedText = decoder.decode(in);
 			return decodedText.toString();
 
@@ -916,21 +918,21 @@ public class TiHTTPClient
 				} else if (value instanceof BufferProxy) {
 				    blob = ((BufferProxy) value).toBlob();
 //                    body = new ByteBody(blob.getBytes(), blob.getMimeType());
-                } else {
+				} else {
 					blob = ((TiResourceFile) value).read();
 					
 				}
 				String mimeType = blob.getMimeType();
-                File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
-                if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-                    FileOutputStream fos = new FileOutputStream(tmpFile);
-                    TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
-                    fos.close();
-                } else {
-                    createFileFromBlob(blob, tmpFile);
-                }
+				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					FileOutputStream fos = new FileOutputStream(tmpFile);
+					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
+					fos.close();
+				} else {
+					createFileFromBlob(blob, tmpFile);
+				}
 
-                tmpFiles.add(tmpFile);
+				tmpFiles.add(tmpFile);
                 body = new FileBody(tmpFile, mimeType);
 				if (body != null) {
 				    parts.put(name, body);
@@ -1044,7 +1046,7 @@ public class TiHTTPClient
 					blob = (TiBlob) value;
 				} else if (value instanceof BufferProxy) {
                     blob = ((BufferProxy) value).toBlob();
-                } else {
+				} else {
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
@@ -1333,10 +1335,6 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
-
-				if (getStatus() >= 400) {
-					throw new IOException(getStatus() + " : " + getStatusText());
-				}
 
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);

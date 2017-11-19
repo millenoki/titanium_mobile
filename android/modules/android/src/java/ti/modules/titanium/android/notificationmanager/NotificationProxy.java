@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.os.Build;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
@@ -116,9 +117,9 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         case TiC.PROPERTY_WHEN:
             if (newValue instanceof Date) {
                 notificationBuilder.setWhen(((Date)newValue).getTime());
-            } else {
+		} else {
                 notificationBuilder.setWhen(((Double) TiConvert.toDouble(newValue)).longValue());
-		}
+			}
             break;
         case TiC.PROPERTY_AUDIO_STREAM_TYPE:
             audioStreamType = TiConvert.toInt(newValue);
@@ -132,12 +133,12 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                     contentView.didHide();
                     contentView.setNotification(null);
                     contentView.setParentForBubbling(null);
-		}
+	}
                 contentView = RemoteViewsProxy.fromObject(newValue);
                 if (contentView != null) {
                     contentView.setNotification(this);
                     contentView.setParentForBubbling(this);
-		}
+			}
 		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
@@ -147,13 +148,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                     bigContentView.didHide();
                     bigContentView.setNotification(null);
                     bigContentView.setParentForBubbling(null);
-		}
+	}
                 bigContentView = RemoteViewsProxy.fromObject(newValue);
                 if (bigContentView != null) {
                     bigContentView.setNotification(this);
                     bigContentView.setParentForBubbling(this);
-		}
-		}
+	}
+	}
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_CONTENT_INTENT:
@@ -195,8 +196,8 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             String url = TiConvert.toString(newValue);
             if (url == null) {
 				Log.e(TAG, "Url is null");
-				return;
-			}
+			return;
+		}
             sound = Uri.parse(resolveUrl(null, url));
             notificationBuilder.setSound(sound, audioStreamType);
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
@@ -207,7 +208,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
                 long[] vibrate = new long[pattern.length];
                 for (int i = 0; i < pattern.length; i++) {
                     vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
-		}
+	}
                 notificationBuilder.setVibrate(vibrate);
 	}
             break;
@@ -238,11 +239,17 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         case TiC.PROPERTY_WAKE_LOCK:
             wakeParams = TiConvert.toHashMap(newValue);
             break;
+        case TiC.PROPERTY_COLOR:
+            notificationBuilder.setColor(TiColorHelper.parseColor(color));
+            break;
+        case TiC.PROPERTY_CHANNEL_ID:
+            notificationBuilder.setChannelId(TiConvert.toString(newValue));
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-			}
 		}
+	}
 
 	public void setCurrentId(final int currentId) {
         if (this.currentId != currentId) {
@@ -251,12 +258,12 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 
             this.currentId = currentId;
 	}
-	
+
 	}
 
 	public void update() {
         update(null);
-		}
+	}
 
     public void willShow() {
         // if (notification.deleteIntent == null) {
@@ -269,7 +276,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         // }
         if (contentView != null) {
             contentView.willShow();
-		}
+	}
         if (bigContentView != null) {
             bigContentView.willShow();
 	}
@@ -289,7 +296,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
     private NotificationManager getManager() {
         return (NotificationManager) TiApplication.getInstance()
                 .getSystemService(Activity.NOTIFICATION_SERVICE);
-	}
+		}
 
 	@Kroll.method
     public boolean update(@Kroll.argument(optional = true) HashMap args) {
@@ -301,9 +308,9 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
             manager.notify(this.currentId, getNotification());
             return true;
-	}
+			}
         return false;
-	}
+		}
 
 	public void handleSetLargeIcon(final Bitmap bitmap) {
         notificationBuilder.setLargeIcon(bitmap);
@@ -341,6 +348,13 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
 		.setContentText(contentText)
 		.setContentTitle(contentTitle);
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setChannelId(String channelId)
+	{
+		notificationBuilder.setChannelId(channelId);
+		setProperty(TiC.PROPERTY_CHANNEL_ID, channelId);
 	}
 	
 	@Kroll.method

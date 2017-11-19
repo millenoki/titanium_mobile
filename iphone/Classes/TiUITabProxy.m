@@ -243,7 +243,6 @@
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy);
-
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];

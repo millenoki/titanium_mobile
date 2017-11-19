@@ -7,7 +7,6 @@
 #ifdef USE_TI_UTILS
 
 #import "UtilsModule.h"
-#import "Base64Transcoder.h"
 #import "DDMathEvaluator.h"
 #import "TiBlob.h"
 #import "TiFile.h"
@@ -53,7 +52,7 @@
   NSData *data = [self convertToData:args];
   NSString *result = [TiUtils base64encode:data];
   return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:[result dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"application/octet-stream"] autorelease];
-}
+  }
 
 - (TiBlob *)base64decode:(id)args
 {
@@ -61,7 +60,7 @@
   NSString *encoded = [self convertToString:args];
   NSData *result = [TiUtils base64decode:encoded];
   return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:result mimetype:@"application/octet-stream"] autorelease];
-}
+  }
 
 - (NSString *)md5HexDigest:(id)args
 {

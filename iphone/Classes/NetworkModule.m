@@ -89,7 +89,7 @@ static NetworkModule *_sharedInstance = nil;
   if (onLocalNetwork) {
     reachability = [[Reachability reachabilityForLocalWiFi] retain];
   } else {
-    reachability = [[Reachability reachabilityForInternetConnection] retain];
+  reachability = [[Reachability reachabilityForInternetConnection] retain];
   }
   [reachability startNotifier];
   [self updateReachabilityStatus];

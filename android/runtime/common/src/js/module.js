@@ -677,7 +677,7 @@ Module.prototype.filenameExists = function (filename) {
 		fileIndex = JSON.parse(json);
 	}
 
-	return name in fileIndex;
+	return fileIndex && name in fileIndex;
 };
 
 Module.prototype.toString = function () {

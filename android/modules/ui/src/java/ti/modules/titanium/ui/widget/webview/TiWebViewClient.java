@@ -41,7 +41,7 @@ public class TiWebViewClient extends WebViewClient
 		this.webView = new WeakReference<TiUIWebView>(tiWebView);
 		binding = new TiWebViewBinding(webView);
 	}
-	
+
 	TiUIWebView getTiView() {
 	    if (webView != null) {
 	        return webView.get();
@@ -61,9 +61,10 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onPageFinished(view, url);
         TiUIWebView webView = getTiView();
-        if (webView == null) {
-            return;
-        }
+        if (webView == null || webView.hasSetUserAgent) {
+            webView.hasSetUserAgent = false;
+			return;
+		}
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
         KrollDict data = webView.eventForURL(url);
 		webView.changeProxyUrl(data.getString(TiC.PROPERTY_URL));
@@ -99,14 +100,14 @@ public class TiWebViewClient extends WebViewClient
 		super.onPageStarted(view, url, favicon);
 		Log.d(TAG, "onPageStarted " + url);
 		TiUIWebView webView = getTiView();
-		if (webView == null) {
+        if (webView == null || webView.hasSetUserAgent) {
             return;
         }
 		webView.onProgressChanged(view, 0);
         if (webView.getProxy().hasListeners("beforeload", false)) {
             webView.getProxy().fireEvent("beforeload", webView.eventForURL(url), false, false);
-        }
-        
+	}
+
         if (webView.getProxy().hasListeners("startload", false)) {
             webView.getProxy().fireEvent("startload", webView.eventForURL(url), false, false);
         }
@@ -118,8 +119,8 @@ public class TiWebViewClient extends WebViewClient
 		super.onReceivedError(view, errorCode, description, failingUrl);
         TiUIWebView webView = getTiView();
         if (webView == null) {
-            return;
-        }
+			return;
+		}
         KrollDict data = webView.eventForURL(failingUrl);
 		data.put("errorCode", errorCode);
 		data.putCodeAndMessage(errorCode, description);
@@ -134,8 +135,8 @@ public class TiWebViewClient extends WebViewClient
 		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
         TiUIWebView webView = getTiView();
         if (webView == null) {
-            return super.shouldOverrideUrlLoading(view, url);
-        }
+			return super.shouldOverrideUrlLoading(view, url);
+		}
 		webView.setIsLocalHTML(false);
         WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
@@ -194,10 +195,10 @@ public class TiWebViewClient extends WebViewClient
 		if (mimeType.startsWith("video/")) {
 	        TiUIWebView webView = getTiView();
 	        if (webView != null) {
-    			Intent intent = new Intent();
-    			intent.setClass(webView.getProxy().getActivity(), TiVideoActivity.class);
-    			intent.putExtra("contentURL", url);
-    			intent.putExtra("play", true);
+			Intent intent = new Intent();
+			intent.setClass(webView.getProxy().getActivity(), TiVideoActivity.class);
+			intent.putExtra("contentURL", url);
+			intent.putExtra("play", true);
     			webView.getProxy().getActivity().startActivity(intent);
 	        }
 			
@@ -218,7 +219,7 @@ public class TiWebViewClient extends WebViewClient
 	        TiUIWebView webView = getTiView();
 	        if (webView != null) {
 	            webView.getProxy().fireEvent(TiC.EVENT_AUTHENTICATION);
-	        }
+	}
 		}
 	}
 
@@ -270,12 +271,12 @@ public class TiWebViewClient extends WebViewClient
 		super.onLoadResource(view, url);
         TiUIWebView webView = getTiView();
         if (webView == null) {
-            return;
-        }
+			return;
+		}
 		if (webView.getProxy().hasListeners(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, false)) {
 	        webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, webView.eventForURL(url), false, false);
-		}
-		
 	}
+
+}
 
 }

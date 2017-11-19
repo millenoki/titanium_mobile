@@ -226,7 +226,7 @@
       NSString *ok = [self valueForUndefinedKey:@"ok"];
       if (ok == nil) {
         ok = @"OK";
-      }
+  }
       [buttonNames addObject:ok];
     }
 
@@ -246,9 +246,9 @@
         NSString *thisButtonName = [TiUtils stringValue:buttonName];
         if (curIndex == cancelButtonIndex) {
           [customActionSheet setCancelButton:[self createButtonWithTitle:thisButtonName style:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetCancelButtonClicked:)]];
-        } else {
+  } else {
           [customActionSheet addCustomButtonWithTitle:thisButtonName value:buttonName];
-        }
+  }
         curIndex++;
       }
     } else {
@@ -286,34 +286,42 @@
     }
     [[[TiApp app] controller] incrementActiveAlertControllerCount];
     if ([TiUtils isIOS8OrGreater]) {
-      RELEASE_TO_NIL(alertController);
-      alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-                                                             message:[TiUtils stringValue:[self valueForKey:@"message"]]
-                                                      preferredStyle:UIAlertControllerStyleActionSheet] retain];
-      if (tintColor) {
-        [[alertController view] setTintColor:tintColor];
-      }
-      int curIndex = 0;
-      //Configure the Buttons
+  RELEASE_TO_NIL(alertController);
+  alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+                                                         message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                                  preferredStyle:UIAlertControllerStyleActionSheet] retain];
+  if (tintColor) {
+    [[alertController view] setTintColor:tintColor];
+  }
+  int curIndex = 0;
+  //Configure the Buttons
       for (id btn in buttons) {
-        NSString *btnName = [TiUtils stringValue:btn];
-        if (!IS_NULL_OR_NIL(btnName)) {
-          UIAlertAction *theAction = [UIAlertAction actionWithTitle:btnName
-                                                              style:((curIndex == cancelButtonIndex) ? UIAlertActionStyleCancel : ((curIndex == destructiveButtonIndex) ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault))
-                                                            handler:^(UIAlertAction *action) {
-                                                              [self fireClickEventWithAction:action];
-                                                            }];
-          [alertController addAction:theAction];
-        }
-        curIndex++;
-      }
+    NSString *btnName = [TiUtils stringValue:btn];
+    if (!IS_NULL_OR_NIL(btnName)) {
+      UIAlertAction *theAction = [UIAlertAction actionWithTitle:btnName
+                                                          style:((curIndex == cancelButtonIndex) ? UIAlertActionStyleCancel : ((curIndex == destructiveButtonIndex) ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault))
+                                                        handler:^(UIAlertAction *action) {
+                                                          [self fireClickEventWithAction:action];
+                                                        }];
+      [alertController addAction:theAction];
+    }
+    curIndex++;
+  }
 
-      BOOL isPopover = NO;
+  if ([TiUtils isIPad] && (cancelButtonIndex == -1)) {
+    UIAlertAction *theAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel")
+                                                        style:UIAlertActionStyleCancel
+                                                      handler:^(UIAlertAction *action) {
+                                                        [self fireClickEventWithAction:action];
+                                                      }];
+    [alertController addAction:theAction];
+  }
+  BOOL isPopover = NO;
 
-      if ([TiUtils isIPad]) {
-        UIViewController *topVC = [[[TiApp app] controller] topPresentedController];
-        isPopover = ((topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]));
-        /**
+  if ([TiUtils isIPad]) {
+    UIViewController *topVC = [[[TiApp app] controller] topPresentedController];
+    isPopover = ((topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]));
+    /**
          ** This block commented out since it seems to have no effect on the alert controller.
          ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
          ** However not configuring the UIPopoverPresentationController seems to do the trick.
@@ -324,13 +332,13 @@
          alertController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
          }
          */
-      }
-      /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
-      if (!isPopover) {
-        UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
-        presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
-        presentationController.delegate = self;
-      }
+  }
+  /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
+  if (!isPopover) {
+    UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
+    presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    presentationController.delegate = self;
+  }
     } else {
       if (actionSheet != nil) {
         [actionSheet setDelegate:nil];
@@ -364,7 +372,7 @@
       dialogRect = [TiUtils rectValue:obj];
     } else {
       dialogRect = CGRectZero;
-    }
+}
   }
   currentOrientation = [[UIDevice currentDevice] orientation];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIDeviceOrientationDidChangeNotification object:nil];

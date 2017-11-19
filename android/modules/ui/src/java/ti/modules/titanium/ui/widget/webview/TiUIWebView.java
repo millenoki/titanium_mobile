@@ -70,6 +70,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
     private boolean alwaysInjectTi = false;
+	private boolean disableContextMenu = false;
 	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
 	private static Enum<?> enumPluginStateOff;
@@ -84,7 +85,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 	private boolean mScrollingEnabled = true;
 
-	private boolean disableContextMenu = false;
+	// TIMOB-25462: minor 'hack' to prevent 'beforeload' and 'load' being
+	// called when the user-agent has been changed, this is a chromium bug
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=315891
+	public boolean hasSetUserAgent = false;
 
 	private static enum reloadTypes
 	{
@@ -606,6 +610,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
 			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
 		}
+
+		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
+			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
+		}
 	}
 
 	@Override
@@ -637,6 +645,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 			}
 		} else if (TiC.PROPERTY_DISABLE_CONTEXT_MENU.equals(key)) {
 			disableContextMenu = TiConvert.toBoolean(newValue);
+		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
+			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -1047,6 +1057,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		WebView currWebView = getWebView();
 		if (currWebView != null) {
+			hasSetUserAgent = true;
 			currWebView.getSettings().setUserAgentString(userAgentString);
 		}
 	}

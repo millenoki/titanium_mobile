@@ -25,8 +25,8 @@ import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiOrientationHelper;
-import org.appcelerator.titanium.util.TiUtils;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -52,7 +52,7 @@ import android.view.View;
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 }, propertyDontEnumAccessors={
         TiC.PROPERTY_ACTIVITY,
-    })
+})
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
@@ -65,7 +65,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
 	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
-	
+
 	public enum State {
 	    CLOSED, OPENING, OPENED, CLOSING
 	} 
@@ -81,7 +81,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	protected List< Pair<View, String> > sharedElementPairs;
-	
+
 	protected TiWindowManager winManager = null;
 	
 	protected boolean customHandleOpenEvent = false;
@@ -108,7 +108,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		    sharedElementPairs = new ArrayList< Pair<View, String> >();
 		}
 	}
-	
+
 	@Override
     public void handleCreationDict(HashMap options) {
         super.handleCreationDict(options);
@@ -145,7 +145,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			}
 		}
 	}
-	
+
     @Override
     protected void handlePendingAnimation()
     {
@@ -193,7 +193,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options = (HashMap) arg;
 
 			}
-			
+
 			if (arg instanceof TiAnimation) {
 				options = new KrollDict();
 				options.put("_anim", animation);
@@ -239,8 +239,8 @@ public abstract class TiWindowProxy extends TiViewProxy
             
             if (arg instanceof TiAnimation) {
                 options = new HashMap();
-                options.put("_anim", animation);
-            }
+				options.put("_anim", animation);
+			}
             else if (options != null){
                 TiAnimator animator = animatorFromArgs(options);
                 if (animator != null) {
@@ -258,7 +258,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
-	
+
 	private void sendCloseEvent(boolean activityIsFinishing)  {
 	 // Once the window's activity is destroyed we will fire the close event.
         // And it will dispose the handler of the window in the JS if the activity
@@ -277,7 +277,7 @@ public abstract class TiWindowProxy extends TiViewProxy
             return; 
         }
 		state = State.CLOSED;
-		
+
 		sendCloseEvent(activityIsFinishing);
 		if (activityIsFinishing) {
 			releaseViews(true);
@@ -290,7 +290,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			releaseViewsForActivityForcedToDestroy();
 		}
 		activity = null;
-		
+
 	}
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy) {
@@ -346,13 +346,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 			Object obj = getProperty(TiC.PROPERTY_ORIENTATION_MODES);
 			if (obj instanceof Object[]) {
 				orientationModes = TiConvert.toIntArray((Object[]) obj);
-			}
+	}
 			setOrientationModes(orientationModes);
 			return true;
 		}
 		return false;
 	}
-	
+
 	public void updateOrientationModes(){
 		if (winManager != null){
 			winManager.updateOrientationModes();
@@ -380,7 +380,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 
 		updateOrientationModes();
-	}
+		}
 
 	/**
 	 * Called when the window gained or lost focus.
@@ -399,9 +399,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	@Kroll.setProperty @Kroll.method
 	public void setLeftNavButton(Object button)
-    {
-        Log.w(TAG, "setLeftNavButton not supported in Android");
-    }
+	{
+		Log.w(TAG, "setLeftNavButton not supported in Android");
+	}
 
     @Kroll.setProperty @Kroll.method
 	public void setTitleView(Object data)
@@ -418,7 +418,7 @@ public abstract class TiWindowProxy extends TiViewProxy
         Log.w(TAG, "setLeftNavButton not supported in Android");
     }
 
-    @Kroll.method @Kroll.setProperty
+	@Kroll.method @Kroll.setProperty
 	public void setOrientationModes (int[] modes)
 	{
 		int activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
@@ -435,21 +435,28 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// look through orientation modes and determine what has been set
 			for (int i = 0; i < orientationModes.length; i++)
 			{
-				if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT)
-				{
-					hasPortrait = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_PORTRAIT_REVERSE)
-				{
-					hasPortraitReverse = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE)
-				{
-					hasLandscape = true;
-				}
-				else if (orientationModes [i] == TiOrientationHelper.ORIENTATION_LANDSCAPE_REVERSE)
-				{
-					hasLandscapeReverse = true;
+				int integerId = orientationModes[i];
+				TiDeviceOrientation orientation = TiDeviceOrientation.fromTiIntId(integerId);
+				if (orientation != null) {
+					switch (orientation) {
+						case PORTRAIT:
+							hasPortrait = true;
+							break;
+						case UPSIDE_PORTRAIT:
+							hasPortraitReverse = true;
+							break;
+						case LANDSCAPE_RIGHT:
+							hasLandscape = true;
+							break;
+						case LANDSCAPE_LEFT:
+							hasLandscapeReverse = true;
+							break;
+						default:
+							Log.w(TAG, "'orientationMode' cannot be set to: " + orientation.toTiConstantName());
+							break;
+					}
+				} else {
+					Log.w(TAG, "'orientationMode' was given unknown value: " + integerId);
 				}
 			}
 
@@ -514,9 +521,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// Wait until the window activity is created before setting orientation modes.
 			if (activity != null && windowActivityCreated)
 			{
-			    activity.setRequestedOrientation(activityOrientationMode);
-			}
-		}
+					activity.setRequestedOrientation(activityOrientationMode);
+				}
+				}
 		else
 		{
 			Activity activity = getActivity();
@@ -552,7 +559,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			return null;
 		}
 	}
-	
+
     @Kroll.method
     @Kroll.getProperty(enumerable=false)
     public double getBarHeight() {
@@ -562,7 +569,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected abstract void handleOpen(HashMap options);
 	protected abstract void handleClose(HashMap options);
 	protected abstract Activity getWindowActivity();
-	
+
 	/**
 	 * Sub-classes will need to call handlePostOpen after their window is visible
 	 * so any pending dialogs can successfully show after the window is opened
@@ -596,7 +603,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			nativeView.postInvalidate();
 		}
 	}
-	
+
 	public void customHandleOpenEvent(boolean value){
 		this.customHandleOpenEvent = value;
 	}
@@ -612,31 +619,19 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getOrientation()
 	{
-		Activity activity = getActivity();
-
-		if (activity != null)
-		{
-		    DisplayMetrics dm = new DisplayMetrics();
-		    Display display = activity.getWindowManager().getDefaultDisplay();
-		    display.getMetrics(dm);
-		    int width = dm.widthPixels;
-		    int height = dm.heightPixels;
-		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
-		}
-
-		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
-		return TiOrientationHelper.ORIENTATION_UNKNOWN;
+		return TiDeviceOrientation.fromDefaultDisplay().toTiIntId();
 	}
+
 	
-	   @Kroll.method @Kroll.getProperty(enumerable=false)
-	    public ActionBarProxy getActionBar()
-	    {
-	       ActivityProxy activityProxy = super.getActivityProxy();
-	       if (activityProxy != null) {
-	           return activityProxy.getActionBar();
-	       }
-	       return null;
-	    }
+    @Kroll.method @Kroll.getProperty(enumerable=false)
+    public ActionBarProxy getActionBar()
+    {
+        ActivityProxy activityProxy = super.getActivityProxy();
+        if (activityProxy != null) {
+            return activityProxy.getActionBar();
+        }
+        return null;
+    }
 
 	@Override
 	public KrollProxy getParentForBubbling()
@@ -650,7 +645,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 		return super.getParentForBubbling();
 	}
-
+	
 	public void setWindowManager(TiWindowManager manager)
 	{
 		this.winManager = manager;

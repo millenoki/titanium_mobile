@@ -62,7 +62,8 @@ import android.view.WindowManager;
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_MODAL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-	TiC.PROPERTY_FLAG_SECURE
+	TiC.PROPERTY_FLAG_SECURE,
+	TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE
 })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -86,6 +87,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public WindowProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, false);
 	}
 
 	@Override
@@ -393,6 +395,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	        } else {
 	            topActivity.startActivity(intent);
 	        }
+	    }
+	    
+	    if (options.containsKey(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE)) {
+	        setSustainedPerformanceMode((Boolean) options.get(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE));
 	    }
 	}
 
@@ -748,6 +754,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 //		}
 //		super.setHeight(height);
 //	}
+    
+    @Kroll.setProperty @Kroll.method
+    public void setSustainedPerformanceMode(boolean mode) {
+        setProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE, mode);
+        windowActivity.get().setSustainMode(mode);
+    }
+    
+    @Kroll.getProperty @Kroll.method
+    public boolean getSustainedPerformanceMode() {
+        return TiConvert.toBoolean(getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE), false);
+    }
 
 	@Override
 	public boolean handleMessage(Message msg)

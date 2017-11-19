@@ -13,6 +13,18 @@
 #import <sys/sysctl.h>
 #import <sys/utsname.h>
 
+#import <arpa/inet.h>
+#import <ifaddrs.h>
+#import <sys/socket.h>
+#import <sys/types.h>
+
+#if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
+#import <AdSupport/AdSupport.h>
+#endif
+
+NSString *const WIFI_IFACE = @"en0";
+NSString *const DATA_IFACE = @"pdp_ip0";
+
 @implementation PlatformModule
 
 @synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory, SDKVersion;
@@ -227,6 +239,23 @@
 {
   return [TiUtils appIdentifier];
 }
+
+- (NSString *)identifierForVendor
+{
+  return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+}
+
+#if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
+- (NSNumber *)isAdvertisingTrackingEnabled
+{
+  return NUMBOOL([[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled]);
+}
+
+- (NSString *)identifierForAdvertising
+{
+  return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+}
+#endif
 
 - (id)id
 {

@@ -28,6 +28,7 @@
 - (void)updateNavBar;
 - (void)boot:(BOOL)timeout args:(id)args;
 
+- (void)processForSafeArea;
 @end
 
 #endif

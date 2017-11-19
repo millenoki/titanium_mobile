@@ -33,7 +33,7 @@ public class TiUIButton extends TiUINonViewGroupView
 {
 	private static final String TAG = "TiUIButton";
 	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
-	
+
 	
     protected static final int TIFLAG_NEEDS_COLORS               = 0x00000001;
     protected static final int TIFLAG_NEEDS_TEXT                 = 0x00000002;
@@ -78,7 +78,7 @@ public class TiUIButton extends TiUINonViewGroupView
 				super.onLayout(changed, left, top, right, bottom);
                 if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiUIButton.this);
-                }
+			}
 			}
 
 			@Override
@@ -100,7 +100,7 @@ public class TiUIButton extends TiUINonViewGroupView
 		color = disabledColor = selectedColor = btn.getCurrentTextColor();
 		setNativeView(btn);
 	}
-	
+
 	private void updateTextColors() {
 		int[][] states = new int[][] {
 			TiUIHelper.BACKGROUND_DISABLED_STATE, // disabled
@@ -118,14 +118,14 @@ public class TiUIButton extends TiUINonViewGroupView
 		);
 
 		((Button) getNativeView()).setTextColor(colorStateList);
-	}
+			}
 
 	private void updateImage(){
 		Button btn = (Button) getNativeView();
 		if (btn != null) {
 		    if (imageDrawable != null) {
 		        imageDrawable.setBounds(0, 0, imageDrawable.getMinimumWidth(), imageDrawable.getMinimumHeight());
-		    }
+			}
 			switch(imageGravity) {
 				case Gravity.LEFT:
 				default:
@@ -140,13 +140,13 @@ public class TiUIButton extends TiUINonViewGroupView
 				case Gravity.BOTTOM:
 					btn.setCompoundDrawablesWithIntrinsicBounds(null, null, null, imageDrawable);
 					break;
-			}
 		}
-	}
+		}
+			}
 	
 	private Button getButton() {
 	    return (Button) getNativeView();
-	}
+		}
 	
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
@@ -156,10 +156,10 @@ public class TiUIButton extends TiUINonViewGroupView
             TiDrawableReference drawableRef = TiDrawableReference.fromObject(proxy.getActivity(), newValue);
             if (drawableRef != null) {
                 imageDrawable = drawableRef.getDensityScaledDrawable();
-            }
+		}
             else {
                 imageDrawable = null;
-            }
+		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_IMAGE;
             break;
         case TiC.PROPERTY_COLOR:
@@ -194,7 +194,7 @@ public class TiUIButton extends TiUINonViewGroupView
         case TiC.PROPERTY_AUTOCAPITALIZATION:
             if (TiC.ICS_OR_GREATER) {
                 getButton().setAllCaps(TiConvert.toBoolean(newValue));
-            }
+		}
             break;
         case TiC.PROPERTY_IMAGE_ANCHOR:
             imageGravity = TiUIHelper.getGravity(TiConvert.toString(newValue), false);
@@ -212,11 +212,11 @@ public class TiUIButton extends TiUINonViewGroupView
                 HashMap dict = (HashMap) newValue;
                 shadowX = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_X));
                 shadowY = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_Y));
-            }
+			}
             else {
                 shadowX = 0f;
                 shadowY = 0f;
-            }
+		}
             mProcessUpdateFlags |= TIFLAG_NEEDS_SHADOW;
             break;
         case TiC.PROPERTY_SHADOW_RADIUS:
@@ -236,7 +236,7 @@ public class TiUIButton extends TiUINonViewGroupView
             if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) == 0) {
                 text = TiConvert.toString(newValue);
                 mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
-            }
+		}
             break;
 		case TiC.PROPERTY_TINT_COLOR:
 			if (newValue == null){
@@ -248,42 +248,42 @@ public class TiUIButton extends TiUINonViewGroupView
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
-	
+		}
+		}
+
 	@Override
     protected void didProcessProperties() {
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_COLORS) != 0) {
             updateTextColors();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_COLORS;
-        }
+		}
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_SHADOW) != 0) {
             getButton().setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_SHADOW;
-        }
+			}
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_IMAGE) != 0) {
             updateImage();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_IMAGE;
-        }
+			}
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
             if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
                 getButton().setText(fromHtml(text));
-            } else {
+			} else {
                 getButton().setText(text);
-            }
+			}
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
-        }
+		}
         super.didProcessProperties();
 //        getButton().invalidate();
-    }
+	}
 
 
 	private Spanned fromHtml(String str)
     {
         SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, false));
         return htmlText;
-    }
+}
 
 
 }

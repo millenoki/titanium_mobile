@@ -832,15 +832,15 @@ public class TiUIHelper
 	        ColorDrawable colorDrawable = null;
 	        if (color != null) {
 	            colorDrawable = buildColorDrawable(TiColorHelper.parseColor((String) color));
-		}
+			}
 	        return colorDrawable;
 	    }
-	    return null;
-	}
-	
+					return null;
+				}
+
 	private static String resolveImageUrl(final String path, final KrollProxy proxy) {
 		return path.length() > 0 ? proxy.resolveUrl(null, path) : null;
-		}
+					}
 
 	public static Drawable buildImageDrawable(final Context context, final Object object, final boolean tileImage, final KrollProxy proxy) {
         
@@ -855,16 +855,16 @@ public class TiUIHelper
                 Bitmap b = TiApplication.getImageMemoryCache().get(cacheKey);
                 if (b == null) {
                     b = ((TiBlob) object).getImage();
-                }
+				}
                 return buildImageDrawable(context, b, tileImage, proxy);
             default:
                 return null;
-		}
+				}
         } else if (object instanceof String) {
             String url = (String) object;
             if (url != null) {
                 url = resolveImageUrl(url, proxy);
-            }
+			}
             Drawable imageDrawable = null;
             if (url != null) {
                 Cache cache = TiApplication.getImageMemoryCache();
@@ -874,11 +874,11 @@ public class TiUIHelper
                     if (imageDrawable instanceof BitmapDrawable) {
                         bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
                         cache.set(url, ((BitmapDrawable)imageDrawable).getBitmap());
-                    }
+		}
                 } else {
                     imageDrawable = new BitmapDrawable(proxy.getActivity().getResources(), bitmap);
                 }
-                
+
 
                 if (tileImage) {
                     if (imageDrawable instanceof BitmapDrawable) {
@@ -886,8 +886,8 @@ public class TiUIHelper
                         tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
                         tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
 		}
-                }
-            }
+		}
+		}
             return imageDrawable;
         } else if (object instanceof Drawable) {
             Drawable imageDrawable = (Drawable) object;
@@ -895,7 +895,7 @@ public class TiUIHelper
                 BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
                 tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
                 tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-            }
+		}
             return imageDrawable;
         } else if (object instanceof Bitmap) {
 	        BitmapDrawable imageDrawable = new BitmapDrawable(context.getResources(), (Bitmap) object);
@@ -1045,13 +1045,13 @@ public class TiUIHelper
 
                 try {
                     bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    view.draw(canvas);
+			Canvas canvas = new Canvas(bitmap);
+			view.draw(canvas);
 //	                canvas = null;
                 } catch (Exception e) {
                     bitmap = null;
-                }
 			}
+		}
 		}
 
 		return bitmap;

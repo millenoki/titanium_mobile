@@ -440,30 +440,26 @@ public abstract class TiApplication extends Application implements
 		return null;
 	}
 
-    protected void loadBuildProperties() {
-		buildVersion = "1.0";
-		buildTimestamp = "N/A";
-		buildHash = "N/A";
-        InputStream versionStream = getClass().getClassLoader()
-                .getResourceAsStream(
-                        "org/appcelerator/titanium/build.properties");
-		if (versionStream != null) {
-			Properties properties = new Properties();
-			try {
-				properties.load(versionStream);
-				if (properties.containsKey("build.version")) {
-					buildVersion = properties.getProperty("build.version");
-				}
-				if (properties.containsKey("build.timestamp")) {
-					buildTimestamp = properties.getProperty("build.timestamp");
-				}
-				if (properties.containsKey("build.githash")) {
-					buildHash = properties.getProperty("build.githash");
-				}
-            } catch (IOException e) {
+	protected void loadBuildProperties()
+	{
+		// Initialize build property member variables.
+		this.buildVersion = "1.0";
+		this.buildTimestamp = "N/A";
+		this.buildHash = "N/A";
+
+		// Attempt to read the "build.properties" file.
+		final String FILE_NAME = "org/appcelerator/titanium/build.properties";
+		try (InputStream stream = getClass().getClassLoader().getResourceAsStream(FILE_NAME)) {
+			if (stream != null) {
+				Properties properties = new Properties();
+				properties.load(stream);
+				this.buildVersion = properties.getProperty("build.version", this.buildVersion);
+				this.buildTimestamp = properties.getProperty("build.timestamp", this.buildTimestamp);
+				this.buildHash = properties.getProperty("build.githash", this.buildHash);
+			}
+		} catch (Exception e) {
 		}
 	}
-    }
 
     private boolean loadingProps = false;
 	public void loadAppProperties() {
@@ -938,9 +934,9 @@ public abstract class TiApplication extends Application implements
 		// Register the default cache handler
         if (sExceptionHandler == null) {
             sExceptionHandler = new TiExceptionHandler();
-        }
-        KrollRuntime.setPrimaryExceptionHandler(sExceptionHandler);
 	}
+        KrollRuntime.setPrimaryExceptionHandler(sExceptionHandler);
+		}
 
 //    private File getRemoteCacheDir() {
 //        File cacheDir = new File(tempFileHelper.getTempDirectory(),

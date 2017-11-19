@@ -162,13 +162,13 @@ public class TiUIScrollView extends TiUIView
 		public void setClipChildren(boolean clipChildren) {
             super.setClipChildren(clipChildren);
             ((ViewGroup) nativeView).setClipChildren(clipChildren);
-        }
-        
+		}
+
         public void setClipToOutline(boolean clipChildren) {
             super.setClipToOutline(clipChildren);
             ((ViewGroup) nativeView).setClipToOutline(clipChildren);
-        }
-        
+		}
+
         private void onScaleChanged(float scale) {
             
             //we need to request a layout because the scroll size is updated there
@@ -401,19 +401,19 @@ public class TiUIScrollView extends TiUIView
 				return theHeight;
 			} else {
 				return resolveSize(theHeight, heightSpec);
-		} 
+		}
 	}
-	
-        @Override
+
+		@Override
 		protected int computeHorizontalScrollRange() {
 	        return (int) (getWidth() * getZoomScale());
-	    }
+			}
         @Override
         protected int computeVerticalScrollRange() {
             return (int) (getHeight() * getZoomScale());
-        }
-	}
-	
+			}
+			}
+
 	// same code, different super-classes
 	public class TiScrollView extends DualScrollView
 	{
@@ -519,7 +519,7 @@ public class TiUIScrollView extends TiUIView
 		public void addView(View child, android.view.ViewGroup.LayoutParams params)
 		{
 			layout.addView(child, params);
-		}
+			}
 
 		@Override
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
@@ -630,17 +630,17 @@ public class TiUIScrollView extends TiUIView
 
             return !clampedX && !clampedY;
 		}
-
+		
 		@Override
         protected int computeHorizontalScrollRange() {
             return (int) (super.computeHorizontalScrollRange() * mZoomScale);
-		}
+			}
 
 		@Override
         protected int computeVerticalScrollRange() {
             return (int) (super.computeVerticalScrollRange() * mZoomScale);
-			}
 		}
+			}
 
 		@Override
 	public ViewGroup getParentViewForChild()
@@ -672,7 +672,7 @@ public class TiUIScrollView extends TiUIView
 	    if (nativeView == null) return proxy.getProperty(TiC.PROPERTY_CONTENT_OFFSET);
 	    TiPoint point = new TiPoint(mCurrentOffset.x, mCurrentOffset.y);
 	    return point.toDict();
-	}
+		}
 
 //    private void setContentOffset(final Point p, final boolean animated) {
 //        if (animated) {
@@ -682,7 +682,7 @@ public class TiUIScrollView extends TiUIView
 //            scrollTo((int)(p.x*mZoomScale), (int) (p.y*mZoomScale));
 //        }
 //    }
-	
+
 	public void setContentOffset(final Object value, final boolean animated)
 	{
 		if (nativeView == null) return;
@@ -690,11 +690,11 @@ public class TiUIScrollView extends TiUIView
 		if (point != null) {
 		    Point p = point.compute(nativeView.getWidth(), nativeView.getHeight());
 		    getLayout().setContentOffset(p, animated);
-		}
 	}
+		}
 
 
-	
+
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -739,13 +739,13 @@ public class TiUIScrollView extends TiUIView
         case "zoomScale":
             mZoomScale = TiConvert.toFloat(newValue, 1.0f);
             mProcessUpdateFlags |= TIFLAG_NEEDS_ZOOM;
-            break;
+				break;
         case TiC.PROPERTY_REFRESH_CONTROL:
 //            if (newValue instanceof RefreshControlProxy) {
 //                Log.w(TAG, REFRESH_CONTROL_NOT_SUPPORTED_MESSAGE);
 //            }
             break;
-        default:
+			default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
 		}
@@ -769,8 +769,8 @@ public class TiUIScrollView extends TiUIView
                 TiPoint point = TiConvert.toPoint(proxy.getProperty(TiC.PROPERTY_CONTENT_OFFSET));
                 if (point != null) {
                     p = point.compute(nativeView.getWidth(), nativeView.getHeight());
-		}
 			}
+		}
             getLayout().setZoomScale(mZoomScale, p, false);
             return true;
 			} else {
@@ -778,22 +778,22 @@ public class TiUIScrollView extends TiUIView
                 mProcessUpdateFlags &= ~TIFLAG_NEEDS_CONTENT_OFFSET;
                 setContentOffset(proxy.getProperty(TiC.PROPERTY_CONTENT_OFFSET), false);
                 return true;
+				}
 			}
-		}
 	    return false;
-		}
+				}
 
-	@Override
+			@Override
     protected void didProcessProperties() {
         super.didProcessProperties();
 
         if (nativeView.getMeasuredWidth() != 0 &&
                 nativeView.getMeasuredHeight() != 0) {
             handleZoomAndOffsetUpdates();
-		}
+				}
 
-		}
-		
+	}
+
 	public TiScrollViewLayout getLayout()
 	{
 		if (nativeView != null){
@@ -808,7 +808,7 @@ public class TiUIScrollView extends TiUIView
 		View targetView = view;
 		targetView = ((TiScrollView) nativeView).layout;
 		super.setOnClickListener(targetView);
-	}
+		}
 
 
 	public boolean getScrollingEnabled()
@@ -819,10 +819,18 @@ public class TiUIScrollView extends TiUIView
 	public void scrollTo(int x, int y, boolean smoothScroll)
 	{
 		final View view = getNativeView();
+        // Disable smooth scrolling for vertical scroll views if not at top of view.
+        // Note: This works-around a bug in Google's NestedScrollView where attempting to
+        //       smooth scrolls will move to a totally different position or opposite directions.
+        if (smoothScroll && (view instanceof TiVerticalScrollView)) {
+            if (((TiVerticalScrollView)view).getScrollY() > 0) {
+                smoothScroll = false;
+            }
+        }
 		if (smoothScroll) {
 	        ((TiScrollView)getNativeView()).smoothScrollTo(x, y);
 		} else {
-			view.scrollTo(TiConvert.toTiDimension(x, -1).getAsPixels(view), TiConvert.toTiDimension(y, -1).getAsPixels(view));
+			view.scrollTo(x, y);
 		}
 		view.computeScroll();
 	}
@@ -830,7 +838,7 @@ public class TiUIScrollView extends TiUIView
 	public void smoothScrollTo(int x, int y)
 	{
 		((TiScrollView)getNativeView()).smoothScrollTo(x, y);
-	}
+		}
 
 	public void scrollToBottom()
 	{
@@ -853,7 +861,7 @@ public class TiUIScrollView extends TiUIView
 			getLayout().requestLayout();
 			if (child.getNativeView() != null) {
 				child.getNativeView().requestLayout();
-			}
+	}
 		}
 	}
 
@@ -867,19 +875,19 @@ public class TiUIScrollView extends TiUIView
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
 					children.remove(child);
-				}
-			}
 		}
 	}
-	
+		}
+	}
+
 	@Override
 	public void resort()
 	{
 		View v = getLayout();
-		if ( v instanceof TiCompositeLayout) {
+		if (v instanceof TiCompositeLayout) {
 			((TiCompositeLayout) v).resort();
 		}
- 	}
+	}
 
     public void setZoomScale(float zoom, TiPoint point, Boolean animated) {
         Point p = mCurrentOffset;
@@ -920,13 +928,13 @@ public class TiUIScrollView extends TiUIView
         private static final float SCALE_THRESHOLD = 6.0f;
 
 
-        @Override
+	@Override
         public boolean onScaleBegin(
                 ScaleGestureDetector detector) {
             firstSpan = detector.getCurrentSpan() == 0 ? 1 : detector.getCurrentSpan();
             currentScale = 1.0f;
            return true;
-        }
+		}
         
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -935,18 +943,18 @@ public class TiUIScrollView extends TiUIView
             if (!mIsScaling && Math.abs(delta) > SCALE_THRESHOLD) {
                 mIsScaling = true;
                 cancelParentGestures();
-            }
+	}
             currentScale *= detector.getScaleFactor();
             if (mIsScaling) {
 //                float touchX = detector.getFocusX();
 //                float touchY = detector.getFocusY();
-                
+
                 Log.d(TAG, "ScaleFactor " + currentScale);
                 getLayout().setZoomScale(mZoomScale*currentScale);
             }
             return mIsScaling;
         }
-        @Override
+	@Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             if (mIsScaling) {
                 mIsScaling = false;
@@ -957,9 +965,9 @@ public class TiUIScrollView extends TiUIView
                         mZoomScale = clampedNewZoom;
                     } else {
                         getLayout().setZoomScale(newZoom, mCurrentOffset, true);
-                    }
-                }
-            }
+		}
+	}
+}
         }
     }
 }

@@ -8,5 +8,6 @@
 
 @interface TiUIWindow : TiUIView {
 }
+- (void)processForSafeArea
 
 @end
