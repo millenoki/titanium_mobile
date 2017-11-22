@@ -1046,7 +1046,7 @@ public class TiFileHelper implements Handler.Callback
 		File file;
 		String ext = extension == null ? ".jpg" : extension;
 		try {
-			file = TiFileHelper.getInstance().getTempFile(appDir, ext, false);
+			file = TiFileHelper.getInstance().getTempFile(appDir, ext, !isPublic);
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to create file: " + e.getMessage());
 			return null;
