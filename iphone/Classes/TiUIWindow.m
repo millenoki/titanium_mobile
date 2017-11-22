@@ -83,9 +83,9 @@
 
 - (void)setShouldExtendSafeArea:(id)value
 {
-  shouldExtendSafeArea = TiUtils boolValue:value];
+  shouldExtendSafeArea = [TiUtils boolValue:value];
   if (shouldExtendSafeArea && !safeAreaView) {
-    safeAreaView =  = [[UIView alloc] initWithFrame:[self frame]];
+    safeAreaView = [[UIView alloc] initWithFrame:[self frame]];
     [safeAreaView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self addSubview:safeAreaView];
     [self processForSafeArea];
@@ -94,6 +94,7 @@
 
 - (void)processForSafeArea
 {
+#if IS_XCODE_9
   // TO DO : Refactor this method
   if (!safeAreaView || shouldExtendSafeArea) {
     return;
@@ -105,7 +106,7 @@
   UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
   UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
   UIEdgeInsets actualInset = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = self.proxy;
+  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
   if (windowProxy.tabGroup) {
     if ([windowProxy.tabGroup isKindOfClass:[TiWindowProxy class]]) {
       windowProxy = (TiWindowProxy *)windowProxy.tabGroup;
@@ -132,15 +133,15 @@
       } else if (windowProxy.isDetailWindow) {
         actualInset.right = safeAreaInset.right;
       } else {
-        vleft = safeAreaInset.left;
+        actualInset.left = safeAreaInset.left;
         actualInset.right = safeAreaInset.right;
       }
     }
     actualInset.bottom = safeAreaInset.bottom;
   } else {
-    if (self.isMasterWindow) {
+    if (windowProxy.isMasterWindow) {
       actualInset.left = safeAreaInset.left;
-    } else if (self.isDetailWindow) {
+    } else if (windowProxy.isDetailWindow) {
       actualInset.right = safeAreaInset.right;
     } else {
       actualInset.left = safeAreaInset.left;
@@ -149,7 +150,7 @@
     actualInset.bottom = safeAreaInset.bottom;
     actualInset.top = safeAreaInset.top;
   }
-  safeAreaView.frame = UIEdgeInsetsInsetRect(self.bounds, _backgroundPadding);
+  safeAreaView.frame = UIEdgeInsetsInsetRect(self.bounds, actualInset);
+#endif
 }
-
 @end

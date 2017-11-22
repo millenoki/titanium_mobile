@@ -1103,7 +1103,7 @@
       CGRect barBounds;
       barBounds.origin = CGPointZero;
 #ifndef TI_USE_AUTOLAYOUT
-      barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
+      barBounds.size = SizeConstraintViewWithSizeAddingResizing(((TiViewProxy*)titleControl).layoutProperties, (TiViewProxy*)titleControl, availableTitleSize.size, NULL);
 #endif
       [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];

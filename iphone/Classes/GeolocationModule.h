@@ -8,6 +8,7 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "TiModule.h"
+#import <CoreLocation/CoreLocation.h>
 
 NSString *const kTiGeolocationUsageDescriptionWhenInUse = @"NSLocationWhenInUseUsageDescription";
 NSString *const kTiGeolocationUsageDescriptionAlways = @"NSLocationAlwaysUsageDescription";

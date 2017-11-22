@@ -999,10 +999,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   ENSURE_SINGLE_ARG_OR_NIL(args, NSString);
   if (args) {
     if (evaluators) {
-      [evaluators removeObjectForKey:type];
+      [evaluators removeObjectForKey:args];
     }
     [[self getContext].krollContext invokeBlockOnThread:^{
-      KrollObject *ourObject = [self krollObjectForContext:[listener context]];
+      KrollObject *ourObject = [self krollObjectForContext:[self getContext]];
       [ourObject removeListeners:args];
     }];
     pthread_rwlock_wrlock(&listenerLock);
@@ -1010,7 +1010,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     [listeners removeObjectForKey:args];
     pthread_rwlock_unlock(&listenerLock);
 
-    [self _listenerRemoved:type count:0];
+    [self _listenerRemoved:args count:0];
   } else {
     RELEASE_TO_NIL(evaluators)
     [[self getContext].krollContext invokeBlockOnThread:^{

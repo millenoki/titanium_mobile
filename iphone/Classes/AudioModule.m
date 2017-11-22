@@ -225,11 +225,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, AudioModuleErrorNoMusicPlayer);
           YES);
       return result;
     }
-    if ([TiUtils isIOS8OrGreater]) {
-      systemMusicPlayer = [[TiAudioMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController systemMusicPlayer]];
-    } else {
-      systemMusicPlayer = [[TiAudioMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
-    }
+    systemMusicPlayer = [[TiAudioMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
   }
   return systemMusicPlayer;
 }

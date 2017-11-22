@@ -1367,7 +1367,7 @@ TiThreadPerformBlockOnMainThread(mainBlock, NO);
   if ((jsEventHash == NULL) || (TiValueGetType(jsContext, jsEventHash) != kTITypeObject)) { //We did not have any event listeners on this proxy. Perfectly normal.
     return;
   }
-  TiObjectDeleteProperty(jsContext, jsEventHash, jsEventTypeString, &exception);
+  TiObjectDeleteProperty(jsContext, jsEventHash, jsEventTypeString, NULL);
   TiStringRelease(jsEventTypeString);
 }
 

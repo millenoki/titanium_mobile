@@ -187,6 +187,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   KrollCallback *authorizationCallback;
 
   BOOL allowsBackgroundLocationUpdates;
+	CLAuthorizationStatus requestedAuthorizationStatus;
 }
 
 @synthesize lastLocation;
