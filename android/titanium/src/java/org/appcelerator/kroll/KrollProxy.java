@@ -612,7 +612,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
     
     private boolean isRuntimeThread() {
-        return TiApplication.isRuntimeThread();
+        return KrollRuntime.getInstance().isRuntimeThread();
     }
 
 	/**
