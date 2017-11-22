@@ -1246,6 +1246,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             CollectionSectionProxy section = (CollectionSectionProxy) KrollProxy
                     .createProxy(((AbsListViewProxy) proxy).sectionClass(),
                             null, new Object[] { sec }, null);
+            section.getKrollObject(); //make sure the krollobject exists
             section.updateKrollObjectProperties();
             processSection(section, index);
         }
