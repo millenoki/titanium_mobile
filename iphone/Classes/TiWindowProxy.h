@@ -29,6 +29,11 @@
   TiUIiOSTransitionAnimationProxy *transitionProxy;
 #endif
 }
+#if IS_XCODE_9
+@property (nonatomic) BOOL isMasterWindow;
+@property (nonatomic) BOOL isDetailWindow;
+- (void)processForSafeArea;
+#endif
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
 @property (nonatomic, readonly) TiProxy *tabGroup;

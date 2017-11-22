@@ -22,8 +22,8 @@
 #import <AdSupport/AdSupport.h>
 #endif
 
-NSString *const WIFI_IFACE = @"en0";
-NSString *const DATA_IFACE = @"pdp_ip0";
+//NSString *const WIFI_IFACE = @"en0";
+//NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
