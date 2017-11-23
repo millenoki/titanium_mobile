@@ -648,7 +648,12 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
 - (NSNumber *)defaultStatusBarHeight
 {
-  return NUMINTEGER(TiDimensionCalculateValueDefaultUnit(TiDimensionFromObject(@20), 0));
+  if ([TiUtils isRetinaiPhoneX]) {
+    return NUMINTEGER(TiDimensionCalculateValueDefaultUnit(TiDimensionFromObject(@40), 0));
+  }
+  else {
+    return NUMINTEGER(TiDimensionCalculateValueDefaultUnit(TiDimensionFromObject(@20), 0));
+  }
 }
 - (void)setForceSplashAsSnapshot:(id)args
 {
