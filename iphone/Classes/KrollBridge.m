@@ -975,7 +975,10 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // not top-level module!
   // Try to load the file as module asset!
-  NSString *filepath = [assetPath stringByAppendingString:@".js"];
+  NSString *filepath = assetPath;
+  if (![filepath hasSuffix:@".js"]) {
+    filepath = [filepath stringByAppendingString:@".js"];
+  }
   NSData *data = [module loadModuleAsset:filepath];
 
   if (data == nil && isAbsolute) {
