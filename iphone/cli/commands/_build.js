@@ -5650,7 +5650,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/,
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'), // eslint-disable-line security/detect-non-literal-regexp
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
-		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
+		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))$/,
 		bundleFileRegExp = /.+\.bundle\/.+/,
 
 		isProduction = this.deployType === 'production',
@@ -5717,7 +5717,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						return;
 					}
 					// check if we have an app icon
-
 					if (!info.origSrc) {
 						if (appIconRegExp) {
 							const m = name.match(appIconRegExp);
@@ -5733,7 +5732,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							return;
 						}
 					}
-					switch (parts && parts[2]) {
+					switch (info.ext) {
 						case 'js':
 							jsFiles[info.relPath] = info;
 							break;
@@ -6903,7 +6902,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 						} else {
 							const data = fs.readFileSync(from).toString();
-							this.analyseJS(to, data, { sourcemap:{ file:to } }, function (r) {
+							this.analyseJS(from, data, { sourcemap:{ file:to } }, function (r) {
 								const dir = path.dirname(to);
 								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
