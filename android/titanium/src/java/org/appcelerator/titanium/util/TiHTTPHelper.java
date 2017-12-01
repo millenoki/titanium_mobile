@@ -9,6 +9,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiResourceFile;
 
 import com.squareup.okhttp.FormEncodingBuilder;
@@ -110,12 +111,7 @@ public class TiHTTPHelper {
                     blob = ((TiResourceFile) value).read();
                 }
                 String mimeType = blob.getMimeType();
-                File tmpFile = File.createTempFile(
-                        "tixhr",
-                        "."
-                                + TiMimeTypeHelper
-                                        .getFileExtensionFromMimeType(mimeType,
-                                                "txt"));
+                File tmpFile = TiFileFactory.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
                 FileOutputStream fos = new FileOutputStream(tmpFile);
                 if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
                     TiBaseFile.copyStream(blob.getInputStream(),

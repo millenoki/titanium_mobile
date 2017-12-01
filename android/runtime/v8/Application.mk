@@ -8,13 +8,22 @@
 
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-16
+
 APP_CPPFLAGS += -std=c++11
-APP_STL := c++_shared
+APP_STL := c++_shared 
+
+#APP_CPPFLAGS += -ffunction-sections -fdata-sections
+#APP_CFLAGS += -ffunction-sections -fdata-sections
+#APP_LDFLAGS += -fuse-ld=bfd -Wl,--gc-sections
+#APP_LDLIBS += -fuse-ld=bfd -Wl,--gc-sections
+
 ifeq ($(BUILD_X86), 1)
 	APP_ABI := arm64-v8a armeabi-v7a x86
 else
 	APP_ABI := arm64-v8a armeabi-v7a
 endif
+
+#APP_ABI := armeabi-v7a
 
 TARGET_DEVICE := device
 APP_OPTIM := release

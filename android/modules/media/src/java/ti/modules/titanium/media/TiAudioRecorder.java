@@ -9,6 +9,8 @@ package ti.modules.titanium.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiFileHelper;
 
 import java.io.File;
@@ -59,7 +61,7 @@ public class TiAudioRecorder {
 
 	public void startRecording() {
 		try {
-			tempFileReference =  TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_TEMP_FILE, true);
+			tempFileReference =  TiFileFactory.createTempFile("audio", AUDIO_RECORDER_TEMP_FILE);
 			fileOutputStream = new FileOutputStream(tempFileReference);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,7 +93,7 @@ public class TiAudioRecorder {
 			audioRecord.release();
 			audioRecord = null;
 			try {
-				resultFile = TiFileHelper.getInstance().getTempFile(AUDIO_RECORDER_FILE_EXT_WAV, true);
+				resultFile = TiFileFactory.createTempFile("audio", AUDIO_RECORDER_FILE_EXT_WAV);
 				createWaveFile(resultFile.getAbsolutePath());
 			} catch (IOException e) {
 				e.printStackTrace();

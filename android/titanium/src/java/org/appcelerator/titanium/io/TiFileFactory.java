@@ -7,12 +7,14 @@
 package org.appcelerator.titanium.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.net.Uri;
@@ -158,10 +160,15 @@ public class TiFileFactory
 
 		return false;
 	}
-
+	
 	public static File createDataFile(String prefix, String suffix)
 	{
-		String filename = prefix + (new Date()).getTime() + suffix;
-		return new File(getDataDirectory(true), filename);
+	    String filename = prefix + (new Date()).getTime() + suffix;
+	    return new File(getDataDirectory(true), filename);
+	}
+
+	public static File createTempFile(String prefix, String suffix) throws IOException
+	{
+	    return TiApplication.getInstance().getTempFileHelper().createTempFile(prefix, suffix);
 	}
 }

@@ -75,7 +75,7 @@ public class TiTempFileHelper
 	 */
 	public void scheduleCleanTempDir()
 	{
-		scheduleCleanTempDir(DEFAULT_CLEAN_TIMEOUT, TimeUnit.SECONDS);
+		scheduleCleanTempDir(DEFAULT_CLEAN_TIMEOUT, TimeUnit.MINUTES);
 	}
 
 	/**
@@ -185,4 +185,11 @@ public class TiTempFileHelper
 		}
 		previousExternalStorageState = extState;
 	}
+
+    public void destroyTempFiles() {
+        try {
+            tempDir.delete();
+        } catch (Exception e) {
+        }
+    }
 }

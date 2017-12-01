@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
@@ -31,6 +32,7 @@ import org.appcelerator.titanium.util.TiFileHelper2;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 
+@SuppressLint("NewApi")
 @Kroll.module
 public class FilesystemModule extends KrollModule
 {
@@ -60,26 +62,25 @@ public class FilesystemModule extends KrollModule
 		        prefix = TiConvert.toString(options, "prefix", prefix);
 		        name = TiConvert.toString(options, "name", name);
 		    }
-	        File tmpdir = getActivity().getExternalCacheDir();
+	        File tmpdir = TiApplication.getInstance().getTempFileHelper().getTempDirectory();
 	        File f = new File(tmpdir,prefix  + name + suffix);
-//			File f = File.createTempFile(prefix  + name, suffix);
+	        TiApplication.getInstance().getTempFileHelper().excludeFileOnCleanup(f);
 			String[] parts = { f.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
-//		} catch (IOException e) {
-//			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
-//			return null;
-//		}
 	}
 
 	@Kroll.method
 	public FileProxy createTempDirectory(KrollInvocation invocation)
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
-		File tmpdir = getActivity().getExternalCacheDir();
-		File f = new File(tmpdir,dir);
-		f.mkdirs();
-		String[] parts = { f.getAbsolutePath() };
-		return new FileProxy(invocation.getSourceUrl(), parts);
+
+		File cacheDir = new File(TiApplication.getInstance().getTempFileHelper().getTempDirectory(), dir);
+		if (!cacheDir.exists()) {
+          cacheDir.mkdirs();
+          TiApplication.getInstance().getTempFileHelper().excludeFileOnCleanup(cacheDir);
+		}
+		String[] parts = { cacheDir.getAbsolutePath() };
+        return new FileProxy(invocation.getSourceUrl(), parts);
 	}
 
 	@Kroll.getProperty @Kroll.method

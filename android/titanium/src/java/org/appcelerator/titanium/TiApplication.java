@@ -1402,6 +1402,7 @@ public abstract class TiApplication extends Application implements
 		TiActivityWindows.dispose();
 		TiActivitySupportHelpers.dispose();
 		TiFileHelper.getInstance().destroyTempFiles();
+		tempFileHelper.destroyTempFiles();
 	}
 
     public void cancelTimers() {

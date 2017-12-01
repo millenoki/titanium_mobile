@@ -651,156 +651,156 @@ public class TiFileHelper implements Handler.Callback
 		return sb.toString();
 	}
 
-	public void deployFromAssets(File dest)
-		throws IOException
-	{
-		Context ctx = softContext.get();
-		if (ctx != null) {
-			ArrayList<String> paths = new ArrayList<String>();
-			AssetManager am = ctx.getAssets();
-			walkAssets(am, "", paths);
+//	public void deployFromAssets(File dest)
+//		throws IOException
+//	{
+//		Context ctx = softContext.get();
+//		if (ctx != null) {
+//			ArrayList<String> paths = new ArrayList<String>();
+//			AssetManager am = ctx.getAssets();
+//			walkAssets(am, "", paths);
+//
+//			// TODO clean old dir
+//			wipeDirectoryTree(dest);
+//
+//			// copy from assets to dest dir
+//			BufferedInputStream bis = null;
+//			FileOutputStream fos = null;
+//			byte[] buf = new byte[8096];
+//			try {
+//				int len = paths.size();
+//				for(int i = 0; i < len; i++) {
+//					String path = paths.get(i);
+//					File f = new File(path);
+//					if(f.getName().indexOf(".") > -1) {
+//						bis = new BufferedInputStream(am.open(path), 8096);
+//						File df = new File(dest, path);
+//						Log.d(TAG, "Copying to: " + df.getAbsolutePath(), Log.DEBUG_MODE);
+//						fos = new FileOutputStream(df);
+//
+//						int read = 0;
+//						while((read = bis.read(buf)) != -1) {
+//							fos.write(buf, 0, read);
+//						}
+//
+//						bis.close();
+//						bis = null;
+//						fos.close();
+//						fos = null;
+//					} else {
+//						File d = new File(dest,path);
+//						Log.d(TAG, "Creating directory: " + d.getAbsolutePath());
+//						d.mkdirs();
+//					}
+//				}
+//			} finally {
+//				if (bis != null) {
+//					try {
+//						bis.close();
+//					} catch (IOException e) {
+//						//Ignore
+//					}
+//					bis = null;
+//				}
+//				if (fos != null) {
+//					try {
+//						fos.close();
+//					} catch (IOException e) {
+//						//Ignore
+//					}
+//					fos = null;
+//				}
+//			}
+//		}
+//	}
 
-			// TODO clean old dir
-			wipeDirectoryTree(dest);
+//	public void deployFromZip(File fname, File dest)
+//		throws IOException
+//	{
+//		wipeDirectoryTree(dest);
+//
+//		ZipInputStream zis = null;
+//		ZipEntry ze = null;
+//		byte[] buf = new byte[8096];
+//
+//		try {
+//			// See if we need to strip off parent dir.
+//			zis = getZipInputStream(new FileInputStream(fname));
+//			String root = getRootDir(zis);
+//			int rootLen = root.length();
+//			zis.close();
+//
+//			Log.d(TAG, "Zip file root: " + root, Log.DEBUG_MODE);
+//
+//			// Process the file
+//			zis = getZipInputStream(new FileInputStream(fname));
+//			while((ze = zis.getNextEntry()) != null) {
+//				String name = ze.getName();
+//				if (name.startsWith(MACOSX_PREFIX)) {
+//					zis.closeEntry();
+//					continue;
+//				}
+//
+//				name = name.substring(rootLen);
+//
+//				if(name.length() > 0) {
+//					Log.d(TAG, "Extracting " + name, Log.DEBUG_MODE);
+//					if (ze.isDirectory()) {
+//						File d = new File(dest, name);
+//						d.mkdirs();
+//						Log.d(TAG, "Created directory " + d.toString(), Log.DEBUG_MODE);
+//						d = null;
+//					} else {
+//						FileOutputStream fos = null;
+//						try {
+//							fos = new FileOutputStream(new File(dest,name));
+//							int read = 0;
+//							while((read = zis.read(buf)) != -1) {
+//								fos.write(buf, 0, read);
+//							}
+//						} finally {
+//							if (fos != null) {
+//								try {
+//									fos.close();
+//								} catch (Throwable t) {
+//									//Ignore
+//								}
+//							}
+//						}
+//					}
+//				}
+//
+//				zis.closeEntry();
+//			}
+//		} finally {
+//			if (zis != null) {
+//				try {
+//					zis.close();
+//				}catch (Throwable t) {
+//					//Ignore
+//				}
+//			}
+//		}
+//	}
 
-			// copy from assets to dest dir
-			BufferedInputStream bis = null;
-			FileOutputStream fos = null;
-			byte[] buf = new byte[8096];
-			try {
-				int len = paths.size();
-				for(int i = 0; i < len; i++) {
-					String path = paths.get(i);
-					File f = new File(path);
-					if(f.getName().indexOf(".") > -1) {
-						bis = new BufferedInputStream(am.open(path), 8096);
-						File df = new File(dest, path);
-						Log.d(TAG, "Copying to: " + df.getAbsolutePath(), Log.DEBUG_MODE);
-						fos = new FileOutputStream(df);
-
-						int read = 0;
-						while((read = bis.read(buf)) != -1) {
-							fos.write(buf, 0, read);
-						}
-
-						bis.close();
-						bis = null;
-						fos.close();
-						fos = null;
-					} else {
-						File d = new File(dest,path);
-						Log.d(TAG, "Creating directory: " + d.getAbsolutePath());
-						d.mkdirs();
-					}
-				}
-			} finally {
-				if (bis != null) {
-					try {
-						bis.close();
-					} catch (IOException e) {
-						//Ignore
-					}
-					bis = null;
-				}
-				if (fos != null) {
-					try {
-						fos.close();
-					} catch (IOException e) {
-						//Ignore
-					}
-					fos = null;
-				}
-			}
-		}
-	}
-
-	public void deployFromZip(File fname, File dest)
-		throws IOException
-	{
-		wipeDirectoryTree(dest);
-
-		ZipInputStream zis = null;
-		ZipEntry ze = null;
-		byte[] buf = new byte[8096];
-
-		try {
-			// See if we need to strip off parent dir.
-			zis = getZipInputStream(new FileInputStream(fname));
-			String root = getRootDir(zis);
-			int rootLen = root.length();
-			zis.close();
-
-			Log.d(TAG, "Zip file root: " + root, Log.DEBUG_MODE);
-
-			// Process the file
-			zis = getZipInputStream(new FileInputStream(fname));
-			while((ze = zis.getNextEntry()) != null) {
-				String name = ze.getName();
-				if (name.startsWith(MACOSX_PREFIX)) {
-					zis.closeEntry();
-					continue;
-				}
-
-				name = name.substring(rootLen);
-
-				if(name.length() > 0) {
-					Log.d(TAG, "Extracting " + name, Log.DEBUG_MODE);
-					if (ze.isDirectory()) {
-						File d = new File(dest, name);
-						d.mkdirs();
-						Log.d(TAG, "Created directory " + d.toString(), Log.DEBUG_MODE);
-						d = null;
-					} else {
-						FileOutputStream fos = null;
-						try {
-							fos = new FileOutputStream(new File(dest,name));
-							int read = 0;
-							while((read = zis.read(buf)) != -1) {
-								fos.write(buf, 0, read);
-							}
-						} finally {
-							if (fos != null) {
-								try {
-									fos.close();
-								} catch (Throwable t) {
-									//Ignore
-								}
-							}
-						}
-					}
-				}
-
-				zis.closeEntry();
-			}
-		} finally {
-			if (zis != null) {
-				try {
-					zis.close();
-				}catch (Throwable t) {
-					//Ignore
-				}
-			}
-		}
-	}
-
-	public void wipeDirectoryTree(File path)
-	{
-		TreeSet<String> dirs = new TreeSet<String>(new Comparator<String>(){
-
-			public int compare(String o1, String o2) {
-				return o1.compareTo(o2) * -1;
-			}});
-
-		wipeDirectoryTree(path, dirs);
-
-		Iterator<String> d = dirs.iterator();
-		while(d.hasNext()) {
-			String fn = d.next();
-			File f = new File(fn);
-			Log.d(TAG, "Deleting Dir: " + f.getAbsolutePath(), Log.DEBUG_MODE);
-			f.delete();
-		}
-	}
+//	public void wipeDirectoryTree(File path)
+//	{
+//		TreeSet<String> dirs = new TreeSet<String>(new Comparator<String>(){
+//
+//			public int compare(String o1, String o2) {
+//				return o1.compareTo(o2) * -1;
+//			}});
+//
+//		wipeDirectoryTree(path, dirs);
+//
+//		Iterator<String> d = dirs.iterator();
+//		while(d.hasNext()) {
+//			String fn = d.next();
+//			File f = new File(fn);
+//			Log.d(TAG, "Deleting Dir: " + f.getAbsolutePath(), Log.DEBUG_MODE);
+//			f.delete();
+//		}
+//	}
 
 	public File getTempFile(String suffix, boolean destroyOnExit)
 		throws IOException
@@ -930,82 +930,82 @@ public class TiFileHelper implements Handler.Callback
 		}
 		return f;
 	}
-	private void wipeDirectoryTree(File path, SortedSet<String> dirs) {
-		File[] files = path.listFiles();
-		if (files != null) {
-			int len = files.length;
-			for (int i = 0; i < len; i++) {
-				File f = files[i];
-				if (f.isDirectory()) {
-					dirs.add(f.getAbsolutePath());
-					wipeDirectoryTree(f, dirs);
-				} else {
-					Log.d(TAG, "Deleting File: " + f.getAbsolutePath(), Log.DEBUG_MODE);
-					f.delete();
-				}
-			}
-		}
-	}
+//	private void wipeDirectoryTree(File path, SortedSet<String> dirs) {
+//		File[] files = path.listFiles();
+//		if (files != null) {
+//			int len = files.length;
+//			for (int i = 0; i < len; i++) {
+//				File f = files[i];
+//				if (f.isDirectory()) {
+//					dirs.add(f.getAbsolutePath());
+//					wipeDirectoryTree(f, dirs);
+//				} else {
+//					Log.d(TAG, "Deleting File: " + f.getAbsolutePath(), Log.DEBUG_MODE);
+//					f.delete();
+//				}
+//			}
+//		}
+//	}
 
-	private void walkAssets(AssetManager am, String path, ArrayList<String> paths) throws IOException
-	{
-		if (titaniumPath(path)) {
-			String[] files = am.list(path);
-			if (files.length > 0) {
-				for(int i = 0; i < files.length; i++) {
-					String newPath = files[i];
-					String todo = path;
-					if (path.length() > 0) {
-						todo = todo + "/" + newPath;
-					} else {
-						todo = newPath;
-					}
-					if (titaniumPath(todo)) {
-						//Log.e(LCAT, todo);
-						paths.add(todo);
-						walkAssets(am, todo, paths);
-					}
-				}
-			}
-		}
-	}
+//	private void walkAssets(AssetManager am, String path, ArrayList<String> paths) throws IOException
+//	{
+//		if (titaniumPath(path)) {
+//			String[] files = am.list(path);
+//			if (files.length > 0) {
+//				for(int i = 0; i < files.length; i++) {
+//					String newPath = files[i];
+//					String todo = path;
+//					if (path.length() > 0) {
+//						todo = todo + "/" + newPath;
+//					} else {
+//						todo = newPath;
+//					}
+//					if (titaniumPath(todo)) {
+//						//Log.e(LCAT, todo);
+//						paths.add(todo);
+//						walkAssets(am, todo, paths);
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	private boolean titaniumPath(String path) {
 		return path == "" || path.equals("tiapp.xml") || path.startsWith("Resources");
 	}
 
-	private ZipInputStream getZipInputStream(InputStream is)
-		throws FileNotFoundException, IOException
-	{
-		return new ZipInputStream(is);
-	}
+//	private ZipInputStream getZipInputStream(InputStream is)
+//		throws FileNotFoundException, IOException
+//	{
+//		return new ZipInputStream(is);
+//	}
 
-	private String getRootDir(ZipInputStream zis)
-		throws FileNotFoundException, IOException
-	{
-		String root = "";
-
-		ZipEntry ze = null;
-		while((ze = zis.getNextEntry()) != null) {
-			String name = ze.getName();
-			zis.closeEntry();
-
-			if (name.startsWith(MACOSX_PREFIX)) {
-				continue;
-			} else {
-				if(name.indexOf("tiapp.xml") > -1) {
-					String [] segments = name.split("\\/");
-					if (segments.length == 2) {
-						root = segments[0] + "/";
-						break;
-					} else if (segments.length == 1) {
-						break;
-					}
-				}
-			}
-		}
-		return root;
-	}
+//	private String getRootDir(ZipInputStream zis)
+//		throws FileNotFoundException, IOException
+//	{
+//		String root = "";
+//
+//		ZipEntry ze = null;
+//		while((ze = zis.getNextEntry()) != null) {
+//			String name = ze.getName();
+//			zis.closeEntry();
+//
+//			if (name.startsWith(MACOSX_PREFIX)) {
+//				continue;
+//			} else {
+//				if(name.indexOf("tiapp.xml") > -1) {
+//					String [] segments = name.split("\\/");
+//					if (segments.length == 2) {
+//						root = segments[0] + "/";
+//						break;
+//					} else if (segments.length == 1) {
+//						break;
+//					}
+//				}
+//			}
+//		}
+//		return root;
+//	}
 
 	public boolean handleMessage(Message msg)
 	{		

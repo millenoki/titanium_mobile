@@ -294,7 +294,7 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			outFile = TiFileFactory.createDataFile("tihttp", "tmp");
+			outFile = TiFileFactory.createTempFile("tihttp", ".tmp");
 			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
 		}
 
@@ -370,12 +370,15 @@ public class TiHTTPClient
 		if (responseOut instanceof ByteArrayOutputStream) {
 			ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
 			responseData = TiBlob.blobFromObject(byteStream.toByteArray(), contentType);
+			
 		}
         if (responseData != null) {
             responseData.onDataComplete(contentLength);
         }
-		responseOut.close();
-		responseOut = null;
+        if (responseOut != null) {
+            responseOut.close();
+            responseOut = null;
+        }
 	}
 
 	private interface ProgressListener
@@ -922,7 +925,7 @@ public class TiHTTPClient
 					
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = TiFileFactory.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
 					FileOutputStream fos = new FileOutputStream(tmpFile);
 					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
@@ -1049,7 +1052,7 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = TiFileFactory.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);

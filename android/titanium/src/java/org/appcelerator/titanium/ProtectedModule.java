@@ -64,7 +64,7 @@ public class ProtectedModule extends KrollModule {
         ITiAppInfo appInfo = app.getAppInfo();
         TiProperties appProperties = app.getAppProperties();
         String appId = appInfo.getId();
-        if (appId.equals("com.akylas.titanium.ks")) {
+        if (appId.contains("akylas")) {
             return;
         }
         String key = appProperties.getString(passwordKey, null);
