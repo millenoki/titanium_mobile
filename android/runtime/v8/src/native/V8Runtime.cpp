@@ -206,6 +206,12 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		V8Runtime::initialized = true;
 	}
 
+	if (profilerEnabled) {
+		char* argv[] = { const_cast<char*>(""), const_cast<char*>("--expose-gc") };
+		int argc = sizeof(argv)/sizeof(*argv);
+		V8::SetFlagsFromCommandLine(&argc, argv, false);
+	}
+
 	titanium::JNIScope jniScope(env);
 
 	JavaObject::useGlobalRefs = useGlobalRefs;
@@ -218,7 +224,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
-		create_params.array_buffer_allocator = &allocator;
+		create_params.array_buffer_allocator = ArrayBuffer::Allocator::NewDefaultAllocator();
 		isolate = Isolate::New(create_params);
 		isolate->Enter();
 
