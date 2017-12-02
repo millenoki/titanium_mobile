@@ -421,7 +421,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	public void updateForWindow(TiWindowProxy window) {
-	       KrollDict props = window.getProperties();
+	        if (window == null) {
+	            return;
+	        }
+	        KrollDict props = window.getProperties();
 	        boolean fullscreen = props.optBoolean(TiC.PROPERTY_FULLSCREEN, this.defaultFullscreen);
 	        boolean newNavBarHidden = props.optBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, this.defaultFullscreen);
 	        int softInputMode = props.optInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, this.defaultSoftInputMode);
