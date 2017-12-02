@@ -252,8 +252,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                         totalSpace = getHeight() - getPaddingTop()
                                 - getPaddingBottom();
                     }
-                    int spanCount = Math.max(1,
-                            totalSpace / requestedColumnWidth);
+                    int spanCount = Math.max(1, totalSpace / requestedColumnWidth);
                     setSpanCount(spanCount);
                 } else {
                     setSpanCount(requestedColumnCount);
@@ -1182,9 +1181,9 @@ public class TiCollectionView extends TiUINonViewGroupView
     protected void processSections(Object[] sections) {
         synchronized (this.sections) {
             this.sections.clear();
-            for (int i = 0; i < sections.length; i++) {
-                processSection(sections[i], -1);
-            }
+        }
+        for (int i = 0; i < sections.length; i++) {
+            processSection(sections[i], -1);
         }
     }
 

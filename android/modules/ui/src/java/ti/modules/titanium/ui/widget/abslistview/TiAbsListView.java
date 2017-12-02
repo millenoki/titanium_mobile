@@ -1264,9 +1264,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	protected void processSections(Object[] sections) {
 		synchronized (this.sections) {
 		    this.sections.clear();
-	        for (int i = 0; i < sections.length; i++) {
-	            processSection(sections[i], -1);
-	        }
+		}
+        for (int i = 0; i < sections.length; i++) {
+            processSection(sections[i], -1);
         }
 	}
 	
