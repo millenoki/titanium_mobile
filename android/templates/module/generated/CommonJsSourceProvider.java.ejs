@@ -17,13 +17,19 @@ public class CommonJsSourceProvider implements KrollSourceCodeProvider
 		return getSourceCode("<%- moduleid %>");
 	}
 
+
+	AssetCryptImpl source;
 	public String getSourceCode(String module)
 	{
-		if (module.equals("${moduleid}/<%- moduleid %>")) {
+		if (module.equals("<%- moduleid %>/<%- moduleid %>")) {
 			module = "<%- moduleid %>";
 		}
-
-		AssetCryptImpl source = new AssetCryptImpl();
-		return source.readAsset(module + ".js");
+		if (source == null) {
+			source = new AssetCryptImpl();
+		}
+		if (!module.endsWith(".js")) {
+			module += ".js";
+		}
+		return source.readAsset(module);
 	}
 }
