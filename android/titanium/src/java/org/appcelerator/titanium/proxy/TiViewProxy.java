@@ -807,24 +807,24 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	    if (view != null) {
 	        Activity activity = getActivity();
 	        if (activity == null) {
-			return;
-		}
+    			return;
+    		}
 	        if (!TiApplication.isUIThread()) {
 	            activity.runOnUiThread(new Runnable() {
 	                @Override
 	                public void run() {
 	                    handleAdd((TiViewProxy) child, index);
-		}
+                    }
 	            });
-					return;
-				}
+				return;
+		    }
             handleAdd((TiViewProxy) child, index);
-			}
 		}
+	}
 
     public void handleAdd(TiViewProxy child, int index)
 	{
-        if (child instanceof TiWindowProxy && !((TiWindowProxy)child).isOpenedOrOpening()) {
+        if (!(this instanceof DecorViewProxy) && child instanceof TiWindowProxy && !((TiWindowProxy)child).isOpenedOrOpening()) {
             TiWindowProxy childWin = (TiWindowProxy)child;
             childWin.onWindowActivityCreated();
             childWin.focus();
