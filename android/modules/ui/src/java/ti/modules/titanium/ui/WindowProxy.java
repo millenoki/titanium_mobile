@@ -57,6 +57,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 
+@SuppressLint("NewApi")
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
     TiC.PROPERTY_DISPLAY_HOME_AS_UP,
 	TiC.PROPERTY_URL,
@@ -345,8 +346,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				getMainHandler().obtainMessage(MSG_REMOVE_LIGHTWEIGHT).sendToTarget();
 			}
 		} else {
-		super.close(arg);
-	}
+		    super.close(arg);
+		}
 	}
     private TiAnimator _openingAnim = null;
     private TiAnimator _closingAnim = null;
