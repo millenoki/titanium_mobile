@@ -99,13 +99,18 @@ public class LocaleModule extends KrollModule
 	public void setLanguage(String language)
 	{
 		try {
+		    switch(language) {
+		    case "en":
+		        language = "en-US";
+		        break;
+		    }
 			String[] parts = language.split("-");
 			Locale locale = null;
 
 			if (parts.length > 1) {
 				locale = new Locale(parts[0], parts[1]);
 			} else {
-				locale = new Locale(parts[0]);
+				locale = new Locale(parts[0], parts[0]);
 			}
 
 			Locale.setDefault(locale);
@@ -149,8 +154,13 @@ public class LocaleModule extends KrollModule
     @Kroll.method
     public KrollDict getFullInfo() {
         KrollDict result = new KrollDict();
-        result.put("currencySymbol", TiPlatformHelper.getInstance().getCurrencySymbol(Locale.getDefault()));
-        result.put("currencyCode", TiPlatformHelper.getInstance().getCurrencyCode(Locale.getDefault()));
+        final Locale locale = Locale.getDefault();
+        try {
+            result.put("currencySymbol", TiPlatformHelper.getInstance().getCurrencySymbol(locale));
+        } catch(Exception e) {}
+        try {
+            result.put("currencyCode", TiPlatformHelper.getInstance().getCurrencyCode(locale));
+        } catch(Exception e) {}
         result.put("currentLocale", getCurrentLocale());
         result.put("currentCountry", getCurrentCountry());
         result.put("currentCountryName", getCurrentCountryName());
