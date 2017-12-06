@@ -1603,12 +1603,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		super.onWindowFocusChanged(hasFocus);
 	}
 
-	@Override
-    public void startActivity(Intent intent) {
-		//this activity onPause is called before the new activity onCreate :s
-		//this prevent unwanted pause events to be sent
-		super.startActivity(intent);
-    }
+//	@Override
+//    public void startActivity(Intent intent) {
+//		//this activity onPause is called before the new activity onCreate :s
+//		//this prevent unwanted pause events to be sent
+//		super.startActivity(intent);
+//    }
 	
 	@Override
 	/**
