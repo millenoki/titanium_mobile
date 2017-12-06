@@ -136,7 +136,9 @@ public class TiUISlider extends TiUIView
             break;
         case TiC.PROPERTY_SPLIT_TRACK:
         {
-            seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+            if (TiC.LOLLIPOP_OR_GREATER) {
+                seekBar.setSplitTrack(TiConvert.toBoolean(newValue));
+            }
 		}
         case TiC.PROPERTY_INDETERMINATE:
             seekBar.setIndeterminate(TiConvert.toBoolean(newValue));
