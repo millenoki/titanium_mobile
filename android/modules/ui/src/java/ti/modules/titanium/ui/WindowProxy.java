@@ -377,6 +377,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	    int windowId = TiActivityWindows.addWindow(this);
 	    intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 	    intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+	    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
 
         int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
         int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
