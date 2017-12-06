@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -98,6 +99,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		if (waitingForOpen == null) return null;
 		return waitingForOpen.get();
+	}
+	
+	public boolean isWindowActivityCreated () {
+	    return windowActivityCreated;
 	}
 
 	public TiWindowProxy()
@@ -787,4 +792,5 @@ public abstract class TiWindowProxy extends TiViewProxy
 	    final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
 	    return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
 	}
+
 }

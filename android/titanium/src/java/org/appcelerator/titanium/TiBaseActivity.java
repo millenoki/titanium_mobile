@@ -230,7 +230,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			isPersistent = p;
 		}
 	}
-
+	
+	public boolean isWindowActivityCreated() {
+	    return this.window != null && this.window.isWindowActivityCreated();
+	}
 	public void addWindowToStack(TiWindowProxy proxy)
 	{
 		if (windowStack.contains(proxy)) {
@@ -1169,7 +1172,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (!handleBackKeyPressed()){
 			// If event is not handled by any listeners allow default behavior.
 			super.onBackPressed();
-					}
+		}
 	}
 
 	public boolean handleAndroidBackEvent() {
@@ -1185,13 +1188,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			        TiWindowProxy newWindow = ((TiWindowManager) realTopWindow).getTopWindow();
 	                while(newWindow != realTopWindow && newWindow instanceof TiWindowManager) {
 	                    newWindow = ((TiWindowManager) newWindow).getTopWindow();
-				}
+	                }
 	                realTopWindow = newWindow;
-			}
+			    }
 			    proxy = realTopWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			} else if(window != null) {
 				proxy = window.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
-		}
+			}
 		}
 
 		// Prevent default Android behavior for "back" press
