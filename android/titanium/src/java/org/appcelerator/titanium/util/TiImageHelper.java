@@ -614,8 +614,16 @@ public class TiImageHelper {
     public static void downloadDrawable(final TiDrawableReference imageref, final boolean localLoadSync,
             final TiDrawableTarget target) {
         final Picasso picasso = TiApplication.getPicassoInstance();
+        String cacheKey = imageref.getCacheKey();
+        Cache cache = TiApplication.getImageMemoryCache();
+        Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
+        if (bitmap != null) {
+            target.onBitmapLoaded(bitmap, LoadedFrom.MEMORY);
+            return;
+        }
         if (imageref.isNetworkUrl()) {
-            TiActivityHelper.runInUiThread(
+            if (!TiApplication.isUIThread()) {
+                TiActivityHelper.runInUiThread(
                     TiApplication.getAppCurrentActivity(),
                     new CommandNoReturn() {
                         @Override
@@ -624,29 +632,27 @@ public class TiImageHelper {
                             downloadDrawableReference(imageref, target);
                         }
                     });
-        } else {
-            String cacheKey = imageref.getCacheKey();
-            Cache cache = TiApplication.getImageMemoryCache();
-            Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
-            Drawable drawable = null;
-            if (bitmap == null) {
-                if (!localLoadSync && !imageref.isTypeBlob()
-                        && !imageref.isTypeResourceId()) {
-                    (new LoadLocalDrawableTask(cache, target))
-                            .execute(imageref);
-                    return;
-                }
-                drawable = imageref.getDrawable();
-                if (drawable instanceof BitmapDrawable) {
-                    bitmap = ((BitmapDrawable) drawable).getBitmap();
-                    if (cacheKey != null) {
-                        cache.set(cacheKey, bitmap);
-                    }
-                }
-                target.onDrawableLoaded(drawable, LoadedFrom.DISK);
             } else {
-                target.onBitmapLoaded(bitmap, LoadedFrom.MEMORY);
+                picasso.cancelRequest(target);
+                downloadDrawableReference(imageref, target);
+            }            
+        } else {
+            Drawable drawable = null;
+            if (!localLoadSync && !imageref.isTypeBlob()
+                    && !imageref.isTypeResourceId()) {
+                (new LoadLocalDrawableTask(cache, target))
+                        .execute(imageref);
+                return;
             }
+            drawable = imageref.getDrawable();
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+                if (cacheKey != null) {
+                    cache.set(cacheKey, bitmap);
+                }
+            }
+            target.onDrawableLoaded(drawable, LoadedFrom.DISK);
+            
         }
     }
     
