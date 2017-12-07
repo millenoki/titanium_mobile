@@ -427,7 +427,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
     }
 
     @Override
-    public void onBitmapFailed(Drawable errorDrawable) {
+    public void onBitmapFailed(Exception ex, Drawable errorDrawable) {
         handleSetLargeIcon(null);
         update();
     }

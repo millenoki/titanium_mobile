@@ -1264,9 +1264,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     }
 
     @Override
-    public void onBitmapFailed(Drawable errorDrawable) {
+    public void onBitmapFailed(Exception ex, Drawable errorDrawable) {
         if (loadingRef != null) {
-            fireError("Download Failed", loadingRef.getUrl());
+            fireError(ex.getLocalizedMessage(), loadingRef.getUrl());
             loadingRef = null;
 		}
 	}

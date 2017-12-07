@@ -12,10 +12,10 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.io.TiResourceFile;
 
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.RequestBody;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 import android.util.Base64OutputStream;
 
@@ -23,7 +23,7 @@ public class TiHTTPHelper {
     private static final String TAG = "TiRequestBuilder";
 
     public static Object prepareBuilder(
-            com.squareup.okhttp.Request.Builder builder, final String method,
+            okhttp3.Request.Builder builder, final String method,
             final Object userData) {
         boolean needMultipart = false;
         final String mLower = method.toLowerCase();
@@ -58,8 +58,8 @@ public class TiHTTPHelper {
                 }
 
                 if (needMultipart) {
-                    MultipartBuilder multipart = new MultipartBuilder()
-                            .type(MultipartBuilder.FORM);
+                    MultipartBody.Builder multipart = new MultipartBody.Builder();
+//                            .type(MultipartBody.FORM);
                     for (String key : data.keySet()) {
                         Object value = data.get(key);
                         if (value instanceof String) {
@@ -73,7 +73,7 @@ public class TiHTTPHelper {
                     }
                     requestBody = multipart.build();
                 } else {
-                    FormEncodingBuilder formBody = new FormEncodingBuilder();
+                    FormBody.Builder formBody = new FormBody.Builder();
                     for (String key : data.keySet()) {
                         Object value = data.get(key);
                         formBody.add(key, TiConvert.toString(value));

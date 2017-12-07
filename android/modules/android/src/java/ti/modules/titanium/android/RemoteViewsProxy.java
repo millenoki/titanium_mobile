@@ -30,7 +30,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import ti.modules.titanium.android.notificationmanager.NotificationProxy;
 
 import com.squareup.picasso.Picasso.LoadedFrom;
-
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
 
+@SuppressLint("NewApi")
 @Kroll.proxy(creatableInModule = AndroidModule.class)
 public class RemoteViewsProxy extends AnimatableReusableProxy implements TiDrawableTarget {
     private static final String TAG = "RemoteViewsProxy";
@@ -358,7 +359,7 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements TiDrawa
     }
 
     @Override
-    public void onBitmapFailed(Drawable errorDrawable) {
+    public void onBitmapFailed(Exception ex, Drawable errorDrawable) {
         remoteViews.setImageViewBitmap(loadingBitmapViewId, null);
         update();
         loadingBitmapViewId = 0;

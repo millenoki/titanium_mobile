@@ -2167,7 +2167,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     }
 
     @Override
-    public void onBitmapFailed(Drawable errorDrawable) {
+    public void onBitmapFailed(Exception ex, Drawable errorDrawable) {
         updateBitmapMetadata(null);
     }
 

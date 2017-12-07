@@ -1168,7 +1168,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     }
 
     @Override
-    public void onBitmapFailed(Drawable errorDrawable) {
+    public void onBitmapFailed(Exception ex, Drawable errorDrawable) {
         loadingUrl = null;
         updateBitmapMetadata(null);
     }

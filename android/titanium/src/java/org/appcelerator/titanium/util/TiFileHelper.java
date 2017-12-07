@@ -7,11 +7,9 @@
 
 package org.appcelerator.titanium.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,26 +17,19 @@ import java.io.InputStream;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -55,13 +46,13 @@ public class TiFileHelper implements Handler.Callback
 
 	public static final String TI_DIR = "tiapp";
 	public static final String TI_DIR_JS = "tijs";
-	private static final String MACOSX_PREFIX = "__MACOSX";
+//	private static final String MACOSX_PREFIX = "__MACOSX";
 	private static final String TI_RESOURCE_PREFIX = "ti:";
 	
 	private static final int MSG_NETWORK_URL = 100;
 
 	public static final String RESOURCE_ROOT_ASSETS = "file:///android_asset/Resources";
-	public static final String SD_CARD_PREFIX = "/sdcard/Ti.debug";
+	public static final String SD_CARD_PREFIX = Environment.getExternalStorageDirectory().getPath() + "/Ti.debug";
 	
 	protected Handler runtimeHandler = null;
 

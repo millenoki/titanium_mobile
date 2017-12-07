@@ -31,7 +31,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.michaelevans.colorart.library.ColorArt;
 
 import com.squareup.picasso.Cache;
-import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
@@ -573,7 +573,7 @@ public class TiImageHelper {
         if (imageref.httpOptions != null) {
             final Context context = TiApplication.getAppContext();
             picasso = new Picasso.Builder(context)
-                    .downloader(new OkHttpDownloader(
+                    .downloader(new OkHttp3Downloader(
                             TiApplication.getPicassoHttpClient(imageref.httpOptions)))
                     .build();
         }
@@ -589,7 +589,7 @@ public class TiImageHelper {
         if (imageref.httpOptions != null) {
             final Context context = TiApplication.getAppContext();
             picasso = new Picasso.Builder(context)
-                    .downloader(new OkHttpDownloader(
+                    .downloader(new OkHttp3Downloader(
                             TiApplication.getPicassoHttpClient(imageref.httpOptions)))
                     .build();
         }
@@ -628,12 +628,10 @@ public class TiImageHelper {
                     new CommandNoReturn() {
                         @Override
                         public void execute() {
-                            picasso.cancelRequest(target);
                             downloadDrawableReference(imageref, target);
                         }
                     });
             } else {
-                picasso.cancelRequest(target);
                 downloadDrawableReference(imageref, target);
             }            
         } else {

@@ -28,10 +28,15 @@ import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 import com.appcelerator.aps.APSAnalytics;
 import com.appcelerator.aps.APSAnalytics.DeployType;
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
+
+import okhttp3.Cache;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.Interceptor.Chain;
+
 import com.squareup.picasso.MarkableInputStream;
-import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.RequestTransformer;
 import com.squareup.picasso.Request;
@@ -679,7 +684,7 @@ public abstract class TiApplication extends Application implements
         if (_picasso == null) {
             _picasso = new Picasso.Builder(getAppContext())
             .memoryCache(getImageMemoryCache())
-            .downloader(new OkHttpDownloader(getPicassoHttpClientInstance()))
+            .downloader(new OkHttp3Downloader(getPicassoHttpClientInstance()))
             .requestTransformer(new RequestTransformer() {
                 
                 @Override
@@ -760,11 +765,11 @@ public abstract class TiApplication extends Application implements
     private static final int DEFAULT_CACHE_SIZE = 25; // 25MB
     public static OkHttpClient getOkHttpClientInstance() {
         if (_httpClient == null) {
-            _httpClient = new OkHttpClient();
-            _httpClient.setCache(getDiskCache("http"));
-            _httpClient.interceptors().add(new com.squareup.okhttp.Interceptor() {
-                @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
-                    com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+            _httpClient = new OkHttpClient().newBuilder().cache(getDiskCache("http")).addInterceptor(new Interceptor() {
+                
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    okhttp3.Request.Builder builder = chain.request().newBuilder();
                     builder.addHeader("TiCache", "true");
                     builder.addHeader("Cache-Control", "no-cached");
                     builder.addHeader("User-Agent", TiApplication.getInstance()
@@ -773,14 +778,27 @@ public abstract class TiApplication extends Application implements
                     
                     return chain.proceed(builder.build());
                 }
-              });
+            }).build();
+//            _httpClient.setCache(getDiskCache("http"));
+//            _httpClient.interceptors().add(new com.squareup.okhttp.Interceptor() {
+//                @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+//                    com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+//                    builder.addHeader("TiCache", "true");
+//                    builder.addHeader("Cache-Control", "no-cached");
+//                    builder.addHeader("User-Agent", TiApplication.getInstance()
+//                            .getUserAgent());
+//                    builder.addHeader("X-Requested-With", "XMLHttpRequest");
+//                    
+//                    return chain.proceed(builder.build());
+//                }
+//              });
         }
         return _httpClient;
     }
     public static OkHttpClient getPicassoHttpClientInstance() {
         if (_picassoHttpClient == null) {
-            _picassoHttpClient = new OkHttpClient();
-            _picassoHttpClient.setCache(getDiskCache("image"));
+            _picassoHttpClient = getOkHttpClientInstance().newBuilder().cache(getDiskCache("image")).build();
+//            _picassoHttpClient.setCache(getDiskCache("image"));
         }
         return _picassoHttpClient;
     }
@@ -788,8 +806,8 @@ public abstract class TiApplication extends Application implements
     private static void updateCaches() {
         closeCache("http");
         closeCache("image");
-        getOkHttpClientInstance().setCache(getDiskCache("http"));
-        getPicassoHttpClientInstance().setCache(getDiskCache("image"));
+        _httpClient = getOkHttpClientInstance().newBuilder().cache(getDiskCache("http")).build();
+        _picassoHttpClient = getPicassoHttpClientInstance().newBuilder().cache(getDiskCache("image")).build();
     }
     
     
@@ -852,21 +870,21 @@ public abstract class TiApplication extends Application implements
         if (options == null) {
             return client;
         }
-        client = client.clone();
+        okhttp3.OkHttpClient.Builder builder = client.newBuilder();
         if (options.containsKey("timeout")) {
             int timeout = TiConvert.toInt(options, "timeout");
-            client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
-            client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
-            client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+            builder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+            builder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+            builder.writeTimeout(timeout, TimeUnit.MILLISECONDS);
         }
         if (options.containsKey("autoRedirect")) {
             boolean redirect = TiConvert.toBoolean(options, "autoRedirect");
-            client.setFollowRedirects(redirect);
-            client.setFollowSslRedirects(redirect);
+            builder.followRedirects(redirect);
+            builder.followSslRedirects(redirect);
         }
-        client.interceptors().add(new com.squareup.okhttp.Interceptor() {
-          @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
-              com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+        builder.addInterceptor(new Interceptor() {
+          @Override public Response intercept(Chain chain) throws IOException {
+              okhttp3.Request.Builder builder = chain.request().newBuilder();
               TiHTTPHelper.prepareBuilder(builder, TiConvert.toString(options, "method", "get"), options.get("data"));
               Object value = options.get("headers");
               if (value != null && value instanceof HashMap) {
@@ -886,19 +904,19 @@ public abstract class TiApplication extends Application implements
         if (options == null) {
             return getOkHttpClientInstance();
         }
-        OkHttpClient client = getOkHttpClientInstance().clone();
+        OkHttpClient.Builder builder = getOkHttpClientInstance().newBuilder();
         int timeout = 20000;        
 
         if (options.containsKey("timeout")) {
             timeout = TiConvert.toInt(options, "timeout");
         }
         if (options.containsKey("autoRedirect")) {
-            client.setFollowSslRedirects(TiConvert.toBoolean(options, "autoRedirect"));
+            builder.followSslRedirects(TiConvert.toBoolean(options, "autoRedirect"));
         }
 
-        client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
-        client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
-        return client;
+        builder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+        builder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+        return builder.build();
     }
     
     public static TiExceptionHandler getExceptionHandler() {
