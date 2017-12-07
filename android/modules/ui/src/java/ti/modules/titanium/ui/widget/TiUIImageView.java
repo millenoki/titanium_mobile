@@ -910,7 +910,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 			TiDrawableReference imageref = imageSources.get(0);
             currentRef = loadingRef = imageref;
             TiImageHelper.downloadDrawable(imageViewProxy, imageref, localLoadSync, this);
-				} else {
+		} else {
 			setImages();
 		}
 	}
@@ -1231,7 +1231,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (loadingRef != currentRef) {
             return;
         }
-        boolean transition = !onlyTransitionIfRemote || from == LoadedFrom.NETWORK;
+        boolean transition = !onlyTransitionIfRemote || from != LoadedFrom.MEMORY;
         if (filterOptions != null) {
             (new FilterAndSetTask(loadingRef, transition)).execute(bitmap);
         }
@@ -1248,7 +1248,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (loadingRef != currentRef) {
             return;
 		}
-        boolean transition = !onlyTransitionIfRemote || from == LoadedFrom.NETWORK;
+        boolean transition = !onlyTransitionIfRemote || from != LoadedFrom.MEMORY;
         Bitmap bitmap = null; 
         if (drawable instanceof BitmapDrawable) {
             bitmap = ((BitmapDrawable) drawable).getBitmap();
