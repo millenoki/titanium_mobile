@@ -343,6 +343,10 @@ public class TiViewGestureHandler {
                     : detector.getTimeDelta();
             TiDimension nativeValue = new TiDimension(0,
                     TiDimension.TYPE_WIDTH);
+            
+            
+            key = TiC.EVENT_PAN;
+            event = dictFromEvent(key, mCurrEvent);
 
             KrollDict point = new KrollDict();
             point.put(TiC.EVENT_PROPERTY_X,
@@ -350,6 +354,7 @@ public class TiViewGestureHandler {
             point.put(TiC.EVENT_PROPERTY_Y,
                     (translation.y - 1.0f) / timeDelta * 1000);
             event.put(TiC.EVENT_PROPERTY_VELOCITY, point);
+ 
 
             point = new KrollDict();
             nativeValue.setValue(translation.x);
@@ -357,8 +362,7 @@ public class TiViewGestureHandler {
             nativeValue.setValue(translation.y);
             point.put(TiC.EVENT_PROPERTY_Y, nativeValue.getAsDefault());
             event.put(TiC.EVENT_PROPERTY_TRANSLATION, point);
-            key = TiC.EVENT_PAN;
-            event = dictFromEvent(key, mCurrEvent);
+            
             break;
         }
         case ACTION_SCALE: {
