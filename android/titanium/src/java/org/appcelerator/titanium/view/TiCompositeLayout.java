@@ -383,8 +383,7 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	            if (horizontal) {
                 if (enableHorizontalWrap) {
-
-	                    if ((horizontalRowWidth + childWidth) > w) {
+	                if ((horizontalRowWidth + childWidth) > w) {
 	                        horizontalRowWidth = childWidth;
                         maxHeight += horizontalRowHeight;
                         horizontalRowHeight = childHeight;
@@ -404,13 +403,13 @@ public class TiCompositeLayout extends FreeLayout implements
 	                        .max(horizontalRowHeight, childHeight);
 
             } else {
-	                if (!params.widthMatchParent) {
-                maxWidth = Math.max(maxWidth, childWidth);
-	                }
+                if (!params.widthMatchParent) {
+                    maxWidth = Math.max(maxWidth, childWidth);
+                }
 
-	                if (vertical) {
+                if (vertical) {
                     maxHeight += childHeight;
-	                } else if (!params.heightMatchParent){
+                } else if (!params.heightMatchParent){
                     maxHeight = Math.max(maxHeight, childHeight);
                 }
             }
@@ -610,7 +609,7 @@ public class TiCompositeLayout extends FreeLayout implements
                 hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
                         MeasureSpec.EXACTLY);
                 needsRecompute = true;
-        }
+            }
         }
 
 
