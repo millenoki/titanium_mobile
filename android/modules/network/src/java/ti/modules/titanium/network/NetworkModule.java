@@ -43,8 +43,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.ConnectivityManager.NetworkCallback;
 import android.net.DhcpInfo;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
@@ -1403,5 +1408,94 @@ public class NetworkModule extends KrollModule {
     public static void gcmOnSuccess(final String regId, final String senderId) {
         if (_instance == null) return;
         _instance.handleGcmOnSuccess(regId, senderId);
+    }
+    
+    
+    
+    private HashMap registeredNetworkCallback;
+    static int callbackId = 0;
+    
+    @Kroll.method
+    public int alwaysPreferNetworksWith( int[] capabilities, int[] transportTypes) {
+        if (!TiC.LOLLIPOP_OR_GREATER) {
+            return -1;
+        }
+        NetworkRequest.Builder request = new NetworkRequest.Builder();
+        // add capabilities
+        for (int cap: capabilities) {
+            request.addCapability(cap);
+        }
+//        request.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+
+//         add transport types
+        for (int trans: transportTypes) {
+            request.addTransportType(trans);
+        }
+//        request.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
+
+        final ConnectivityManager connectivityManager = getConnectivityManager();
+        if (connectivityManager == null) {
+            return - 1;
+        }
+        if (registeredNetworkCallback == null) {
+            registeredNetworkCallback = new HashMap();
+        }
+        NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                try {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                        ConnectivityManager.setProcessDefaultNetwork(network);
+                    } else {
+                        connectivityManager.bindProcessToNetwork(network);
+                    }
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "ConnectivityManager.NetworkCallback.onAvailable: ", e);
+                }
+            }
+            
+            @Override
+            public void onCapabilitiesChanged(Network network,
+                    NetworkCapabilities networkCapabilities) {
+                Log.d(TAG, "requestNetwork onCapabilitiesChanged()");
+            }
+
+            @Override
+            public void onLinkPropertiesChanged(Network network,
+                    LinkProperties linkProperties) {
+                Log.d(TAG, "requestNetwork onLinkPropertiesChanged()");
+            }
+
+            @Override
+            public void onLosing(Network network, int maxMsToLive) {
+                Log.d(TAG, "requestNetwork onLosing()");
+            }
+
+            @Override
+            public void onLost(Network network) {
+                Log.d(TAG, "requestNetwork onLost()");
+            }
+        };
+        callbackId++;
+        registeredNetworkCallback.put(callbackId, callback);
+        NetworkRequest networkRequest = request.build();
+//        connectivityManager.requestNetwork(networkRequest, callback);
+        connectivityManager.registerNetworkCallback(networkRequest, callback);
+        return callbackId;
+    }
+    
+    @Kroll.method
+    public void cancelPreferNetworks(int key) {
+        final ConnectivityManager connectivityManager = getConnectivityManager();
+        if (connectivityManager == null) {
+            return ;
+        }
+        if (registeredNetworkCallback != null) {
+            NetworkCallback callback = (NetworkCallback) registeredNetworkCallback.get(key);
+            if (callback != null) {
+                connectivityManager.unregisterNetworkCallback(callback);
+                registeredNetworkCallback.remove(key);
+            }
+        }
     }
 }
