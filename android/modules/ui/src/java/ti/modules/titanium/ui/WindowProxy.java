@@ -566,7 +566,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void setActivity(final Activity activity)
 	{
 	    if (!TiApplication.isUIThread()) {
-	        activity.runOnUiThread(new Runnable() {
+	        TiApplication.getAppRootOrCurrentActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     setActivity(activity);
