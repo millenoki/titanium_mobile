@@ -102,6 +102,7 @@ public abstract class TiApplication extends Application implements
 	private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
+	private static final String PROPERTY_AUTO_RESTART = "ti.android.autoRestart";
     private  static String TITANIUM_USER_AGENT;
 
     private static long sMainThreadId = 0;
@@ -508,7 +509,13 @@ public abstract class TiApplication extends Application implements
                             TiAnalyticsEventFactory.createErrorEvent(t, e,
                                     tiVer));
 				}
+				
+				if (appProperties.getBool(PROPERTY_AUTO_RESTART, false)) {
+				    scheduleRestart(100);
+				}
 				defaultHandler.uncaughtException(t, e);
+				
+				
 			}
 		});
 
