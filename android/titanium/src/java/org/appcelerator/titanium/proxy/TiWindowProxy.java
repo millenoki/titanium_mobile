@@ -406,14 +406,26 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		Log.w(TAG, "setLeftNavButton not supported in Android");
 	}
+	
+	@Kroll.setProperty @Kroll.method
+	public void setTitleView(Object data)
+	{
+	    addProxyToHold(data, TiC.PROPERTY_TITLE_VIEW);
+	    if (isOpenedOrOpening()) {
+	        getActionBar().onPropertyChanged(TiC.PROPERTY_TITLE_VIEW, getHoldedProxy(TiC.PROPERTY_TITLE_VIEW));
+	    }
+	}
 
     @Kroll.setProperty @Kroll.method
-	public void setTitleView(Object data)
+	public void setUiVisibilityFlags(int uiVisibility)
     {
-        addProxyToHold(data, TiC.PROPERTY_TITLE_VIEW);
-        if (isOpenedOrOpening()) {
-            getActionBar().onPropertyChanged(TiC.PROPERTY_TITLE_VIEW, getHoldedProxy(TiC.PROPERTY_TITLE_VIEW));
+        setProperty("uiVisibilityFlags", uiVisibility);
+        Activity activity = getActivity();
+        if (activity != null)
+        {
+            activity.getWindow().getDecorView().setSystemUiVisibility(uiVisibility);
         }
+
     }
 
     @Kroll.setProperty @Kroll.method
