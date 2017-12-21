@@ -1481,8 +1481,8 @@ public class NetworkModule extends KrollModule {
         callbackId++;
         registeredNetworkCallback.put(callbackId, callback);
         NetworkRequest networkRequest = request.build();
-//        connectivityManager.requestNetwork(networkRequest, callback);
-        connectivityManager.registerNetworkCallback(networkRequest, callback);
+        connectivityManager.requestNetwork(networkRequest, callback);
+//        connectivityManager.registerNetworkCallback(networkRequest, callback);
         return callbackId;
     }
     
