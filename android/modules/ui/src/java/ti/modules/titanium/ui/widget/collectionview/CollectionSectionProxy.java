@@ -247,29 +247,29 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
     }
 
     @Override
-    protected void notifyItemRangeRemoved(int childPositionStart,
+    protected void notifyItemRangeRemoved(int itemIndex,
             int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeRemoved(
-                    this.sectionIndex, childPositionStart, itemCount);
+                    this.sectionIndex, itemIndex, itemCount);
         }
     }
 
     @Override
-    protected void notifyItemRangeChanged(int childPositionStart,
+    protected void notifyItemRangeChanged(int itemIndex,
             int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeChanged(
-                    this.sectionIndex, childPositionStart, itemCount);
+                    this.sectionIndex, itemIndex, itemCount);
         }
     }
 
     @Override
-    protected void notifyItemRangeInserted(int childPositionStart,
+    protected void notifyItemRangeInserted(int itemIndex,
             int itemCount, final boolean animated) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter).notifySectionItemRangeInserted(
-                    this.sectionIndex, childPositionStart, itemCount);
+                    this.sectionIndex, itemIndex, itemCount);
         }
 
     }

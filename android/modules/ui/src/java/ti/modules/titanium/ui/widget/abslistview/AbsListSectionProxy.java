@@ -345,21 +345,20 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             public void execute() {
                 int itemCount = insertItemsData(index, data);
                 if (itemCount > 0) {
-                    final int position = listView.get().findItemPosition(sectionIndex, index);
-                    notifyItemRangeInserted(position, itemCount, fanimated);
+                    notifyItemRangeInserted(index, itemCount, fanimated);
                 }
             }
         }, true);
 	}
 	
-	protected void notifyItemRangeRemoved(int childPositionStart, int itemCount, final boolean animated) {
+	protected void notifyItemRangeRemoved(int itemIndex, int itemCount, final boolean animated) {
 	    notifyDataChange();
 	}
 	
-	protected void notifyItemRangeChanged(int childPositionStart, int itemCount, final boolean animated) {
+	protected void notifyItemRangeChanged(int itemIndex, int itemCount, final boolean animated) {
         notifyDataChange();
     }
-	protected void notifyItemRangeInserted(int childPositionStart, int itemCount, final boolean animated) {
+	protected void notifyItemRangeInserted(int itemIndex, int itemCount, final boolean animated) {
         notifyDataChange();
     }
     
@@ -379,8 +378,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             @Override
             public void execute() {
                 int deletedCount = deleteItemsData(index, count);
-                final int position = listView.get().findItemPosition(sectionIndex, index);
-                notifyItemRangeRemoved(position, deletedCount, fanimated);
+                notifyItemRangeRemoved(index, deletedCount, fanimated);
             }
         }, true);
 	}
@@ -404,11 +402,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 if (count > 0) {
                     deletedCount = deleteItemsData(index, count);
                 }
-                final int position = listView.get().findItemPosition(sectionIndex, index);
                 if (deletedCount > 0) {
-                    notifyItemRangeRemoved(position, deletedCount, fanimated);
+                    notifyItemRangeRemoved(index, deletedCount, fanimated);
                 }
-                notifyItemRangeInserted(position, insertItemsData(index, data), fanimated);
+                notifyItemRangeInserted(index, insertItemsData(index, data), fanimated);
             }
         }, true);
 	}
@@ -524,8 +521,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             runInUiThread(new CommandNoReturn() {
                 @Override
                 public void execute() {
-                    final int position = listView.findItemPosition(sectionIndex, index);
-                    notifyItemRangeInserted(position, 1, fanimated);
+                    notifyItemRangeInserted(index, 1, fanimated);
                 }
             }, false);
             return;
@@ -557,8 +553,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                         return;
                     }
                 } else {
-                    final int position = listView.findItemPosition(sectionIndex, index);
-                    notifyItemRangeChanged(position, 1, fanimated);
+                    notifyItemRangeChanged(index, 1, fanimated);
                 }
             }
         }, false);
