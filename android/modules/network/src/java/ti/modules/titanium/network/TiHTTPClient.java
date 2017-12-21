@@ -88,7 +88,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Base64OutputStream;
 
-@SuppressLint("NewApi")
+@SuppressLint({ "NewApi", "DefaultLocale" })
 public class TiHTTPClient
 {
 	private static final String TAG = "TiHTTPClient";
@@ -189,6 +189,9 @@ public class TiHTTPClient
 
 			if (proxy.hasProperty(TiC.PROPERTY_FILE)) {
 				Object f = c.proxy.getProperty(TiC.PROPERTY_FILE);
+				if (f instanceof TiFileProxy) {
+				    responseFile = (TiFile) ((TiFileProxy) f).getBaseFile();
+				}
 				if (f instanceof String) {
 					String fileName = (String) f;
 					TiBaseFile baseFile = TiFileFactory.createTitaniumFile(fileName, false);
