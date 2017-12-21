@@ -19,12 +19,19 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
-
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import ti.modules.titanium.BufferProxy;
 
+@SuppressLint("NewApi")
 @Kroll.proxy(creatableInModule=SocketModule.class)
 public class TCPProxy extends KrollProxy implements TiStream
 {
@@ -185,6 +192,20 @@ public class TCPProxy extends KrollProxy implements TiStream
 	{
 		return state;
 	}
+	
+	private ConnectivityManager getConnectivityManager()
+    {
+        ConnectivityManager cm = null;
+
+        Context a = TiApplication.getInstance();
+        if (a != null) {
+            cm = (ConnectivityManager) a.getSystemService(Context.CONNECTIVITY_SERVICE);
+        } else {
+            Log.w(TAG, "Activity is null when trying to retrieve the connectivity service", Log.DEBUG_MODE);
+        }
+
+        return cm;
+    }
 
 	private class ConnectedSocketThread extends Thread
 	{
@@ -195,20 +216,46 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 		public void run()
 		{
-			String host = TiConvert.toString(getProperty("host"));
-			Object timeoutProperty = getProperty("timeout");
+			final String host = TiConvert.toString(getProperty("host"));
+            int transportType = TiConvert.toInt(getProperty("transportType"), -1);
+            final int timeout = TiConvert.toInt(getProperty("timeout"), -1);
 
 			try {
-				if (timeoutProperty != null) {
-					int timeout = TiConvert.toInt(timeoutProperty, 0);
+                clientSocket = new Socket();
+//				if (timeoutProperty != null) {
+//				    clientSocket.setSoTimeout(TiConvert.toInt(timeoutProperty, 0));
+//				}
+				if (TiC.LOLLIPOP_OR_GREATER && transportType > 0) {
+				    final ConnectivityManager cm = getConnectivityManager();
+				    NetworkRequest.Builder req = new NetworkRequest.Builder();
+				    req.addTransportType(transportType);
+				    cm.requestNetwork(req.build(), new ConnectivityManager.NetworkCallback() {
+				        @Override
+					    public void onAvailable(Network network) {
+					            cm.unregisterNetworkCallback(this);
+					            try {
+                                    network.bindSocket(clientSocket);
+                                    if (timeout >= 0) {
+                                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
 
-					clientSocket = new Socket();
-					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
+                                    } else {
+                                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))));
+                                    }
+                                    updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
+                              } catch (IOException e) {
+                                  updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), -1));
+                              }
+					    }
+				    });
 				} else {
-					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+				    if (timeout >= 0) {
+                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
+
+                    } else {
+                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))));
+                    }
+                    updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 				}
-				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 			} catch (IOException e) {
 				e.printStackTrace();
 				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), -1));
