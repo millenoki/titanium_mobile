@@ -58,6 +58,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 
 @SuppressLint("NewApi")
@@ -470,6 +471,7 @@ public class TiUIWebView extends TiUINonViewGroupView
         switch (key) {
         case TiC.PROPERTY_SCALES_PAGE_TO_FIT:
             getWebView().getSettings().setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+            getWebView().getSettings().setLayoutAlgorithm(LayoutAlgorithm.TEXT_AUTOSIZING);
             break;
         case TiC.PROPERTY_CACHE_MODE:
             getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue, AndroidModule.WEBVIEW_LOAD_DEFAULT));
