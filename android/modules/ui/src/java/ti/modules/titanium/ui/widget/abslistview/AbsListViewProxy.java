@@ -402,6 +402,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		else {
 			((TiCollectionViewInterface)listView).processSectionsAndNotify(sectionsArray);
 		}
+		setProperty(TiC.PROPERTY_SECTIONS, sections);
 	}
 	
 	@Kroll.method
