@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -236,7 +237,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public boolean addLightweightWindowToStack() 
 	{
 		// Add LW window to the decor view and add it to stack.
-		Activity topActivity = TiApplication.getAppCurrentActivity();
+	    KrollProxy parentWindowProxy = (KrollProxy) getProperty("parentWindow");
+		Activity topActivity = (parentWindowProxy != null)?parentWindowProxy.getActivity():TiApplication.getAppCurrentActivity();
 		if (topActivity instanceof TiBaseActivity) {
 			TiBaseActivity baseActivity = (TiBaseActivity) topActivity;
 			ActivityProxy activityProxy = baseActivity.getActivityProxy();
