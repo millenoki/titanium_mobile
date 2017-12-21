@@ -1164,28 +1164,30 @@ public class NetworkModule extends KrollModule {
     public KrollDict getNetworkInfo()
     {
 	    KrollDict result = new KrollDict();
-        KrollDict wifi = new KrollDict();
-        KrollDict cell = new KrollDict();
 
 	    WifiManager wifiManager = getWifiManager();
-	    if (wifiManager != null) {
+	    if (wifiManager != null && wifiManager.isWifiEnabled()) {
             final WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
             if (connectionInfo != null){
-                result = new KrollDict();
+                DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
+                KrollDict wifi = new KrollDict();
                 wifi.put("ssid", connectionInfo.getSSID().replace("\"", ""));
                 wifi.put("bssid", connectionInfo.getBSSID());
                 wifi.put("ip", formatIp(connectionInfo.getIpAddress()));
                 wifi.put("linkSpeed", connectionInfo.getLinkSpeed() + WifiInfo.LINK_SPEED_UNITS);
                 wifi.put("macAddress", connectionInfo.getMacAddress());
-            }
-            if (dhcpInfo != null) {
-                wifi.put("netmask", formatIp(dhcpInfo.netmask));
+                if (dhcpInfo != null) {
+                    wifi.put("netmask", formatIp(dhcpInfo.netmask));
+                }
+                result.put("wifi", wifi);
             }
 	    }
-        cell.put("carrierName", getCarrierName());
-        result.put("wifi", wifi);
-        result.put("wwan", cell);
+	    final String carrierName = getCarrierName();
+	    if (carrierName != null) {
+	        KrollDict cell = new KrollDict();
+	        cell.put("carrierName", getCarrierName());
+	        result.put("wwan", cell);
+	    }
         return result;
     }
 	
