@@ -52,7 +52,7 @@ public class ProtectedModule extends KrollModule {
 
     public static void showError(final String message) {
         HashMap error = new HashMap();
-        error.put("title", message);
+        error.put("message", message);
         error.put("canContinue", false);
         TiApplication.getExceptionHandler().handleException(error);
     }
