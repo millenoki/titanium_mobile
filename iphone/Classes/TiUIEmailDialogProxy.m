@@ -127,7 +127,6 @@
           [composer addAttachmentData:data mimeType:mimetype fileName:[path lastPathComponent]];
       } else if ([attachment isKindOfClass:[NSDictionary class]]) {
           NSDictionary *dict = (NSDictionary *)attachment;
-          NSString *path = [file path];
           id data = [dict objectForKey:@"content"];
           NSString * mimetype = [dict objectForKey:@"mimetype"]?[dict objectForKey:@"mimetype"]:[TiUtils mimeTypeForObject:data];
           NSString *filename = [TiUtils stringValue:[dict objectForKey:@"filename"]];
