@@ -4042,8 +4042,8 @@ function antiAliasTest(_args) {
 	openWin(win);
 }
 
-var slidemenu = require('akylas.slidemenu');
-var modules = __AKYLAS_DEV__ ? [ 'shapes' ] : [];
+// var slidemenu = require('akylas.slidemenu');
+var modules = __AKYLAS_DEV__ ? [ ] : [];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require('modules/' + modules[i]).load(this);
@@ -6062,19 +6062,19 @@ function shareExample(_data) {
 
 // Ti.App.clearImageCache();
 
-Ti.Network.registerForPushNotifications({
-	senderId: '724423202625',
-	success: function (e) {
-		Ti.API.debug('registerForPushNotifications', 'success', e);
-	},
-	error: function (e) {
-		Ti.API.debug('registerForPushNotifications', 'error', e);
-	},
-	callback: function (e) {
-		Ti.API.debug('registerForPushNotifications', 'callback', e);
+// Ti.Network.registerForPushNotifications({
+// 	senderId: '724423202625',
+// 	success: function (e) {
+// 		Ti.API.debug('registerForPushNotifications', 'success', e);
+// 	},
+// 	error: function (e) {
+// 		Ti.API.debug('registerForPushNotifications', 'error', e);
+// 	},
+// 	callback: function (e) {
+// 		Ti.API.debug('registerForPushNotifications', 'callback', e);
 
-	}
-});
+// 	}
+// });
 
 function randomColor() {
 	var letters = '0123456789ABCDEF'.split('');
