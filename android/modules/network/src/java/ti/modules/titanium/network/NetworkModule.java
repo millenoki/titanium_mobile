@@ -271,19 +271,19 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public boolean getOnline()
 	{
-		boolean result = false;
-
-		ConnectivityManager cm = getConnectivityManager();
-		if (cm != null) {
-			NetworkInfo ni = cm.getActiveNetworkInfo();
-
-			if(ni != null && ni.isAvailable() && ni.isConnected()) {
-				result = true;
-			}
-		} else {
-			Log.w(TAG, "ConnectivityManager was null", Log.DEBUG_MODE);
-		}
-		return result;
+//		boolean result = false;
+//
+//		ConnectivityManager cm = getConnectivityManager();
+//		if (cm != null) {
+//			NetworkInfo ni = cm.getActiveNetworkInfo();
+//
+//			if(ni != null && ni.isAvailable() && ni.isConnected()) {
+//				result = true;
+//			}
+//		} else {
+//			Log.w(TAG, "ConnectivityManager was null", Log.DEBUG_MODE);
+//		}
+		return hasInternetConnection();
 	}
 
 	protected int networkTypeToTitanium(boolean online, int androidType) {
@@ -1499,5 +1499,17 @@ public class NetworkModule extends KrollModule {
                 registeredNetworkCallback.remove(key);
             }
         }
+    }
+    
+    @Kroll.method
+    private boolean hasInternetConnection() {
+        final ConnectivityManager connectivityManager = getConnectivityManager();
+
+        final Network network = connectivityManager.getActiveNetwork();
+        final NetworkCapabilities capabilities = connectivityManager
+                .getNetworkCapabilities(network);
+
+        return capabilities != null
+                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
     }
 }
