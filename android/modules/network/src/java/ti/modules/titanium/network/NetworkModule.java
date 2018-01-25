@@ -1418,7 +1418,7 @@ public class NetworkModule extends KrollModule {
     static int callbackId = 0;
     
     @Kroll.method
-    public int alwaysPreferNetworksWith( int[] capabilities, int[] transportTypes) {
+    public int alwaysPreferNetworksWith( int[] capabilities, int[] transportTypes, @Kroll.argument(optional = true) final KrollFunction callback) {
         if (!TiC.LOLLIPOP_OR_GREATER) {
             return -1;
         }
@@ -1427,13 +1427,11 @@ public class NetworkModule extends KrollModule {
         for (int cap: capabilities) {
             request.addCapability(cap);
         }
-//        request.addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-
+        
 //         add transport types
         for (int trans: transportTypes) {
             request.addTransportType(trans);
         }
-//        request.addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
 
         final ConnectivityManager connectivityManager = getConnectivityManager();
         if (connectivityManager == null) {
@@ -1442,7 +1440,7 @@ public class NetworkModule extends KrollModule {
         if (registeredNetworkCallback == null) {
             registeredNetworkCallback = new HashMap();
         }
-        NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+        NetworkCallback ncallback = new ConnectivityManager.NetworkCallback() {
             @Override
             public void onAvailable(Network network) {
                 try {
@@ -1451,8 +1449,13 @@ public class NetworkModule extends KrollModule {
                     } else {
                         connectivityManager.bindProcessToNetwork(network);
                     }
-                } catch (IllegalStateException e) {
-                    Log.e(TAG, "ConnectivityManager.NetworkCallback.onAvailable: ", e);
+                    callback.call(getKrollObject(), (HashMap)null);
+               } catch (IllegalStateException e) {
+                   KrollDict data = new KrollDict();
+                   data.put("code", 0);
+                   data.put("message", e.getLocalizedMessage());
+                   callback.call(getKrollObject(), data);
+                   Log.e(TAG, "ConnectivityManager.NetworkCallback.onAvailable: ", e);
                 }
             }
             
@@ -1479,9 +1482,9 @@ public class NetworkModule extends KrollModule {
             }
         };
         callbackId++;
-        registeredNetworkCallback.put(callbackId, callback);
+        registeredNetworkCallback.put(callbackId, ncallback);
         NetworkRequest networkRequest = request.build();
-        connectivityManager.requestNetwork(networkRequest, callback);
+        connectivityManager.requestNetwork(networkRequest, ncallback);
 //        connectivityManager.registerNetworkCallback(networkRequest, callback);
         return callbackId;
     }
