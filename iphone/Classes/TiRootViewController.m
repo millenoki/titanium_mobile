@@ -825,7 +825,10 @@
     }
     theWindow.parentOrientationController = nil;
     if ([self presentedViewController] == nil || ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
-      [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+      @synchronized(containedWindows)
+      {
+        [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+      }
     }
   }
 }
@@ -1128,10 +1131,14 @@
   CGRect bounds = [[self hostingView] bounds];
   NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f", bounds.size.width, bounds.size.height);
 #endif
-  for (id<TiWindowProtocol> thisWindow in containedWindows) {
-    if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-      if (!CGRectEqualToRect([(TiViewProxy *)thisWindow sandboxBounds], [[self hostingView] bounds])) {
-        [(TiViewProxy *)thisWindow parentSizeWillChange];
+  
+  @synchronized(containedWindows)
+  {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+        if (!CGRectEqualToRect([(TiViewProxy *)thisWindow sandboxBounds], [[self hostingView] bounds])) {
+          [(TiViewProxy *)thisWindow parentSizeWillChange];
+        }
       }
     }
   }
@@ -1684,8 +1691,11 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  for (id<TiWindowProtocol> thisWindow in containedWindows) {
-    [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  @synchronized(containedWindows)
+  {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    }
   }
   UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
   [self updateOrientationHistory:interfaceOrientation];
@@ -1695,24 +1705,33 @@
 
 - (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  for (id<TiWindowProtocol> thisWindow in containedWindows) {
-    [thisWindow systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+  @synchronized(containedWindows)
+  {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      [thisWindow systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+    }
   }
   [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
 }
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  for (id<TiWindowProtocol> thisWindow in containedWindows) {
-    [thisWindow willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+  @synchronized(containedWindows)
+  {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      [thisWindow willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    }
   }
   [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
 }
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  for (id<TiWindowProtocol> thisWindow in containedWindows) {
-    [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
+  @synchronized(containedWindows)
+  {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
+    }
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
