@@ -219,12 +219,13 @@ public class TCPProxy extends KrollProxy implements TiStream
 			final String host = TiConvert.toString(getProperty("host"));
             int transportType = TiConvert.toInt(getProperty("transportType"), -1);
             final int timeout = TiConvert.toInt(getProperty("timeout"), -1);
+            final int port = TiConvert.toInt(getProperty("port"));
 
 			try {
                 clientSocket = new Socket();
-//				if (timeoutProperty != null) {
-//				    clientSocket.setSoTimeout(TiConvert.toInt(timeoutProperty, 0));
-//				}
+				if (timeout >= 0) {
+				    clientSocket.setSoTimeout(timeout);
+				}
 				if (TiC.LOLLIPOP_OR_GREATER && transportType > 0) {
 				    final ConnectivityManager cm = getConnectivityManager();
 				    NetworkRequest.Builder req = new NetworkRequest.Builder();
@@ -235,12 +236,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 					            cm.unregisterNetworkCallback(this);
 					            try {
                                     network.bindSocket(clientSocket);
-                                    if (timeout >= 0) {
-                                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
-                                    } else {
-                                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))));
-                                    }
+//                                    if (timeout >= 0) {
+//                                        clientSocket.connect(new InetSocketAddress(host, port), timeout);
+//
+//                                    } else {
+                                        clientSocket.connect(new InetSocketAddress(host, port));
+//                                    }
                                     updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
                               } catch (IOException e) {
                                   updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), -1));
@@ -248,12 +249,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 					    }
 				    });
 				} else {
-				    if (timeout >= 0) {
-                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
-                    } else {
-                        clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))));
-                    }
+//				    if (timeout >= 0) {
+//                        clientSocket.connect(new InetSocketAddress(host, port), timeout);
+//
+//                    } else {
+                        clientSocket.connect(new InetSocketAddress(host, port));
+//                    }
                     updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 				}
 			} catch (IOException e) {
@@ -444,9 +445,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 			if (state != SocketModule.CLOSED) {
 				closeSocket();
 			}
-//			throw new IOException("Unable to read from socket, IO error");
+			throw e;
 		}
-		return -1;
+//		return -1;
 	}
 
 	@Kroll.method

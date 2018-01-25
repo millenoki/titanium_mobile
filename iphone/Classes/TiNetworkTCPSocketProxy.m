@@ -176,6 +176,11 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
     [self handleError:input];
     return;
   }
+  
+  if (readtimeout >= 0) {
+    setsockopt(remoteSocket, SOL_SOCKET, SO_RCVTIMEO, &readtimeout, sizeof(readtimeout));
+    setsockopt(remoteSocket, SOL_SOCKET, SO_SNDTIMEO, &readtimeout, sizeof(readtimeout));
+  }
 
   SocketStreams *streams = (SocketStreams *)[[remoteSocketDictionary objectForKey:[NSNumber numberWithInt:remoteSocket]] bytes];
 
@@ -334,7 +339,7 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
 - (void)_configure
 {
   [super _configure];
-
+  readtimeout = -1;
   socket = NULL;
   remoteSocketDictionary = [[NSMutableDictionary alloc] init];
   configureCondition = [[NSCondition alloc] init];
@@ -397,6 +402,15 @@ const CFOptionFlags writeStreamEventFlags = kCFStreamEventCanAcceptBytes | kCFSt
 - (void)setPort:(NSNumber *)port_
 {
   port = [port_ intValue];
+}
+
+- (void)setTimeout:(NSNumber *)port_
+{
+  readtimeout = [port_ intValue];
+  if (socket && readtimeout >= 0) {
+    setsockopt(CFSocketGetNative(socket), SOL_SOCKET, SO_RCVTIMEO, &readtimeout, sizeof(readtimeout));
+    setsockopt(CFSocketGetNative(socket), SOL_SOCKET, SO_SNDTIMEO, &readtimeout, sizeof(readtimeout));
+  }
 }
 
 - (void)setStripTerminator:(NSNumber *)stripTerminator_

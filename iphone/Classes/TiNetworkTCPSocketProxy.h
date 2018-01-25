@@ -15,6 +15,7 @@
   CFSocketRef socket;
   NSString *hostName;
   int port;
+  int readtimeout;
 
   NSMutableDictionary *remoteSocketDictionary; // remoteSocket->{inputStream, outputStream, writeBuffer, writePos}
 
