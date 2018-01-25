@@ -85,14 +85,30 @@
 - (id)fullInfo
 {
   NSString *currentLocale = [self currentLocale];
-  return @{
-    @"currencySymbol" : [self getLocaleCurrencySymbol:currentLocale],
-    @"currencyCode" : [self getCurrencyCode:currentLocale],
-    @"currentLocale" : currentLocale,
-    @"currentCountry" : [self currentCountry],
-    @"currentCountryName" : [self currentCountryName],
-    @"currentLanguage" : [self currentLanguage]
-  };
+  NSMutableDictionary* result = [NSMutableDictionary dictionary];
+  [result setObject:currentLocale forKey:@"currentLocale"];
+  
+  NSString* value = [self getLocaleCurrencySymbol:currentLocale];
+  if (value) {
+    [result setObject:value forKey:@"currencySymbol"];
+  }
+  value = [self getCurrencyCode:currentLocale];
+  if (value) {
+    [result setObject:value forKey:@"currencyCode"];
+  }
+  value = [self currentCountry];
+  if (value) {
+    [result setObject:value forKey:@"currentCountry"];
+  }
+  value = [self currentCountryName];
+  if (value) {
+    [result setObject:value forKey:@"currentCountryName"];
+  }
+  value = [self currentLanguage];
+  if (value) {
+    [result setObject:value forKey:@"currentLanguage"];
+  }
+  return result;
 }
 
 @end
