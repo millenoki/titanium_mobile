@@ -1217,17 +1217,17 @@ public class MediaModule extends KrollModule
 		final Window winParam = w;
 		final float winScale = (scale != null)?scale.floatValue():1.0f;
 
-		getActivity().runOnUiThread(new Runnable() {
+		a.runOnUiThread(new Runnable() {
 			public void run() {
 				Bitmap bitmap = TiUIHelper.viewToBitmap(null, winParam.getDecorView());
 				if (winScale != 1.0f) {
 					bitmap = TiImageHelper.imageScaled(bitmap, winScale);
-		}
+				}
 				TiBlob blob = TiBlob.blobFromObject(bitmap);
 				KrollDict result = new KrollDict();
 				result.put("image", blob);
 				callback.callAsync(getKrollObject(), new Object[] { result });
-	}
+			}
 		});
 	}
 
