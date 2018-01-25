@@ -1340,8 +1340,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
       // 2. If X begins with './' or '/' or '../'
       if ([path hasPrefix:@"./"] || [path hasPrefix:@"../"]) {
         // Need base path to work from for relative modules...
-        NSString *relativePath = (workingPath == nil) ? path : [[workingPath stringByAppendingPathComponent:path] stringByStandardizingPath];
-          
+        NSString *relativePath = (workingPath == nil) ? path : [self normalizePath:[[workingPath stringByAppendingPathComponent:path] stringByStandardizingPath]];
+
         module = [self loadCoreModule:relativePath withContext:kroll];
         if (module) {
           // a. return the core module
