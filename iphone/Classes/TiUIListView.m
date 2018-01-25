@@ -1135,10 +1135,14 @@ static NSDictionary *replaceKeysForRow;
   }
   self.searchString = [TiUtils stringValue:args];
   [self buildResultsForSearchText];
-  [[resultViewController tableView] reloadData];
+  if (searchController.isActive) {
+    [[resultViewController tableView] reloadData];
+  } else {
+    [_tableView reloadData];
+  }
   if ([[self viewProxy] isConfigurationSet]) {
-    [[self viewProxy] contentsWillChange];
-}
+      [[self viewProxy] contentsWillChange];
+  }
 }
 
 - (void)setSearchIgnoreExactMatch_:(id)args
