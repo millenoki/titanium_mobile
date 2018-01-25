@@ -13,46 +13,45 @@ import java.io.OutputStream;
 
 import ti.modules.titanium.BufferProxy;
 
-public class TiStreamHelper
-{
+public class TiStreamHelper {
 
-	public static int read(InputStream inputStream, BufferProxy bufferProxy, int offset, int length, Number position) throws IOException
-	{
-		byte[] buffer = bufferProxy.getBuffer();
+    public static int read(InputStream inputStream, BufferProxy bufferProxy,
+            int offset, int length, Number position) throws IOException {
+        byte[] buffer = bufferProxy.getBuffer();
 
-		if ((offset + length) > buffer.length) {
-			length = buffer.length - offset;
-		}
-		
-      if (position != null && inputStream.markSupported()) {
-      try {
-          inputStream.reset();
-          inputStream.skip(position.intValue());
-      } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-      }
-  }
+        if ((offset + length) > buffer.length) {
+            length = buffer.length - offset;
+        }
 
-		return inputStream.read(buffer, offset, length);
-	}
+        if (position != null && inputStream.markSupported()) {
+            try {
+                inputStream.reset();
+                inputStream.skip(position.intValue());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
-	public static int write(OutputStream outputStream, BufferProxy bufferProxy, int offset, int length) throws IOException
-	{
-		byte[] buffer = bufferProxy.getBuffer();
+        return inputStream.read(buffer, offset, length);
+    }
 
-		if ((offset + length) > buffer.length) {
-			length = buffer.length - offset;
-		}
+    public static int write(OutputStream outputStream, BufferProxy bufferProxy,
+            int offset, int length) throws IOException {
+        byte[] buffer = bufferProxy.getBuffer();
 
-		outputStream.write(buffer, offset, length);
-		outputStream.flush();
+        if ((offset + length) > buffer.length) {
+            length = buffer.length - offset;
+        }
 
-		return length;
-	}
-	
-	public static int write(OutputStream outputStream, byte[] buffer, int offset, int length) throws IOException
-    {
+        outputStream.write(buffer, offset, length);
+        outputStream.flush();
+
+        return length;
+    }
+
+    public static int write(OutputStream outputStream, byte[] buffer,
+            int offset, int length) throws IOException {
         if ((offset + length) > buffer.length) {
             length = buffer.length - offset;
         }
