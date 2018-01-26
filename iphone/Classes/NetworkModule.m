@@ -347,26 +347,44 @@ static NetworkModule *_sharedInstance = nil;
   for (NSString *ifnam in ifs) {
     networkinfo = CNCopyCurrentNetworkInfo((CFStringRef)ifnam);
     if (networkinfo) {
-      [result setObject:@{
-        @"ip" : [self address],
-        @"netmask" : [self netmask],
-        @"ssid" : (NSString *)CFDictionaryGetValue(networkinfo, kCNNetworkInfoKeySSID),
-        @"bssid" : (NSString *)CFDictionaryGetValue(networkinfo, kCNNetworkInfoKeyBSSID)
+      NSString* address = [self address];
+      NSString* netmask = [self netmask];
+      if (netmask || netmask) {
+        NSMutableDictionary *wifi = [NSMutableDictionary dictionary];
+        if (address) {
+          [wifi setObject:address forKey:@"address"];
+        }
+        if (netmask) {
+          [wifi setObject:netmask forKey:@"netmask"];
+        }
+        NSString* ssid = (NSString *)CFDictionaryGetValue(networkinfo, kCNNetworkInfoKeySSID);
+        NSString* bssid = (NSString *)CFDictionaryGetValue(networkinfo, kCNNetworkInfoKeyBSSID);
+        if (ssid) {
+          [wifi setObject:ssid forKey:@"ssid"];
+        }
+        if (bssid) {
+          [wifi setObject:bssid forKey:@"bssid"];
+        }
+        [result setObject:wifi forKey:@"wifi"];
       }
-                 forKey:@"wifi"];
       CFRelease(networkinfo);
       break;
     }
   }
   [ifs release];
-  if (networkinfo)
-    CFRelease(networkinfo);
 #endif
-  [result setObject:@{
-    @"carrierName" : [self carrierName],
-    @"ip" : [self dataAddress],
+  NSString* carrierName = [self carrierName];
+  NSString* dataAddress = [self dataAddress];
+  if (dataAddress || carrierName) {
+    NSMutableDictionary *wwan = [NSMutableDictionary dictionary];
+    if (carrierName) {
+      [wwan setObject:carrierName forKey:@"carrierName"];
+    }
+    if (dataAddress) {
+      [wwan setObject:dataAddress forKey:@"ip"];
+    }
+    [result setObject:wwan forKey:@"wwan"];
   }
-             forKey:@"wwan"];
   return result;
 }
 
