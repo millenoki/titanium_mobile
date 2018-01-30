@@ -1,6 +1,6 @@
 #
 # Appcelerator Titanium Mobile
-# Copyright (c) 2011-2017 by Appcelerator, Inc. All Rights Reserved.
+# Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 #
@@ -78,18 +78,18 @@ LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
 LOCAL_STATIC_LIBRARIES := libv8_base
 include $(PREBUILT_STATIC_LIBRARY)
 
-# v8_builtins_generators
+# v8_initializers
 include $(CLEAR_VARS)
-LOCAL_MODULE    := libv8_builtins_generators
+LOCAL_MODULE    := libv8_initializers
 LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
 LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
 LOCAL_STATIC_LIBRARIES := libv8_base
 include $(PREBUILT_STATIC_LIBRARY)
 
-# v8_builtins_setup
+# v8_init
 include $(CLEAR_VARS)
-LOCAL_MODULE    := libv8_builtins_setup
+LOCAL_MODULE    := libv8_init
 LOCAL_SRC_FILES := $(LIBV8_DIR)/libs/$(SIMPLIFIED_ARCH)/$(LOCAL_MODULE).a
 LOCAL_EXPORT_C_INCLUDES := $(LIBV8_DIR)/include
-LOCAL_STATIC_LIBRARIES := libv8_builtins_generators
+LOCAL_STATIC_LIBRARIES := libv8_initializers
 include $(PREBUILT_STATIC_LIBRARY)
