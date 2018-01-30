@@ -1449,12 +1449,16 @@ public class NetworkModule extends KrollModule {
                     } else {
                         connectivityManager.bindProcessToNetwork(network);
                     }
-                    callback.call(getKrollObject(), (HashMap)null);
+                    if (callback != null) {
+                        callback.call(getKrollObject(), (HashMap)null);
+                    }
                } catch (IllegalStateException e) {
                    KrollDict data = new KrollDict();
                    data.put("code", 0);
                    data.put("message", e.getLocalizedMessage());
-                   callback.call(getKrollObject(), data);
+                   if (callback != null) {
+                       callback.call(getKrollObject(), data);
+                   }
                    Log.e(TAG, "ConnectivityManager.NetworkCallback.onAvailable: ", e);
                 }
             }
