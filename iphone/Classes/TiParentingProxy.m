@@ -427,33 +427,33 @@
   [super unarchiveFromDictionary:dictionary rootProxy:rootProxy];
 
   NSArray *childTemplates = (NSArray *)[dictionary objectForKey:@"childTemplates"];
-
-  [childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-    TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
-    if (child != nil) {
-      [context.krollContext invokeBlockOnThread:^{
-        [self rememberProxy:child];
-        [child forgetSelf];
-      }];
-      [self addProxy:child atIndex:-1 shouldRelayout:NO];
-      //            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
-      //                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
-      //                if ([events count] > 0) {
-      //                    [context.krollContext invokeBlockOnThread:^{
-      //                        [events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
-      //                            if ([listener isKindOfClass:[KrollCallback class]]) {
-      //                                KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
-      //                                [wrapper protectJsobject];
-      //                                [child addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
-      //                            } else {
-      //                                [child addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
-      //                            }
-      //                        }];
-      //                    }];
-      //                }
-      //            }
-    }
-  }];
+  if (childTemplates != [NSNull null]) {
+    [childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
+      TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
+      if (child != nil) {
+        [context.krollContext invokeBlockOnThread:^{
+          [self rememberProxy:child];
+          [child forgetSelf];
+        }];
+        [self addProxy:child atIndex:-1 shouldRelayout:NO];
+        //            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
+        //                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
+        //                if ([events count] > 0) {
+        //                    [context.krollContext invokeBlockOnThread:^{
+        //                        [events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
+        //                            if ([listener isKindOfClass:[KrollCallback class]]) {
+        //                                KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
+        //                                [wrapper protectJsobject];
+        //                                [child addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+        //                            } else {
+        //                                [child addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+        //                            }
+        //                        }];
+        //                    }];
+        //                }
+        //            }
+      }
+    }];
   _unarchiving = NO;
 }
 
