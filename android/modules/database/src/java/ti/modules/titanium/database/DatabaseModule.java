@@ -79,7 +79,7 @@ public class DatabaseModule extends KrollModule
 			Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 
 		} catch (SQLException e) {
-			String msg = "Error opening database: " + dbp.getName() + " msg=" + e.getMessage();
+			String msg = "Error opening database: " + e.getMessage();
 			Log.e(TAG, msg, e);
 			throw e;
 		}
