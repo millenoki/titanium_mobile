@@ -221,12 +221,14 @@
 #endif
 }
 
-- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
+- (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   if ([self flexibleContentWidth] || [self flexibleContentHeight]) {
     needsHandleContentSize = YES;
+  } else {
+    [TiUtils setView:[self wrapperView] positionRect:bounds];
   }
-  [super frameSizeChanged:frame bounds:visibleBounds];
+  [super frameSizeChanged:frame bounds:bounds];
 }
 
 #ifndef TI_USE_AUTOLAYOUT
@@ -267,32 +269,35 @@
 #endif
 }
 
-- (void)layoutSubviews
-{
-  [super layoutSubviews];
-
+-(void)updateWrapperViewFrame {
   // Center the image as it becomes smaller than the size of the screen
   CGSize boundsSize = self.bounds.size;
   CGRect frameToCenter = wrapperView.frame;
-
+  
   // Horizontally
   if (frameToCenter.size.width < boundsSize.width) {
     frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
   } else {
     frameToCenter.origin.x = 0;
   }
-
+  
   // Vertically
   if (frameToCenter.size.height < boundsSize.height) {
     frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
   } else {
     frameToCenter.origin.y = 0;
   }
-
+  
   // Center
   if (!CGRectEqualToRect(wrapperView.frame, frameToCenter)) {
     wrapperView.frame = frameToCenter;
   }
+}
+
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+  [self updateWrapperViewFrame];
 }
 
 - (void)zoomToPoint:(CGPoint)touchPoint withScale:(CGFloat)scale animated:(BOOL)animated
