@@ -454,6 +454,7 @@
         //            }
       }
     }];
+  }
   _unarchiving = NO;
 }
 
