@@ -985,6 +985,7 @@
   if ([_scrollView isDecelerating] || [_scrollView isDragging]) {
     rotatedWhileScrolling = YES;
   }
+  [self setContentOffsetForPage:currentPage animated:NO];
 }
 
 #pragma mark Delegate calls

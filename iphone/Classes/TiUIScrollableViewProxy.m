@@ -363,6 +363,16 @@
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+  if ([self viewAttached]) {
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+       UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+       // do whatever
+     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+       
+     }];
+  }
 }
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
