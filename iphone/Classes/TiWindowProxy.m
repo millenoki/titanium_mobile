@@ -806,6 +806,20 @@
   [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
 
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+  if ([self viewAttached]) {
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+       [self refreshViewIfNeeded];
+     } completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
+     {
+     }];
+  }
+  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
 #pragma mark - TiAnimation Delegate Methods
 
 - (BOOL)canAnimateWithoutParent

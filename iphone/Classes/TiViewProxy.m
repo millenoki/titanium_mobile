@@ -1812,7 +1812,7 @@ SEL GetterForKrollProperty(NSString *key)
   //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self viewChildren];
   for (TiViewProxy *thisProxy in childProxies) {
-    if ([thisProxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)]) {
+    if (!IS_OF_CLASS(thisProxy, TiWindowProxy) && [thisProxy respondsToSelector:@selector(didRotateFromInterfaceOrientation:)]) {
       [(id)thisProxy didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
   }
@@ -1823,7 +1823,7 @@ SEL GetterForKrollProperty(NSString *key)
   //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self viewChildren];
   for (TiViewProxy *thisProxy in childProxies) {
-    if ([thisProxy respondsToSelector:@selector(viewWillTransitionToSize:withTransitionCoordinator:)]) {
+    if (!IS_OF_CLASS(thisProxy, TiWindowProxy) && [thisProxy respondsToSelector:@selector(viewWillTransitionToSize:withTransitionCoordinator:)]) {
       [(id)thisProxy viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
     }
   }
@@ -1834,7 +1834,7 @@ SEL GetterForKrollProperty(NSString *key)
   //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self viewChildren];
   for (TiViewProxy *thisProxy in childProxies) {
-    if ([thisProxy respondsToSelector:@selector(willTransitionToTraitCollection:withTransitionCoordinator:)]) {
+    if (!IS_OF_CLASS(thisProxy, TiWindowProxy) && [thisProxy respondsToSelector:@selector(willTransitionToTraitCollection:withTransitionCoordinator:)]) {
       [(id)thisProxy willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
     }
   }
@@ -1845,7 +1845,7 @@ SEL GetterForKrollProperty(NSString *key)
   //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self viewChildren];
   for (TiViewProxy *thisProxy in childProxies) {
-    if ([thisProxy respondsToSelector:@selector(systemLayoutFittingSizeDidChangeForChildContentContainer:)]) {
+    if (!IS_OF_CLASS(thisProxy, TiWindowProxy) && [thisProxy respondsToSelector:@selector(systemLayoutFittingSizeDidChangeForChildContentContainer:)]) {
       [(id)thisProxy systemLayoutFittingSizeDidChangeForChildContentContainer:container];
     }
   }
@@ -1856,7 +1856,7 @@ SEL GetterForKrollProperty(NSString *key)
   //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self viewChildren];
   for (TiViewProxy *thisProxy in childProxies) {
-    if ([thisProxy respondsToSelector:@selector(preferredContentSizeDidChangeForChildContentContainer:)]) {
+    if (!IS_OF_CLASS(thisProxy, TiWindowProxy) && [thisProxy respondsToSelector:@selector(preferredContentSizeDidChangeForChildContentContainer:)]) {
       [(id)thisProxy preferredContentSizeDidChangeForChildContentContainer:container];
     }
   }

@@ -359,7 +359,6 @@
 #endif
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
-  [self willChangeSize];
 }
 
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
