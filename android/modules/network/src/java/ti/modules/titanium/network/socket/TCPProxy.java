@@ -8,11 +8,9 @@ package ti.modules.titanium.network.socket;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -249,12 +247,12 @@ public class TCPProxy extends KrollProxy implements TiStream
 					    }
 				    });
 				} else {
-//				    if (timeout >= 0) {
-//                        clientSocket.connect(new InetSocketAddress(host, port), timeout);
-//
-//                    } else {
+				    if (timeout >= 0) {
+                        clientSocket.connect(new InetSocketAddress(host, port), timeout);
+
+                    } else {
                         clientSocket.connect(new InetSocketAddress(host, port));
-//                    }
+                    }
                     updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 				}
 			} catch (IOException e) {
