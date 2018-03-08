@@ -35,15 +35,30 @@ public final class TitaniumtestApplication extends TiApplication {
                 put("akylas.shapes", new Class[] {
                         akylas.shapes.AkylasShapesBootstrap.class,
                         akylas.shapes.AkylasShapesModule.class });
-//                put("akylas.commonjs", new Class[] {
-//                        akylas.commonjs.AkylasCommonjsBootstrap.class,
-//                        akylas.commonjs.AkylasCommonjsModule.class });
+                put("akylas.commonjs", new Class[] {
+                        akylas.commonjs.AkylasCommonjsBootstrap.class,
+                        akylas.commonjs.AkylasCommonjsModule.class });
                 put("akylas.slidemenu", new Class[] {
                         akylas.slidemenu.AkylasSlidemenuBootstrap.class,
                         akylas.slidemenu.AkylasSlidemenuModule.class });
+                put("akylas.googlemap", new Class[] {
+                        akylas.googlemap.AkylasGooglemapBootstrap.class,
+                        akylas.googlemap.AkylasGooglemapModule.class });
                 put("akylas.bluetooth", new Class[] {
                         akylas.bluetooth.AkylasBluetoothBootstrap.class,
                         akylas.bluetooth.AkylasBluetoothModule.class });
+                put("akylas.charts2", new Class[] {
+                        akylas.charts2.AkylasCharts2Bootstrap.class,
+                        akylas.charts2.Charts2Module.class });
+                put("akylas.motion", new Class[] {
+                        akylas.motion.AkylasMotionBootstrap.class,
+                        akylas.motion.AkylasMotionAndroidModule.class });
+                put("akylas.camera", new Class[] {
+                        akylas.camera.AkylasCameraBootstrap.class,
+                        akylas.camera.AkylasCameraModule.class });
+                put("akylas.zoomableimage", new Class[] {
+                        akylas.zoomableimage.AkylasZoomableimageBootstrap.class,
+                        akylas.zoomableimage.AkylasZoomableimageModule.class });
             }
         };
         V8Runtime runtime = new V8Runtime();
