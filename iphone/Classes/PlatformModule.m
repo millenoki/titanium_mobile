@@ -134,18 +134,15 @@
     }
 
   NSString *deviceName = [deviceNamesByCode objectForKey:code];
-
-    if (!deviceName) {
-        // Not found on database. At least guess main device type from string contents:
+  if (!deviceName) {
+    // Not found on database. At least guess main device type from string contents:
+    deviceName = defaultValue;
+  }
 #if TARGET_IPHONE_SIMULATOR
-        return [defaultValue stringByAppendingString:@" Simulator"];
-#else
-        return defaultValue;
+  deviceName = [deviceName stringByAppendingString:@" Simulator"];
 #endif
-        // Not found on database. At least guess main device type from string contents:
-    }
-#if TARGET_IPHONE_SIMULATOR
-    deviceName = [deviceName stringByAppendingString:@" Simulator"];
+#ifndef TITANIUM_CLI_XCODEBUILD
+  deviceName = [deviceName stringByAppendingString:@" Xcode"];
 #endif
 
     return deviceName;
