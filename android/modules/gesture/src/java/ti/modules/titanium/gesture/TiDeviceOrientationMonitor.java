@@ -18,7 +18,6 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 import android.view.Surface;
-import java.util.List;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.TiApplication;
@@ -356,7 +355,7 @@ public final class TiDeviceOrientationMonitor
 
 						// Update rotation matrix using previous received magnetic data.
 						if (this.hasMagneticData) {
-							wasRotationMatrixUpdated = this.monitor.sensorManager.getRotationMatrix(
+							wasRotationMatrixUpdated = SensorManager.getRotationMatrix(
 									this.rotationMatrixArray, null,
 									this.accelerationVectorArray,
 									this.magneticVectorArray);
@@ -374,7 +373,7 @@ public final class TiDeviceOrientationMonitor
 
 						// Update rotation matrix using previous received acceleration data.
 						if (this.hasAccelerationData) {
-							wasRotationMatrixUpdated = this.monitor.sensorManager.getRotationMatrix(
+							wasRotationMatrixUpdated = SensorManager.getRotationMatrix(
 									this.rotationMatrixArray, null,
 									this.accelerationVectorArray,
 									this.magneticVectorArray);
@@ -383,7 +382,7 @@ public final class TiDeviceOrientationMonitor
 					break;
 				case Sensor.TYPE_ROTATION_VECTOR:
 					// Store the received rotation matrix data.
-					this.monitor.sensorManager.getRotationMatrixFromVector(
+					SensorManager.getRotationMatrixFromVector(
 							this.rotationMatrixArray, event.values);
 					wasRotationMatrixUpdated = true;
 					break;
@@ -395,7 +394,7 @@ public final class TiDeviceOrientationMonitor
 			}
 
 			// Calculate the device's orientation/attitude in degrees.
-			this.monitor.sensorManager.getOrientation(this.rotationMatrixArray, this.orientationArray);
+			SensorManager.getOrientation(this.rotationMatrixArray, this.orientationArray);
 			double pitch = Math.toDegrees((double)this.orientationArray[1]);    // -90 to 90
 			double roll = Math.toDegrees((double)this.orientationArray[2]);     // -180 to 180
 
