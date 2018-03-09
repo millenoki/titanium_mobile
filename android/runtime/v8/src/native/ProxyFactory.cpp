@@ -102,17 +102,6 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy); // v8Proxy holds pointer to Proxy object in internal field
 	jlong pv8Proxy = (jlong) proxy; // So now we store pointer to the Proxy on Java side.
 
-	// We also pass the creation URL of the proxy so we can track relative URLs
-	Local<Value> sourceUrl = args.Callee()->GetScriptOrigin().ResourceName();
-	v8::String::Utf8Value sourceUrlValue(sourceUrl);
-
-	const char *url = "app://app.js";
-	jstring javaSourceUrl = NULL;
-	if (sourceUrlValue.length() > 0) {
-		url = *sourceUrlValue;
-		javaSourceUrl = env->NewStringUTF(url);
-	}
-
 	// Determine if this constructor call was made within
 	// the createXYZ() wrapper function. This can be tested by checking
 	// if an Arguments object was passed as the sole argument.
@@ -122,6 +111,11 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 			calledFromCreate = true;
 		}
 	}
+
+
+	// We also pass the creation URL of the proxy so we can track relative URLs
+	// First see if this is getting passed in for us already
+	jstring javaSourceUrl = NULL;
 
 	// Convert the V8 arguments into Java types so they can be
 	// passed to the Java creator method. Which converter we use
@@ -151,6 +145,18 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// This does: Object javaV8Object = new V8Object(pv8Proxy);
 	jobject javaV8Object = env->NewObject(JNIUtil::v8ObjectClass,
 		JNIUtil::v8ObjectInitMethod, pv8Proxy);
+
+	// Crap, we didn't get passed the sourceURL in context. So let's hack this and grab from current stack
+	// So far in every case this was logged in our unit test suite, the URL was either:
+	// - a ti:/whatever.js runtime file
+	// - a module.id/bootstrap.js file
+	// So, I think we can just skip this hack altogether? Or maybe just assume "app://app.js"?
+	if (javaSourceUrl == NULL) {
+		Local<String> sourceUrl = v8::StackTrace::CurrentStackTrace(isolate, 1, v8::StackTrace::kScriptName)->GetFrame(0)->GetScriptNameOrSourceURL();
+		// v8::String::Utf8Value sourceUrlThing(sourceUrl);
+		// LOGE(TAG, "Was given no sourceURL. Trying to hack one from stack trace: %s", *sourceUrlThing);
+		javaSourceUrl = TypeConverter::jsValueToJavaString(isolate, env, sourceUrl);
+	}
 
 	// This does: KrollProxy.createProxy(javaClass, javaV8Object, javaArgs, javaSourceUrl);
 	// Which creates a new instance of the class using default no-arg constructor,
