@@ -203,8 +203,6 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 {
 	if (!V8Runtime::initialized) {
 		// Initialize V8.
-		V8::InitializeICU();
-
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
 		V8Runtime::platform = platform::CreateDefaultPlatform();
