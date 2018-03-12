@@ -64,9 +64,12 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 
 	Local<Value> javaObjectExternal = External::New(isolate, javaProxy);
 	TryCatch tryCatch(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
 	Local<Value> argv[1] = { javaObjectExternal };
-	Local<Object> v8Proxy = creator->NewInstance(1, argv);
-	if (tryCatch.HasCaught()) {
+
+	Local<Object> v8Proxy;
+	MaybeLocal<Object> maybeV8Proxy = creator->NewInstance(context, 1, argv);
+	if (!maybeV8Proxy.ToLocal(&v8Proxy)) {
 		LOGE(TAG, "Exception thrown while creating V8 proxy.");
 		V8Util::reportException(isolate, tryCatch);
 		return Local<Object>();

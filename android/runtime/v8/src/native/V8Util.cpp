@@ -68,15 +68,24 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 {
 	Isolate* isolate = args.GetIsolate();
 	EscapableHandleScope scope(isolate);
-	const int argc = args.Length();
-	Local<Value>* argv = new Local<Value> [argc];
 
+	const int argc = args.Length();
+	Local<Value>* argv = new Local<Value>[argc];
 	for (int i = 0; i < argc; ++i) {
 		argv[i] = args[i];
 	}
 
-	Local<Object> instance = t.Get(isolate)->GetFunction()->NewInstance(argc, argv);
+	Local<Context> context = isolate->GetCurrentContext();
+
+	TryCatch tryCatch(isolate);
+	v8::Local<v8::Value> nativeObject;
+	Local<Object> instance;
+	MaybeLocal<Object> maybeInstance = t.Get(isolate)->GetFunction()->NewInstance(context, argc, argv);
 	delete[] argv;
+	if (!maybeInstance.ToLocal(&instance)) {
+		V8Util::fatalException(isolate, tryCatch);
+		return scope.Escape(Undefined(isolate));
+	}
 	return scope.Escape(instance);
 }
 
@@ -146,12 +155,13 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		return;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
 	Local<Message> message = tryCatch.Message();
 
 	jstring title = env->NewStringUTF("Runtime Error");
 	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
-	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(v8::Local<v8::Value>::Cast(v8::Null(isolate))));
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -159,9 +169,9 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		title,
 		errorMessage,
 		resourceName,
-		message->GetLineNumber(),
+		message->GetLineNumber(context),
 		sourceLine,
-		message->GetEndColumn());
+		message->GetEndColumn(context));
 
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);

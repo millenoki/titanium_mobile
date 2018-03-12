@@ -644,10 +644,20 @@ jobject TypeConverter::jsValueToJavaObject(v8::Isolate* isolate, JNIEnv *env, v8
 			JavaObject *javaObject = JavaObject::Unwrap<JavaObject>(jsObject);
 			return javaObject->getJavaObject();
 		} else {
+
+			Local<Context> context = isolate->GetCurrentContext();
 			// Unwrap hyperloop JS wrappers to get native java proxy
 			v8::Local<String> nativeString = STRING_NEW(isolate, "$native");
-			if (jsObject->HasOwnProperty(nativeString)) {
-				v8::Local<v8::Value> nativeObject = jsObject->GetRealNamedProperty(nativeString);
+			if (jsObject->HasOwnProperty(context, nativeString).FromMaybe(false)) {
+
+				TryCatch tryCatch(isolate);
+				v8::Local<v8::Value> nativeObject;
+				v8::MaybeLocal<v8::Value> maybeNativeObject = jsObject->GetRealNamedProperty(context, nativeString);
+				if (!maybeNativeObject.ToLocal(&nativeObject)) {
+					V8Util::fatalException(isolate, tryCatch);
+					return NULL;
+				}
+
 				jsObject = nativeObject->ToObject(isolate);
 				if (JavaObject::isJavaObject(jsObject)) {
 					*isNew = JavaObject::useGlobalRefs ? false : true;
@@ -758,12 +768,15 @@ jobject TypeConverter::jsValueToJavaError(v8::Isolate* isolate, JNIEnv *env, v8:
 		// If it's a java object, we just return null for now.
 		if (!JavaObject::isJavaObject(jsObject)) {
 
-			Local<String> stackString = STRING_NEW(isolate, "stack"), messageString = STRING_NEW(isolate, "message");
-			if (jsObject->HasOwnProperty(stackString) || jsObject->HasOwnProperty(messageString)) {
-				bool keyIsNew, valueIsNew;
+			Local<Context> context = isolate->GetCurrentContext();
+			Local<String> stackString = STRING_NEW(isolate, "stack");
+			Local<String> messageString = STRING_NEW(isolate, "message");
+			if (jsObject->HasOwnProperty(context, stackString).FromMaybe(false) || jsObject->HasOwnProperty(context, messageString).FromMaybe(false)) {
 				*isNew = true;
-				v8::Local<v8::Value> jsObjectMessageProperty = jsObject->GetRealNamedProperty(messageString);
-				v8::Local<v8::Value> jsObjectStackProperty = jsObject->GetRealNamedProperty(stackString);
+
+				// Potentially empty, default to Null so we return Java NULL to KrollException
+				v8::Local<v8::Value> jsObjectMessageProperty = jsObject->GetRealNamedProperty(context, messageString).FromMaybe(v8::Local<v8::Value>::Cast(v8::Null(isolate)));
+				v8::Local<v8::Value> jsObjectStackProperty = jsObject->GetRealNamedProperty(context, stackString).FromMaybe(v8::Local<v8::Value>::Cast(v8::Null(isolate)));
 
 				return env->NewObject(JNIUtil::krollExceptionClass, JNIUtil::krollExceptionInitMethod,
 							TypeConverter::jsValueToJavaString(isolate, env, jsObjectMessageProperty), TypeConverter::jsValueToJavaString(isolate, env, jsObjectStackProperty));
