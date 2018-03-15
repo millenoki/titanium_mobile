@@ -7,7 +7,6 @@
 
 #include <android/log.h>
 #include <v8.h>
-#include <v8-debug.h>
 #include <cstring>
 #include <signal.h>
 #include <unistd.h>
@@ -18,6 +17,7 @@
 #include "V8Runtime.h"
 #include "V8Util.h"
 #include "org.appcelerator.kroll.KrollModule.h"
+#include "JSDebugger.h"
 
 namespace titanium {
 
@@ -71,7 +71,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 	// TODO Use a constant here?
 	Local<ObjectTemplate> instanceTemplate = constructor->InstanceTemplate();
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "apiName"), APIModule::getter_apiName);
-	
+
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "bubbleParent"), APIModule::getter_undefined);
 	instanceTemplate->SetAccessor(NEW_SYMBOL(isolate, "lifecycleContainer"), APIModule::getter_undefined);
 
@@ -274,7 +274,7 @@ void APIModule::terminate(const FunctionCallbackInfo<Value>& args)
 
 void APIModule::debugBreak(const FunctionCallbackInfo<Value>& args)
 {
-	Debug::DebugBreak(args.GetIsolate());
+	JSDebugger::debugBreak();
 }
 
 void APIModule::undefined(const FunctionCallbackInfo<Value>& args)

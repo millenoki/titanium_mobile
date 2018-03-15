@@ -18,7 +18,7 @@
 	],
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86"],
 	"v8": {
-		"version": "6.5.254.35",
+		"version": "6.6.346.11",
 		"mode": "release"
 	},
 	"minSDKVersion": "16",
@@ -28,8 +28,8 @@
 		"android build tools": "26.x",
 		"android platform tools": "26.x",
 		"android tools": "<=26.x",
-		"android ndk": ">=r11c <=r15c",
-		"node": ">=4.0 <=7.x",
+		"android ndk": "r16b",
+		"node": ">=4.0 <=9.x",
 		"java": ">=1.8.x"
 	},
 	"repository": {
