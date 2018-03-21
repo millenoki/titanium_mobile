@@ -19,7 +19,7 @@ import org.appcelerator.titanium.proxy.RProxy;
 import android.app.Activity;
 import android.content.Intent;
 
-@Kroll.module(parentModule=AppModule.class)
+@Kroll.module(parentModule = AppModule.class)
 public class AndroidModule extends KrollModule
 {
 	protected RProxy r;
@@ -31,7 +31,7 @@ public class AndroidModule extends KrollModule
 		super();
 	}
 
-	@Kroll.getProperty(name="R")
+	@Kroll.getProperty(name = "R")
 	public RProxy getR()
 	{
 		if (r == null) {
@@ -39,7 +39,7 @@ public class AndroidModule extends KrollModule
 		}
 		return r;
 	}
-	
+
 	@Kroll.getProperty(name="wasStartedAtBoot")
 	public Boolean wasStartedAtBoot()
 	{
@@ -68,14 +68,17 @@ public class AndroidModule extends KrollModule
 		}
 
 		if (activity instanceof TiBaseActivity) {
-			return ((TiBaseActivity)activity).getActivityProxy();
+			return ((TiBaseActivity) activity).getActivityProxy();
 		} else {
 			return null;
 		}
 	}
 
-	@Kroll.getProperty @Kroll.method
+    // clang-format off
+    @Kroll.getProperty
+    @Kroll.method
 	public IntentProxy getLaunchIntent()
+	// clang-format on
 	{
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
@@ -99,6 +102,6 @@ public class AndroidModule extends KrollModule
     @Kroll.method
     public int getGooglePlayServicesState() {
         return TiApplication.getGooglePlayServicesState();
-    }
+}
 
 }

@@ -94,6 +94,16 @@ USE_VIEW_FOR_CONTENT_SIZE
   }
 }
 
+- (void)gainFocus
+{
+  [[self tableView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self tableView] viewResignFocus];
+}
+
 - (NSArray *)keySequence
 {
   static NSArray *keySequence = nil;

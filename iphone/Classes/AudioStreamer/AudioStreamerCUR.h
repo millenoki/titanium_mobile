@@ -12,7 +12,12 @@
 //  appreciated but not required.
 //
 
-#ifdef USE_TI_AUDIO
+#if defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) ||    \
+    defined(USE_TI_AUDIOAPPMUSICPLAYER) ||       \
+    defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || \
+    defined(USE_TI_AUDIOGETAPPMUSICPLAYER) || \
+    defined(USE_TI_AUDIOPLAYER) || \
+    defined(USE_TI_AUDIOGETAUDIOPLAYER)
 
 #ifdef TARGET_OS_IPHONE			
 #import <UIKit/UIKit.h>

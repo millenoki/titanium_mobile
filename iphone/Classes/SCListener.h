@@ -5,7 +5,8 @@
 // (c) 2009-* Stephen Celis, <stephen@stephencelis.com>.
 // Released under the MIT License.
 //
-#ifdef USE_TI_AUDIO
+
+#if defined(USE_TI_AUDIOSTARTMICROPHONEMONITOR) || defined(USE_TI_AUDIOSTOPMICROPHONEMONITOR) || defined(USE_TI_AUDIOPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOGETPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOAVERAGEMICROPHONEPOWER) || defined(USE_TI_AUDIOGETAVERAGEMICROPHONEPOWER)
 
 #import <AudioToolbox/AudioQueue.h>
 #import <AudioToolbox/AudioServices.h>

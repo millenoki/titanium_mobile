@@ -99,6 +99,7 @@ enum {
 }
 
 #pragma mark Public Properties
+
 - (NSString *)apiName
 {
   return @"Ti.Media";
@@ -450,7 +451,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   ENSURE_UI_THREAD(saveToPhotoGallery, arg);
   NSObject *image = [arg objectAtIndex:0];
-  ENSURE_TYPE(image, NSObject)
+  ENSURE_TYPE(image, NSObject);
 
   NSDictionary *saveCallbacks = nil;
   if ([arg count] > 1) {
@@ -716,11 +717,17 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #ifdef USE_TI_MEDIAHASPHOTOGALLERYPERMISSIONS
 - (NSNumber *)hasPhotoGalleryPermissions:(id)unused
 {
-  NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+  NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+  NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
-  // Gallery permissions are required when selecting media from the gallery
-  if ([TiUtils isIOS10OrGreater] && !galleryPermission) {
-    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+  // Reading (!) from gallery permissions are required on iOS 10 and later.
+  if ([TiUtils isIOS10OrGreater] && !readFromGalleryPermission) {
+    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. It will be ignored on devices < iOS 10. Please add the key and re-run the application.");
+  }
+
+  // Writing (!) to gallery permissions are required on iOS 11 and later.
+  if ([TiUtils isIOS11OrGreater] && !addToGalleryPermission) {
+    NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
   }
 
   return NUMBOOL([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized);
@@ -983,6 +990,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [thePresenter setPermittedArrowDirections:arrowDirection];
   [thePresenter setDelegate:self];
   [[TiApp app] showModalController:theController animated:animatedPicker];
+  return;
 }
 #endif
 
@@ -1077,7 +1085,8 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
     if ([TiUtils isIOS10OrGreater]) {
       NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
-      NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+      NSString *readFromGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+      NSString *addToGalleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryAddUsageDescription"];
 
       // Microphone permissions are required when using the video-camera
       if (movieRequired == YES && !microphonePermission) {
@@ -1085,8 +1094,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       }
 
       // Gallery permissions are required when saving or selecting media from the gallery
-      if ((saveToRoll || !customPicker) && !galleryPermission) {
+      if (saveToRoll && !readFromGalleryPermission) {
         NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+      }
+
+      // Writing (!) to gallery permissions are also required on iOS 11 and later.
+      if ([TiUtils isIOS11OrGreater] && saveToRoll && !addToGalleryPermission) {
+        NSLog(@"[ERROR] iOS 11 and later requires the key \"NSPhotoLibraryAddUsageDescription\" inside the plist in your tiapp.xml when writing to the photo library to store media. It will be ignored on devices < iOS 11. Please add the key and re-run the application.");
       }
     }
 
@@ -1141,7 +1155,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       if (!UIInterfaceOrientationIsPortrait(orientation)) {
         screenSize = CGSizeMake(screenSize.height, screenSize.width);
       }
-
       float cameraAspectRatio = 4.0 / 3.0;
       float camViewHeight = screenSize.width * cameraAspectRatio;
       float scale = screenSize.height / camViewHeight;

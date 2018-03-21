@@ -368,10 +368,10 @@
   BOOL isInteracting = NO;
   if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
     isInteracting = [delegate isInteracting];
-  }
+}
   if (!isInteracting) {
     [self setupWindowDecorations:animated];
-  }
+}
   [super viewWillAppear:animated];
 }
 
@@ -386,7 +386,7 @@
     [self setupWindowDecorations:animated];
     ((ADNavigationControllerDelegate *)delegate).isInteracting = NO;
   } else {
-    [self updateTitleView];
+  [self updateTitleView];
   }
   [super viewDidAppear:animated];
 }
@@ -503,13 +503,13 @@
   NSString *color = [TiUtils stringValue:colorString];
   [self replaceValue:color forKey:@"navTintColor" notification:NO];
 
-  if (controller != nil) {
+    if (controller != nil) {
     id navController = [self navControllerForController:controller];
-    TiColor *newColor = [TiUtils colorValue:color];
-    if (newColor == nil) {
-      //Get from TabGroup
-      newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-    }
+      TiColor *newColor = [TiUtils colorValue:color];
+      if (newColor == nil) {
+        //Get from TabGroup
+        newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+      }
 
     UINavigationBar *navBar = [navController navigationBar];
     if (newColor == nil) {
@@ -520,7 +520,7 @@
     if (!_setingUpWindowDecorations) {
       [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
     }
-  }
+}
 }
 
 - (void)setBarColor:(id)colorString
@@ -544,9 +544,9 @@
     [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
 
     if (!_setingUpWindowDecorations) {
-      [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-    }
+    [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
   }
+}
 }
 
 - (void)setBarDeltaY:(id)value
@@ -660,15 +660,15 @@
     UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
     [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
   }
-  id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+    id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
   UIImage *theShadowImage = [TiUtils toImage:shadowImageValue proxy:self];
 
   if (theShadowImage != nil) {
-    UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
-    ourNB.shadowImage = resizableImage;
-  } else {
-    BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
-    if (clipValue) {
+      UIImage *resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+      ourNB.shadowImage = resizableImage;
+    } else {
+      BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+      if (clipValue) {
 
       if (theImage == nil) {
         TiColor *barColor = [TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]];
@@ -678,13 +678,13 @@
           [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
         }
       }
-      //Set an empty Image.
-      ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
-    } else {
-      ourNB.shadowImage = nil;
+        //Set an empty Image.
+        ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+      } else {
+        ourNB.shadowImage = nil;
+      }
     }
   }
-}
 
 - (void)setBarImage:(id)value
 {
@@ -712,7 +712,7 @@
   ENSURE_UI_THREAD(setShadowImage, value);
   [self replaceValue:value forKey:@"shadowImage" notification:NO];
   if (controller != nil) {
-    [self updateBarImage];
+      [self updateBarImage];
   }
 }
 
@@ -721,7 +721,7 @@
   ENSURE_UI_THREAD(setHideShadow, value);
   [self replaceValue:value forKey:@"hideShadow" notification:NO];
   if (controller != nil) {
-    [self updateBarImage];
+      [self updateBarImage];
   }
 }
 
@@ -758,7 +758,7 @@
   //    }
   [self refreshLeftNavButtons:nil];
   [self refreshRightNavButtons:nil];
-}
+  }
 
 - (void)refreshRightNavButtons:(id)unused
 {
@@ -1065,7 +1065,7 @@
     return; // No need to update the title if not in a nav controller
   }
   TiThreadPerformOnMainThread(^{
-    [self updateTitleView];
+      [self updateTitleView];
   },
       NO);
 }
@@ -1142,7 +1142,7 @@
   [self addObjectToHold:proxy forKey:@"titleView"];
   if (controller != nil) {
     TiThreadPerformBlockOnMainThread(^{
-      [self updateTitleView];
+    [self updateTitleView];
     },
         NO);
   }
@@ -1400,7 +1400,7 @@
   if (animated) {
     [UIView beginAnimations:@"navbarAnim" context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
-  }
+}
 
   BOOL navBarHidden = [TiUtils boolValue:[self valueForKey:@"navBarHidden"] def:[navController isNavigationBarHidden]];
   if (navBarHidden != [navController isNavigationBarHidden]) {
@@ -1408,7 +1408,7 @@
       [self hideNavBar:@[ @{ @"animated" : @(NO) } ]];
     } else {
       [self showNavBar:@[ @{ @"animated" : @(NO) } ]];
-    }
+  }
   }
 
   if ((isModal || self.isManaged)) {
@@ -1424,12 +1424,12 @@
   SETPROP(@"toolbarDeltaY", setToolbarDeltaY);
   if (animated) {
     [UIView commitAnimations];
-  }
+}
 
   _setingUpWindowDecorations = NO;
   if (self.tab) {
     [self.tab windowSetUpDecoration:self animated:animated];
-  }
+}
 }
 
 - (void)cleanupWindowDecorations
@@ -1442,29 +1442,29 @@
   NSMutableArray *items = [NSMutableArray array];
   if (controller.navigationItem.leftBarButtonItem) {
     [items addObject:controller.navigationItem.leftBarButtonItem];
-  }
+    }
   if (controller.navigationItem.rightBarButtonItem) {
     [items addObject:controller.navigationItem.rightBarButtonItem];
-  }
+      }
   if (controller.navigationItem.leftBarButtonItems) {
     [items addObjectsFromArray:controller.navigationItem.leftBarButtonItems];
-  }
+    }
   if (controller.navigationItem.rightBarButtonItems) {
     [items addObjectsFromArray:controller.navigationItem.rightBarButtonItems];
-  }
+    }
   for (UIBarButtonItem *item in items) {
     TiViewProxy *p = nil;
     if ([item respondsToSelector:@selector(proxy)]) {
       p = (TiViewProxy *)[item performSelector:@selector(proxy)];
     } else if ([[item customView] respondsToSelector:@selector(proxy)]) {
       p = (TiViewProxy *)[[item customView] performSelector:@selector(proxy)];
-    }
+      }
     if (p) {
       [p removeBarButtonView];
       [p windowDidClose];
       [self forgetProxy:p];
     }
-  }
+    }
   controller.navigationItem.leftBarButtonItem = controller.navigationItem.rightBarButtonItem = nil;
   controller.navigationItem.leftBarButtonItems = controller.navigationItem.rightBarButtonItems = nil;
   if (barImageView != nil) {
@@ -1478,7 +1478,7 @@
     id navController = [self navControllerForController:controller];
     if ((controller == nil) || (navController == nil)) {
       return;
-    }
+  }
 
     BOOL isHidden = [navController isNavigationBarHidden];
     [navController setNavigationBarHidden:!isHidden animated:NO];
@@ -1489,7 +1489,7 @@
                        [navController setNavigationBarHidden:isHidden animated:NO];
                      }];
   }
-}
+  }
 
 @end
 

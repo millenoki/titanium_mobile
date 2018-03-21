@@ -99,58 +99,105 @@
   if (!safeAreaView || shouldExtendSafeArea) {
     return;
   }
-  float left = 0.0;
-  float right = 0.0;
-  float top = 0.0;
-  float bottom = 0.0;
+  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
   UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
-  UIEdgeInsets actualInset = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
-  if (windowProxy.tabGroup) {
-    if ([windowProxy.tabGroup isKindOfClass:[TiWindowProxy class]]) {
-      windowProxy = (TiWindowProxy *)windowProxy.tabGroup;
-    }
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (!UIInterfaceOrientationIsPortrait(orientation)) {
-      if (windowProxy.isMasterWindow) {
-        actualInset.left = safeAreaInset.left;
-      } else if (windowProxy.isDetailWindow) {
-        actualInset.right = safeAreaInset.right;
-      } else {
-        actualInset.left = safeAreaInset.left;
-        actualInset.right = safeAreaInset.right;
-      }
-    }
-  } else if (windowProxy.tab) {
-    if ([windowProxy.tab isKindOfClass:[TiWindowProxy class]]) {
-      windowProxy = (TiWindowProxy *)windowProxy.tab;
-    }
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (!UIInterfaceOrientationIsPortrait(orientation)) {
-      if (windowProxy.isMasterWindow) {
-        actualInset.left = safeAreaInset.left;
-      } else if (windowProxy.isDetailWindow) {
-        actualInset.right = safeAreaInset.right;
-      } else {
-        actualInset.left = safeAreaInset.left;
-        actualInset.right = safeAreaInset.right;
-      }
-    }
-    actualInset.bottom = safeAreaInset.bottom;
+
+  if (self.tabGroup) {
+    edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
+  } else if (self.tab) {
+    edgeInsets = [self navigationGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
   } else {
-    if (windowProxy.isMasterWindow) {
-      actualInset.left = safeAreaInset.left;
-    } else if (windowProxy.isDetailWindow) {
-      actualInset.right = safeAreaInset.right;
-    } else {
-      actualInset.left = safeAreaInset.left;
-      actualInset.right = safeAreaInset.right;
-    }
-    actualInset.bottom = safeAreaInset.bottom;
-    actualInset.top = safeAreaInset.top;
+    edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
-  safeAreaView.frame = UIEdgeInsetsInsetRect(self.bounds, actualInset);
+
+  TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
+  CGFloat oldTop = [[safeAreaProxy valueForKey:@"top"] floatValue];
+  CGFloat oldLeft = [[safeAreaProxy valueForKey:@"left"] floatValue];
+  CGFloat oldRight = [[safeAreaProxy valueForKey:@"right"] floatValue];
+  CGFloat oldBottom = [[safeAreaProxy valueForKey:@"bottom"] floatValue];
+
+  if (oldTop != edgeInsets.top) {
+    [safeAreaProxy setTop:NUMFLOAT(edgeInsets.top)];
+  }
+  if (oldBottom != edgeInsets.bottom) {
+    [safeAreaProxy setBottom:NUMFLOAT(edgeInsets.bottom)];
+  }
+  if (oldLeft != edgeInsets.left) {
+    [safeAreaProxy setLeft:NUMFLOAT(edgeInsets.left)];
+  }
+  if (oldRight != edgeInsets.right) {
+    [safeAreaProxy setRight:NUMFLOAT(edgeInsets.right)];
+  }
+
 #endif
+}
+- (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
+{
+  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
+  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
+  if ([windowProxy.tabGroup isKindOfClass:[TiWindowProxy class]]) {
+    windowProxy = (TiWindowProxy *)windowProxy.tabGroup;
+  }
+  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  if (!UIInterfaceOrientationIsPortrait(orientation)) {
+    if (windowProxy.isMasterWindow) {
+      edgeInsets.left = safeAreaInset.left;
+    } else if (windowProxy.isDetailWindow) {
+      edgeInsets.right = safeAreaInset.right;
+    } else {
+      edgeInsets.left = safeAreaInset.left;
+      edgeInsets.right = safeAreaInset.right;
+    }
+  }
+  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
+    edgeInsets.top = safeAreaInset.top;
+  }
+  if ([TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]) {
+    edgeInsets.bottom = safeAreaInset.bottom;
+  }
+  return edgeInsets;
+}
+
+- (UIEdgeInsets)navigationGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
+{
+  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
+  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
+  if ([windowProxy.tab isKindOfClass:[TiWindowProxy class]]) {
+    windowProxy = (TiWindowProxy *)windowProxy.tab;
+  }
+  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  if (!UIInterfaceOrientationIsPortrait(orientation)) {
+    if (windowProxy.isMasterWindow) {
+      edgeInsets.left = safeAreaInset.left;
+    } else if (windowProxy.isDetailWindow) {
+      edgeInsets.right = safeAreaInset.right;
+    } else {
+      edgeInsets.left = safeAreaInset.left;
+      edgeInsets.right = safeAreaInset.right;
+    }
+  }
+  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
+    edgeInsets.top = safeAreaInset.top;
+  }
+  edgeInsets.bottom = safeAreaInset.bottom;
+  return edgeInsets;
+}
+
+- (UIEdgeInsets)defaultEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
+{
+  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
+  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
+  if (windowProxy.isMasterWindow) {
+    edgeInsets.left = safeAreaInset.left;
+  } else if (windowProxy.isDetailWindow) {
+    edgeInsets.right = safeAreaInset.right;
+  } else {
+    edgeInsets.left = safeAreaInset.left;
+    edgeInsets.right = safeAreaInset.right;
+  }
+  edgeInsets.bottom = safeAreaInset.bottom;
+  edgeInsets.top = safeAreaInset.top;
+  return edgeInsets;
 }
 @end

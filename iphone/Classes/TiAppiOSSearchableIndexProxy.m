@@ -57,7 +57,6 @@
 
   [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items
                                                  completionHandler:^(NSError *__nullable error) {
-
                                                    NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
                                                    [event setObject:NUMBOOL((!error)) forKey:@"success"];
 

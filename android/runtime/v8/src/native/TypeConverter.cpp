@@ -99,10 +99,7 @@ jstring TypeConverter::jsStringToJavaString(v8::Local<v8::String> jsString)
 
 jstring TypeConverter::jsStringToJavaString(JNIEnv *env, v8::Local<v8::String> jsString)
 {
-	if(jsString.IsEmpty()){
-		return NULL;
-	}
-	titanium::TwoByteValue string(jsString);
+	v8::String::Value string(jsString);
 	return env->NewString(reinterpret_cast<const jchar*>(*string), string.length());
 }
 

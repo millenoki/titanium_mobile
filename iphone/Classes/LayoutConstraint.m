@@ -92,7 +92,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
 
     if ((resultResizing != NULL) && [autoSizer respondsToSelector:@selector(verifyAutoresizing:)]) {
       *resultResizing = [autoSizer verifyAutoresizing:*resultResizing];
-    }
+  }
     return result;
   };
 
@@ -114,14 +114,14 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     } else if (!parent) {
       parentCanGrow = TiDimensionIsAutoSize(constraint->height);
     }
-  }
+    }
 
   if (constraint->fullscreen == YES) {
     *resultResizing |= (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
     width = boundingWidth;
     height = boundingHeight;
     return completion();
-  }
+        }
 
   TiDimension dimension = constraint->width;
   if (TiDimensionIsDip(dimension)) {
@@ -132,7 +132,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     flexibleWidth = YES;
     if (ignoreWPercent) {
       boundingWidth = parentSize.width;
-    }
+      }
     width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
   } else if (TiDimensionIsUndefined(dimension)) {
     flexibleWidth = YES;
@@ -154,7 +154,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
       needsWidthAutoCompute = YES;
       followsFillWBehavior = NO;
       width = boundingWidth - offsetx;
-    }
+      }
   } else if (TiDimensionIsAutoFill(dimension) || (TiDimensionIsAuto(dimension) && followsFillWBehavior)) {
     flexibleWidth = YES;
     followsFillWBehavior = YES;
@@ -167,7 +167,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     needsWidthAutoCompute = YES;
     followsFillWBehavior = NO;
     width = boundingWidth - offsetx;
-  }
+    }
 
   dimension = constraint->height;
 
@@ -186,7 +186,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY)) {
       followsFillHBehavior = NO;
       height = 2 * (TiDimensionCalculateValue(constraint->centerY, boundingHeight) - TiDimensionCalculateValue(constraint->top, boundingHeight));
-    }
+  }
     //        else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
     ////            followsFillHBehavior = YES;
     //            height = boundingHeight - offsety;
@@ -201,7 +201,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
       needsHeightAutoCompute = YES;
       followsFillHBehavior = NO;
       height = boundingHeight - offsety;
-    }
+  }
   } else if (TiDimensionIsAutoFill(dimension) || (TiDimensionIsAuto(dimension) && followsFillHBehavior)) {
     flexibleHeight = YES;
     followsFillHBehavior = YES;
@@ -218,14 +218,14 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
 
   CGSize autoSize;
 
-  //Undefined falls to auto behavior
+    //Undefined falls to auto behavior
   if (!flexibleWidth && TiDimensionIsUndefined(constraint->width) || TiDimensionIsAuto(constraint->width)) {
-    //Check if default auto behavior is fill
+      //Check if default auto behavior is fill
     if ([autoSizer respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
       flexibleWidth = TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil]);
       needsWidthAutoCompute = !flexibleWidth;
-    }
-  }
+        }
+      }
 
   if (needsWidthAutoCompute && [autoSizer respondsToSelector:@selector(autoSizeForSize:)]) {
     //If it comes here it has to follow size behavior
@@ -245,7 +245,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     if ([autoSizer respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
       flexibleHeight = TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil]);
       needsHeightAutoCompute = !flexibleHeight;
-    }
+  }
   }
 
   if (needsHeightAutoCompute && [autoSizer respondsToSelector:@selector(autoSizeForSize:)]) {
@@ -253,7 +253,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
     if (autoSizeComputed == NO) {
       autoSize = [autoSizer autoSizeForSize:CGSizeMake(width, height)];
       autoSizeComputed = YES;
-    }
+  }
     height = parentCanGrow ? autoSize.height : (height < autoSize.height ? height : autoSize.height);
   } else if (flexibleHeight && resultResizing != NULL) {
     *resultResizing |= UIViewAutoresizingFlexibleHeight;

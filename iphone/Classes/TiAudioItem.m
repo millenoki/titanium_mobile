@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_AUDIO
-#import "TiAudioItem.h"
-#import "AudioModule.h"
 
-@implementation TiAudioItem
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
+
+#import "TiMediaItem.h"
+#import "MediaModule.h"
 
 #pragma mark Internal
 

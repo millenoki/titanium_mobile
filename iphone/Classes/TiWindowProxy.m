@@ -77,7 +77,7 @@
 {
   if (!_useCustomUIWindow && !controller) {
     return [[TiApp app] controller];
-  }
+}
   return controller;
 }
 
@@ -116,9 +116,9 @@
 - (void)refreshViewIfNeeded
 {
   if (!readyToBeLayout)
-    return;
+      return;
   [super refreshViewIfNeeded];
-}
+    }
 
 - (BOOL)relayout
 {
@@ -134,7 +134,7 @@
   if (!readyToBeLayout) {
     //in case where the window was actually added as a child we want to make sure we are good
     readyToBeLayout = YES;
-  }
+}
   [super setSandboxBounds:rect];
 }
 
@@ -191,7 +191,7 @@
     _customUIWindow.hidden = YES;
     if ([_customUIWindow isKeyWindow]) {
       [_customUIWindow resignFirstResponder];
-    }
+  }
     RELEASE_TO_NIL(_customUIWindow)
   }
   //    [self viewDidDisappear:false];
@@ -211,14 +211,14 @@
 - (void)attachViewToTopContainerController
 {
   if (!controller) {
-    UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-    TiUIView *theView = [self view];
-    [rootView addSubview:theView];
-    [rootView bringSubviewToFront:theView];
+  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+  UIView *rootView = [topContainerController hostingView];
+  TiUIView *theView = [self view];
+  [rootView addSubview:theView];
+  [rootView bringSubviewToFront:theView];
     [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
-  }
 }
+  }
 
 - (BOOL)isRootViewLoaded
 {
@@ -292,8 +292,8 @@
   if (!isModal && (tab == nil)) {
     openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
     if (openAnimation) {
-      [self rememberProxy:openAnimation];
-    }
+    [self rememberProxy:openAnimation];
+  }
   }
   [self updateOrientationModes];
 
@@ -309,7 +309,7 @@
   //TODO Argument Processing
   id object = [self valueForUndefinedKey:@"orientationModes"];
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
-}
+  }
 
 //-(void)setStatusBarStyle:(id)style
 //{
@@ -376,7 +376,7 @@
   //TODO Argument Processing
   closeAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
   if (closeAnimation) {
-    [self rememberProxy:closeAnimation];
+  [self rememberProxy:closeAnimation];
   }
 
   //GO ahead and call close on UI thread
@@ -412,7 +412,7 @@
   if (isModal || (tab != nil) || self.isManaged) {
     if (closeAnimation) {
       FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
-    }
+  }
   }
   TiRootViewController *theController = [[TiApp app] controller];
   if (_customUIWindow || (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController])) {
@@ -496,7 +496,7 @@
     focussed = YES;
     if ([self handleFocusEvents] && opened) {
       [self fireEvent:@"focus" propagate:NO];
-    }
+      }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [view setAccessibilityElementsHidden:NO];
   }
@@ -512,16 +512,18 @@
     focussed = NO;
     if ([self handleFocusEvents]) {
       [self fireEvent:@"blur" propagate:NO];
-    }
+      }
     [view setAccessibilityElementsHidden:YES];
+    }
   }
-}
 
 - (void)blur:(id)args
 {
   ENSURE_UI_THREAD_1_ARG(args)
   [self resignFocus];
   [super blur:nil];
+    }
+  }
 }
 
 - (void)focus:(id)args
@@ -529,7 +531,7 @@
   ENSURE_UI_THREAD_1_ARG(args)
   [self gainFocus];
   [super focus:nil];
-}
+  }
 
 - (TiProxy *)topWindow
 {
@@ -792,13 +794,13 @@
 {
   [self refreshViewIfNeeded];
   [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
+  }
 
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
   [self setFakeAnimationOfDuration:duration andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
   [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-}
+  }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
@@ -811,35 +813,35 @@
 {
   if ([self viewAttached]) {
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context)
-     {
+{
        [self refreshViewIfNeeded];
      } completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
      {
      }];
-  }
+    }
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-}
+  }
 
 #pragma mark - TiAnimation Delegate Methods
 
 - (BOOL)canAnimateWithoutParent
 {
   return YES;
-}
+    }
 
 - (HLSAnimation *)animationForAnimation:(TiAnimation *)animation
 {
   if (animation.isTransitionAnimation && (animation == openAnimation || animation == closeAnimation)) {
 
     TiTransitionAnimation *hlsAnimation = [TiTransitionAnimation animation];
-    UIView *hostingView = nil;
+  UIView *hostingView = nil;
     if (animation == openAnimation) {
-      hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
+    hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
       hlsAnimation.openTransition = YES;
-    } else {
+  } else {
       hostingView = [[self getOrCreateView] superview];
       hlsAnimation.closeTransition = YES;
-    }
+  }
     hlsAnimation.animatedProxy = self;
     hlsAnimation.animationProxy = animation;
     hlsAnimation.transition = animation.transition;
@@ -848,9 +850,9 @@
     step.duration = [animation getAnimationDuration];
     [step addTransitionAnimation:hlsAnimation insideHolder:hostingView];
     return [HLSAnimation animationWithAnimationStep:step];
-  } else {
+    } else {
     return [super animationForAnimation:animation];
-  }
+    }
 }
 
 - (void)animationDidComplete:(TiAnimation *)sender

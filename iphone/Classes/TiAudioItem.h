@@ -4,7 +4,8 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_AUDIO
+
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAGETAPPMUSICPLAYER)
 
 #import "TiBlob.h"
 #import "TiProxy.h"

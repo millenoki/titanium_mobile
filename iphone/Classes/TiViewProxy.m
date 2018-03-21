@@ -107,7 +107,7 @@
 - (void)runBlock:(void (^)(TiViewProxy *proxy))block onlyVisible:(BOOL)onlyVisible recursive:(BOOL)recursive
 {
   if (recursive) {
-    pthread_rwlock_rdlock(&childrenLock);
+  pthread_rwlock_rdlock(&childrenLock);
     [children enumerateObjectsUsingBlock:^(TiProxy *child, NSUInteger idx, BOOL *_Nonnull stop) {
       if (IS_OF_CLASS(child, TiViewProxy) && (!onlyVisible || !((TiViewProxy *)child).isHidden)) {
         block((TiViewProxy *)child);
@@ -115,13 +115,13 @@
       }
     }];
     //        NSArray* subproxies = onlyVisible?[self visibleChildren]:[self viewChildren];
-    pthread_rwlock_unlock(&childrenLock);
+  pthread_rwlock_unlock(&childrenLock);
     //        for (TiViewProxy * thisChildProxy in subproxies)
     //        {
     //            block(thisChildProxy);
     //            [thisChildProxy runBlock:block onlyVisible:onlyVisible recursive:recursive];
     //        }
-  }
+}
 }
 
 - (void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
@@ -281,16 +281,16 @@
     [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
   },
       NO);
-}
+    }
 
 - (void)hide:(id)arg
-{
-  TiThreadPerformOnMainThread(^{
+      {
+      TiThreadPerformOnMainThread(^{
     [self setHidden:YES withArgs:arg];
     [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
-  },
-      NO);
-}
+      },
+          NO);
+    }
 
 #pragma Animations
 
@@ -298,9 +298,9 @@
 {
   if (parent) {
     return [[self viewParent] animationDelegate];
-  }
+    }
   return nil;
-}
+  }
 
 - (BOOL)readyToAnimate
 {
@@ -325,7 +325,7 @@
   }
   animationDelayGuard = 0;
   [super handlePendingAnimation:pendingAnimation];
-}
+  }
 
 - (void)aboutToBeAnimated
 {
@@ -333,21 +333,21 @@
     VerboseLog(@"Entering animation without a superview Parent is %@, props are %@", parent, dynprops);
     [self windowWillOpen]; // we need to manually attach the window if you're animating
     [[self viewParent] childWillResize:self];
+    }
   }
-}
 
 - (void)setFakeApplyProperties:(BOOL)newValue
 {
   _fakeApplyProperties = newValue;
   if (!_fakeApplyProperties) {
     [self refreshViewOrParent];
+    }
   }
-}
 
 - (Class)animationClassType
 {
   return [TiViewAnimation class];
-}
+      }
 
 - (HLSAnimation *)animationForAnimation:(TiAnimation *)animation
 {
@@ -371,10 +371,10 @@
     step.duration = [animation getAnimationDuration];
     step.curve = [animation curve];
     [(TiViewAnimationStep *)step addViewAnimation:hlsAnimation forView:self.view];
-  }
+    }
 
   return [HLSAnimation animationWithAnimationStep:step];
-}
+  }
 
 - (void)handleAnimation:(TiAnimation *)animation witDelegate:(id)delegate
 {
@@ -398,7 +398,7 @@
   OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
   [self willEnqueue];
   [super animationDidComplete:animation];
-}
+      }
 
 - (void)resetProxyPropertiesForAnimation:(TiAnimation *)animation
 {
@@ -591,7 +591,7 @@ SEL GetterForKrollProperty(NSString *key)
       id defaultUnit = [TiApp defaultUnit];
       if ([defaultUnit isKindOfClass:[NSString class]]) {
         [rect convertToUnit:defaultUnit];
-      }
+}
     } else {
       [rect setRect:CGRectZero];
     }
@@ -616,10 +616,10 @@ SEL GetterForKrollProperty(NSString *key)
       viewPosition = [ourView center];
       viewTransform = [ourView transform];
       viewAnchor = [[ourView layer] anchorPoint];
-      viewRect.origin = CGPointMake(-viewAnchor.x * viewRect.size.width, -viewAnchor.y * viewRect.size.height);
-      viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
-      viewRect.origin.x += viewPosition.x;
-      viewRect.origin.y += viewPosition.y;
+    viewRect.origin = CGPointMake(-viewAnchor.x * viewRect.size.width, -viewAnchor.y * viewRect.size.height);
+    viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
+    viewRect.origin.x += viewPosition.x;
+    viewRect.origin.y += viewPosition.y;
       viewRect.origin = [ourView convertPoint:CGPointZero toView:nil];
       if (![[UIApplication sharedApplication] isStatusBarHidden]) {
         CGRect statusFrame = [[UIApplication sharedApplication] statusBarFrame];
@@ -651,7 +651,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
   [self setVzIndex:[TiUtils intValue:value def:0]];
   //    }
-}
+  }
 
 - (NSMutableDictionary *)center
 {
@@ -756,8 +756,8 @@ SEL GetterForKrollProperty(NSString *key)
         propsToApply = [obj objectForKey:@"properties"];
       } else {
         scale = [TiUtils floatValue:obj def:0.0f];
-      }
     }
+  }
   }
   ENSURE_SINGLE_ARG_OR_NIL(obj, KrollCallback);
   callback = (KrollCallback *)obj;
@@ -965,7 +965,7 @@ SEL GetterForKrollProperty(NSString *key)
     }
   }];
   pthread_rwlock_unlock(&childrenLock);
-}
+  }
 
 - (NSArray *)visibleChildren
 {
@@ -983,7 +983,7 @@ SEL GetterForKrollProperty(NSString *key)
     if (IS_OF_CLASS(object, TiViewProxy)) {
       TiViewProxy *viewProxy = object;
       return !viewProxy.isHidden && !viewProxy.hiddenForLayout;
-    }
+}
     return NO;
   }]] retain];
   pthread_rwlock_unlock(&childrenLock);
@@ -998,7 +998,7 @@ SEL GetterForKrollProperty(NSString *key)
 - (LayoutConstraint *)layoutProperties
 {
   return &layoutProperties;
-}
+  }
 #endif
 
 @synthesize sandboxBounds = sandboxBounds;
@@ -1018,14 +1018,14 @@ SEL GetterForKrollProperty(NSString *key)
     //            if (!hidden && !view && parent) {
     //                [parent childAdded:self atIndex:0 shouldRelayout:YES];
     //            }
-  }
+    }
   //	hidden = newHidden;
-}
+    }
 
 - (BOOL)isHidden
 {
   return hidden;
-}
+  }
 
 //-(CGSize)contentSizeForSize:(CGSize)size
 //{
@@ -1048,7 +1048,7 @@ SEL GetterForKrollProperty(NSString *key)
 - (CGSize)autoSizeForSize:(CGSize)size
 {
   return [self autoSizeForSize:size ignoreMinMax:NO];
-}
+  }
 - (CGSize)autoSizeForSize:(CGSize)size ignoreMinMax:(BOOL)ignoreMinMaxComputation
 {
   if (!ignoreMinMaxComputation) {
@@ -1108,15 +1108,15 @@ SEL GetterForKrollProperty(NSString *key)
             continue;
           }
         }
-        sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
+      sandBox = [self computeChildSandbox:thisChildProxy withBounds:bounds];
         thisSize = CGSizeMake(sandBox.origin.x + sandBox.size.width, sandBox.origin.y + sandBox.size.height);
         if (result.width < thisSize.width) {
           result.width = thisSize.width;
-        }
+    }
         if (result.height < thisSize.height) {
           result.height = thisSize.height;
-        }
-      }
+    }
+  }
 
       NSUInteger nbWidthAutoFill = [widthFillChildren count];
       if (nbWidthAutoFill > 0) {
@@ -1127,7 +1127,7 @@ SEL GetterForKrollProperty(NSString *key)
           thisSize = CGSizeMake(sandBox.origin.x + sandBox.size.width, sandBox.origin.y + sandBox.size.height);
           if (result.width < thisSize.width) {
             result.width = thisSize.width;
-          }
+  }
           if (result.height < thisSize.height) {
             result.height = thisSize.height;
           }
@@ -1143,7 +1143,7 @@ SEL GetterForKrollProperty(NSString *key)
           thisSize = CGSizeMake(sandBox.origin.x + sandBox.size.width, sandBox.origin.y + sandBox.size.height);
           if (result.width < thisSize.width) {
             result.width = thisSize.width;
-          }
+  }
           if (result.height < thisSize.height) {
             result.height = thisSize.height;
           }
@@ -1154,7 +1154,7 @@ SEL GetterForKrollProperty(NSString *key)
 
   if (result.width < contentSize.width) {
     result.width = contentSize.width;
-  }
+}
   if (result.height < contentSize.height) {
     result.height = contentSize.height;
   }
@@ -1221,7 +1221,7 @@ SEL GetterForKrollProperty(NSString *key)
     } else {
       result.height = size.height;
       //            result.height -= offsety;
-    }
+  }
   } else {
     result.height = size.height;
     //        result.height -= offsety;
@@ -1322,7 +1322,7 @@ SEL GetterForKrollProperty(NSString *key)
     if (autoComputed == NO) {
       autoComputed = YES;
       autoSize = [self autoSizeForSize:autoSize];
-    }
+  }
     result.height += autoSize.height;
   }
   if (recheckForFillH && (result.height < suggestedSize.height)) {
@@ -1372,12 +1372,12 @@ SEL GetterForKrollProperty(NSString *key)
   }
 #endif
   return [self getAndPrepareViewForOpening:bounds];
-}
+  }
 
 - (TiUIView *)barButtonViewForSize:(CGSize)size
 {
   return [self barButtonViewForRect:CGRectMake(0, 0, size.width, size.height)];
-}
+  }
 
 #pragma mark Recognizers
 
@@ -1432,11 +1432,11 @@ SEL GetterForKrollProperty(NSString *key)
     if (!TiCGRectIsEmpty(sandboxBounds)) {
       [self refreshView];
       [self handlePendingAnimation];
-    }
+  }
   } else {
     [self getOrCreateView];
     [self windowDidOpen];
-  }
+}
   return view;
 }
 
@@ -1520,16 +1520,16 @@ SEL GetterForKrollProperty(NSString *key)
 
     viewInitialized = YES;
     [self viewDidInitialize];
-// If parent has a non absolute layout signal the parent that
-//contents will change else just lay ourselves out
+    // If parent has a non absolute layout signal the parent that
+    //contents will change else just lay ourselves out
 //		if (parent != nil && ![parent absoluteLayout]) {
 //			[parent contentsWillChange];
 //		}
 //		else {
 #ifndef TI_USE_AUTOLAYOUT
     if (TiCGRectIsEmpty(sandboxBounds) && !TiCGRectIsEmpty(view.bounds)) {
-      [self setSandboxBounds:view.bounds];
-    }
+        [self setSandboxBounds:view.bounds];
+      }
 #endif
     //            [self dirtyItAll];
     //            [self refreshViewIfNeeded];
@@ -1537,7 +1537,7 @@ SEL GetterForKrollProperty(NSString *key)
     if (!TiCGRectIsEmpty(sandboxBounds)) {
       [self refreshView];
       [self handlePendingAnimation];
-    }
+  }
 
     if (windowOpening || windowOpened) {
       [self viewDidAttach];
@@ -1583,8 +1583,8 @@ SEL GetterForKrollProperty(NSString *key)
   if (self.modelDelegate != nil) {
     if ([self.modelDelegate respondsToSelector:@selector(detachProxy)])
       [self.modelDelegate detachProxy];
-    self.modelDelegate = nil;
-  }
+      self.modelDelegate = nil;
+    }
 
   if (newView == nil)
     readyToCreateView = defaultReadyToCreateView;
@@ -1722,7 +1722,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
   windowOpening = NO;
   [self makeViewChildrenPerformSelector:@selector(windowDidOpen) withObject:nil];
-}
+  }
 
 - (void)windowWillClose
 {
@@ -2080,7 +2080,7 @@ SEL GetterForKrollProperty(NSString *key)
     },
         YES);
 #endif
-  }
+}
   RELEASE_TO_NIL(destroyLock);
 
   //Dealing with children is in _destroy, which is called by super dealloc.
@@ -2102,7 +2102,7 @@ SEL GetterForKrollProperty(NSString *key)
   //    [self runBlock:^(TiViewProxy *proxy) {
   //        [proxy viewDidAppear:animated];
   //    } onlyVisible:NO recursive:YES];
-}
+      }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
@@ -2110,20 +2110,20 @@ SEL GetterForKrollProperty(NSString *key)
   //    [self runBlock:^(TiViewProxy *proxy) {
   //        [proxy viewWillDisappear:animated];
   //    } onlyVisible:NO recursive:YES];
-}
+      }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
   //    [self runBlock:^(TiViewProxy *proxy) {
   //        [proxy viewDidDisappear:animated];
   //    } onlyVisible:NO recursive:YES];
-}
+    }
 
 - (UIViewController *)hostingController;
 {
   if (controller == nil) {
     controller = [[TiViewController alloc] initWithViewProxy:self];
-  }
+}
   return controller;
 }
 
@@ -2185,7 +2185,7 @@ SEL GetterForKrollProperty(NSString *key)
     [_holdedProxies enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
       if (IS_OF_CLASS(obj, TiViewProxy) && [obj proxyObserver] == view) {
         [obj setProxyObserver:nil];
-      }
+    }
     }];
     RELEASE_TO_NIL(view)
     [self viewDidDetach];
@@ -2281,10 +2281,10 @@ SEL GetterForKrollProperty(NSString *key)
   //1.4 where we can figure out why the drawing is screwed up since
   //the views aren't reattaching.
   /*
-  if (view!=nil && [view retainCount]==1)
-  {
-    [self detachView];
-  }*/
+	if (view!=nil && [view retainCount]==1)
+	{
+		[self detachView];
+	}*/
   [super didReceiveMemoryWarning:notification];
 }
 
@@ -2297,9 +2297,9 @@ SEL GetterForKrollProperty(NSString *key)
   }
   TiThreadPerformBlockOnMainThread(^{
     [[self getOrCreateView] performSelector:selector withObject:object];
-  },
-      wait);
-}
+    },
+        wait);
+  }
 
 #pragma mark Listener Management
 
@@ -2325,7 +2325,7 @@ SEL GetterForKrollProperty(NSString *key)
   }
 
   [super _listenerAdded:type count:count];
-}
+    }
 
 - (void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
@@ -2338,13 +2338,13 @@ SEL GetterForKrollProperty(NSString *key)
     }
   }
   [super _listenerRemoved:type count:count];
-}
+    }
 
 #pragma mark Layout events, internal and external
 
-#define SET_AND_PERFORM(flagBit, action)                                                       \
+#define SET_AND_PERFORM(flagBit, action)                 \
   if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &dirtyflags)) { \
-    action;                                                                                    \
+    action;                                              \
   }
 
 - (void)willEnqueue
@@ -2361,12 +2361,12 @@ SEL GetterForKrollProperty(NSString *key)
 {
   //	if(parentVisible && !hidden)
   //	{
-  [self willEnqueue];
+    [self willEnqueue];
   //	}
   //    SET_AND_PERFORM(TiRefreshViewEnqueued,return);
   //    if (parentVisible && !hidden && (!allowContentChange || instantUpdates)) return;
   //    [TiLayoutQueue addViewProxy:self];
-}
+  }
 
 - (void)performBlockWithoutLayout:(void (^)(void))block
 {
@@ -2376,7 +2376,7 @@ SEL GetterForKrollProperty(NSString *key)
     allowContentChange = NO;
     block();
     allowContentChange = YES;
-  }
+}
 }
 
 - (void)performBlock:(void (^)(void))block withinAnimation:(TiViewAnimationStep *)animation
@@ -2491,7 +2491,7 @@ SEL GetterForKrollProperty(NSString *key)
     [self parentContentWillChange];
   else {
     [self contentsWillChange];
-  }
+}
   [self willChange];
 }
 
@@ -2504,7 +2504,7 @@ SEL GetterForKrollProperty(NSString *key)
 
   if (parent && ![[self viewParent] absoluteLayout]) {
     [self parentContentWillChange];
-  }
+}
 }
 
 - (void)willResizeChildren
@@ -2952,7 +2952,7 @@ SEL GetterForKrollProperty(NSString *key)
     }
     if ([self relayout] || relayout || animation || OSAtomicTestAndClear(TiRefreshViewChildrenPosition, &dirtyflags)) {
       OSAtomicTestAndClear(TiRefreshViewChildrenPosition, &dirtyflags);
-      [self layoutChildren:NO];
+    [self layoutChildren:NO];
     }
     if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
       [[self viewParent] childWillResize:self withinAnimation:animation];
@@ -3005,7 +3005,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
 #ifndef TI_USE_AUTOLAYOUT
   if (_canRepositionItself) {
-    OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
+  OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
   }
 #endif
 }
@@ -3014,7 +3014,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
 #ifndef TI_USE_AUTOLAYOUT
   if (_canResizeItself) {
-    OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
+  OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
   }
 #endif
 }
@@ -3068,23 +3068,23 @@ SEL GetterForKrollProperty(NSString *key)
 - (BOOL)absoluteLayout
 {
   return TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
-}
+      }
 
 - (CGRect)computeBoundsForParentBounds:(CGRect)parentBounds
 {
   CGSize size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, parentBounds.size, &autoresizeCache);
   if (!CGSizeEqualToSize(size, sizeCache.size)) {
     sizeCache.size = size;
-  }
+      }
   CGPoint position = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, [[self viewParent] layoutProperties], self, sizeCache.size,
       [[view layer] anchorPoint], parentBounds.size, sandboxBounds.size, &autoresizeCache);
   position.x += sizeCache.origin.x + sandboxBounds.origin.x;
   position.y += sizeCache.origin.y + sandboxBounds.origin.y;
   if (!CGPointEqualToPoint(position, positionCache)) {
     positionCache = position;
-  }
+    }
   return CGRectMake(position.x - size.width / 2, position.y - size.height / 2, size.width, size.height);
-}
+  }
 
 #pragma mark Layout commands that need refactoring out
 
@@ -3121,9 +3121,9 @@ SEL GetterForKrollProperty(NSString *key)
       CGSize size;
       if (parentViewProxy != nil && ![parentViewProxy absoluteLayout]) {
         size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, sandboxBounds.size, &autoresizeCache);
-      } else {
+    } else {
         size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties, self, referenceSize, &autoresizeCache);
-      }
+    }
       if (!CGSizeEqualToSize(size, sizeCache.size)) {
         sizeCache.size = size;
         layoutChanged = YES;
@@ -3132,7 +3132,7 @@ SEL GetterForKrollProperty(NSString *key)
     if (needsPosition) {
       CGPoint position;
       position = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, [parentViewProxy layoutProperties], self, sizeCache.size,
-          [[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
+        [[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
 
       position.x += sizeCache.origin.x + sandboxBounds.origin.x;
       position.y += sizeCache.origin.y + sandboxBounds.origin.y;
@@ -3152,10 +3152,10 @@ SEL GetterForKrollProperty(NSString *key)
 
     [view setAutoresizingMask:autoresizeCache];
     if (needsPosition) {
-      [view setCenter:positionCache];
+    [view setCenter:positionCache];
     }
     if (needsSize) {
-      [view setBounds:sizeCache];
+    [view setBounds:sizeCache];
     }
 
     [self updateZIndex];
@@ -3186,14 +3186,14 @@ SEL GetterForKrollProperty(NSString *key)
 {
   IGNORE_IF_NOT_OPENED
 
-  // if not visible, ignore layout
+    // if not visible, ignore layout
   if (hidden) {
     //        OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
-    return;
-  }
+      return;
+    }
 
-  [self refreshView:nil];
-}
+    [self refreshView:nil];
+    }
 
 - (BOOL)willBeRelaying
 {
@@ -3299,8 +3299,8 @@ SEL GetterForKrollProperty(NSString *key)
   if ([NSThread isMainThread]) {
     [self performBlock:^{
       [self performBlockWithoutLayout:^{
-        [self willChangeSize];
-        [self willChangePosition];
+    [self willChangeSize];
+    [self willChangePosition];
       }];
 
       [self refreshViewOrParent];
@@ -3378,7 +3378,7 @@ SEL GetterForKrollProperty(NSString *key)
           childBounds = [self computeChildSandbox:child withBounds:bounds];
           maxHeight = MAX(maxHeight, childBounds.size.height);
           widthNonFill += childBounds.size.width;
-        }
+      }
       } else if (vertical) {
         if ([child wantsToFillVerticalLayout]) {
           autoFillHeightTotalWeight += [child layoutWeight];
@@ -3386,13 +3386,13 @@ SEL GetterForKrollProperty(NSString *key)
         } else {
           childBounds = [self computeChildSandbox:child withBounds:bounds];
           heightNonFill += childBounds.size.height;
-        }
+      }
       } else {
         childBounds = [self computeChildSandbox:child withBounds:bounds];
-      }
+    }
     } else {
       childBounds = bounds;
-    }
+  }
     [measuredBounds addObject:[NSValue valueWithCGRect:childBounds]];
   }
   //If it is a horizontal layout ensure that all the children in a row have the
@@ -3512,7 +3512,7 @@ SEL GetterForKrollProperty(NSString *key)
   __block CGFloat boundingHeight = bounds.size.height;
   if (boundingHeight < 0) {
     boundingHeight = 0;
-  }
+    }
 
   CGFloat offsetx = fullscreen ? 0 : TiDimensionCalculateValue(childConstraint->left, boundingWidth) + TiDimensionCalculateValue(childConstraint->right, boundingWidth);
 
@@ -3563,12 +3563,12 @@ SEL GetterForKrollProperty(NSString *key)
     } else if (ratio > 0) {
       followsFillHBehavior = NO;
       return 0.0f;
-    } else {
+      } else {
       //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
       computeAutoSize();
       followsFillHBehavior = NO;
       return autoSize.height;
-    }
+      }
   };
 
   CGFloat (^computeWidth)() = ^CGFloat() {
@@ -3615,7 +3615,7 @@ SEL GetterForKrollProperty(NSString *key)
       computeAutoSize();
       followsFillWBehavior = NO;
       return autoSize.width;
-    }
+      }
   };
 
   bounds.size = CGSizeMake(computeWidth(), computeHeight());
@@ -3745,9 +3745,9 @@ SEL GetterForKrollProperty(NSString *key)
   [child dirtyItAll]; //for multileve recursion we need to make sure the child resizes itself
   [self performBlock:^{
     [child relayout];
-    // tell our children to also layout
-    [child layoutChildren:optimize];
-  }
+  // tell our children to also layout
+  [child layoutChildren:optimize];
+}
       withinOurAnimationOnProxy:child];
 
   [child handlePendingAnimation];
@@ -3777,21 +3777,21 @@ SEL GetterForKrollProperty(NSString *key)
     return;
 
   if (childrenCount > 0) {
-    //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
+  //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
     NSArray *childrenArray = [[self visibleChildren] retain];
 
-    NSUInteger childCount = [childrenArray count];
-    if (childCount > 0) {
-      NSArray *measuredBounds = [[self measureChildren:childrenArray] retain];
-      NSUInteger childIndex;
-      for (childIndex = 0; childIndex < childCount; childIndex++) {
-        id child = [childrenArray objectAtIndex:childIndex];
+  NSUInteger childCount = [childrenArray count];
+  if (childCount > 0) {
+    NSArray *measuredBounds = [[self measureChildren:childrenArray] retain];
+    NSUInteger childIndex;
+    for (childIndex = 0; childIndex < childCount; childIndex++) {
+      id child = [childrenArray objectAtIndex:childIndex];
         CGRect childSandBox = [[measuredBounds objectAtIndex:childIndex] CGRectValue];
-        [self layoutChild:child optimize:optimize withMeasuredBounds:childSandBox];
-      }
-      [measuredBounds release];
+      [self layoutChild:child optimize:optimize withMeasuredBounds:childSandBox];
     }
-    [childrenArray release];
+    [measuredBounds release];
+  }
+  [childrenArray release];
   }
 
   if (optimize == NO) {
@@ -3852,17 +3852,17 @@ SEL GetterForKrollProperty(NSString *key)
 + (NSString *)defaultTemplateType
 {
   return @"Ti.UI.View";
-}
+  }
 
 + (TiProxy *)createFromDictionary:(NSDictionary *)dictionary rootProxy:(TiParentingProxy *)rootProxy inContext:(id<TiEvaluator>)context
 {
   return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:[[self class] defaultTemplateType]];
-}
+  }
 
 - (void)hideKeyboard:(id)arg
 {
   [self blur:nil];
-}
+  }
 
 - (void)blur:(id)args
 {
@@ -3872,7 +3872,7 @@ SEL GetterForKrollProperty(NSString *key)
       [[self view] makeRootViewFirstResponder];
     },
         NO);
-  }
+    }
 }
 
 - (void)focus:(id)args
@@ -4009,7 +4009,7 @@ SEL GetterForKrollProperty(NSString *key)
             view1Proxy.hiddenForLayout = YES;
           }
           [self contentsWillChange];
-        }];
+    }];
 
         [self refreshViewOrParent];
       };
@@ -4021,9 +4021,9 @@ SEL GetterForKrollProperty(NSString *key)
     } else {
       if (view2Proxy) {
         [self add:view2Proxy];
-      }
+  }
       onCompletion();
-    }
+}
   }
 }
 
@@ -4032,7 +4032,7 @@ SEL GetterForKrollProperty(NSString *key)
   ENSURE_UI_THREAD_1_ARG(args)
   if ([self viewAttached]) {
     [[self view] blurBackground:args];
-  }
+}
 }
 - (void)configurationStartNSNumber:(NSNumber *)ready
 {

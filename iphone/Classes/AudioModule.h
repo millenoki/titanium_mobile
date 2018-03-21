@@ -26,8 +26,10 @@
   MPMediaPickerController *musicPicker;
 
   // Music players
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
   TiAudioMusicPlayer *systemMusicPlayer;
   TiAudioMusicPlayer *appMusicPlayer;
+#endif
 
   // Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
   BOOL animatedPicker;
@@ -38,9 +40,10 @@
   id popover;
   UIPopoverArrowDirection arrowDirection;
 }
-
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
 + (NSDictionary *)itemProperties;
 + (NSDictionary *)filterableItemProperties;
+#endif
 
 @property (nonatomic, readwrite, retain) id popoverView;
 @property (nonatomic, readonly) NSNumber *volume;
@@ -51,10 +54,14 @@
 @property (nonatomic, assign) NSNumber *audioSessionMode;
 @property (nonatomic, assign) NSString *audioSessionCategory;
 
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
 @property (nonatomic, readonly) TiAudioMusicPlayer *systemMusicPlayer;
 @property (nonatomic, readonly) TiAudioMusicPlayer *appMusicPlayer;
+#endif
 
 @property (nonatomic, readonly) NSNumber *NO_MUSIC_PLAYER;
+
+#ifdef USE_TI_AUDIORECORDER
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_LINEAR_PCM;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ULAW;
 @property (nonatomic, readonly) NSNumber *AUDIO_FORMAT_ALAW;
@@ -72,6 +79,7 @@
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GPP;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_3GP2;
 @property (nonatomic, readonly) NSNumber *AUDIO_FILEFORMAT_AMR;
+#endif
 
 @property (nonatomic, readonly) NSNumber *AUDIO_SESSION_MODE_AMBIENT;
 @property (nonatomic, readonly) NSNumber *AUDIO_SESSION_MODE_SOLO_AMBIENT;

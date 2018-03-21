@@ -107,6 +107,16 @@ static NSDictionary *listViewKeysToReplace;
   [super windowDidClose];
 }
 
+- (void)gainFocus
+{
+  [[self listView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self listView] viewResignFocus];
+}
+
 - (void)dealloc
 {
   [_operationQueue release];

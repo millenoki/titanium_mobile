@@ -34,8 +34,10 @@ enum {
 };
 
 // Have to distinguish between filterable and nonfilterable properties
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
 static NSDictionary *TI_itemProperties;
 static NSDictionary *TI_filterableItemProperties;
+#endif
 
 #pragma mark - Backwards compatibility for pre-iOS 7.0
 
@@ -55,15 +57,17 @@ typedef void (^PermissionBlock)(BOOL granted)
 - (void)dealloc
 {
   [self destroyPicker];
+#if defined(USE_TI_AUDIOGETAPPMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TIAUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER)
   RELEASE_TO_NIL(systemMusicPlayer);
   RELEASE_TO_NIL(appMusicPlayer);
+#endif
   RELEASE_TO_NIL(popoverView);
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
 
 #pragma mark Static Properties
-
+#if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
 + (NSDictionary *)filterableItemProperties
 {
   if (TI_filterableItemProperties == nil) {
@@ -119,6 +123,7 @@ typedef void (^PermissionBlock)(BOOL granted)
   }
   return TI_itemProperties;
 }
+#endif
 
 #pragma mark Public Properties
 - (NSString *)apiName
@@ -126,6 +131,7 @@ typedef void (^PermissionBlock)(BOOL granted)
   return @"Ti.Media";
 }
 
+#ifdef USE_TI_AUDIORECORDER
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_LINEAR_PCM, kAudioFormatLinearPCM);
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_ULAW, kAudioFormatULaw);
 MAKE_SYSTEM_UINT(AUDIO_FORMAT_ALAW, kAudioFormatALaw);
@@ -143,7 +149,9 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_CAF, kAudioFileCAFType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP, kAudioFile3GPType);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2, kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR, kAudioFileAMRType);
+#endif
 
+#if (defined(USE_TI_MEDIA) && (defined(USE_TI_MEDIAVIDEOPLAYER))) || (defined(USE_TI_AUDIO) && (defined(USE_TI_AUDIOPLAYER) || defined(USE_TI_AUDIOSOUND) || defined(USE_TI_AUDIORECORDER)))
 //Constants for currentRoute
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN, AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC, AVAudioSessionPortBuiltInMic)
@@ -169,6 +177,7 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
+#endif
 
 //Constants for mediaTypes in openMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
@@ -214,6 +223,7 @@ MAKE_SYSTEM_PROP(UNKNOWN_ERROR, AudioModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY, AudioModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, AudioModuleErrorNoMusicPlayer);
 
+#if defined(USE_TI_AUDIOGETAPPMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TIAUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER)
 - (TiAudioMusicPlayer *)systemMusicPlayer
 {
   if (systemMusicPlayer == nil) {
@@ -245,6 +255,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, AudioModuleErrorNoMusicPlayer);
   }
   return appMusicPlayer;
 }
+#endif
 
 #if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined(USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 - (void)setAudioSessionCategory:(NSString *)mode
@@ -348,6 +359,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, AudioModuleErrorNoMusicPlayer);
 }
 #endif
 
+#if defined(USE_TI_AUDIOSTARTMICROPHONEMONITOR) || defined(USE_TI_AUDIOSTOPMICROPHONEMONITOR) || defined(USE_TI_AUDIOPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOGETPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOAVERAGEMICROPHONEPOWER) || defined(USE_TI_AUDIOGETAVERAGEMICROPHONEPOWER)
 - (void)startMicrophoneMonitor:(id)args
 {
   [[SCListener sharedListener] listen];
@@ -373,6 +385,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, AudioModuleErrorNoMusicPlayer);
   }
   return NUMFLOAT(-1);
 }
+#endif
 
 /**
  End Microphone and Recording Support
