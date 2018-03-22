@@ -10,6 +10,8 @@
 #import "TiAudioMusicPlayer.h"
 #import "AudioModule.h"
 
+@implementation TiAudioMusicPlayer
+
 #pragma mark Internal
 
 // Has to happen on main thread or notifications screw up

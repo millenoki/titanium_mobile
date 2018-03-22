@@ -102,10 +102,11 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
   UIEdgeInsets safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  TiWindowProxy *windowProxy = (TiWindowProxy*)self.proxy;
 
-  if (self.tabGroup) {
+  if (windowProxy.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
-  } else if (self.tab) {
+  } else if (windowProxy.tab) {
     edgeInsets = [self navigationGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
   } else {
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];

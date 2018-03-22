@@ -199,10 +199,6 @@ DEFINE_EXCEPTIONS
   //    if (_bgView) {
   //        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
   //    }
-      }
-    }];
-  }
-#endif
 }
 
 - (void)configurationSet

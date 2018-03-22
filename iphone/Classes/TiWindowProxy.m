@@ -522,8 +522,6 @@
   ENSURE_UI_THREAD_1_ARG(args)
   [self resignFocus];
   [super blur:nil];
-    }
-  }
 }
 
 - (void)focus:(id)args
@@ -531,7 +529,7 @@
   ENSURE_UI_THREAD_1_ARG(args)
   [self gainFocus];
   [super focus:nil];
-  }
+}
 
 - (TiProxy *)topWindow
 {

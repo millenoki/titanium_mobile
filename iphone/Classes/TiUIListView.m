@@ -765,12 +765,15 @@ static NSDictionary *replaceKeysForRow;
 
   UIView *searchSuperView = [searchController.view superview];
   searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
-
-  CGFloat width = [_searchWrapper view].frame.size.width;
-  UIView *view = searchController.searchBar.superview;
-  view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-  searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-  [searchViewProxy ensureSearchBarHierarchy];
+  
+  TiUISearchBarProxy *searchViewProxy = [self holdedProxyForKey:@"searchView"];
+  if(searchViewProxy) {
+    CGFloat width = [searchViewProxy view].frame.size.width;
+    UIView *view = searchController.searchBar.superview;
+    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
+    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
+    [searchViewProxy ensureSearchBarHierarchy];
+  }
 }
 
 #pragma mark - Public API
@@ -1088,11 +1091,7 @@ static NSDictionary *replaceKeysForRow;
   }
   self.searchString = [TiUtils stringValue:args];
   [self buildResultsForSearchText];
-  if (searchController.isActive) {
-    [[resultViewController tableView] reloadData];
-  } else {
-  [_tableView reloadData];
-}
+  [self reloadTableViewData];
   if ([[self viewProxy] isConfigurationSet]) {
       [[self viewProxy] contentsWillChange];
   }
@@ -2465,8 +2464,7 @@ static NSDictionary *replaceKeysForRow;
 
 - (void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
-  BOOL viaSearch = [self isSearchActive];
-  UITableView *theTableView = viaSearch ? [resultViewController tableView] : [self tableView];
+  UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   NSIndexPath *indexPath = [theTableView indexPathForRowAtPoint:point];
   [super recognizedSwipe:recognizer];
@@ -2480,8 +2478,7 @@ static NSDictionary *replaceKeysForRow;
 {
   NSMutableDictionary *event = [super dictionaryFromGesture:recognizer];
 
-  BOOL viaSearch = [self isSearchActive];
-  UITableView *theTableView = viaSearch ? [resultViewController tableView] : [self tableView];
+  UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   NSIndexPath *indexPath = [theTableView indexPathForRowAtPoint:point];
   indexPath = [self pathForSearchPath:indexPath];
@@ -2495,15 +2492,14 @@ static NSDictionary *replaceKeysForRow;
 {
   [super recognizedLongPress:recognizer];
   if ([recognizer state] == UIGestureRecognizerStateBegan) {
-    BOOL viaSearch = [self isSearchActive];
-    UITableView *theTableView = viaSearch ? [resultViewController tableView] : [self tableView];
+    UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     NSIndexPath *indexPath = [theTableView indexPathForRowAtPoint:point];
     if (allowsSelection == NO) {
       [theTableView deselectRowAtIndexPath:indexPath animated:YES];
     }
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
-    if (viaSearch && searchViewProxy) {
+    if (searchViewProxy) {
       if (hideOnSearch) {
         [self hideSearchScreen:nil];
       } else {
@@ -2559,10 +2555,8 @@ static NSDictionary *replaceKeysForRow;
   self.searchString = (searchText == nil) ? @"" : searchText;
   self.searchedString = self.searchString;
   [self buildResultsForSearchText];
-  if (!searchActive || !resultViewController) {
-    // Reload since some cells could be reused as part of previous search.
-    [self reloadTableViewData];
-  }
+  // Reload since some cells could be reused as part of previous search.
+  [self reloadTableViewData];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -2577,10 +2571,8 @@ static NSDictionary *replaceKeysForRow;
   isSearched = NO;
   [searchBar setText:self.searchString];
   [self buildResultsForSearchText];
-  if (!searchActive || !resultViewController) {
-    // Reload since some cells could be reused as part of previous search.
-    [self reloadTableViewData];
-}
+  // Reload since some cells could be reused as part of previous search.
+  [self reloadTableViewData];
 }
 #pragma mark - UISearchControllerDelegate
 
@@ -2850,6 +2842,7 @@ static NSDictionary *replaceKeysForRow;
 - (void)initSearchController:(id)sender
 {
   if (sender == self && searchController == nil) {
+    TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
     searchController.delegate = self;
     searchController.searchResultsUpdater = self;

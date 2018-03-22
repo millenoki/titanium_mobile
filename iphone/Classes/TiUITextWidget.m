@@ -37,6 +37,9 @@
     suppressReturn = YES;
     maxLength = -1;
     [self textWidgetView];
+    [[proxy keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [proxy keyboardAccessoryHeight])];
+    [[self textWidgetView] setInputAccessoryView:[proxy keyboardAccessoryView]];
+    [[self textWidgetView] reloadInputViews];
   }
   return self;
 }

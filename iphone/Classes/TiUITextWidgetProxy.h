@@ -17,6 +17,7 @@
 - (void)noteValueChange:(NSString *)newValue;
 
 @property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
+- (CGFloat)keyboardAccessoryHeight;
 
 @end
 

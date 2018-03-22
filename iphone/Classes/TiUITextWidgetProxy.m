@@ -123,6 +123,14 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     [keyboardAccessoryProxy setParentForBubbling:nil];
     [self forgetProxy:keyboardAccessoryProxy];
     RELEASE_TO_NIL(keyboardAccessoryProxy)
+    if (self.view) {
+      UIView* theView  = [(TiUITextWidget *)[self view] textWidgetView];
+      if ([theView respondsToSelector:@selector(setInputAccessoryView:)]) {
+        [theView setInputAccessoryView:nil];
+        [theView reloadInputViews];
+      }
+      
+    }
   }
   if (vp) {
     [vp setParentForBubbling:(TiParentingProxy *)self];
@@ -130,92 +138,24 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     LayoutConstraint *constraint = [vp layoutProperties];
     if (TiDimensionIsUndefined(constraint->width)) {
       constraint->width = TiDimensionAutoFill;
-}
-    keyboardAccessoryProxy = [vp retain];
     }
-  [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
+    keyboardAccessoryProxy = [vp retain];
+    if (self.view) {
+      
+      [[self keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
+      UIView* theView  = [(TiUITextWidget *)[self view] textWidgetView];
+      if ([theView respondsToSelector:@selector(setInputAccessoryView:)]) {
+        [theView setInputAccessoryView:[self keyboardAccessoryView]];
+        [theView reloadInputViews];
+      }
+    }
   }
+  [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
+}
 
 - (TiViewProxy *)keyboardAccessoryProxy;
 {
   return keyboardAccessoryProxy;
-    }
-
-- (void)setKeyboardToolbar:(id)value
-{
-  // TODO: The entire codebase needs to be evaluated for the following:
-  //
-  // - Any property setter which potentially takes an array of proxies MUST ALWAYS have its
-  // content evaluated to protect them. This is INCREDIBLY CRITICAL and almost certainly a major
-  // source of memory bugs in Titanium iOS!!!
-  //
-  // - Any property setter which is active on the main thread only MAY NOT protect their object
-  // correctly or in time (see the comment in -[KrollObject noteKeylessKrollObject:]).
-  //
-  // This may have to be done as part of TIMOB-6990 (convert KrollContext to serialized GCD)
-
-  if ([value isKindOfClass:[NSArray class]]) {
-    for (id item in value) {
-      ENSURE_TYPE(item, TiProxy);
-      [self rememberProxy:item];
-    }
-  }
-
-  //Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
-
-  // TODO: ENSURE_UI_THREAD needs to be deprecated in favor of more effective and concicse mechanisms
-  // which use the main thread only when necessary to reduce latency.
-  ENSURE_UI_THREAD_1_ARG(value);
-  [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
-
-  if (value == nil) {
-    for (TiProxy *proxy in keyboardToolbarItems) {
-      [self forgetProxy:proxy];
-    }
-    RELEASE_TO_NIL(keyboardTiView);
-    RELEASE_TO_NIL(keyboardToolbarItems);
-    [keyboardUIToolbar setItems:nil];
-    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:nil];
-    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
-    return;
-  }
-
-  if ([value isKindOfClass:[NSArray class]]) {
-    RELEASE_TO_NIL(keyboardTiView);
-
-    // TODO: Check for proxies
-    [keyboardToolbarItems autorelease];
-    for (TiProxy *proxy in keyboardToolbarItems) {
-      [self forgetProxy:proxy];
-    }
-
-    keyboardToolbarItems = [value copy];
-    if (keyboardUIToolbar != nil) {
-      [self updateUIToolbar];
-    }
-    [[self keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
-    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:[self keyboardAccessoryView]];
-    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
-    return;
-  }
-
-  if ([value isKindOfClass:[TiViewProxy class]]) {
-    TiUIView *valueView = [(TiViewProxy *)value view];
-    if (valueView == keyboardTiView) { //Nothing to do here.
-      return;
-    }
-    RELEASE_TO_NIL(keyboardTiView);
-    for (TiProxy *proxy in keyboardToolbarItems) {
-      [self forgetProxy:proxy];
-    }
-    RELEASE_TO_NIL(keyboardToolbarItems);
-    [keyboardUIToolbar setItems:nil];
-
-    keyboardTiView = [valueView retain];
-    [keyboardTiView setBounds:CGRectMake(0, 0, 0, [self keyboardAccessoryHeight])];
-    [(UITextField *)[(TiUITextWidget *)[self view] textWidgetView] setInputAccessoryView:keyboardTiView];
-    [[(TiUITextWidget *)[self view] textWidgetView] reloadInputViews];
-  }
 }
 
 - (UIView *)keyboardAccessoryView;

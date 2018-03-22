@@ -7,8 +7,10 @@
 
 #if defined(USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY) || defined(USE_TI_AUDIOSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOAPPMUSICPLAYER) || defined(USE_TI_AUDIOGETSYSTEMMUSICPLAYER) || defined(USE_TI_AUDIOGETAPPMUSICPLAYER)
 
-#import "TiMediaItem.h"
-#import "MediaModule.h"
+#import "TiAudioItem.h"
+#import "AudioModule.h"
+
+@implementation TiAudioItem
 
 #pragma mark Internal
 
