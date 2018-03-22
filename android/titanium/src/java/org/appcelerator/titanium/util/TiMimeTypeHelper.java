@@ -9,7 +9,10 @@ package org.appcelerator.titanium.util;
 import java.io.File;
 import java.util.HashMap;
 
+import android.net.Uri;
 import android.webkit.MimeTypeMap;
+
+import org.appcelerator.titanium.TiApplication;
 
 public class TiMimeTypeHelper
 {
@@ -67,6 +70,14 @@ public class TiMimeTypeHelper
 
 	public static String getMimeType(String url, String defaultType)
 	{
+		// attempt to obtain mime-type from content provider
+		if (url.startsWith("content://")) {
+			final String mimeType = TiApplication.getInstance().getContentResolver().getType(Uri.parse(url));
+			if (mimeType != null) {
+				return mimeType;
+			}
+		}
+
 		String extension = "";
 		int pos = url.lastIndexOf('.');
 		if (pos > 0) {

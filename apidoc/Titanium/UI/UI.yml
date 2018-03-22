@@ -1211,7 +1211,7 @@ properties:
 
   - name: HINT_TYPE_ANIMATED
     summary: |
-    Use when creating a TextField to specify the hintType as animated.
+        Use when creating a TextField to specify the hintType as animated.
     type: Number
     permission: read-only
     platforms: [android]
@@ -1396,30 +1396,17 @@ properties:
     type: Number
     permission: read-only
 
-  - name: INHERIT
-    summary: INHERIT behavior for UI layout.
-    description: |
-        The INHERIT behavior allows the width/height of a view to be determined by the
-        parent. If a parent has a size of <Titanium.UI.SIZE>, then the child will inherit
-        a size of <Titanium.UI.SIZE>. Otherwise, the child inherits a size of <Titanium.UI.FILL>.
-    type: String
-    permission: read-only
-    platforms: []
-    since: "2.0.0"
-
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
 
-
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
     description: Use with the <Titanium.UI.TextField.borderStyle> property.
     type: Number
     permission: read-only
-
 
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.

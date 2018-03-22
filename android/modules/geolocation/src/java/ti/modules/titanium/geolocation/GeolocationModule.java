@@ -25,9 +25,11 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.geolocation.TiLocation.GeocodeResponseHandler;
 import ti.modules.titanium.geolocation.android.AndroidModule;
+import ti.modules.titanium.geolocation.android.FusedLocationProvider;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 import ti.modules.titanium.geolocation.android.LocationRuleProxy;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -37,12 +39,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -130,19 +134,41 @@ import android.util.SparseArray;
 public class GeolocationModule extends KrollModule
 	implements Handler.Callback, LocationProviderListener
 {
-	// TODO move these to the AndroidModule namespace since they will only be used when creating
-	// manual location providers
-	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
-	@Kroll.constant public static final String PROVIDER_GPS = LocationManager.GPS_PROVIDER;
+	// TODO: remove these constants, they are deprecated and have moved into the Android proxy
+	@Kroll.constant
+	@Deprecated
+	public static final String PROVIDER_PASSIVE = AndroidModule.PROVIDER_PASSIVE;
+	@Kroll.constant
+	@Deprecated
+	public static final String PROVIDER_NETWORK = AndroidModule.PROVIDER_NETWORK;
+	@Kroll.constant
+	@Deprecated
+	public static final String PROVIDER_GPS = AndroidModule.PROVIDER_GPS;
 
-	@Kroll.constant public static final int ACCURACY_LOW = 0;
-	@Kroll.constant public static final int ACCURACY_HIGH = 1;
-	@Kroll.constant public static final int ACCURACY_BEST = 2;
-	@Kroll.constant public static final int ACCURACY_NEAREST_TEN_METERS = 3;
-	@Kroll.constant public static final int ACCURACY_HUNDRED_METERS = 4;
-	@Kroll.constant public static final int ACCURACY_KILOMETER = 5;
-	@Kroll.constant public static final int ACCURACY_THREE_KILOMETERS = 6;
+	@Kroll.constant
+	public static final int ACCURACY_LOW = 0;
+	@Kroll.constant
+	public static final int ACCURACY_HIGH = 1;
+
+	// TODO: deprecate these iOS constants, these are for legacy mode
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_BEST = 2;
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_NEAREST_TEN_METERS = 3;
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_HUNDRED_METERS = 4;
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_KILOMETER = 5;
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_THREE_KILOMETERS = 6;
+	@Kroll.constant
+	@Deprecated
+	public static final int ACCURACY_BEST_FOR_NAVIGATION = 7;
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
@@ -169,7 +195,7 @@ public class GeolocationModule extends KrollModule
 	public static final double SIMPLE_LOCATION_NETWORK_MIN_DISTANCE_RULE = 0.0001;
 	private static final double SIMPLE_LOCATION_GPS_MIN_AGE_RULE = 30000;
 
-
+	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
 	private boolean sentAnalytics = false;
@@ -185,7 +211,9 @@ public class GeolocationModule extends KrollModule
 	public int legacyLocationAccuracyProperty = ACCURACY_NEAREST_TEN_METERS;
     public double legacyLocationAccuracyLookupResult = 10.0;
     public double legacyLocationFrequency = 5000;
-    private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
+	private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
+
+    private FusedLocationProvider fusedLocationProvider;
 
     private boolean currentlyEnabled = false;
     private boolean listeningForChanges = false;
@@ -216,12 +244,17 @@ public class GeolocationModule extends KrollModule
 	public GeolocationModule()
 	{
 		super("geolocation");
-		
+
+		context = TiApplication.getInstance().getRootOrCurrentActivity();
+
+		fusedLocationProvider = new FusedLocationProvider(context, this);
+
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
 
 		// initialize the legacy location accuracy map
 		legacyLocationAccuracyMap.put(ACCURACY_BEST, 0.0); // this needs to be 0.0 to work for only time based updates
+		legacyLocationAccuracyMap.put(ACCURACY_BEST_FOR_NAVIGATION, 2.0);
 		legacyLocationAccuracyMap.put(ACCURACY_NEAREST_TEN_METERS, 10.0);
 		legacyLocationAccuracyMap.put(ACCURACY_HUNDRED_METERS, 100.0);
 		legacyLocationAccuracyMap.put(ACCURACY_KILOMETER, 1000.0);
@@ -297,11 +330,11 @@ public class GeolocationModule extends KrollModule
 	            singleLocationCallback = null;
 	            if (numLocationListeners == 0) {
 	                disableLocationProviders();
-	            }
-	        }
+		}
+	}
 		}
         lastLocation = location;
-        
+
 	}
 
 	/**
@@ -363,10 +396,11 @@ public class GeolocationModule extends KrollModule
 	 *
 	 * @see ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener#onProviderUpdated(ti.modules.titanium.geolocation.android.LocationProviderProxy)
 	 */
+	@SuppressLint("MissingPermission")
 	public void onProviderUpdated(LocationProviderProxy locationProvider)
 	{
 		if (getManualMode() && (numLocationListeners > 0)) {
-			tiLocation.locationManager.removeUpdates(locationProvider);
+			unregisterLocationProvider(locationProvider);
 			registerLocationProvider(locationProvider);
 		}
 	}
@@ -397,6 +431,7 @@ public class GeolocationModule extends KrollModule
 	 *
 	 * @param newValue					new accuracy value
 	 */
+	@SuppressLint("MissingPermission")
 	private void propertyChangedAccuracy(Object newValue)
 	{
 		// is simple mode enabled (registered with OS, not just selected via the accuracy property)
@@ -422,12 +457,12 @@ public class GeolocationModule extends KrollModule
 		        if (androidModule != null) {
 				    for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
 	                    locationProvider.defaultMinUpdateDistance = legacyLocationAccuracyLookupResult;
-	                }
 				}
-				
+			}
+
 			}
 			enableLocationProviders();
-		// is this a simple accuracy property?
+			// is this a simple accuracy property?
 		} else if ((accuracyProperty == ACCURACY_HIGH) || (accuracyProperty == ACCURACY_LOW)) {
 			// has the value changed from the last known good value?
 			if (accuracyProperty != simpleLocationAccuracyProperty) {
@@ -445,7 +480,7 @@ public class GeolocationModule extends KrollModule
 					simpleLocationRules.remove(simpleLocationGpsRule);
 
 					if (simpleModeEnabled) {
-						tiLocation.locationManager.removeUpdates(gpsProvider);
+						unregisterLocationProvider(gpsProvider);
 					}
 				}
 			}
@@ -467,14 +502,14 @@ public class GeolocationModule extends KrollModule
 			legacyLocationFrequency = frequencyProperty;
 
 			Iterator<String> iterator = legacyLocationProviders.keySet().iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				LocationProviderProxy locationProvider = legacyLocationProviders.get(iterator.next());
 				locationProvider.defaultMinUpdateTime = legacyLocationFrequency;
 			}
-			
+
 			for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
                 locationProvider.defaultMinUpdateTime = legacyLocationFrequency;
-            }
+			}
 
 			enableLocationProviders();
 		}
@@ -485,6 +520,7 @@ public class GeolocationModule extends KrollModule
 	 *
 	 * @param newValue					new preferredProvider value
 	 */
+	@SuppressLint("MissingPermission")
 	private void propertyChangedPreferredProvider(Object newValue)
 	{
 		// is legacy mode enabled (registered with OS, not just selected via the accuracy property)
@@ -506,7 +542,7 @@ public class GeolocationModule extends KrollModule
 				legacyLocationProviders.remove(legacyLocationPreferredProvider);
 
 				if (legacyModeEnabled) {
-					tiLocation.locationManager.removeUpdates(oldProvider);
+					unregisterLocationProvider(oldProvider);
 				}
 			}
 
@@ -522,7 +558,7 @@ public class GeolocationModule extends KrollModule
 			legacyLocationPreferredProvider = preferredProviderProperty;
 		}
 	}
-	
+
 //	private GpsStatus.Listener mStatusListener = null;
 	private LocationProviderChangedReceiver mStatusReceiver = null;
     private boolean shouldFireStateChange = true;
@@ -562,23 +598,23 @@ public class GeolocationModule extends KrollModule
 //			}
 
 		} else if (TiC.EVENT_HEADING.equals(event)) {
-            if (!compassListenersRegistered) {
-                tiCompass.registerListener();
-                compassListenersRegistered = true;
-            }
+			if (!compassListenersRegistered) {
+				tiCompass.registerListener();
+				compassListenersRegistered = true;
+			}
 
-        } else if (TiC.EVENT_LOCATION.equals(event)) {
+		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
 			if (numLocationListeners == 1 && singleLocationCallback == null) {
 	            runInUiThread(new CommandNoReturn() {
 	                @Override
 	                public void execute() {
 	                    if (enableLocationProviders()) {
-	                        // fire off an initial location fix if one is available
+				// fire off an initial location fix if one is available
 	                        Log.d(TAG, "firing last location known check");
 	                        onLocationChanged(tiLocation.getLastKnownLocation());
-	                    }
-	                }
+				}
+				}
 	            }, true); 
 			}
 		}
@@ -643,7 +679,7 @@ public class GeolocationModule extends KrollModule
 
 	/**
 	 * Retrieves the last obtained location and returns it as JSON.
-	 * 
+	 *
 	 * @return			JSON representing the last geolocation event
 	 */
 	@Kroll.method @Kroll.getProperty
@@ -651,7 +687,7 @@ public class GeolocationModule extends KrollModule
 	{
 	    if (lastLocation == null) {
 	        lastLocation = tiLocation.getLastKnownLocation();
-	    }
+	}
 	    if (lastLocation != null) {
 	        return buildLocationEvent(lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider()));
 	    }
@@ -688,6 +724,7 @@ public class GeolocationModule extends KrollModule
 		return false;
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public void requestLocationPermissions(@Kroll.argument(optional=true) Object type, @Kroll.argument(optional=true) KrollFunction permissionCallback)
 	{
@@ -701,10 +738,10 @@ public class GeolocationModule extends KrollModule
 		}
 
 		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_LOCATION, getKrollObject(), (KrollFunction) ((type instanceof KrollFunction && permissionCallback == null)?type:permissionCallback));
-        Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {
             currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);       
-        }
+	}
 	}
 
 	/**
@@ -713,26 +750,42 @@ public class GeolocationModule extends KrollModule
 	 *
 	 * @param locationProvider			location provider to be registered
 	 */
-	public void registerLocationProvider(LocationProviderProxy locationProvider)
+	@SuppressLint("MissingPermission")
+	public void registerLocationProvider(final LocationProviderProxy locationProvider)
 	{
 		if (!hasLocationPermissions()) {
 			Log.e(TAG, "Location permissions missing", Log.DEBUG_MODE);
 			return;
 		}
-		String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
 
-		try {
+		if (FusedLocationProvider.hasPlayServices(context)) {
+			fusedLocationProvider.registerLocationProvider(locationProvider);
+		} else {
+			String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
+
+			try {
 			tiLocation.locationManager.requestLocationUpdates(
 					provider,
 					(long) locationProvider.getMinUpdateTime(),
-					(float) locationProvider.getMinUpdateDistance(),
-					locationProvider);
+																  (float) locationProvider.getMinUpdateDistance(),
+																  locationProvider);
 
-		} catch (IllegalArgumentException e) {
-			Log.e(TAG, "Unable to register [" + provider + "], provider is null");
+			} catch (IllegalArgumentException e) {
+				Log.e(TAG, "Unable to register [" + provider + "], provider is null");
 
-		} catch (SecurityException e) {
-			Log.e(TAG, "Unable to register [" + provider + "], permission denied");
+			} catch (SecurityException e) {
+				Log.e(TAG, "Unable to register [" + provider + "], permission denied");
+			}
+		}
+	}
+
+	@SuppressLint("MissingPermission")
+	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
+	{
+		if (FusedLocationProvider.hasPlayServices(context)) {
+			fusedLocationProvider.unregisterLocationProvider(locationProvider);
+		} else {
+			tiLocation.locationManager.removeUpdates(locationProvider);
 		}
 	}
 
@@ -753,7 +806,7 @@ public class GeolocationModule extends KrollModule
             }, false); 
             return;
         }
-	    doEnableLocationProviders(locationProviders);
+			doEnableLocationProviders(locationProviders);
 	}
 
 	
@@ -765,7 +818,7 @@ public class GeolocationModule extends KrollModule
 
 		for (LocationProviderProxy locationProvider : simpleLocationProviders.values()) {
 			tiLocation.locationManager.removeUpdates(locationProvider);
-		}
+	}
 
 		if (androidModule != null) {
 			for (LocationProviderProxy locationProvider : androidModule.manualLocationProviders.values()) {
@@ -801,7 +854,7 @@ public class GeolocationModule extends KrollModule
 		    shouldFireStateChange = false;
 			doDisableLocationProviders();
             shouldFireStateChange  = true;
-			
+
 			if (!destroyed && hasListeners("state", false)) {
                 KrollDict data = new KrollDict();
                 data.put("monitor", TiC.PROPERTY_LOCATION);
@@ -810,7 +863,7 @@ public class GeolocationModule extends KrollModule
            }
 
 			Iterator<String> iterator = locationProviders.keySet().iterator();
-			while(iterator.hasNext()) {
+			while (iterator.hasNext()) {
 				LocationProviderProxy locationProvider = locationProviders.get(iterator.next());
 				registerLocationProvider(locationProvider);
 			}
@@ -823,6 +876,7 @@ public class GeolocationModule extends KrollModule
 	 * for that mode with the OS.  Providers are just de-registered with the OS,
 	 * not removed from the list of providers we associate with the behavior mode.
 	 */
+	@SuppressLint("MissingPermission")
 	private void disableLocationProviders()
 	{
 //	    if (!locationProvidersEnabled) {
@@ -834,13 +888,13 @@ public class GeolocationModule extends KrollModule
                 @Override
                 public void execute() {
                     disableLocationProviders();
-                }
+		}
             }, false); 
             return;
         }
 	    doDisableLocationProviders();
 	}
-	
+
 	   
     private boolean enableLocationProviders() {
 //        if (locationProvidersEnabled) {
@@ -850,7 +904,7 @@ public class GeolocationModule extends KrollModule
         if (!hasLocationPermissions()) {
             Log.e(TAG, "Location permissions missing");
             return false;
-        }
+		}
 //        locationProvidersEnabled = true;
         if (!TiApplication.isUIThread()) {
 //            final Activity activity = getActivity();
@@ -877,14 +931,14 @@ public class GeolocationModule extends KrollModule
 
         } else if (!legacyModeActive) {
             locationProviders = simpleLocationProviders;
-        }
+			}
         enableLocationProviders(locationProviders);
         
         
         //restart rules to be sure.
         lastRulesCheckedLocation = null;
         return true;
-    }
+		}
     
     
     public boolean getAndUpdateServicesEnabled() {
@@ -892,7 +946,7 @@ public class GeolocationModule extends KrollModule
             boolean state = tiLocation.getLocationServicesEnabled();
             if (state != currentlyEnabled) {
                 currentlyEnabled = state;
-            }
+	}
 //        }
         return currentlyEnabled;
     }
@@ -938,7 +992,7 @@ public class GeolocationModule extends KrollModule
 			if (getAndUpdateServicesEnabled()) {
                 singleLocationCallback = callback;
                 enableLocationProviders();
-            }
+			}
 		}
 	}
 
@@ -1018,7 +1072,7 @@ public class GeolocationModule extends KrollModule
 //		}
 		if (getManualMode()) {
 			if (androidModule.manualLocationRules.size() > 0) {
-				for(LocationRuleProxy rule : androidModule.manualLocationRules) {
+				for (LocationRuleProxy rule : androidModule.manualLocationRules) {
 					if (rule.check(lastRulesCheckedLocation, newLocation)) {
 						passed = true;
 
@@ -1031,7 +1085,7 @@ public class GeolocationModule extends KrollModule
 			}
 
 		} else if (!legacyModeActive) {
-			for(LocationRuleProxy rule : simpleLocationRules) {
+			for (LocationRuleProxy rule : simpleLocationRules) {
 				if (rule.check(lastRulesCheckedLocation, newLocation)) {
 					passed = true;
 
@@ -1039,7 +1093,7 @@ public class GeolocationModule extends KrollModule
 				}
 			}
 
-		// TODO remove this block when legacy mode is removed
+			// TODO remove this block when legacy mode is removed
 		} else {
 			// the legacy mode will fall here, don't filter the results
 			passed = true;
@@ -1058,43 +1112,43 @@ public class GeolocationModule extends KrollModule
 	 * 								pulled from the specified location
 	 */
 	private KrollDict buildLocationEvent(Location location, LocationProvider locationProvider)
- {
-        KrollDict coordinates = new KrollDict();
-        coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
-        coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
+	{
+		KrollDict coordinates = new KrollDict();
+		coordinates.put(TiC.PROPERTY_LATITUDE, location.getLatitude());
+		coordinates.put(TiC.PROPERTY_LONGITUDE, location.getLongitude());
         if (location.hasAltitude()) {
-            coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
+		coordinates.put(TiC.PROPERTY_ALTITUDE, location.getAltitude());
 
         }
         if (location.hasAccuracy()) {
-            coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
+		coordinates.put(TiC.PROPERTY_ACCURACY, location.getAccuracy());
         }
 //        coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
         if (location.hasBearing()) {
-            coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
+		coordinates.put(TiC.PROPERTY_HEADING, location.getBearing());
         }
         if (location.hasSpeed()) {
-            coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
+		coordinates.put(TiC.PROPERTY_SPEED, location.getSpeed());
         }
-        coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
+		coordinates.put(TiC.PROPERTY_TIMESTAMP, location.getTime());
 
-        KrollDict event = new KrollDict();
-        event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
-        event.put(TiC.PROPERTY_COORDS, coordinates);
+		KrollDict event = new KrollDict();
+		event.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+		event.put(TiC.PROPERTY_COORDS, coordinates);
 
-        if (locationProvider != null) {
-            KrollDict provider = new KrollDict();
-            provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
-            provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
+		if (locationProvider != null) {
+			KrollDict provider = new KrollDict();
+			provider.put(TiC.PROPERTY_NAME, locationProvider.getName());
+			provider.put(TiC.PROPERTY_ACCURACY, locationProvider.getAccuracy());
             provider.put(TiC.PROPERTY_POWER,
                     locationProvider.getPowerRequirement());
 
-            event.put(TiC.PROPERTY_PROVIDER, provider);
-        }
+			event.put(TiC.PROPERTY_PROVIDER, provider);
+		}
 
-        return event;
-    }
-	
+		return event;
+	}
+
 	
 	/**
 	 * Convenience method used to package a error into a consumable form
@@ -1140,7 +1194,7 @@ public class GeolocationModule extends KrollModule
     public void setHeadingFilter(float filter)
     {
         tiCompass.setHeadingFilter(filter);
-    }
+}
     
     @Kroll.method
     @Kroll.getProperty

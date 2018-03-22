@@ -41,8 +41,8 @@ public class TiUINativePicker extends TiUIPicker
 		implements OnItemSelectedListener
 {
 	private static final String TAG = "TiUINativePicker";
-	private boolean firstSelectedFired = false;
-	
+	private boolean nativeViewDrawn = false;
+
 	public class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
 	    FontDesc fontDesc;
@@ -79,14 +79,14 @@ public class TiUINativePicker extends TiUIPicker
 		    }
 			return tv;
 		}
-		
+
 		public void setFontDesc(FontDesc desc)
 		{
 		    fontDesc = desc;
 		}
-	}
-	
-	public TiUINativePicker(TiViewProxy proxy) 
+			}
+
+	public TiUINativePicker(TiViewProxy proxy)
 	{
 		super(proxy);
 	}
@@ -99,11 +99,12 @@ public class TiUINativePicker extends TiUIPicker
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
+                nativeViewDrawn = true;
                 if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiUINativePicker.this);
                 }
 			}
-			
+
 			@Override
 			public boolean onTouchEvent(MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_UP && hierarchyHasListener(TiC.EVENT_CLICK)) {
@@ -118,10 +119,10 @@ public class TiUINativePicker extends TiUIPicker
 
 		spinner.setOnItemSelectedListener(this);
 	}
-	
+
 	private AppCompatSpinner getSpinner() {
 	    return (AppCompatSpinner)getNativeView();
-	}
+		}
 	
 	@Override
 	protected void handlePreselectedRows(Object[] preselectedRows){
@@ -131,16 +132,12 @@ public class TiUINativePicker extends TiUIPicker
             spinner.setOnItemSelectedListener(null);
             for (int i = 0; i < preselectedRows.length; i++) {
                 Integer rowIndex = TiConvert.toInt(preselectedRows[i], -1);
-                if (rowIndex == 0 || rowIndex.intValue() < 0) {
-                    continue;
-                }
-                selectRow(i, rowIndex, false);
-            }
-        } finally {
-            spinner.setOnItemSelectedListener(this);
-            firstSelectedFired = true;
-        }
-    }
+			if (rowIndex == 0 || rowIndex.intValue() < 0) {
+				continue;
+			}
+			selectRow(i, rowIndex, false);
+		}
+	}
 
 	@Override
 	public void selectRow(final int columnIndex, final int rowIndex, final boolean animated)
@@ -163,11 +160,11 @@ public class TiUINativePicker extends TiUIPicker
                 @Override
                 public void run() {
                     spinner.setSelection(rowIndex, animated);
-                }
+	}
             });
         }
 	}
-	
+
 	@Override
 	public void openPicker()
 	{
@@ -185,7 +182,7 @@ public class TiUINativePicker extends TiUIPicker
 	}
 
 	@Override
-	protected void refreshNativeView() 
+	protected void refreshNativeView()
 	{
 		// Don't allow change events here
 		suppressChangeEvent = true;
@@ -194,7 +191,12 @@ public class TiUINativePicker extends TiUIPicker
 			return;
 		}
 		try {
-			spinner.setOnItemSelectedListener(null);
+			if (nativeViewDrawn) {
+				// If we have drawn the spinner it has a selected item listener.
+				// Detach while the native view is refreshed to prevent
+				// unnecessary event triggers.
+				spinner.setOnItemSelectedListener(null);
+			}
 			int rememberSelectedRow = getSelectedRowIndex(0);
 			// Just one column - the first column - for now.
 			// Maybe someday we'll support multiple columns.
@@ -220,41 +222,39 @@ public class TiUINativePicker extends TiUIPicker
 			if (rememberSelectedRow >= 0) {
 				selectRow(0, rememberSelectedRow, false);
 			}
-			
-		} catch(Throwable t) {
+			// The new adapter has been set.
+			// If the Spinner has been drawn reattach the onItemSelected listener here.
+			// If it has not been drawn yet, the listener will be attached in the
+			// onLayout lifecycle event.
+			if (nativeViewDrawn) {
+				spinner.setOnItemSelectedListener(this);
+			}
+		} catch (Throwable t) {
 			Log.e(TAG, "Unable to refresh native spinner control: " + t.getMessage(), t);
-		} finally {
-			suppressChangeEvent = false;
-			spinner.setOnItemSelectedListener(this);
 		}
 	}
-	
 
-	@Override
+
+		@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long itemId)
-	{
-		if (!firstSelectedFired) {
-			// swallow the first selected event that gets fired after the adapter gets set, so as to avoid
-			// firing our change event in that case.
-			firstSelectedFired = true;
-			return;
-		}
-		fireSelectionChange(0, position);
+		{
+			fireSelectionChange(0, position);
 
-		// Invalidate the parent view after the item is selected (TIMOB-13540).
+			// Invalidate the parent view after the item is selected (TIMOB-13540).
 		if (TiC.HONEYCOMB_OR_GREATER) {
 			ViewParent p = nativeView.getParent();
 			if (p instanceof View) {
 				((View) p).invalidate();
 			}
 		}
-	}
 
-	@Override
-	public void onNothingSelected(AdapterView<?> arg0)
-	{
-	}
+		@Override
+		public void onNothingSelected(AdapterView<?> parent)
+		{
+		}
+	};
+
 	public void add(TiUIView child)
 	{
 		// Don't do anything.  We don't add/remove views to the native picker (the Android "Spinner").
@@ -294,10 +294,10 @@ public class TiUINativePicker extends TiUIPicker
 	}
 	protected void fireSelectionChange(int columnIndex, int rowIndex)
 	{
-		((PickerProxy)proxy).fireSelectionChange(columnIndex, rowIndex);
+		((PickerProxy) proxy).fireSelectionChange(columnIndex, rowIndex);
 	}
-	
-    @Override
+
+	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
@@ -307,12 +307,12 @@ public class TiUINativePicker extends TiUIPicker
                         TiConvert.toKrollDict(newValue));    
                 TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) getSpinner().getAdapter();
                 adapter.setFontDesc(desc);
-                adapter.notifyDataSetChanged();
-            }
+			adapter.notifyDataSetChanged();
+		}
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-        }
-    }
+	}
+}
 }

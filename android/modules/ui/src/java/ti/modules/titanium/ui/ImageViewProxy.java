@@ -16,14 +16,14 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_DECODE_RETRIES,
-	TiC.PROPERTY_AUTOROTATE,
-	TiC.PROPERTY_DEFAULT_IMAGE,
-	TiC.PROPERTY_DURATION,
-	TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
-	TiC.PROPERTY_IMAGE,
-	TiC.PROPERTY_IMAGES,
-	TiC.PROPERTY_REPEAT_COUNT,
+		TiC.PROPERTY_DECODE_RETRIES,
+		TiC.PROPERTY_AUTOROTATE,
+		TiC.PROPERTY_DEFAULT_IMAGE,
+		TiC.PROPERTY_DURATION,
+		TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
+		TiC.PROPERTY_IMAGE,
+		TiC.PROPERTY_IMAGES,
+		TiC.PROPERTY_REPEAT_COUNT,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_LOCAL_LOAD_SYNC,
 	TiC.PROPERTY_ANIMATION_DURATION,
@@ -58,8 +58,8 @@ public class ImageViewProxy extends ViewProxy
 		setProperty("animating", true);
 		setProperty("paused", false);
 		if (view != null) {
-		    getImageView().start();
-		}
+		getImageView().start();
+	}
 	}
 
 	@Kroll.method
@@ -67,16 +67,16 @@ public class ImageViewProxy extends ViewProxy
 		setProperty("animating", false);
 		setProperty("paused", false);
 		if (view != null) {
-		    getImageView().stop();
-		}
+		getImageView().stop();
+	}
 	}
 
 	@Kroll.method
 	public void pause() {
 		setProperty("paused", true);
 		if (view != null) {
-		    getImageView().pause();
-		}
+		getImageView().pause();
+	}
 	}
 
 	@Kroll.method
@@ -88,43 +88,43 @@ public class ImageViewProxy extends ViewProxy
         }
 		setProperty("paused", false);
 		if (view != null) {
-		    getImageView().resume();
-		}
+		getImageView().resume();
 	}
-	
+	}
+
 	@Kroll.method
 	public void pauseOrResume() {
 		boolean paused = TiConvert.toBoolean(getProperty("paused"), true);
 		if (paused) resume();
 		else pause();
 	}
-	
+
 	@Kroll.method
 	public TiBlob toBlob() {
 		return ((TiUIImageView)getOrCreateView()).toBlob();
 	}
-	
+
 	@Override
 	public String getApiName()
 	{
 		return "Ti.UI.ImageView";
 	}
-	
+
     @Kroll.getProperty
-    @Kroll.method
+	@Kroll.method
     public int getIndex() {
         if (view != null) {
             getImageView().getCurrentIndex();
-        }
+	}
         return 0;
-    }
-    
-    @Kroll.getProperty
+	}
+
+	@Kroll.getProperty
     @Kroll.method
     public float getProgress() {
         if (view != null) {
             getImageView().getProgress();
-        }
+	}
         return 1;
-    }
+	}
 }

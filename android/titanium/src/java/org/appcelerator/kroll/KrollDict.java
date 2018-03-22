@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.TiC;
 import org.json.JSONArray;
@@ -41,17 +42,17 @@ public class KrollDict
 	public KrollDict(JSONObject object) throws JSONException {
 		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
 			String key = iter.next();
-			Object value = object.get(key);			
+			Object value = object.get(key);
 			Object json = TiConvert.fromJSON(value);
 			put(key, json);
 		}
 	}
-	
+
 	public KrollDict(final String jsonString) throws JSONException {
 	    this(new JSONObject(jsonString));
-	}
-		
-	
+				}
+
+
 
 	/**
 	 * Constructs a KrollDict by copying an existing Map
@@ -72,13 +73,13 @@ public class KrollDict
 	}
 
 	public void putCodeAndMessage(int code, String message) {
-		this.put(TiC.PROPERTY_SUCCESS,new Boolean(code==0));
-		this.put(TiC.PROPERTY_CODE,new Integer(code));
-		if (message != null){
-			this.put(TiC.EVENT_PROPERTY_ERROR,message);
+		this.put(TiC.PROPERTY_SUCCESS, new Boolean(code == 0));
+		this.put(TiC.PROPERTY_CODE, new Integer(code));
+		if (message != null) {
+			this.put(TiC.EVENT_PROPERTY_ERROR, message);
 		}
 	}
-	
+
 	public void putCodeAndMessage(boolean success, int code, String message) {
         this.put(TiC.PROPERTY_SUCCESS,new Boolean(success));
         this.put(TiC.PROPERTY_CODE,new Integer(code));
@@ -93,7 +94,7 @@ public class KrollDict
 	}
 
 	public boolean containsKeyStartingWith(String keyStartsWith) {
-		if (keySet() != null) { 
+		if (keySet() != null) {
 			for (String key : keySet()) {
 				if (key.startsWith(keyStartsWith)) {
 					return true;
@@ -102,7 +103,7 @@ public class KrollDict
 		}
 		return false;
 	}
-	
+
 	public boolean equalsKrollDict(KrollDict otherDict)
 	{
 		if (otherDict.size() != size()) return false;
@@ -207,7 +208,7 @@ public class KrollDict
 	}
 
 	public String[] getStringArray(String key) {
-		return TiConvert.toStringArray((Object[])get(key));
+		return TiConvert.toStringArray((Object[]) get(key));
 	}
 
 	public String[] optStringArray(String key, String[] defaultValue) {
@@ -294,20 +295,39 @@ public class KrollDict
 	
 	@SuppressWarnings("unchecked")
     public HashMap getHashMap(String key) {
-        Object value = get(key);
-        if (value instanceof KrollDict) {
-            return (KrollDict) value;
-        } else if (value instanceof HashMap) {
+		Object value = get(key);
+		if (value instanceof KrollDict) {
+			return (KrollDict) value;
+		} else if (value instanceof HashMap) {
             return (HashMap<String, Object>) value;
-        } else {
-            return null;
-        }
-    }
+		} else {
+			return null;
+		}
+	}
 
-	public boolean isNull(String key) {
+	public KrollDict[] getKrollDictArray(String key)
+	{
+		String[] value = getStringArray(key);
+		KrollDict[] result = new KrollDict[value.length];
+		int index = 0;
+		for (String record : value) {
+			KrollDict dictionary = null;
+			try {
+				dictionary = new KrollDict(new JSONObject(record));
+			} catch (JSONException e) {
+				e.printStackTrace();
+				Log.w(TAG, "Unable to parse dictionary.");
+			}
+			result[index++] = dictionary;
+		}
+		return result;
+	}
+
+	public boolean isNull(String key)
+	{
 		return (get(key) == null);
 	}
-	
+
 	@Override
 	public String toString() {
 		return new JSONObject(this).toString();
@@ -318,7 +338,7 @@ public class KrollDict
 		Set<String> thatkeys = that.keySet();
 		keys.removeAll(thatkeys);
 		return keys;
-    }
+}
 	
 	public static HashMap merge( HashMap map1, HashMap map2)
     {

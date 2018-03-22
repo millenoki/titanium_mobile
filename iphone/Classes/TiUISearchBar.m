@@ -122,14 +122,14 @@
 
 - (void)setSearchBar:(UISearchBar *)searchBar
 {
-    if (searchView) {
-        [searchView removeFromSuperview];
-        [searchView setDelegate:nil];
-        RELEASE_TO_NIL(searchView);
-    }
-    searchView = searchBar;
-    [searchView setDelegate:self];
-    [self addSubview:searchView];
+  if (searchView) {
+    [searchView removeFromSuperview];
+    [searchView setDelegate:nil];
+    RELEASE_TO_NIL(searchView);
+  }
+  searchView = [searchBar retain];
+  [searchView setDelegate:self];
+  [self addSubview:searchView];
 }
 
 - (UIView *)viewForHitTest
@@ -196,7 +196,7 @@
   if (searchController) {
     RELEASE_TO_NIL(searchController)
     [self searchController];
-  }
+}
 }
 
 #pragma mark View controller stuff
@@ -240,6 +240,38 @@
 - (void)setHintText_:(id)value
 {
   [[self searchBar] setPlaceholder:[TiUtils stringValue:value]];
+
+  if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
+    [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
+  }
+}
+
+- (void)setHintTextColor_:(id)value
+{
+  id hintText = [[self proxy] valueForUndefinedKey:@"hintText"] ?: @"";
+
+  NSAttributedString *placeHolder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
+
+  if ([TiUtils isIOS9OrGreater]) {
+    [[UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]] setAttributedPlaceholder:placeHolder];
+  } else {
+    [[UITextField appearanceWhenContainedIn:[UISearchBar class], nil] setAttributedPlaceholder:placeHolder];
+  }
+  RELEASE_TO_NIL(placeHolder);
+}
+
+- (void)setColor_:(id)value
+{
+  // TIMOB-10368
+  // Remove this hack again once iOS exposes this as a public API
+  UIView *searchContainerView = [[[self searchBar] subviews] firstObject];
+
+  [[searchContainerView subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+    if ([obj isKindOfClass:[UITextField class]]) {
+      [(UITextField *)obj setTextColor:[[TiUtils colorValue:value] _color]];
+      *stop = YES;
+    }
+  }];
 }
 
 - (void)setKeyboardType_:(id)value

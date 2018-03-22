@@ -89,7 +89,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 //    private TiDownloadListener downloadListener;
 //    private TiLoadImageListener loadImageListener;
 	private Object releasedLock = new Object();
-	
+
 	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private static final int SET_IMAGE = 10001;
 	private static final int START = 10002;
@@ -98,7 +98,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private static final int RESUME = 10005;
     private static final int SET_PROGRESS = 10006;
     private static final int SET_INDEX = 10007;
-	
+
     private HashMap transitionDict = null;
 
     private class FilterAndSetTask extends AsyncTask<Bitmap, Void, Bitmap> {
@@ -201,27 +201,27 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 	}
 
     public boolean handleMessage(Message msg) {
-		switch(msg.what) {
-		
+		switch (msg.what) {
+
         case SET_IMAGE: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleSetImage((Bitmap) result.getArg());
-			result.setResult(null);
-			return true;
+				AsyncResult result = (AsyncResult) msg.obj;
+				handleSetImage((Bitmap) result.getArg());
+				result.setResult(null);
+				return true;
         }
         case SET_DRAWABLE: {
             handleSetDrawable((Drawable) msg.obj, msg.arg1 == 1);
             return true;
         }
-		case START:
-			handleStart();
-			return true;
-		case STOP:
-			handleStop();
-			return true;
+			case START:
+				handleStart();
+				return true;
+			case STOP:
+				handleStop();
+				return true;
         case RESUME:
             handleResume();
-			return true;			
+				return true;
         case SET_INDEX: {
             AsyncResult result = (AsyncResult) msg.obj;
             handleSetCurrentIndex(((Number) result.getArg()).intValue());
@@ -234,8 +234,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             result.setResult(null);
             return true;
         }
-        default:
-            return false;
+			default:
+				return false;
 			
 		}
 	}
@@ -447,13 +447,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 						} else {
 							b = imageRef.getBitmap(true);
 						}
-						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
+						BitmapWithIndex bIndex = new BitmapWithIndex(b, j);
                         while (waitTime < duration * imageSources.size()) {
 							try {
 								if (!bitmapQueue.offer(bIndex)) {
 									if (isStopping.get()) {
 										break;
-									} 
+									}
 									Thread.sleep(sleepTime);
 									waitTime += sleepTime;
 
@@ -524,7 +524,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 			}
         return drawable;
 		}
-		
+
     private void setAnimatedImages() {
         if (animatedImageSources == null || animatedImageSources.size() == 0) {
             handleSetDrawable(null, false);
@@ -780,7 +780,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 				animator.notify();
 			}
 		}
-		
+
 		if (loader != null) {
 			synchronized (loader) {
 				loader.notify();
@@ -801,7 +801,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public void stop() {
         if (!TiApplication.isUIThread()) {
 			Message message = mainHandler.obtainMessage(STOP);
-			message.sendToTarget();		
+			message.sendToTarget();
 		} else {
 			handleStop();
 		}
@@ -861,10 +861,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             for (Object o : (Object[]) object) {
                 animatedImageSources.add(makeImageSource(o));
 	}
-        } else {
+		} else {
             animatedImageSources.add(makeImageSource(object));
-        }
-    }
+		}
+	}
 
     private void setImageSource(TiDrawableReference source) {
 		imageSources = new ArrayList<TiDrawableReference>();
@@ -873,7 +873,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             KrollDict data = new KrollDict();
             data.put(TiC.PROPERTY_IMAGE, source.getUrl());
             proxy.fireEvent("startload", data, false, false);
-	}
+		}
 	}
 
     private TiDrawableReference makeImageSource(Object object) {
@@ -888,7 +888,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         source.setDecodeRetries(decodeRetries);
         return source;
 	}
-	
+
 
 	private void setImageInternal() {
 
@@ -899,18 +899,18 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setDefaultImage(proxy.viewInitialised());
             currentRef = null;
             loadingRef = null;
-			return;
-		}
+					return;
+				}
 
         if (reusing) {
             setDefaultImage(false);
-        }
+				}
 
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
             currentRef = loadingRef = imageref;
             TiImageHelper.downloadDrawable(imageViewProxy, imageref, localLoadSync, this);
-		} else {
+				} else {
 			setImages();
 		}
 	}
@@ -938,7 +938,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 || array.get(0) == null
                 || array.get(0).isTypeNull());
 		}
-	
+
 	@Override
     protected void didProcessProperties() {
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LAYOUT) != 0) {
@@ -1113,7 +1113,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 TiC.PROPERTY_BACKGROUND_REPEAT, false);
         view.setMask(TiUIHelper.buildImageDrawable(nativeView.getContext(), mask, tileImage, proxy));
 	}
- 
+
     public void onDestroy(Activity activity) {
 	}
 
@@ -1135,7 +1135,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public boolean isAnimating() {
 		return animating.get() && !paused;
 	}
-	
+
     public boolean isPaused() {
 		return paused;
 	}
@@ -1145,13 +1145,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 	}
 
     public TiBlob toBlob() {
-		TiImageView view = getView();
-		if (view != null) {
-			Drawable drawable = view.getImageDrawable();
+			TiImageView view = getView();
+			if (view != null) {
+				Drawable drawable = view.getImageDrawable();
             if (drawable == null && imageSources != null
                     && imageSources.size() == 1) {
                 drawable = imageSources.get(0).getDrawable();
-				}
+					}
             if (drawable != null) {
                 Bitmap bitmap = null;
                 if (drawable instanceof BitmapDrawable) {

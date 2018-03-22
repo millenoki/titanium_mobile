@@ -23,7 +23,7 @@ import android.os.Message;
 public class ListViewProxy extends AbsListViewProxy {
 
 	private static final String TAG = "ListViewProxy";
-	
+
     private static final int MSG_FIRST_ID = AbsListViewProxy.MSG_LAST_ID + 1;
 
 
@@ -38,7 +38,7 @@ public class ListViewProxy extends AbsListViewProxy {
     public Class sectionClass() {
         return ListSectionProxy.class;
 	}
-	
+
     @Override
     public TiUIView createView(Activity activity) {
         TiUIView view = new TiListView(this, activity);
@@ -50,25 +50,25 @@ public class ListViewProxy extends AbsListViewProxy {
         params.autoFillsWidth = true;
         return view;
 	}
-	
+
 	@Override
 	public boolean handleMessage(final Message msg) 	{
 
-	    switch (msg.what) {
+		switch (msg.what) {
         case MSG_CLOSE_SWIPE_MENU: {
             handleCloseSwipeMenu(msg.obj);
-	            return true;
-	        }
-	        default:
-	            return super.handleMessage(msg);
-	    }
+				return true;
+			}
+			default:
+				return super.handleMessage(msg);
+		}
 	}
 
     @Override
     public String getApiName() {
         return "Ti.UI.ListView";
 		}
-	
+
     public void handleCloseSwipeMenu(Object obj) {
         Boolean animated = true;
         if (obj != null) {
@@ -79,7 +79,7 @@ public class ListViewProxy extends AbsListViewProxy {
             ((TiListView) listView).closeSwipeMenu(animated);
 		}
 	}
-	
+
     @Kroll.method()
     public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj) {
         runInUiThread(new CommandNoReturn() {
@@ -89,5 +89,135 @@ public class ListViewProxy extends AbsListViewProxy {
 		}
         }, false);
 	}
-	
+
 			}
+			preload = true;
+			preloadSections.remove(index);
+		}
+	}
+
+	@Kroll.method
+	public void insertSectionAt(int index, Object section)
+	{
+		if (TiApplication.isUIThread()) {
+			handleInsertSectionAt(index, section);
+		} else {
+			sendInsertSectionMessage(index, section);
+		}
+	}
+
+	private void sendInsertSectionMessage(int index, Object section)
+	{
+		KrollDict data = new KrollDict();
+		data.put("index", index);
+		data.put("section", section);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_INSERT_SECTION_AT), data);
+	}
+
+	private void handleInsertSectionAt(int index, Object section)
+	{
+		TiUIView listView = peekView();
+		if (listView != null) {
+			((TiListView) listView).insertSectionAt(index, section);
+		} else {
+			if (index < 0 || index > preloadSections.size()) {
+				Log.e(TAG, "Invalid index to insertSection");
+				return;
+			}
+			preload = true;
+			addPreloadSections(section, index, false);
+		}
+	}
+
+	@Kroll.method
+	public void replaceSectionAt(int index, Object section)
+	{
+		if (TiApplication.isUIThread()) {
+			handleReplaceSectionAt(index, section);
+		} else {
+			sendReplaceSectionMessage(index, section);
+		}
+	}
+
+	private void sendReplaceSectionMessage(int index, Object section)
+	{
+		KrollDict data = new KrollDict();
+		data.put("index", index);
+		data.put("section", section);
+		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REPLACE_SECTION_AT), data);
+	}
+
+	private void handleReplaceSectionAt(int index, Object section)
+	{
+		TiUIView listView = peekView();
+		if (listView != null) {
+			((TiListView) listView).replaceSectionAt(index, section);
+		} else {
+			handleDeleteSectionAt(index);
+			handleInsertSectionAt(index, section);
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public ListSectionProxy[] getSections()
+	// clang-format on
+	{
+		if (TiApplication.isUIThread()) {
+			return handleSections();
+		} else {
+			return (ListSectionProxy[]) TiMessenger.sendBlockingMainMessage(
+				getMainHandler().obtainMessage(MSG_GET_SECTIONS));
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setSections(Object sections)
+	// clang-format on
+	{
+		if (!(sections instanceof Object[])) {
+			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);
+			return;
+		}
+		//Update java and javascript property
+		setProperty(TiC.PROPERTY_SECTIONS, sections);
+
+		Object[] sectionsArray = (Object[]) sections;
+		TiUIView listView = peekView();
+		//Preload sections if listView is not opened.
+		if (listView == null) {
+			preload = true;
+			clearPreloadSections();
+			addPreloadSections(sectionsArray, -1, true);
+		} else {
+			if (TiApplication.isUIThread()) {
+				((TiListView) listView).processSectionsAndNotify(sectionsArray);
+			} else {
+				TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_SECTIONS), sectionsArray);
+			}
+		}
+	}
+
+	private ListSectionProxy[] handleSections()
+	{
+		if (peekView() == null && getParent() != null) {
+			getParent().getOrCreateView();
+		}
+		TiUIView listView = peekView();
+
+		if (listView != null) {
+			return ((TiListView) listView).getSections();
+		}
+		ArrayList<ListSectionProxy> preloadedSections = getPreloadSections();
+		return preloadedSections.toArray(new ListSectionProxy[preloadedSections.size()]);
+	}
+
+	@Override
+	public String getApiName()
+	{
+		return "Ti.UI.ListView";
+	}
+}

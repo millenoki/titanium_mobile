@@ -568,9 +568,9 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 	const moduleJS = this.moduleId + '.js',
         moduleTS = this.moduleId + '.ts',
 		renderData = {
-			'moduleIdAsIdentifier' : this.moduleIdAsIdentifier,
-			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
-			'allEncryptedAssetsReturn': 'NSNumber *index = [map objectForKey:path];'
+			moduleIdAsIdentifier: this.moduleIdAsIdentifier,
+			mainEncryptedAssetReturn: 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
+			allEncryptedAssetsReturn: 'NSNumber *index = [map objectForKey:path];'
 				+ '\n  if (index == nil) {\n    return nil;\n  }'
 				+ '\n  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);'
 		},
@@ -662,11 +662,9 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
                 src: path.join(this.buildAssetsDir, moduleTS.replace(/\.ts$/, '.js'))
             }], function() {
 			titaniumPrepHook(
-                    path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
-                        cwd: this.universalBinaryDir,
-                        'jsFiles': this.jsFilesToEncrypt,
-                        'placeHolder': 'mainEncryptedAsset'
-                    },
+				path.join(this.platformPath, 'titanium_prep'),
+				[ this.moduleId, this.buildAssetsDir, this.moduleGuid ],
+				{ cwd: this.universalBinaryDir, jsFiles: this.jsFilesToEncrypt, placeHolder: 'mainEncryptedAsset' },
 				cb
 			);
             }.bind(this))
@@ -738,11 +736,9 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
             this.compileJSFiles(jsFiles, function() {
 				titaniumPrepHook(
-                    path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
-                        cwd: this.universalBinaryDir,
-                        'jsFiles': this.jsFilesToEncrypt,
-                        'placeHolder': 'allEncryptedAssets'
-                    },
+					path.join(this.platformPath, 'titanium_prep'),
+					[ this.moduleId, this.buildAssetsDir, this.moduleGuid ],
+					{ cwd: this.universalBinaryDir, jsFiles: this.jsFilesToEncrypt, placeHolder: 'allEncryptedAssets' },
 					cb
 				);
             }.bind(this))
@@ -794,9 +790,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
             this.logger.debug(__('Writing metadata file: %s', this.metaDataFile.cyan));
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-            fs.writeFileSync(this.metaDataFile, JSON.stringify({
-                "exports": this.metaData
-            }));
+			fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
 
 			cb();
 		}
@@ -1054,7 +1048,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
             dest.directory(this.platformDir, path.join(moduleFolder, 'platform'));
-		}
+				}
 
 		// 4. hooks folder
 		const hookFiles = {};

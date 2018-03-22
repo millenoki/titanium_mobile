@@ -247,6 +247,7 @@
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
+  [[ourProxy keyboardAccessoryView] setBounds:CGRectMake(0, 0, 0, [ourProxy keyboardAccessoryHeight])];
 
   //	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 

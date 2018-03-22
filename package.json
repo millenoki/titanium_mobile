@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Appcelerator Titanium Mobile",
-  "version": "7.1.0",
+  "version": "7.2.0",
   "moduleApiVersion": {
     "iphone": "3",
     "android": "4",
@@ -37,7 +37,7 @@
     "fs-extra": "^0.30.0",
     "glob": "7.1.1",
     "humanize": "0.0.9",
-    "ioslib": "1.6.0",
+    "ioslib": "1.6.1",
     "latenize": "^0.2.0",
     "lodash.defaultsdeep": "4.6.0",
     "markdown": "0.5.0",
@@ -53,7 +53,7 @@
     "temp": "0.8.3",
     "typescript": "2.1.5",
     "uglify-js": "2.8.21",
-    "windowslib": "0.6.0",
+    "windowslib": "0.6.4",
     "wrench": "1.5.9",
     "xcode": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.22"
@@ -62,10 +62,9 @@
     "clang-format": "^1.1.1",
     "commander": "*",
     "danger": "^2.0.3",
-    "fs-extra": "~0.30.0",
     "grunt": "^1.0.1",
-    "grunt-appc-js": "^2.0.1",
-    "grunt-clang-format": "^1.0.0",
+    "grunt-appc-js": "^2.1.0",
+    "grunt-clang-format": "^1.0.1",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-mocha-test": "^0.13.2",
@@ -73,7 +72,8 @@
     "mocha": "*",
     "optimist": "^0.6.1",
     "pagedown": "~1.1.0",
-    "should": "^11.2.1"
+    "should": "^11.2.1",
+    "ssri": "^5.0.0"
   },
   "repository": {
     "type": "git",

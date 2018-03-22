@@ -854,7 +854,7 @@ static NSDictionary *listViewKeysToReplace;
 
 - (NSMutableArray *)selectedItems
 {
-  NSMutableArray *result = [[NSMutableArray alloc] init];
+  NSMutableArray *result = [NSMutableArray array];
   NSArray *selectedRows = [[self.listView tableView] indexPathsForSelectedRows];
 
   if (selectedRows != nil) {
@@ -875,6 +875,7 @@ static NSDictionary *listViewKeysToReplace;
           [eventObject setObject:itemId forKey:@"itemId"];
         }
         [result addObject:eventObject];
+        [eventObject release];
       }
     },
         YES);

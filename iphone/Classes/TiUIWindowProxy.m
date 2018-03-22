@@ -986,6 +986,9 @@
   TiThreadPerformOnMainThread(^{
     if (controller != nil) {
       [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
+#if IS_XCODE_9
+      [self processForSafeArea];
+#endif
     }
   },
       NO);
@@ -1378,8 +1381,6 @@
   }
   _setingUpWindowDecorations = YES;
 
-  [navController setToolbarHidden:!hasToolbar animated:animated];
-
   //Need to clear title for titleAttributes to apply correctly on iOS6.
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
@@ -1393,6 +1394,7 @@
   SETPROP(@"barStyle", setBarStyle);
   SETPROP(@"tabBarHidden", setTabBarHidden);
   SETPROPOBJ(@"toolbar", setToolbar);
+  [[controller navigationController] setToolbarHidden:!hasToolbar animated:animated];
   [self updateBarImage];
   [self updateNavButtons];
   [self refreshBackButton];
@@ -1442,34 +1444,34 @@
   NSMutableArray *items = [NSMutableArray array];
   if (controller.navigationItem.leftBarButtonItem) {
     [items addObject:controller.navigationItem.leftBarButtonItem];
-    }
+  }
   if (controller.navigationItem.rightBarButtonItem) {
     [items addObject:controller.navigationItem.rightBarButtonItem];
-      }
+    }
   if (controller.navigationItem.leftBarButtonItems) {
     [items addObjectsFromArray:controller.navigationItem.leftBarButtonItems];
-    }
+  }
   if (controller.navigationItem.rightBarButtonItems) {
     [items addObjectsFromArray:controller.navigationItem.rightBarButtonItems];
-    }
+  }
   for (UIBarButtonItem *item in items) {
     TiViewProxy *p = nil;
     if ([item respondsToSelector:@selector(proxy)]) {
       p = (TiViewProxy *)[item performSelector:@selector(proxy)];
     } else if ([[item customView] respondsToSelector:@selector(proxy)]) {
       p = (TiViewProxy *)[[item customView] performSelector:@selector(proxy)];
-      }
+    }
     if (p) {
       [p removeBarButtonView];
       [p windowDidClose];
       [self forgetProxy:p];
-    }
-    }
+  }
+  }
   controller.navigationItem.leftBarButtonItem = controller.navigationItem.rightBarButtonItem = nil;
   controller.navigationItem.leftBarButtonItems = controller.navigationItem.rightBarButtonItems = nil;
   if (barImageView != nil) {
     [barImageView removeFromSuperview];
-  }
+}
 }
 
 - (void)rootViewDidForceFrame:(NSNotification *)notification

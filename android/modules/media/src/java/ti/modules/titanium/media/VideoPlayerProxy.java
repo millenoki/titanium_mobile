@@ -34,10 +34,12 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.webkit.URLUtil;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
 	"url", "initialPlaybackTime", "duration", "contentURL", "autoplay", "endPlaybackTime", "playableDuration",
-	TiC.PROPERTY_VOLUME, TiC.PROPERTY_REPEAT_MODE
+    TiC.PROPERTY_VOLUME, TiC.PROPERTY_REPEAT_MODE,
+    TiC.PROPERTY_SHOWS_CONTROLS
 })
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
@@ -55,7 +57,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_SET_PLAYBACK_TIME = MSG_FIRST_ID + 106;
 	private static final int MSG_GET_PLAYBACK_TIME = MSG_FIRST_ID + 107;
 	private static final int MSG_RELEASE_RESOURCES = MSG_FIRST_ID + 108; // Release video resources
-	private static final int MSG_RELEASE = MSG_FIRST_ID + 109; // Call view.release() (more drastic)
+	private static final int MSG_RELEASE = MSG_FIRST_ID + 109;           // Call view.release() (more drastic)
 	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
 	private static final int MSG_REPEAT_CHANGE = MSG_FIRST_ID + 112;
@@ -86,6 +88,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
+		defaultValues.put(TiC.PROPERTY_SHOWS_CONTROLS, true);
 	}
 
 	@Override
@@ -335,7 +338,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	@Override
-	public void hide(@Kroll.argument(optional=true) KrollDict options)
+	public void hide(@Kroll.argument(optional = true) KrollDict options)
 	{
 		if (getActivity() instanceof TiVideoActivity) {
 			getActivity().finish();
@@ -410,7 +413,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 					vv.setRepeatMode(repeatMode);
 				}
 				handled = true;
-				break;				
+				break;
 		}
 
 		if (!handled) {
@@ -566,9 +569,9 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		KrollDict args = new KrollDict();
 		args.put(TiC.EVENT_PROPERTY_REASON, reason);
 		if (reason == MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR) {
-			args.putCodeAndMessage(-1,"Video Playback encountered an error");
+			args.putCodeAndMessage(-1, "Video Playback encountered an error");
 		} else {
-			args.putCodeAndMessage(0,null);
+			args.putCodeAndMessage(0, null);
 		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
 	}
@@ -633,7 +636,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	public void onPlaybackError(int what)
 	{
 		String message = "Unknown";
-		switch(what) {
+		switch (what) {
 			case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
 				message = "Not valid for progressive playback";
 				break;
@@ -743,23 +746,20 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			cancelAllThumbnailImageRequests();
 			mTiThumbnailRetriever = new TiThumbnailRetriever();
 			String url = TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-			if (url.startsWith("file://")) {
-				mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
-			} else {
-				String path = url.contains(":") ? new TitaniumBlob(url).getNativePath() : resolveUrl(null, url);
-				Uri uri = Uri.parse(path);
-				mTiThumbnailRetriever.setUri(uri);
+			if (!URLUtil.isValidUrl(url)) {
+				url = resolveUrl(null, url);
 			}
-
-
-			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
+			Uri uri = Uri.parse(url);
+			mTiThumbnailRetriever.setUri(uri);
+			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option),
+											createThumbnailResponseHandler(callback));
 		}
 	}
 
 	@Kroll.method
 	public void cancelAllThumbnailImageRequests()
 	{
-		if(mTiThumbnailRetriever != null){
+		if (mTiThumbnailRetriever != null) {
 			mTiThumbnailRetriever.cancelAnyRequestsAndRelease();
 			mTiThumbnailRetriever = null;
 		}

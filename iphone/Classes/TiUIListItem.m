@@ -15,6 +15,9 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "Webcolor.h"
+#ifdef USE_TI_UIACTIVITYINDICATOR
+#import "TiUIActivityIndicator.h"
+#endif
 
 @interface TiUIView ()
 - (void)sanitycheckListeners;
@@ -184,7 +187,7 @@ DEFINE_EXCEPTIONS
 - (void)setGrouped:(BOOL)grouped
 {
   _grouped = grouped;
-}
+  }
 
 - (void)configurationStart
 {
@@ -196,6 +199,10 @@ DEFINE_EXCEPTIONS
   //    if (_bgView) {
   //        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
   //    }
+      }
+    }];
+  }
+#endif
 }
 
 - (void)configurationSet
@@ -223,7 +230,7 @@ DEFINE_EXCEPTIONS
       self.contentView.opaque = YES;
     }
   }
-}
+  }
 
 - (void)disableSelectionStyle
 {
@@ -302,7 +309,7 @@ DEFINE_EXCEPTIONS
   [super setBackgroundView:view];
   if (view == nil) {
     RELEASE_TO_NIL(_bgView);
-  }
+}
   if (_bgView && ![view isKindOfClass:[TiCellBackgroundView class]]) {
     [_bgView setFrame:view.bounds];
     [view addSubview:_bgView];
@@ -328,7 +335,7 @@ DEFINE_EXCEPTIONS
   }
 
   return _bgView;
-}
+  }
 
 - (UIView *)backgroundWrapperView
 {
@@ -371,7 +378,7 @@ DEFINE_EXCEPTIONS
 - (void)setImageCap_:(id)arg
 {
   imageCap = [TiUtils capValue:arg def:TiCapUndefined];
-}
+  }
 
 //-(UIImage*)loadImage:(id)arg
 //{
@@ -464,7 +471,7 @@ static NSArray *handledKeys;
 - (BOOL)selectedOrHighlighted
 {
   return [self isSelected] || [self isHighlighted];
-}
+  }
 
 - (BOOL)isUserInteractionEnabled
 {
@@ -483,7 +490,7 @@ static NSArray *handledKeys;
       NSArray *subviews = [subview subviews];
       if ([subviews count] > 0)
         [self unHighlight:subviews];
-    }
+}
     // Get the subviews of the view
   }
 }
@@ -492,20 +499,20 @@ static NSArray *handledKeys;
 {
   if (_viewHolder) {
     [self unHighlight:[_viewHolder subviews]];
-  } else {
+    } else {
     [self unHighlight:[self subviews]];
-  }
-}
+    }
+    }
 
 - (void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
   [super setSelected:yn animated:animated];
   if ([self.proxy shouldHighlight]) {
     [_viewHolder setSelected:yn animated:animated];
-  }
+      }
   if (_unHighlightOnSelect && yn)
     [self unHighlight];
-}
+    }
 
 - (void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
@@ -515,7 +522,7 @@ static NSArray *handledKeys;
   }
   if ([self.proxy shouldHighlight]) {
     [_viewHolder setHighlighted:yn animated:animated];
-  }
+}
   if (_unHighlightOnSelect && yn)
     [self unHighlight];
 }
@@ -550,64 +557,64 @@ static NSArray *handledKeys;
   if (_dataItem) {
     RELEASE_TO_NIL(_dataItem)
     //        [(TiViewProxy*)self.proxy dirtyItAll];
-  }
+    }
   _dataItem = [dataItem mutableCopy];
   [_proxy setDataItem:dataItem];
-}
+    }
 
 - (void)setUnHighlightOnSelect_:(id)newValue
 {
   _unHighlightOnSelect = [TiUtils boolValue:newValue def:YES];
-}
+    }
 
 - (void)setAccessoryType_:(id)newValue
 {
   self.accessoryType = [TiUtils intValue:newValue def:UITableViewCellAccessoryNone];
-}
+      }
 
 - (void)setSelectionStyle_:(id)newValue
 {
   _selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleNone];
   if (![self isEditing]) {
     self.selectionStyle = _selectionStyle;
-  }
-}
+      }
+    }
 
 - (void)setColor_:(id)newValue
 {
   UIColor *color = newValue != nil ? [[TiUtils colorValue:newValue] _color] : [UIColor blackColor];
   [self.textLabel setTextColor:color];
-}
+        }
 
 - (void)setTintColor_:(id)newValue
 {
   //    [_viewHolder setTintColor_:newValue];
   UIColor *color = newValue != nil ? [[TiUtils colorValue:newValue] _color] : [UIColor blackColor];
   [self setTintColor:color];
-}
+      }
 
 - (void)setFont_:(id)fontValue
 {
-  UIFont *font = (fontValue != nil) ? [[TiUtils fontValue:fontValue] font] : nil;
-  [self.textLabel setFont:font];
-}
+      UIFont *font = (fontValue != nil) ? [[TiUtils fontValue:fontValue] font] : nil;
+                        [self.textLabel setFont:font];
+      }
 
 - (void)setImage_:(id)imageValue
 {
   NSURL *imageUrl = [TiUtils toURL:imageValue proxy:_proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:imageUrl];
   self.imageView.image = image;
-}
+      }
 
 - (void)setTitle_:(id)newValue
 {
   self.textLabel.text = [TiUtils stringValue:newValue];
-}
+      }
 
 - (void)setSubtitle_:(id)newValue
 {
   self.detailTextLabel.text = [TiUtils stringValue:newValue];
-}
+  }
 
 - (BOOL)canSwipeLeft
 {
@@ -617,10 +624,10 @@ static NSArray *handledKeys;
     if (!button.isHidden) {
       canSwipe = YES;
       *stop = YES;
-    }
+  }
   }];
   return canSwipe;
-}
+  }
 
 - (BOOL)canSwipeRight
 {
@@ -630,7 +637,7 @@ static NSArray *handledKeys;
     if (!button.isHidden) {
       canSwipe = YES;
       *stop = YES;
-    }
+  }
   }];
   return canSwipe;
 }
@@ -723,9 +730,9 @@ static NSArray *handledKeys;
           // turn OFF delaysContentTouches in the hidden subview
           UIScrollView *scroll = (UIScrollView *)view;
           scroll.delaysContentTouches = _delaysContentTouches;
-        }
+  }
         break;
-      }
+}
     }
   }
 }

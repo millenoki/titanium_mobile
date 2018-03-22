@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import ti.modules.titanium.ui.ToolbarProxy;
 import ti.modules.titanium.ui.android.DrawerLayoutProxy;
 import ti.modules.titanium.ui.WindowProxy;
 
@@ -33,7 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -49,11 +50,14 @@ public class TiUIDrawerLayout extends TiUIView {
 	private int rightWidth;
 
 	private Toolbar toolbar;
-	private boolean toolbarEnabled = false;
+	private boolean toolbarEnabled = true;
+	private boolean themeHasActionBar = true;
 
 	private TiViewProxy leftView;
 	private TiViewProxy rightView;
 	private TiViewProxy centerView;
+
+	private AppCompatActivity activity;
 
 	private static final String TAG = "TiUIDrawerLayout";
 
@@ -85,19 +89,14 @@ public class TiUIDrawerLayout extends TiUIView {
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!");
 		}
-
-		AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
-		LayoutInflater inflater = LayoutInflater.from(activity);
+		this.activity = (AppCompatActivity) proxy.getActivity();
+		LayoutInflater inflater = LayoutInflater.from(this.activity);
 		layout = (DrawerLayout) inflater.inflate(id_drawer_layout, null, false);
-		layout.setDrawerListener(new DrawerListener());
+		toolbar = (Toolbar) layout.findViewById(id_toolbar);
 
-		toolbar = (Toolbar)layout.findViewById(id_toolbar);
-		if (activity.getSupportActionBar() == null && activity.getActionBar() == null) {
-			activity.setSupportActionBar(toolbar);
-			if (!toolbarEnabled) {
-				toolbarEnabled = true;
-				setToolbarVisible(toolbarEnabled);
-			}
+		// Check if the theme provides a default ActionBar
+		if (this.activity.getSupportActionBar() == null) {
+			this.themeHasActionBar = false;
 		}
 
 		setNativeView(layout);
@@ -159,30 +158,8 @@ public class TiUIDrawerLayout extends TiUIView {
 		}
 	}
 
-	private class DrawerListener implements DrawerLayout.DrawerListener {
-
-		@Override
-		public void onDrawerClosed(View drawerView) {
-			drawerClosedEvent(drawerView);
-		}
-
-		@Override
-		public void onDrawerOpened(View drawerView) {
-			drawerOpenedEvent(drawerView);
-		}
-
-		@Override
-		public void onDrawerSlide(View drawerView, float slideOffset) {
-			drawerSlideEvent(drawerView, slideOffset);
-		}
-
-		@Override
-		public void onDrawerStateChanged(int state) {
-			drawerStateChangedEvent(state);
-		}
-	}
-
-	public void toggleLeft() {
+	public void toggleLeft()
+	{
 		if (layout.isDrawerOpen(Gravity.START)) {
 			closeLeft();
 		} else {
@@ -232,36 +209,45 @@ public class TiUIDrawerLayout extends TiUIView {
 
 	private void initDrawerToggle() {
 
-		AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
-		if (activity.getSupportActionBar() == null) {
+		final AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
+		if (activity == null) {
 			return;
 		}
-
-		activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		activity.getSupportActionBar().setHomeButtonEnabled(true);
+		if (activity.getSupportActionBar() != null) {
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			activity.getSupportActionBar().setHomeButtonEnabled(true);
+		}
 
 		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
 			@Override
-			public void onDrawerClosed(View drawerView) {
+			public void onDrawerClosed(View drawerView)
+			{
+				super.onDrawerClosed(drawerView);
 				drawerClosedEvent(drawerView);
 			}
 
 			@Override
-			public void onDrawerOpened(View drawerView) {
+			public void onDrawerOpened(View drawerView)
+			{
+				super.onDrawerOpened(drawerView);
 				drawerOpenedEvent(drawerView);
 			}
 
 			@Override
-			public void onDrawerSlide(View drawerView, float slideOffset) {
+			public void onDrawerSlide(View drawerView, float slideOffset)
+			{
+				super.onDrawerSlide(drawerView, slideOffset);
 				drawerSlideEvent(drawerView, slideOffset);
 			}
 
 			@Override
-			public void onDrawerStateChanged(int state) {
+			public void onDrawerStateChanged(int state)
+			{
+				super.onDrawerStateChanged(state);
 				drawerStateChangedEvent(state);
 			}
 		};
-		layout.setDrawerListener(drawerToggle);
+		layout.addDrawerListener(drawerToggle);
 		layout.post(new Runnable() {
 			@Override
 			public void run() {
@@ -309,11 +295,11 @@ public class TiUIDrawerLayout extends TiUIView {
 		TiUIView contentView = viewProxy.getOrCreateView();
 
 		View view = contentView.getOuterView();
-		RelativeLayout container = (RelativeLayout) layout.findViewById(id_drawer_layout_container);
+		LinearLayout container = (LinearLayout) layout.findViewById(id_drawer_layout_container);
 		TiCompositeLayout content = (TiCompositeLayout) container.getChildAt(1);
 		ViewParent viewParent = view.getParent();
 		if (viewParent != null && viewParent != content && viewParent instanceof ViewGroup) {
-			((ViewGroup)viewParent).removeView(view);
+			((ViewGroup) viewParent).removeView(view);
 		}
 		content.addView(view, contentView.getLayoutParams());
 		if (this.centerView != null) {
@@ -377,7 +363,7 @@ public class TiUIDrawerLayout extends TiUIView {
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_LEFT_WIDTH)) {
-			if (leftFrame != null){
+			if (leftFrame != null) {
 				if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
 					leftFrame.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
 				} else if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_FILL)) {
@@ -388,7 +374,7 @@ public class TiUIDrawerLayout extends TiUIView {
 				}
 			}
 		} else {
-			if (leftFrame != null){
+			if (leftFrame != null) {
 				leftFrame.getLayoutParams().width = LayoutParams.MATCH_PARENT;
 			}
 		}
@@ -411,11 +397,26 @@ public class TiUIDrawerLayout extends TiUIView {
 		if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
 			layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
 		}
-		if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
-			toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
-			setToolbarVisible(toolbarEnabled);
+		// If theme has default ActionBar ignore `toolbarEnabled` and `toolbar` properties
+		if (!this.themeHasActionBar) {
+			if (d.containsKey(TiC.PROPERTY_TOOLBAR_ENABLED)) {
+				toolbarEnabled = TiConvert.toBoolean(d.get(TiC.PROPERTY_TOOLBAR_ENABLED));
+				setToolbarVisible(toolbarEnabled);
+			}
+			if (d.containsKey(TiC.PROPERTY_TOOLBAR)) {
+				// Hide embedded toolbar if a custom one was provided
+				setToolbarVisible(false);
+				ViewGroup.LayoutParams layoutParams = this.toolbar.getLayoutParams();
+				// Replace the current toolbar reference with the custom one
+				this.toolbar = ((Toolbar) ((ToolbarProxy) d.get(TiC.PROPERTY_TOOLBAR)).getToolbarInstance());
+				// Add it as a first child in the layout container
+				((LinearLayout) layout.findViewById(id_drawer_layout_container)).addView(this.toolbar, 0, layoutParams);
+				setToolbarVisible(toolbarEnabled);
+			}
+			// Only set the toolbar as ActionBar after we have processes proxy's properties
+			this.activity.setSupportActionBar(this.toolbar);
 		}
-		if (d.containsKey(TiC.PROPERTY_DRAG_MARGIN)){
+		if (d.containsKey(TiC.PROPERTY_DRAG_MARGIN)) {
 			setDrawMargin(getDevicePixels(d.get(TiC.PROPERTY_DRAG_MARGIN)));
 		}
 		super.processProperties(d);
@@ -477,7 +478,7 @@ public class TiUIDrawerLayout extends TiUIView {
 			setCenterView(newProxy);
 
 		} else if (key.equals(TiC.PROPERTY_LEFT_WIDTH)) {
-			if (leftFrame == null){
+			if (leftFrame == null) {
 				return;
 			}
 			initLeft();
@@ -495,7 +496,7 @@ public class TiUIDrawerLayout extends TiUIView {
 			this.leftFrame.setLayoutParams(leftFrameLayout);
 
 		} else if (key.equals(TiC.PROPERTY_RIGHT_WIDTH)) {
-			if (rightFrame == null){
+			if (rightFrame == null) {
 				return;
 			}
 			initRight();
@@ -521,9 +522,11 @@ public class TiUIDrawerLayout extends TiUIView {
 			}
 
 		} else if (key.equals(TiC.PROPERTY_TOOLBAR_ENABLED)) {
-			toolbarEnabled = TiConvert.toBoolean(newValue);
-			setToolbarVisible(toolbarEnabled);
-
+			// If we already have a Toolbar set ignore this property
+			if (!this.themeHasActionBar) {
+				toolbarEnabled = TiConvert.toBoolean(newValue);
+				setToolbarVisible(toolbarEnabled);
+			}
 		} else if (key.equals(TiC.PROPERTY_DRAG_MARGIN)) {
 			setDrawMargin(getDevicePixels(newValue));
 		} else {
@@ -535,7 +538,7 @@ public class TiUIDrawerLayout extends TiUIView {
 	public void release() {
 		if (layout != null) {
 			layout.removeAllViews();
-			layout.setDrawerListener(null);
+			layout.removeDrawerListener(drawerToggle);
 			layout = null;
 		}
 		if (leftFrame != null) {
@@ -571,8 +574,11 @@ public class TiUIDrawerLayout extends TiUIView {
 		return nativeSize.getAsPixels(layout);
 	}
 
-	private View getNativeView(TiViewProxy viewProxy) {
-		View nativeView = viewProxy.getOrCreateView().getOuterView();
+	private View getNativeView(TiViewProxy viewProxy)
+	{
+		TiUIView view = viewProxy.getOrCreateView();
+		View outerView = view.getOuterView();
+		View nativeView = outerView != null ? outerView : view.getNativeView();
 		ViewGroup parentViewGroup = (ViewGroup) nativeView.getParent();
 		if (parentViewGroup != null) {
 			parentViewGroup.removeAllViews();

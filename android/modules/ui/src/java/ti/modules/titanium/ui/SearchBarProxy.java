@@ -19,7 +19,9 @@ import android.app.Activity;
     TiC.PROPERTY_PROMPT, "promptid",
     TiC.PROPERTY_HINT_TEXT, "hinttextid",
     TiC.PROPERTY_SHOW_CANCEL, TiC.PROPERTY_BAR_COLOR,
-	TiC.PROPERTY_VALUE
+    TiC.PROPERTY_COLOR,
+    TiC.PROPERTY_HINT_TEXT_COLOR,
+    TiC.PROPERTY_VALUE
 })
 public class SearchBarProxy extends ViewProxy
 {

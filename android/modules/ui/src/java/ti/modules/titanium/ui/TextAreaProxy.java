@@ -22,26 +22,26 @@ import android.app.Activity;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_ATTRIBUTED_STRING,
-	TiC.PROPERTY_AUTOCAPITALIZATION,
-	TiC.PROPERTY_AUTOCORRECT,
-	TiC.PROPERTY_AUTO_LINK,
-	TiC.PROPERTY_CLEAR_ON_EDIT,
-	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_EDITABLE,
-	TiC.PROPERTY_ELLIPSIZE,
-	TiC.PROPERTY_ENABLE_RETURN_KEY,
-	TiC.PROPERTY_FONT,
-	TiC.PROPERTY_FULLSCREEN,
-	TiC.PROPERTY_HINT_TEXT,
-	TiC.PROPERTY_HINT_TEXT_COLOR,
-    TiC.PROPERTY_HINT_TYPE,
-	TiC.PROPERTY_KEYBOARD_TYPE,
-	TiC.PROPERTY_MAX_LENGTH,
-	TiC.PROPERTY_PASSWORD_MASK,
-	TiC.PROPERTY_TEXT_ALIGN,
-	TiC.PROPERTY_VALUE,
-	TiC.PROPERTY_VERTICAL_ALIGN,
+		TiC.PROPERTY_ATTRIBUTED_STRING,
+		TiC.PROPERTY_AUTOCAPITALIZATION,
+		TiC.PROPERTY_AUTOCORRECT,
+		TiC.PROPERTY_AUTO_LINK,
+		TiC.PROPERTY_CLEAR_ON_EDIT,
+		TiC.PROPERTY_COLOR,
+		TiC.PROPERTY_EDITABLE,
+		TiC.PROPERTY_ELLIPSIZE,
+		TiC.PROPERTY_ENABLE_RETURN_KEY,
+		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_FULLSCREEN,
+		TiC.PROPERTY_HINT_TEXT,
+		TiC.PROPERTY_HINT_TEXT_COLOR,
+		TiC.PROPERTY_HINT_TYPE,
+		TiC.PROPERTY_KEYBOARD_TYPE,
+		TiC.PROPERTY_MAX_LENGTH,
+		TiC.PROPERTY_PASSWORD_MASK,
+		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_VALUE,
+		TiC.PROPERTY_VERTICAL_ALIGN,
     TiC.PROPERTY_RETURN_KEY_TYPE,
     TiC.PROPERTY_SUPPRESS_RETURN,
     TiC.PROPERTY_MASK,
@@ -86,7 +86,7 @@ public class TextAreaProxy extends ViewProxy
 		TiUIView v = getOrCreateView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				((TiUIText)v).setSelection(start, stop);
+				((TiUIText) v).setSelection(start, stop);
 				return;
 			}
 			KrollDict args = new KrollDict();
@@ -102,7 +102,7 @@ public class TextAreaProxy extends ViewProxy
 		TiUIView v = peekView();
 		if (v != null) {
 			if (TiApplication.isUIThread()) {
-				return ((TiUIText)v).getSelection();
+				return ((TiUIText) v).getSelection();
 			} else {
 				return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_SELECTION));
 			}
@@ -120,7 +120,7 @@ public class TextAreaProxy extends ViewProxy
 					Object argsObj = msg.obj;
 					if (argsObj instanceof KrollDict) {
 						KrollDict args = (KrollDict) argsObj;
-						((TiUIText)v).setSelection(args.getInt(TiC.PROPERTY_START), args.getInt(TiC.PROPERTY_STOP));
+						((TiUIText) v).setSelection(args.getInt(TiC.PROPERTY_START), args.getInt(TiC.PROPERTY_STOP));
 					}
 				}
 				return true;
@@ -131,7 +131,7 @@ public class TextAreaProxy extends ViewProxy
 				result = (AsyncResult) msg.obj;
 				TiUIView v = peekView();
 				if (v != null) {
-					result.setResult(((TiUIText)v).getSelection());
+					result.setResult(((TiUIText) v).getSelection());
 				} else {
 					result.setResult(null);
 				}
@@ -148,7 +148,7 @@ public class TextAreaProxy extends ViewProxy
 	public String getApiName()
 	{
 		return "Ti.UI.TextArea";
-}
+	}
 	
     @SuppressWarnings("null")
     @Override
@@ -160,5 +160,5 @@ public class TextAreaProxy extends ViewProxy
         if (!oldNullEmpty && !newNullEmpty) return (!oldValue.equals(newValue));
         return oldNullEmpty != newNullEmpty;
         
-    }
+}
 }

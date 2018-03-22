@@ -9,6 +9,7 @@
 #import "TiUIScrollView.h"
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
+#import "TiWindowProxy.h"
 
 @interface TiUIView ()
 - (void)setClipChildren_:(id)arg;
@@ -85,7 +86,28 @@
     [scrollView setTouchDelegate:self];
     [self addSubview:scrollView];
   }
+  if ([TiUtils isIOS11OrGreater]) {
+    [self adjustScrollViewInsets];
+  }
   return scrollView;
+}
+
+- (void)adjustScrollViewInsets
+{
+#if IS_XCODE_9
+  id viewProxy = self.proxy;
+  while (viewProxy && ![viewProxy isKindOfClass:[TiWindowProxy class]]) {
+    viewProxy = [viewProxy parent];
+  }
+  if (viewProxy != nil) {
+    id autoAdjust = [(TiProxy *)viewProxy valueForUndefinedKey:@"autoAdjustScrollViewInsets"];
+    if ([TiUtils boolValue:autoAdjust def:NO]) {
+      [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
+    } else {
+      [scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
+  }
+#endif
 }
 
 - (UIView *)viewForHitTest
@@ -135,7 +157,7 @@
     needsHandleContentSize = YES;
     if (configurationSet) {
       [self handleContentSize];
-    }
+  }
   }
 #endif
 }
@@ -208,12 +230,12 @@
   newContentSize.height = scale * minimumContentHeight;
   CGSize oldContentSize = scrollView.contentSize;
   if (oldContentSize.width != newContentSize.width || oldContentSize.height != newContentSize.height) {
-    CGRect wrapperBounds;
-    wrapperBounds.origin = CGPointZero;
-    wrapperBounds.size = newContentSize;
-    [wrapperView setFrame:wrapperBounds];
+  CGRect wrapperBounds;
+  wrapperBounds.origin = CGPointZero;
+  wrapperBounds.size = newContentSize;
+  [wrapperView setFrame:wrapperBounds];
     [scrollView setContentSize:newContentSize];
-    [self scrollViewDidZoom:scrollView];
+  [self scrollViewDidZoom:scrollView];
   }
 
   [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
@@ -227,7 +249,7 @@
     needsHandleContentSize = YES;
   } else {
     [TiUtils setView:[self wrapperView] positionRect:bounds];
-  }
+}
   [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -273,25 +295,25 @@
   // Center the image as it becomes smaller than the size of the screen
   CGSize boundsSize = self.bounds.size;
   CGRect frameToCenter = wrapperView.frame;
-  
+
   // Horizontally
   if (frameToCenter.size.width < boundsSize.width) {
     frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
   } else {
     frameToCenter.origin.x = 0;
-  }
-  
+}
+
   // Vertically
   if (frameToCenter.size.height < boundsSize.height) {
     frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
   } else {
     frameToCenter.origin.y = 0;
-  }
-  
+}
+
   // Center
   if (!CGRectEqualToRect(wrapperView.frame, frameToCenter)) {
     wrapperView.frame = frameToCenter;
-  }
+}
 }
 
 - (void)layoutSubviews
@@ -330,17 +352,17 @@
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
 {
   [super scrollViewDidEndZooming:scrollView_ withView:view atScale:scale];
-}
+  }
 
 - (id)zoomScale_
 {
   return @(scrollView.zoomScale);
-}
+  }
 
 - (void)scrollViewDidScroll:(UIScrollView *)theScrollView
 {
   [super scrollViewDidScroll:theScrollView];
-}
+  }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)theScrollView
 {

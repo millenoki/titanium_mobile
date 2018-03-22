@@ -48,7 +48,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   return nil;
 }
 
-@interface LocalProtocolHandler : NSURLProtocol
+@interface LocalProtocolHandler : NSURLProtocol {
+}
++ (void)setContentInjection:(NSString *)contentInjection;
+
 @end
 
 @implementation TiUIWebView {
@@ -258,10 +261,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
                                        queue:[TiUIWebView operationQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *error) {
                              if (error == nil) {
-                               [[self webview] loadRequest:request];
+  [[self webview] loadRequest:request];
                              } else {
                                [self webView:[self webview] didFailLoadWithError:error];
-                             }
+}
                            }];
   } else {
     [[self webview] loadRequest:request];
@@ -393,19 +396,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (UIScrollView *)scrollview
 {
-  UIWebView *webView = [self webview];
-  if ([webView respondsToSelector:@selector(scrollView)]) {
-    // as of iOS 5.0, we can return the scroll view
-    return [webView scrollView];
-  } else {
-    // in earlier versions, we need to find the scroll view
-    for (id subview in [webView subviews]) {
-      if ([subview isKindOfClass:[UIScrollView class]]) {
-        return (UIScrollView *)subview;
-      }
-    }
-  }
-  return nil;
+  return [[self webview] scrollView];
 }
 
 #pragma mark Public APIs
@@ -803,10 +794,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   RELEASE_TO_NIL(basicCredentials);
 
   basicCredentials = [[NSString stringWithFormat:@"Basic %@", authString] retain];
-  if (url != nil) {
-    [self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
+    if (url != nil) {
+      [self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
+    }
   }
-}
 
 - (NSString *)stringByEvaluatingJavaScriptFromString:(NSString *)code
 {
@@ -834,7 +825,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     [UIView commitAnimations];
     [spinner autorelease];
     spinner = nil;
-  }
+}
 }
 
 - (BOOL)shoudTryToAuth:(UIWebViewNavigationType)navigationType
@@ -948,7 +939,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
       reloadMethod = @selector(setUrl_:);
     }
     if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
-      [NSURLProtocol setProperty:[self _titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
+      [LocalProtocolHandler setContentInjection:[self _titaniumInjection]];
     }
 
     if ([self shoudTryToAuth:navigationType] && !_currentRequest) {
@@ -980,7 +971,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
   if (!loadingurl) {
     return;
-  }
+}
   //    if (alwaysInjectTi) {
   //        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC),
   //                       dispatch_get_main_queue(), ^
@@ -1012,7 +1003,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   NSMutableDictionary *event = [self eventForUrl:url];
   NSString *urlAbs = [event objectForKey:@"url"];
 
-  if (![urlAbs isEqualToString:lastValidLoad]) {
+    if (![urlAbs isEqualToString:lastValidLoad]) {
     [[self proxy] replaceValue:urlAbs forKey:[event objectForKey:@"url"] notification:NO];
     if ([[self viewProxy] _hasListeners:@"load" checkParent:NO]) {
       [self.proxy fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
@@ -1157,6 +1148,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 @end
 
 @implementation LocalProtocolHandler
+static NSString *_contentInjection = nil;
+
++ (void)setContentInjection:(NSString *)contentInjection
+{
+  if (_contentInjection != nil) {
+    RELEASE_TO_NIL(_contentInjection);
+  }
+  _contentInjection = [contentInjection retain];
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_contentInjection);
+  [super dealloc];
+}
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
@@ -1165,6 +1171,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request
 {
+  // TIMOB-25762: iOS 11.3 breaks NSURLProtocol properties, so we need to set it here instead of inside the webview
+  [NSURLProtocol setProperty:_contentInjection forKey:@"kContentInjection" inRequest:(NSMutableURLRequest *)request];
+
   return request;
 }
 

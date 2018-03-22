@@ -232,6 +232,6 @@ public class TiListView extends TiAbsListView<CustomListView> {
     public void remove( final int position, final int count) {
         if (listView != null) {
             listView.remove(position, count);
+	}
 }
-    }
 }

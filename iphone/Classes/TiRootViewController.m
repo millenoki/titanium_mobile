@@ -152,9 +152,9 @@
          */
 #ifndef LAUNCHSCREEN_STORYBOARD
     if (useDefaultImageView) {
-      defaultImageView = [[UIImageView alloc] init];
-      [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-      [defaultImageView setContentMode:UIViewContentModeScaleToFill];
+    defaultImageView = [[UIImageView alloc] init];
+    [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+    [defaultImageView setContentMode:UIViewContentModeScaleToFill];
     }
 #endif
 
@@ -467,7 +467,7 @@
 {
   if (self.keyboardActiveInput) {
     [self.keyboardActiveInput endEditing:YES];
-  }
+}
 }
 
 - (void)dismissKeyboardFromWindow:(id<TiWindowProtocol>)theWindow
@@ -484,7 +484,7 @@
 - (BOOL)keyboardVisible
 {
   return (keyboardVisible && !_willHideKeyboard) || _willShowKeyboard;
-}
+  }
 
 - (void)keyboardWillHide:(NSNotification *)notification
 {
@@ -509,7 +509,7 @@
                                         [TiUtils rectToDictionary:endingFrame], @"keyboardFrame",
                                         nil];
     [topWindow fireEvent:@"keyboard" withObject:event];
-  }
+}
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification
@@ -541,12 +541,12 @@
 
 - (void)keyboardDidHide:(NSNotification *)notification
 {
-  keyboardVisible = NO;
+    keyboardVisible = NO;
   _willHideKeyboard = NO;
   if (!_rotating) {
     self.keyboardActiveInput = nil;
   }
-}
+  }
 
 - (void)keyboardDidShow:(NSNotification *)notification
 {
@@ -573,7 +573,7 @@
       CGRect frame = accessory.frame;
       frame.origin.y = 0;
       accessory.frame = frame;
-    }
+  }
   }
   [self handleNewNewKeyboardStatus];
 }
@@ -612,13 +612,13 @@
 }
 
 - (CGRect)getKeyboardFrameInView:(UIView *)view
-{
+  {
   CGRect frame = [self currentKeyboardFrame];
   if (!CGRectIsEmpty(frame)) {
     return [[self viewForKeyboardAccessory] convertRect:frame toView:view];
-  }
+      }
   return frame;
-}
+    }
 
 - (CGRect)currentKeyboardFrame
 {
@@ -654,10 +654,10 @@
     [data setObject:self.keyboardActiveInput forKey:@"inputView"];
     if (self.keyboardActiveInput.inputAccessoryView) {
       [data setObject:self.keyboardActiveInput.inputAccessoryView forKey:@"accessoryView"];
-    }
+  }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiKeyboardHeightChangedNotification object:data];
-}
+    }
 
 - (UIView *)topWindowProxyView
 {
@@ -665,7 +665,7 @@
   if (topProxy)
     return [topProxy view];
   return [self view];
-}
+    }
 
 - (TiViewProxy *)topWindow
 {
@@ -682,19 +682,19 @@
     id theProxy = [(id)topVC proxy];
     if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
       return [(id<TiWindowProtocol>)theProxy topWindow];
-    }
+  }
   }
 
   if ([modalWindows count] > 0) {
     @synchronized(modalWindows)
     {
       return [[modalWindows lastObject] topWindow];
-    }
+  }
   } else if ([containedWindows count] > 0) {
     @synchronized(containedWindows)
-    {
+{
       return [[containedWindows lastObject] topWindow];
-    }
+  }
   } else {
     return nil;
   }
@@ -769,7 +769,7 @@
   @synchronized(containedWindows)
   {
     if ([containedWindows lastObject] != theWindow) {
-      [[containedWindows lastObject] resignFocus];
+  [[containedWindows lastObject] resignFocus];
       [self dismissKeyboardFromWindow:[containedWindows lastObject]];
     }
   }
@@ -777,17 +777,17 @@
     @synchronized(modalWindows)
     {
       if (![modalWindows containsObject:theWindow]) {
-        [modalWindows addObject:theWindow];
+    [modalWindows addObject:theWindow];
       }
     }
   } else {
     @synchronized(containedWindows)
     {
       if (![containedWindows containsObject:theWindow]) {
-        [containedWindows addObject:theWindow];
-        theWindow.parentOrientationController = self;
-      }
-    }
+    [containedWindows addObject:theWindow];
+    theWindow.parentOrientationController = self;
+  }
+}
     if (isCurrentlyVisible) {
       [theWindow viewWillAppear:NO];
     }
@@ -805,8 +805,8 @@
     [theWindow gainFocus];
   }
   if (![theWindow isManaged]) {
-    [self dismissDefaultImage];
-  }
+  [self dismissDefaultImage];
+}
 }
 
 - (void)willCloseWindow:(id<TiWindowProtocol>)theWindow
@@ -816,20 +816,20 @@
   if ([theWindow isModal]) {
     @synchronized(modalWindows)
     {
-      [modalWindows removeObject:theWindow];
+    [modalWindows removeObject:theWindow];
     }
   } else {
     @synchronized(containedWindows)
     {
-      [containedWindows removeObject:theWindow];
+    [containedWindows removeObject:theWindow];
     }
     theWindow.parentOrientationController = nil;
     if ([self presentedViewController] == nil || ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
       @synchronized(containedWindows)
       {
         [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
-      }
-    }
+  }
+}
   }
 }
 
@@ -839,9 +839,9 @@
   if ([self presentedViewController] == nil || ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
     @synchronized(containedWindows)
     {
-      [[containedWindows lastObject] gainFocus];
-    }
+    [[containedWindows lastObject] gainFocus];
   }
+}
 }
 
 @class TiViewController;
@@ -869,7 +869,7 @@
   if (topVC == self) {
     @synchronized(containedWindows)
     {
-      [[containedWindows lastObject] resignFocus];
+    [[containedWindows lastObject] resignFocus];
     }
   } else if ([topVC respondsToSelector:@selector(proxy)]) {
     id theProxy = [(id)topVC proxy];
@@ -904,7 +904,7 @@
                                         [keyboardFocusedProxy focus:nil];
                                       }
                                     } else {
-                                      [self didCloseWindow:nil];
+                                    [self didCloseWindow:nil];
                                     }
                                   } else {
 
@@ -1134,13 +1134,13 @@
   
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-        if (!CGRectEqualToRect([(TiViewProxy *)thisWindow sandboxBounds], [[self hostingView] bounds])) {
-          [(TiViewProxy *)thisWindow parentSizeWillChange];
-        }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+      if (!CGRectEqualToRect([(TiViewProxy *)thisWindow sandboxBounds], [[self hostingView] bounds])) {
+        [(TiViewProxy *)thisWindow parentSizeWillChange];
       }
     }
+  }
   }
   forceLayout = NO;
   [super viewDidLayoutSubviews];
@@ -1233,9 +1233,9 @@
     //     return retVal | [presenter supportedInterfaceOrientations];
     // }
     // } else {
-    return retVal;
+      return retVal;
     // }
-  }
+    }
   return (UIInterfaceOrientationMask)[self orientationFlags];
 }
 
@@ -1260,7 +1260,7 @@
   //        forcingStatusBarOrientation = NO;
   //        [self updateOrientationHistory:deviceOrientation];
   //    }
-}
+  }
 
 - (void)refreshOrientationWithDuration:(id)unused forController:(id<TiOrientationController>)orientationController
 {
@@ -1284,10 +1284,10 @@
   }
 
   //    if ([[UIDevice currentDevice] orientation] != target) {
-  forcingRotation = YES;
+    forcingRotation = YES;
   //        forcedOrientation = YES;
   [[UIDevice currentDevice] setValue:@(target) forKey:@"orientation"];
-  forcingRotation = NO;
+    forcingRotation = NO;
   //#if defined(DEBUG) || defined(DEVELOPER)
   //        DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,[[UIApplication sharedApplication] statusBarOrientation]);
   //#endif
@@ -1306,7 +1306,7 @@
   //    } else {
   //        [self resetTransformAndForceLayout:NO];
   //    }
-}
+  }
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
 {
@@ -1427,11 +1427,11 @@
 //            }
 //            break;
 //    }
-//Blur out keyboard
+  //Blur out keyboard
 //    [keyboardFocusedProxy blur:nil];
 
-//Rotate statusbar
-/*
+  //Rotate statusbar
+  /*
      We will not rotae the status bar here but will temporarily force hide it. That way we will get
      correct size in viewWillTransitionToSize and re-enable visibility there. If we force the status
      bar to rotate the sizes are completely messed up.
@@ -1556,19 +1556,7 @@
   if (checkModal) {
     @synchronized(modalWindows)
     {
-      for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator]) {
-        if ([thisWindow closing] == NO) {
-          result = [thisWindow orientationFlags];
-          if (result != TiOrientationNone) {
-            return result;
-          }
-        }
-      }
-    }
-  }
-  @synchronized(containedWindows)
-  {
-    for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
+    for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator]) {
       if ([thisWindow closing] == NO) {
         result = [thisWindow orientationFlags];
         if (result != TiOrientationNone) {
@@ -1576,6 +1564,18 @@
         }
       }
     }
+  }
+  }
+  @synchronized(containedWindows)
+  {
+  for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
+    if ([thisWindow closing] == NO) {
+      result = [thisWindow orientationFlags];
+      if (result != TiOrientationNone) {
+        return result;
+      }
+    }
+  }
   }
   return [self getDefaultOrientations];
 }
@@ -1596,9 +1596,9 @@
 #endif
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow viewWillAppear:animated];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow viewWillAppear:animated];
+  }
   }
 
   [super viewWillAppear:animated];
@@ -1608,10 +1608,10 @@
 {
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow viewWillDisappear:animated];
-    }
-    [[containedWindows lastObject] resignFocus];
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow viewWillDisappear:animated];
+  }
+  [[containedWindows lastObject] resignFocus];
   }
   [super viewWillDisappear:animated];
 }
@@ -1620,18 +1620,18 @@
   [self.view becomeFirstResponder];
   @synchronized(containedWindows)
   {
-    if ([containedWindows count] > 0) {
-      for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow viewDidAppear:animated];
-      }
+  if ([containedWindows count] > 0) {
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+      [thisWindow viewDidAppear:animated];
+    }
       //            if (forcingRotation || [TiUtils isIOS8OrGreater]) {
       //                forcingRotation = NO;
       //                [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
       //            } else {
       [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
       //            }
-      [[containedWindows lastObject] gainFocus];
-    }
+    [[containedWindows lastObject] gainFocus];
+  }
   }
   [super viewDidAppear:animated];
 }
@@ -1640,9 +1640,9 @@
   isCurrentlyVisible = NO;
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow viewDidDisappear:animated];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow viewDidDisappear:animated];
+  }
   }
   [super viewDidDisappear:animated];
 }
@@ -1693,9 +1693,9 @@
 {
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+  }
   }
   UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
   [self updateOrientationHistory:interfaceOrientation];
@@ -1707,9 +1707,9 @@
 {
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow systemLayoutFittingSizeDidChangeForChildContentContainer:container];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow systemLayoutFittingSizeDidChangeForChildContentContainer:container];
+  }
   }
   [super systemLayoutFittingSizeDidChangeForChildContentContainer:container];
 }
@@ -1718,9 +1718,9 @@
 {
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+  }
   }
   [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
 }
@@ -1729,9 +1729,9 @@
 {
   @synchronized(containedWindows)
   {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-      [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
-    }
+  for (id<TiWindowProtocol> thisWindow in containedWindows) {
+    [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
+  }
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
@@ -1775,9 +1775,9 @@
   }
   @synchronized(containedWindows)
   {
-    if ([containedWindows count] > 0) {
-      return [[containedWindows lastObject] preferredStatusBarStyle];
-    }
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] preferredStatusBarStyle];
+  }
   }
   return defaultStatusBarStyle;
 }
@@ -1819,8 +1819,8 @@
     [self resizeView];
     if (animated) {
       [UIView commitAnimations];
-    }
   }
+}
 }
 
 #pragma mark Remote Control Notifications

@@ -86,6 +86,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 
     public void setModelDirty() {
 		tableView.getTableViewModel().setDirty();
+		getTableView().dataSetChanged();
 	}
 	
     public TableViewModel getModel() {

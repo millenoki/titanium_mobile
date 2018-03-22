@@ -33,11 +33,11 @@
   static NSArray *keySequence = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"width", @"height", @"scaleType", @"localLoadSync", @"duration", @"repeatCount", @"reverse", @"image", @"animatedImages" ]] retain];
+    keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[ @"width", @"height", @"scaleType", @"localLoadSync", @"duration", @"repeatCount", @"reverse", @"image", @"animatedImages", @"tintColor" ]] retain];
     ;
   });
   return keySequence;
-}
+  }
 
 - (NSString *)apiName
 {
@@ -105,14 +105,14 @@
 - (void)start:(id)args
 {
   if ([self viewAttached]) {
-    TiThreadPerformOnMainThread(^{
-      TiUIImageView *iv = (TiUIImageView *)[self view];
-      [iv start];
-    },
-        NO);
+  TiThreadPerformOnMainThread(^{
+    TiUIImageView *iv = (TiUIImageView *)[self view];
+    [iv start];
+  },
+      NO);
   } else {
     [self replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
-  }
+}
 }
 
 - (void)stop:(id)args
@@ -122,7 +122,7 @@
     [iv stop];
   },
       NO);
-}
+  }
 
 - (void)pause:(id)args
 {
@@ -197,14 +197,14 @@
     TiUIImageView *imageView = (TiUIImageView *)[self view];
     UIImage *imageToUse = [imageView getImage];
     if (!imageToUse) {
-      NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
+    NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
       id theimage = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 
       if (theimage == nil) {
         theimage = [[ImageLoader sharedLoader] loadRemote:url_ withOptions:[self valueForUndefinedKey:@"httpOptions"]];
-      }
+    }
 
-      // we're on the non-UI thread, we need to block to load
+    // we're on the non-UI thread, we need to block to load
       imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
     }
 

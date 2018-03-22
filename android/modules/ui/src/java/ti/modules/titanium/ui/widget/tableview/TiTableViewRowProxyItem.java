@@ -30,6 +30,7 @@ import ti.modules.titanium.ui.LabelProxy;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.TiUILabel;
+import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
@@ -78,9 +79,9 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	protected TableViewRowProxy getRowProxy() {
 		if (item == null) return null;
-		return (TableViewRowProxy)item.proxy;
+		return (TableViewRowProxy) item.proxy;
 	}
-	
+
 	@Override
 	public View getView() {
 		return content;
@@ -94,7 +95,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			rowProxy.clearViews();
 		content.removeAllViews();
 		views = null;		
-	}
+		}
 
 	
 	public void setRowData(Item item) {
@@ -139,7 +140,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		views.add(newViewProxy.getOrCreateView());
 		return label;
 	}
-	
+
 	public void addControl(TiViewProxy proxy)
 	{
 		proxy.clearViews();
@@ -151,25 +152,25 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			content.addView(v, view.getLayoutParams());
 			if (v instanceof TiCompositeLayout) {
 				((TiCompositeLayout) v).resort();
-			}
+	}
 			v.requestLayout();
 		}
-	}
-	
+					}
+
 	public void removeControl(TiViewProxy proxy)
 	{
 		if (proxy.peekView() == null) return;
 		TiUIView view = proxy.peekView(); 
 		int index = views.indexOf(view);
 		if (index != -1)
-		{
+	{
 			View v = view.getOuterView();
 			content.removeView(v);
 			views.remove(index);
-		}
-	}
-	
-	/*
+				}
+			}
+
+		/*
 	 * Create views for measurement or for layout.  For each view, apply the
 	 * properties from the appropriate proxy to the view.
 	 */
@@ -178,23 +179,23 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		ArrayList<TiViewProxy> proxies = rp.getControls();
 		int len = proxies.size();
 
-		if (views == null) {
-			views = new ArrayList<TiUIView>(len);
+			if (views == null) {
+				views = new ArrayList<TiUIView>(len);
 		} else if (views.size() != len) {
 			for (TiUIView view : views) {
 				View v = view.getOuterView();
 				if (v != null && v.getParent().equals(content)) {
 					content.removeView(v);
-				}
+			}
 			}
 			views = new ArrayList<TiUIView>(len);
 		}
 
-		for (int i = 0; i < len; i++) {
+			for (int i = 0; i < len; i++) {
 			
 			Boolean needsTransfer = true;
 			TiUIView view = views.size() > i ? views.get(i) : null;
-			TiViewProxy proxy = proxies.get(i);
+				TiViewProxy proxy = proxies.get(i);
 			if (view != null && view.getProxy() instanceof TableViewRowProxy) {
 				proxy = addViewToOldRow(i, view, proxy);
 				needsTransfer = false;
@@ -204,22 +205,22 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				proxy.clearViews();
 				view = proxy.forceCreateView();  // false means don't set modelListener, second false not to process Properties
 				if (i >= views.size()) {
-					views.add(view);
+				views.add(view);
 				} else {
 					views.set(i, view);
 				}
 				needsTransfer = false;
 			}
 
-			View v = view.getOuterView();
+				View v = view.getOuterView();
 
-			if (v.getParent() == null) {
-				content.addView(v, view.getLayoutParams());
-			}
+				if (v.getParent() == null) {
+					content.addView(v, view.getLayoutParams());
+				}
 			
 			if (!needsTransfer) continue;
 			
-			TiViewProxy oldProxy = view.getProxy();
+				TiViewProxy oldProxy = view.getProxy();
 			proxy.setView(view);
 			proxy.setParent(rp);
 //			view.setParent(rp);
@@ -232,8 +233,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			else
 				view.processProperties(proxy.getProperties());
 			associateProxies(proxy.getChildren(), view.getChildren());
-		}
-	}
+				}
+			}
 
 	protected void applyChildProperties(KrollProxy viewProxy, TiUIView view)
 	{
@@ -243,7 +244,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		for (TiUIView childView : view.getChildren()) {
 		    KrollProxy childProxy = childProxies[i];
 			childView.processProperties(childProxy.getProperties());
-			applyChildProperties(childProxy, childView);
+				applyChildProperties(childProxy, childView);
 			i++;
 		}
 	}
@@ -292,7 +293,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			content.addView(v, params);
 		}
 	}
-	
+
 	@Override
 	public void processProperties(HashMap p)
 	{
@@ -304,23 +305,30 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		if (selectorSource != newSelectorSource){
 			selectorDrawable = null;
-			selectorSource = newSelectorSource;
-			if (selectorSource != null) {
-				getRowProxy().getTable().getTableView().getTableView().enableCustomSelector();
+		selectorSource = newSelectorSource;
+		if (selectorSource != null) {
+			TableViewProxy tableViewProxy = getRowProxy().getTable();
+			if (tableViewProxy != null) {
+				TiUITableView tableView = tableViewProxy.getTableView();
+				if (tableViewProxy != null) {
+					TiTableView view = tableView.getTableView();
+					if (view != null) {
+						view.enableCustomSelector();
+					}
+				}
 			}
 		}
-		if (p.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) ||
-				p.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))
-		{
-			setBackgroundFromProxy(getRowProxy());
-		}
-
+        if (p.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) ||
+            p.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))
+        {
+            setBackgroundFromProxy(getRowProxy());
+        }
 		// Handle right image
 		boolean clearRightImage = true;
 		// It's one or the other, check or child.  If you set them both, child's gonna win.
 		if (p.containsKey(TiC.PROPERTY_HAS_CHECK)) {
 			if (TiConvert.toBoolean(p, TiC.PROPERTY_HAS_CHECK) && hasCheckDrawable == null) {
-				hasCheckDrawable = createHasCheckDrawable();
+					hasCheckDrawable = createHasCheckDrawable();
 				rightImage.setImageDrawable(hasCheckDrawable);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
@@ -329,7 +337,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		if (p.containsKey(TiC.PROPERTY_HAS_CHILD)) {
 			if (TiConvert.toBoolean(p, TiC.PROPERTY_HAS_CHILD) && hasChildDrawable == null) {
-				hasChildDrawable = createHasChildDrawable();
+					hasChildDrawable = createHasChildDrawable();
 				rightImage.setImageDrawable(hasChildDrawable);
 				rightImage.setVisibility(VISIBLE);
 				clearRightImage = false;
@@ -339,11 +347,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			String path = TiConvert.toString(p, TiC.PROPERTY_RIGHT_IMAGE);
 				String url = getRowProxy().resolveUrl(null, path);
 				Drawable d = TiFileHelper.loadDrawable(url);
-				if (d != null) {
-					rightImage.setImageDrawable(d);
-					rightImage.setVisibility(VISIBLE);
-					clearRightImage = false;
-				}
+			if (d != null) {
+				rightImage.setImageDrawable(d);
+				rightImage.setVisibility(VISIBLE);
+				clearRightImage = false;
+			}
 			
 		}
 
@@ -360,18 +368,18 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			String path = TiConvert.toString(p, TiC.PROPERTY_LEFT_IMAGE);
 				String url = getRowProxy().resolveUrl(null, path);
 				Drawable d = TiFileHelper.loadDrawable(url);
-				if (d != null) {
-					leftImage.setImageDrawable(d);
-					leftImage.setVisibility(VISIBLE);
+			if (d != null) {
+				leftImage.setImageDrawable(d);
+				leftImage.setVisibility(VISIBLE);
 					clearleftImage = false;
-				}
+			}
 		}
 		if (clearleftImage && leftImage.getVisibility() == VISIBLE) 
 		{
 			leftImage.setImageDrawable(null);
 			leftImage.setVisibility(GONE);
 		}
-		
+
 		if (p.containsKey(TiC.PROPERTY_HEIGHT)) {
 			if (!p.get(TiC.PROPERTY_HEIGHT).equals(TiC.SIZE_AUTO)
 				&& !p.get(TiC.PROPERTY_HEIGHT).equals(TiC.LAYOUT_SIZE)) {
@@ -383,11 +391,11 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				content.setLayoutArrangement(TiConvert.toString(p, TiC.PROPERTY_LAYOUT));
 		}
 		else content.setLayoutArrangement(null);
-		
+
 		if (p.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 			content.setEnableHorizontalWrap(TiConvert.toBoolean(p, TiC.PROPERTY_HORIZONTAL_WRAP));
 		}
-		
+
 		if (TiC.ICS_OR_GREATER) {
 			Object accessibilityHiddenVal = p.get(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
 			if (accessibilityHiddenVal != null) {
@@ -400,7 +408,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			}
 		}
 	}
-	
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -500,30 +508,30 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				if (table != null && table.hasProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)) {
 					minRowHeight = TiConvert.toTiDimension(
 						TiConvert.toString(table.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)), TiDimension.TYPE_HEIGHT)
-						.getAsPixels(this);
+							.getAsPixels(this);
 				}
 
 				if (height == null) {
-				    // If measure spec is not specified, height should behave as Ti.UI.SIZE
-				    if (hMode == 0) {
-				        h = Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight));
-				    } else {
+					// If measure spec is not specified, height should behave as Ti.UI.SIZE
+					if (hMode == 0) {
+						h = Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight));
+					} else {
 				        h = Math.max(h, Math.max(content.getMeasuredHeight(), Math.max(leftImageHeight, rightImageHeight)));
-				    }
-				    h = Math.max(h, minRowHeight);
+					}
+					h = Math.max(h, minRowHeight);
 				} else {
-				    h = Math.max(minRowHeight, height.getAsPixels(this));
+					h = Math.max(minRowHeight, height.getAsPixels(this));
 				}
 				// Make sure the height is greater than 1 (not 0 since image views default to 1)
 				if (hasChildView && h > 1) {
-				    content.getLayoutParams().height = h;
+					content.getLayoutParams().height = h;
 				}
 
 				if (Log.isDebugModeEnabled()) {
-				    Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
+					Log.d(TAG, "Row content measure (" + adjustedWidth + "x" + h + ")", Log.DEBUG_MODE);
 				}
 				measureChild(content, MeasureSpec.makeMeasureSpec(adjustedWidth, wMode),
-				        MeasureSpec.makeMeasureSpec(h, hMode));
+							 MeasureSpec.makeMeasureSpec(h, hMode));
 			}
 		}
 
@@ -549,23 +557,23 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 			contentLeft += w + leftMargin;
 			int offset = (height - h) / 2;
-			leftImage.layout(left+leftMargin, top+offset, left+leftMargin+w, top+offset+h);
+			leftImage.layout(left + leftMargin, top + offset, left + leftMargin + w, top + offset + h);
 		}
 
 		if (rightImage != null && rightImage.getVisibility() != GONE) {
 			int w = rightImage.getMeasuredWidth();
 			int h = rightImage.getMeasuredHeight();
 			int rightMargin = new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
-			
+
 			contentRight -= w + rightMargin;
 			int offset = (height - h) / 2;
-			rightImage.layout(right-w-rightMargin, top+offset, right-rightMargin, top+offset+h);
+			rightImage.layout(right - w - rightMargin, top + offset, right - rightMargin, top + offset + h);
 		}
 
-//		if (hasControls) {
-//			contentLeft = left + new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
-//			contentRight = right - new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
-//		}
+		//		if (hasControls) {
+		//			contentLeft = left + new TiDimension(LEFT_MARGIN, TiDimension.TYPE_LEFT).getAsPixels(this);
+		//			contentRight = right - new TiDimension(RIGHT_MARGIN, TiDimension.TYPE_RIGHT).getAsPixels(this);
+		//		}
 
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
@@ -584,7 +592,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (d == null) return new KrollDict();
 
 		KrollDict filtered = new KrollDict(d);
-		for (int i = 0;i < filteredProperties.length; i++) {
+		for (int i = 0; i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {
 				filtered.remove(filteredProperties[i]);
 			}
@@ -647,7 +655,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		Set<String> goneProps = oldprops.minusKeys(newprops);
 		for(String key:goneProps) {
 			realProps.put(key, newProxy.getDefaultValue(key));
-		}
+}
 		for(Entry<String, Object> e: newprops.entrySet()){
 			String key = e.getKey();
 			Object newvalue = e.getValue();

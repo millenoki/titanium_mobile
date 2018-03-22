@@ -45,7 +45,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import ti.modules.titanium.TitaniumModule;
 import android.util.Base64;
 
-/** 
+/**
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
  */
 @Kroll.proxy(creatableInModule=TitaniumModule.class, name="Blob", propertyAccessors = {
@@ -61,28 +61,28 @@ public class TiBlob extends KrollProxy {
 	 * @module.api
 	 */
 	public static final int TYPE_IMAGE = 0;
-	
+
 	/**
 	 * Represents a Blob that contains file data.
      * 
 	 * @module.api
 	 */
 	public static final int TYPE_FILE = 1;
-	
+
 	/**
 	 * Represents a Blob that contains data.
      * 
 	 * @module.api
 	 */
 	public static final int TYPE_DATA = 2;
-	
+
 	/**
 	 * Represents a Blob that contains String data.
      * 
 	 * @module.api
 	 */
 	public static final int TYPE_STRING = 3;
-	
+
 	/**
      * Represents a Blob that contains stream data that needs to be converted to
      * base64.
@@ -101,16 +101,16 @@ public class TiBlob extends KrollProxy {
 	private int width, height;
     private KrollDict extraInfo;
     private String cacheKey = null;
-    
+
     public TiBlob()
     {
         this(TYPE_DATA, null, null);
     }
-    
+
 
     @Override
     public void handleCreationDict(HashMap dict)
-    {
+	{
         super.handleCreationDict(dict);
 
         this.mimetype = TiConvert.toString(dict, TiC.PROPERTY_MIMETYPE, "application/octet-stream");
@@ -163,7 +163,7 @@ public class TiBlob extends KrollProxy {
         }
         return null;
     }
-	
+
     public static TiBlob blobFromObject(Object object) {
         return blobFromObject(object, null);
 	}
@@ -212,7 +212,7 @@ public class TiBlob extends KrollProxy {
             TiBaseFile file = (TiBaseFile) object;
             if (mimetype == null || mimetype.length() == 0) {
                 mimetype = TiMimeTypeHelper.getMimeType(file.nativePath());
-            }
+	}
             TiBlob blob = new TiBlob(TYPE_FILE, file, mimetype);
             blob.loadBitmapInfo();
             return blob;
@@ -229,7 +229,7 @@ public class TiBlob extends KrollProxy {
 	}
         return null;
     }
-	
+
     
     public void onDataComplete(final long contentLength) {
         switch (type) {
@@ -250,7 +250,10 @@ public class TiBlob extends KrollProxy {
     public String guessContentTypeFromStream() {
 		String mt = null;
 		InputStream is = getInputStream();
-		if (is != null) {
+		// We shouldn't try and sniff content type if mark isn't supported by this
+		// input stream! Otherwise we'll read bytes that we can't stuff back anymore
+		// so the stream will have been modified for future reads.
+		if (is != null && is.markSupported()) {
 			try {
 				mt = URLConnection.guessContentTypeFromStream(is);
 				if (mt == null) {
@@ -266,7 +269,7 @@ public class TiBlob extends KrollProxy {
 	/**
      * Check for additional content type reading first few characters from the
      * given input stream.
-	 * 
+	 *
      * @return the guessed MIME-type or null if the type could not be
      *         determined.
 	 */
@@ -278,19 +281,20 @@ public class TiBlob extends KrollProxy {
 
 				// Look ahead up to 64 bytes for the longest encoded header
 //                is.mark(64);
-				byte[] bytes = new byte[64];
-                int length = is.read(bytes, 0, 64);
+				byte[] bytes = new byte[12];
+                int length = is.read(bytes, 0, 12);
 //                is.reset();
 				if (length == -1) {
 					return null;
 				}
-                if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F'
-                        && bytes[3] == '8') {
+
+				// This is basically exactly what the normal JDK sniffs for, but Android's fork does not
+				if (bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F' && bytes[3] == '8') {
 					mt = "image/gif";
                 } else if (bytes[0] == (byte) 0x89 && bytes[1] == (byte) 0x50
                         && bytes[2] == (byte) 0x4E && bytes[3] == (byte) 0x47
                         && bytes[4] == (byte) 0x0D && bytes[5] == (byte) 0x0A
-					&& bytes[6] == (byte) 0x1A && bytes[7] == (byte) 0x0A) {
+						   && bytes[6] == (byte) 0x1A && bytes[7] == (byte) 0x0A) {
 					mt = "image/png";
                 } else if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xD8
                         && bytes[2] == (byte) 0xFF) {
@@ -360,8 +364,8 @@ public class TiBlob extends KrollProxy {
     public byte[] getBytes() {
         byte[] bytes = null;
 
-		switch(type) {
-			case TYPE_STRING :
+		switch (type) {
+			case TYPE_STRING:
 				try {
 					bytes = ((String) data).getBytes("utf-8");
 				} catch (UnsupportedEncodingException e) {
@@ -374,7 +378,7 @@ public class TiBlob extends KrollProxy {
 				//TODO deal with mimetypes.
             bytes = (byte[]) getData();
 				break;
-			case TYPE_FILE:	
+			case TYPE_FILE:
 				InputStream stream = getInputStream();
 				if (stream != null) {
 					try {
@@ -402,7 +406,7 @@ public class TiBlob extends KrollProxy {
 						}
 					}
 				}
-			default :
+			default:
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
 
@@ -419,7 +423,7 @@ public class TiBlob extends KrollProxy {
     }
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public int getLength() {
 		switch (type) {
 			case TYPE_FILE:
@@ -454,14 +458,12 @@ public class TiBlob extends KrollProxy {
     public InputStream getInputStream() {
 		switch (type) {
 			case TYPE_FILE:
-			try {
-				return ((TiBaseFile)data).getInputStream();
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage(), e);
-				return null;
-			}
-			case TYPE_STREAM_BASE64:
-				return (InputStream)data;
+				try {
+					return ((TiBaseFile) data).getInputStream();
+				} catch (IOException e) {
+					Log.e(TAG, e.getMessage(), e);
+					return null;
+				}
 			default:
             byte[] bytes = getBytes();
             if (bytes != null)  {
@@ -474,8 +476,8 @@ public class TiBlob extends KrollProxy {
 
 	@Kroll.method
     public void append(TiBlob blob) {
-		switch(type) {
-			case TYPE_STRING :
+		switch (type) {
+			case TYPE_STRING:
 				try {
                 // String dataString = (String)data;
                 data = (String) data + new String(blob.getBytes(), "utf-8");
@@ -484,7 +486,7 @@ public class TiBlob extends KrollProxy {
 				}
 				break;
 			case TYPE_IMAGE:
-			case TYPE_DATA :
+			case TYPE_DATA:
             byte[] dataBytes = (byte[]) getData();
 				byte[] appendBytes = blob.getBytes();
 				byte[] newData = new byte[dataBytes.length + appendBytes.length];
@@ -494,36 +496,36 @@ public class TiBlob extends KrollProxy {
 
 				data = newData;
 				break;
-			case TYPE_FILE :
+			case TYPE_FILE:
 				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
 			case TYPE_STREAM_BASE64 :
             throw new IllegalStateException(
                     "Not yet implemented. TYPE_STREAM_BASE64");
 				// break;
-			default :
+			default:
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public String getText() {
 		String result = null;
 
 		// Only support String and Data. Same as iPhone
-		switch(type) {
-			case TYPE_STRING :
+		switch (type) {
+			case TYPE_STRING:
 				result = (String) data;
 			case TYPE_DATA:
 			case TYPE_FILE:
-				// Don't try to return a string if we can see the 
+				// Don't try to return a string if we can see the
             // mimetype is binary, unless it's application/octet-stream, which
             // means
             // we don't really know what it is, so assume the user-developer
             // knows
 				// what she's doing.
-            if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)
-                    && mimetype != "application/octet-stream") {
+				if (mimetype != null && TiMimeTypeHelper.isBinaryMimeType(mimetype)
+					&& mimetype != "application/octet-stream") {
 					return null;
 				}
 				try {
@@ -541,7 +543,7 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public String getHexString() {
         byte[] bytes = getBytes();
         if (bytes != null) {
@@ -594,7 +596,7 @@ public class TiBlob extends KrollProxy {
 	 * @module.api
 	 */
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public int getType() {
 		return type;
 	}
@@ -605,20 +607,20 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public int getWidth() {
 		return width;
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public int getHeight() {
 		return height;
 	}
 
 	@Kroll.method
     public String toString(@Kroll.argument(optional = true) String encoding) {
-		// blob should return the text value on toString 
+		// blob should return the text value on toString
 		// if it's not null
         String result = null;
         
@@ -643,23 +645,22 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public String getNativePath() {
 		if (data == null) {
 			return null;
 		}
 		if (this.type != TYPE_FILE) {
-			Log.w(TAG, "getNativePath not supported for non-file blob types.");
 			return null;
 		} else if (!(data instanceof TiBaseFile)) {
             Log.w(TAG,
                     "getNativePath unable to return value: underlying data is not file, rather "
-                            + data.getClass().getName());
+						   + data.getClass().getName());
 			return null;
 		} else {
-			String path = ((TiBaseFile)data).nativePath();
+			String path = ((TiBaseFile) data).nativePath();
 			if (path != null && path.startsWith("content://")) {
-				File f = ((TiBaseFile)data).getNativeFile();
+				File f = ((TiBaseFile) data).getNativeFile();
 				if (f != null) {
 					path = f.getAbsolutePath();
 					if (path != null && path.startsWith("/")) {
@@ -672,7 +673,7 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public TiFileProxy getFile() {
 		if (data == null) {
 			return null;
@@ -681,12 +682,12 @@ public class TiBlob extends KrollProxy {
 			Log.w(TAG, "getFile not supported for non-file blob types.");
 			return null;
 		} else if (!(data instanceof TiBaseFile)) {
-            Log.w(TAG,
+			Log.w(TAG,
                     "getFile unable to return value: underlying data is not file, rather "
                             + data.getClass().getName());
 			return null;
 		} else {
-			return new TiFileProxy((TiBaseFile)data);
+			return new TiFileProxy((TiBaseFile) data);
 		}
 	}
 
@@ -700,7 +701,7 @@ public class TiBlob extends KrollProxy {
 		// be created by decoding the data.
 		return getImage(null);
 	}
-	
+
     public String getCacheKey() {
         if (cacheKey != null) {
             return cacheKey;
@@ -711,7 +712,7 @@ public class TiBlob extends KrollProxy {
 		if (image == null && (width > 0 && height > 0)) {
 			if (opts == null) {
 				opts = new BitmapFactory.Options();
-                opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+				opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 opts.outWidth = width;
                 opts.outHeight = height;
 			}
@@ -817,7 +818,7 @@ public class TiBlob extends KrollProxy {
 		}
 
         Context context = TiApplication.getInstance().getApplicationContext();
-		
+
         KrollDict rect = new KrollDict((HashMap) params);
         int widthCropped = (int) (
                 rect.optFloat(TiC.PROPERTY_WIDTH, width) * scale);
@@ -856,7 +857,7 @@ public class TiBlob extends KrollProxy {
 		if (!valid) {
 			return null;
 		}
-		
+
 		int dstWidth = width.intValue();
 		int dstHeight = height.intValue();
 		int imgWidth = this.width;
@@ -865,22 +866,22 @@ public class TiBlob extends KrollProxy {
 		BitmapFactory.Options opts = null;
 		boolean scaleDown = ((image == null) && (dstWidth < imgWidth) && (dstHeight < imgHeight));
 		if (scaleDown) {
-			int scaleWidth = imgWidth/dstWidth;
-			int scaleHeight = imgHeight/dstHeight;
-			
+			int scaleWidth = imgWidth / dstWidth;
+			int scaleHeight = imgHeight / dstHeight;
+
             int targetScale = (scaleWidth < scaleHeight) ? scaleWidth
                     : scaleHeight;
 			int sampleSize = 1;
-			while(targetScale >= 2) {
+			while (targetScale >= 2) {
 				sampleSize *= 2;
 				targetScale /= 2;
 			}
-			
+
 			opts = new BitmapFactory.Options();
 			opts.inSampleSize = sampleSize;
-            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+			opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		}
-		
+
 		Bitmap img = getImage(opts);
 		if (img == null) {
 			return null;
@@ -914,7 +915,7 @@ public class TiBlob extends KrollProxy {
 			return null;
 		}
 	}
-	
+
 	@Kroll.method
     public TiBlob imageAsThumbnail(Number size,
             @Kroll.argument(optional = true) Number borderSize,
@@ -923,7 +924,7 @@ public class TiBlob extends KrollProxy {
 		if (img == null) {
 			return null;
 		}
-		
+
 		int thumbnailSize = size.intValue();
 
 		float border = 1f;
@@ -954,7 +955,7 @@ public class TiBlob extends KrollProxy {
 					imageThumbnail = null;
 				}
 			}
-			
+
             return blobFromObject(imageFinal);
 
 		} catch (OutOfMemoryError e) {
@@ -978,7 +979,7 @@ public class TiBlob extends KrollProxy {
 		if (img == null) {
 			return null;
 		}
-		
+
 		try {
 			Bitmap imageWithAlpha = TiImageHelper.imageWithAlpha(img);
 			if (img != image && img != imageWithAlpha) {

@@ -43,7 +43,7 @@ import android.widget.ImageView;
         TiC.PROPERTY_BACKGROUND_IMAGE, TiC.PROPERTY_BACKGROUND_GRADIENT,
         TiC.PROPERTY_BACKGROUND_OPACITY, TiC.PROPERTY_LOGO,
         TiC.PROPERTY_UP_INDICATOR, TiC.PROPERTY_HOME_AS_UP_INDICATOR,
-        TiC.PROPERTY_ICON })
+        TiC.PROPERTY_ICON, TiC.PROPERTY_CUSTOM_VIEW })
 public class ActionBarProxy extends AnimatableReusableProxy {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 
@@ -66,11 +66,11 @@ public class ActionBarProxy extends AnimatableReusableProxy {
 
         @Override
         public void scheduleDrawable(Drawable who, Runnable what, long when) {
-		}
+	}
 
         @Override
         public void unscheduleDrawable(Drawable who, Runnable what) {
-	}
+		}
     };
 
     private void setActionBarDrawable(final Drawable drawable) {
@@ -105,9 +105,9 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         // Guard against calls to ActionBar made before inflating the ActionBarView
         if (actionBar != null) {
             actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        } else {
+		} else {
             Log.w(TAG, "Trying to get a reference to ActionBar before its container was inflated.");
-        }
+		}
 
         // try {
         // actionBar = activity.getSupportActionBar();
@@ -139,15 +139,15 @@ public class ActionBarProxy extends AnimatableReusableProxy {
                 themeIconDrawable = getActionBarIcon(activity);
 		}
         } catch (ResourceNotFoundException e) {
-	}
 		}
-		
+	}
+
     @Override
     public void release() {
         actionBar = null;
         super.release();
 		}
-	
+
     protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context,
             int[] styleAttrs) throws ResourceNotFoundException {
         // Need to get resource id of style pointed to from the theme attr
@@ -159,7 +159,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
 
         return context.obtainStyledAttributes(styleResId, styleAttrs);
 		}
-		
+
     protected Drawable getActionBarBackground(Context context) {
         TypedArray values = null;
         try {
@@ -169,14 +169,14 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             values = context.getTheme().obtainStyledAttributes(attrs);
             return values.getDrawable(0);
         } catch (ResourceNotFoundException e) {
-            return null;
+			return null;
         } finally {
             if (values != null) {
                 values.recycle();
 		}
 	}
-    }
-	
+		}
+
     public static int getActionBarSize(Context context) {
         TypedArray values = null;
         try {
@@ -186,14 +186,14 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             values = context.getTheme().obtainStyledAttributes(attrs);
             return values.getDimensionPixelSize(0, 0);
         } catch (ResourceNotFoundException e) {
-            return 0;
+			return 0;
         } finally {
             if (values != null) {
                 values.recycle();
 		}
 	}
     }
-	
+
     protected Drawable getActionBarIcon(Context context) {
         int[] android_styleable_ActionBar = { android.R.attr.icon };
 
@@ -205,7 +205,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             int count = abStyle.getIndexCount();
             if (count > 0) {
                 return abStyle.getDrawable(0);
-            }
+		}
             return context.getApplicationInfo().loadIcon(
                     context.getPackageManager());
         } catch (ResourceNotFoundException e) {
@@ -213,9 +213,9 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         } finally {
             if (abStyle != null)
                 abStyle.recycle();
-		}
 	}
-	
+	}
+
     public void setBackgroundImage(final Object value) {
         actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
@@ -247,9 +247,9 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     @Override
     public void runInUiThread(final CommandNoReturn command,
             final boolean blocking) {
-        if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
 		}
         super.runInUiThread(command, blocking);
 	}
@@ -268,7 +268,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         } else if (view instanceof KrollProxy) {
             viewProxy = (KrollProxy) view;
             viewProxy.setActivity(getActivity());
-		} 
+	}
         if (viewProxy instanceof TiViewProxy) {
             viewProxy.setActivity(getActivity());
             View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView()
@@ -299,7 +299,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             actionBar.setIcon(icon);
 	}
     }
-	
+
     @Kroll.method
     @Kroll.getProperty(enumerable=false)
     public double getHeight() {
@@ -372,7 +372,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
 
     public static HashMap<String, String> propsToReplace() {
         return BAR_PROPERTIES_MAP;
-                }
+		}
 
     private static final ArrayList<String> BAR_PROPERTIES;
     static {
@@ -394,7 +394,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
         tmp.add(TiC.PROPERTY_TITLE_VIEW);
         tmp.add(TiC.PROPERTY_CUSTOM_VIEW);
         BAR_PROPERTIES = tmp;
-        }
+	}
 
     public static ArrayList<String> windowProps() {
         return BAR_PROPERTIES;
@@ -420,6 +420,20 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             return;
 	}
         super.handleProperties(d, changed);
+	}
+
+	private void handleSetCustomView(Object view)
+	{
+		if (view != null) {
+			if (view instanceof TiViewProxy) {
+				actionBar.setDisplayShowCustomEnabled(true);
+				actionBar.setCustomView(((TiViewProxy) view).getOrCreateView().getNativeView());
+			} else {
+				Log.w(TAG, "Invalid value passed for a custom view. Expected Ti.UI.View or null");
+			}
+		} else {
+			actionBar.setCustomView(null);
+		}
 	}
 
 	@Override
