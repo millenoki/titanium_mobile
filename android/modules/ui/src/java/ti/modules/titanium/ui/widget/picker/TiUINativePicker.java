@@ -128,14 +128,12 @@ public class TiUINativePicker extends TiUIPicker
 	protected void handlePreselectedRows(Object[] preselectedRows){
 	    Spinner spinner = getSpinner();
         if (spinner == null)return;
-        try {
-            spinner.setOnItemSelectedListener(null);
-            for (int i = 0; i < preselectedRows.length; i++) {
-                Integer rowIndex = TiConvert.toInt(preselectedRows[i], -1);
-			if (rowIndex == 0 || rowIndex.intValue() < 0) {
-				continue;
-			}
-			selectRow(i, rowIndex, false);
+        for (int i = 0; i < preselectedRows.length; i++) {
+            Integer rowIndex = TiConvert.toInt(preselectedRows[i], -1);
+    		if (rowIndex == 0 || rowIndex.intValue() < 0) {
+    			continue;
+    		}
+    		selectRow(i, rowIndex, false);
 		}
 	}
 
@@ -248,11 +246,6 @@ public class TiUINativePicker extends TiUIPicker
 				((View) p).invalidate();
 			}
 		}
-
-		@Override
-		public void onNothingSelected(AdapterView<?> parent)
-		{
-		}
 	};
 
 	public void add(TiUIView child)
@@ -315,4 +308,9 @@ public class TiUINativePicker extends TiUIPicker
             break;
 	}
 }
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        // TODO Auto-generated method stub
+        
+    }
 }

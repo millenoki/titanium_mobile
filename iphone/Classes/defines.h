@@ -8,6 +8,7 @@
 // MODULES
 
 #define TI_USE_KROLL_THREAD
+#define USE_JSCORE_FRAMEWORK
 
 #define USE_TI_STREAM
 #define USE_TI_CODEC

@@ -171,6 +171,7 @@ static NSDictionary *replaceKeysForRow;
   [searchController setDelegate:nil];
   [searchController setSearchResultsUpdater:nil];
   RELEASE_TO_NIL(searchController);
+  RELEASE_TO_NIL(searchControllerPresenter);
 
   RELEASE_TO_NIL(dimmingView);
   RELEASE_TO_NIL(_appearAnimation)
@@ -288,7 +289,7 @@ static NSDictionary *replaceKeysForRow;
 
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (searchViewProxy) {
-    [searchViewProxy ensureSearchBarHierarchy];
+      [searchViewProxy ensureSearchBarHierarchy];
 #ifndef TI_USE_AUTOLAYOUT
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
@@ -760,20 +761,24 @@ static NSDictionary *replaceKeysForRow;
   if (![searchController isActive]) {
     return;
   }
-  [dimmingView setFrame:CGRectMake(0, searchController.searchBar.frame.size.height, self.frame.size.width, self.frame.size.height - searchController.searchBar.frame.size.height)];
+  CGFloat width = searchController.searchBar.frame.size.width;
+  CGFloat height = searchController.searchBar.frame.size.height;
+  TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
+  if(searchViewProxy) {
+    width = [searchViewProxy view].frame.size.width;
+    height = [searchViewProxy view].frame.size.height;
+    UIView *view = searchController.searchBar.superview;
+//    view.frame = CGRectMake(0, 0, width, height);
+    searchController.searchBar.superview.frame = searchController.searchBar.frame = CGRectMake(0, 0, width, height);
+    [searchViewProxy ensureSearchBarHierarchy];
+  }
+  [dimmingView setFrame:CGRectMake(0, height, self.frame.size.width, self.frame.size.height - height)];
   CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
   UIView *searchSuperView = [searchController.view superview];
   searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
   
-  TiUISearchBarProxy *searchViewProxy = [self holdedProxyForKey:@"searchView"];
-  if(searchViewProxy) {
-    CGFloat width = [searchViewProxy view].frame.size.width;
-    UIView *view = searchController.searchBar.superview;
-    view.frame = CGRectMake(0, 0, width, view.frame.size.height);
-    searchController.searchBar.frame = CGRectMake(0, 0, width, searchController.searchBar.frame.size.height);
-    [searchViewProxy ensureSearchBarHierarchy];
-  }
+  
 }
 
 #pragma mark - Public API
@@ -1110,10 +1115,14 @@ static NSDictionary *replaceKeysForRow;
   id vp = [[self viewProxy] addProxyToHold:args setParent:NO forKey:@"searchView" shouldRelayout:NO];
   
   if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
-    //        [self tableView];
     [(TiUISearchBarProxy *)vp setReadyToCreateView:YES];
     [(TiUISearchBarProxy *)vp setDelegate:self];
     ((TiUISearchBarProxy *)vp).canHaveSearchDisplayController = YES;
+    self.searchString = [[vp searchBar] text];
+    if (self.searchString) {
+      [self buildResultsForSearchText];
+      [self reloadTableViewData];
+    }
     if (searchHidden) {
       [self hideSearchScreen:nil animated:NO];
     }
@@ -1138,7 +1147,7 @@ static NSDictionary *replaceKeysForRow;
     [self initSearchController:self];
     if (self.searchString) {
       [self buildResultsForSearchText];
-      [_tableView reloadData];
+      [self reloadTableViewData];
     }
     if (searchHidden) {
       [self hideSearchScreen:nil animated:NO];
@@ -1680,10 +1689,6 @@ static NSDictionary *replaceKeysForRow;
   //like settings the separatorstyle
   if (!configurationSet) {
     return sectionCount;
-  }
-  // TIMOB-15526
-  if ([searchController isActive] && tableView.backgroundColor == [UIColor clearColor]) {
-    tableView.backgroundColor = [UIColor whiteColor];
   }
 
   if (_searchResults != nil) {
@@ -2525,7 +2530,7 @@ static NSDictionary *replaceKeysForRow;
     [vp layoutProperties]->right = TiDimensionDip(0);
 #endif
     [vp refreshViewIfNeeded];
-    [self initSearchController:self];
+//    [self initSearchController:self];
   }
 }
 
@@ -2536,7 +2541,7 @@ static NSDictionary *replaceKeysForRow;
   }
   self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
   [self buildResultsForSearchText];
-  [_tableView reloadData];
+  [self reloadTableViewData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2605,7 +2610,7 @@ static NSDictionary *replaceKeysForRow;
   //  [self clearSearchController:self];
   [self reloadTableViewData];
   [self hideSearchScreen:nil];
-    RELEASE_TO_NIL(searchControllerPresenter);
+  RELEASE_TO_NIL(searchControllerPresenter);
 
   id searchButtonTitle = [searchViewProxy valueForKey:@"cancelButtonTitle"];
   ENSURE_TYPE_OR_NIL(searchButtonTitle, NSString);
@@ -2652,9 +2657,9 @@ static NSDictionary *replaceKeysForRow;
   tableContentOffset = [_tableView contentOffset];
   // Presenting search controller on window holding controller
   if (!searchControllerPresenter) {
-  id theProxy = [(TiViewProxy *)self.proxy parent];
-  while ([theProxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
-    theProxy = [theProxy parent];
+    id theProxy = [(TiViewProxy *)self.proxy parent];
+    while ([theProxy isKindOfClass:[TiViewProxy class]] && ![proxy isKindOfClass:[TiWindowProxy class]]) {
+      theProxy = [theProxy parent];
     }
     if ([theProxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[theProxy windowHoldingController] retain];

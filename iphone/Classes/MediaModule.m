@@ -323,6 +323,13 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 + (UIImage *)takeScreenshotWithScale:(CGFloat)scale
 {
+  if (![NSThread isMainThread]) {
+    __block UIImage* result = nil;
+    TiThreadPerformBlockOnMainThread(^{
+      result = [[self takeScreenshotWithScale:scale] retain];
+    }, YES);
+    return [result autorelease];
+  }
   // Create a graphics context with the target size
 
   CGSize imageSize = [[UIScreen mainScreen] bounds].size;

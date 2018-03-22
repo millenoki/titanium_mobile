@@ -994,18 +994,7 @@ public class TableViewProxy extends ViewProxy
 					e.printStackTrace();
 				}
 			return true;
-		} else if (msg.what == MSG_SCROLL_TO_TOP) {
-			getTableView().scrollToTop(msg.arg1, msg.arg2 == 1);
-			return true;
-		} else if (msg.what == MSG_SCROLL_TO_BOTTOM) {
-			getTableView().scrollToBottom(msg.arg1, msg.arg2 == 1);
-			return true;
-		} else if (msg.what == MSG_SELECT_ROW) {
-			getTableView().selectRow(msg.arg1);
-			return true;
-				}
-
-
+			default:
 				return super.handleMessage(msg);
 		}
 		if (result != null) {

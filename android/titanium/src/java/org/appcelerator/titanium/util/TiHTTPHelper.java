@@ -113,13 +113,13 @@ public class TiHTTPHelper {
                 String mimeType = blob.getMimeType();
                 File tmpFile = TiFileFactory.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
                 FileOutputStream fos = new FileOutputStream(tmpFile);
-                if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
-                    TiBaseFile.copyStream(blob.getInputStream(),
-                            new Base64OutputStream(fos,
-                                    android.util.Base64.DEFAULT));
-                } else {
+//                if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+//                    TiBaseFile.copyStream(blob.getInputStream(),
+//                            new Base64OutputStream(fos,
+//                                    android.util.Base64.DEFAULT));
+//                } else {
                     fos.write(blob.getBytes());
-                }
+//                }
                 fos.close();
 
                 return RequestBody.create(MediaType.parse(mimeType), tmpFile);

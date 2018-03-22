@@ -89,9 +89,9 @@ public class TiBlob extends KrollProxy {
      * 
 	 * @module.api
 	 */
-	public static final int TYPE_STREAM_BASE64 = 4;
+//	public static final int TYPE_STREAM_BASE64 = 4;
 
-    public static final int TYPE_DRAWABLE = 5;
+    public static final int TYPE_DRAWABLE = 4;
 
 	private int type;
 	private Object data;
@@ -178,15 +178,15 @@ public class TiBlob extends KrollProxy {
 
             if (mimetype == null || mimetype.length() == 0) {
                 mimetype = "application/octet-stream";
-		}
+            }
             TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
-		blob.loadBitmapInfo();
-		return blob;
+            blob.loadBitmapInfo();
+            return blob;
         } else if (object instanceof Drawable) {
             Drawable drawable = (Drawable) object;
             if (mimetype == null || mimetype.length() == 0) {
                 mimetype = getMimeTypeOfFile(drawable);
-	}
+            }
             TiBlob blob = new TiBlob(TYPE_DRAWABLE, null, mimetype);
             blob.drawable = drawable;
             if (drawable instanceof BitmapDrawable) {
@@ -203,22 +203,22 @@ public class TiBlob extends KrollProxy {
                 mimetype = getMimeTypeOfFile(image);
 			}
             TiBlob blob = new TiBlob(TYPE_IMAGE, null, mimetype);
-		blob.image = image;
+            blob.image = image;
             TiBitmapPool.incrementRefCount(image);
-		blob.width = image.getWidth();
-		blob.height = image.getHeight();
-		return blob;
+            blob.width = image.getWidth();
+            blob.height = image.getHeight();
+            return blob;
         } else if (object instanceof TiBaseFile) {
             TiBaseFile file = (TiBaseFile) object;
             if (mimetype == null || mimetype.length() == 0) {
                 mimetype = TiMimeTypeHelper.getMimeType(file.nativePath());
-	}
+            }
             TiBlob blob = new TiBlob(TYPE_FILE, file, mimetype);
             blob.loadBitmapInfo();
             return blob;
-        } else if (object instanceof InputStream) {
-            InputStream stream = (InputStream) object;
-            return new TiBlob(TYPE_STREAM_BASE64, stream, mimetype);
+//        } else if (object instanceof InputStream) {
+//            InputStream stream = (InputStream) object;
+//            return new TiBlob(TYPE_STREAM_BASE64, stream, mimetype);
         } else if (object instanceof String) {
             String data = (String) object;
             if (mimetype == null || mimetype.length() == 0) {
@@ -392,20 +392,20 @@ public class TiBlob extends KrollProxy {
 					}
 				}
 				break;
-			case TYPE_STREAM_BASE64:
-				InputStream inStream = (InputStream)data;
-				if (inStream != null) {
-					try {
-                    bytes = KrollStreamHelper
-                            .toByteArray(inStream, getLength());
-					} finally {
-						try {
-							inStream.close();
-						} catch (IOException e) {
-							Log.w(TAG, e.getMessage(), e);
-						}
-					}
-				}
+//			case TYPE_STREAM_BASE64:
+//				InputStream inStream = (InputStream)data;
+//				if (inStream != null) {
+//					try {
+//                    bytes = KrollStreamHelper
+//                            .toByteArray(inStream, getLength());
+//					} finally {
+//						try {
+//							inStream.close();
+//						} catch (IOException e) {
+//							Log.w(TAG, e.getMessage(), e);
+//						}
+//					}
+//				}
 			default:
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
 		}
@@ -442,9 +442,9 @@ public class TiBlob extends KrollProxy {
                 return sizeOf(image);
             }
             return ((byte[]) getData()).length;
-			case TYPE_STREAM_BASE64:
-            throw new IllegalStateException(
-                    "Not yet implemented. TYPE_STREAM_BASE64");
+//			case TYPE_STREAM_BASE64:
+//            throw new IllegalStateException(
+//                    "Not yet implemented. TYPE_STREAM_BASE64");
 			default:
 				// this is probably overly expensive.. is there a better way?
 				return getBytes().length;
@@ -498,9 +498,9 @@ public class TiBlob extends KrollProxy {
 				break;
 			case TYPE_FILE:
 				throw new IllegalStateException("Not yet implemented. TYPE_FILE");
-			case TYPE_STREAM_BASE64 :
-            throw new IllegalStateException(
-                    "Not yet implemented. TYPE_STREAM_BASE64");
+//			case TYPE_STREAM_BASE64 :
+//            throw new IllegalStateException(
+//                    "Not yet implemented. TYPE_STREAM_BASE64");
 				// break;
 			default:
 				throw new IllegalArgumentException("Unknown Blob type id " + type);
@@ -534,9 +534,9 @@ public class TiBlob extends KrollProxy {
 					Log.w(TAG, "Unable to convert to string.");
 				}
 				break;
-			case TYPE_STREAM_BASE64 :
-            throw new IllegalStateException(
-                    "Not yet implemented. TYPE_STREAM_BASE64");
+//			case TYPE_STREAM_BASE64 :
+//            throw new IllegalStateException(
+//                    "Not yet implemented. TYPE_STREAM_BASE64");
 		}
 
 		return result;
@@ -630,7 +630,7 @@ public class TiBlob extends KrollProxy {
   
         switch (type) {
         case TYPE_STRING:
-        case TYPE_STREAM_BASE64:
+//        case TYPE_STREAM_BASE64:
         case TYPE_DATA:
             result = getText();
             break;

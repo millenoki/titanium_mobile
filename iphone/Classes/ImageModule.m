@@ -108,7 +108,7 @@ typedef UIImage * (^ProcessImageBlock)();
 
 - (id)getFilteredScreenshot:(id)args
 {
-  //    ENSURE_UI_THREAD_WAIT_1_ARG(args)
+  //ENSURE_UI_THREAD_WAIT_1_ARG(args)
   ENSURE_TYPE(args, NSArray)
   //    float scale = 1.0f;
   NSDictionary *options = nil;
@@ -119,8 +119,7 @@ typedef UIImage * (^ProcessImageBlock)();
   //    }
   return [self processImage:^UIImage * {
     return [MediaModule takeScreenshotWithScale:0.0f];
-  }
-                withOptions:options];
+  } withOptions:options];
 }
 
 #pragma mark Public Constants

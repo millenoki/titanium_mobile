@@ -202,11 +202,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int SCALE_TYPE_LEFT = 4; //ImageView.ScaleType.FIT_START
 	@Kroll.constant public static final int SCALE_TYPE_RIGHT = 5; //ImageView.ScaleType.FIT_END
 
-	@Kroll.constant public static final int TABLEVIEW_POSITION_ANY = 0;
-	@Kroll.constant public static final int TABLEVIEW_POSITION_TOP = 1;
-	@Kroll.constant public static final int TABLEVIEW_POSITION_MIDDLE = 2;
-	@Kroll.constant public static final int TABLEVIEW_POSITION_BOTTOM = 3;
-
 	@Kroll.constant public static final String TEXT_ALIGNMENT_LEFT = "left";
 	@Kroll.constant public static final String TEXT_ALIGNMENT_CENTER = "center";
 	@Kroll.constant public static final String TEXT_ALIGNMENT_RIGHT = "right";
@@ -217,6 +212,14 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_HEAD = "START";
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_MIDDLE = "MIDDLE";
 	@Kroll.constant public static final String TEXT_ELLIPSIZE_TAIL = "END";
+	
+	@Kroll.constant public static final int PORTRAIT = TiDeviceOrientation.PORTRAIT.toTiIntId();
+    @Kroll.constant public static final int UPSIDE_PORTRAIT = TiDeviceOrientation.UPSIDE_PORTRAIT.toTiIntId();
+    @Kroll.constant public static final int LANDSCAPE_LEFT = TiDeviceOrientation.LANDSCAPE_LEFT.toTiIntId();
+    @Kroll.constant public static final int LANDSCAPE_RIGHT = TiDeviceOrientation.LANDSCAPE_RIGHT.toTiIntId();
+    @Kroll.constant public static final int FACE_UP = TiDeviceOrientation.FACE_UP.toTiIntId();
+    @Kroll.constant public static final int FACE_DOWN = TiDeviceOrientation.FACE_DOWN.toTiIntId();
+    @Kroll.constant public static final int UNKNOWN = TiDeviceOrientation.UNKNOWN.toTiIntId();
 
 	@Kroll.constant
 	public static final int PICKER_TYPE_PLAIN = -1;

@@ -4,7 +4,7 @@ var os = require('os'),
 	fs = require('fs-extra'),
 	path = require('path'),
 	DEFAULT_API_LEVEL = 26,
-	DEFAULT_GMS_VERSION = '10.2.0';
+	DEFAULT_GMS_VERSION = '11.0.4';
 
 /**
  * Given a hinted at location of Android SDK, find one.

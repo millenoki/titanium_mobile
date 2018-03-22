@@ -893,7 +893,7 @@ public class TiConvert
 	public static int[] toIntArray(Object[] inArray) {
 		int[] outArray = new int[inArray.length];
 		for (int i = 0; i < inArray.length; i++) {
-			outArray[i] = ((Number) inArray[i]).intValue();
+			outArray[i] = TiConvert.toInt(inArray[i]);
 		}
 		return outArray;
 	}

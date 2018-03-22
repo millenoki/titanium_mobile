@@ -11,5 +11,6 @@
 	<classpathentry exported="true" kind="var" path="AKYLAS_SDK_PATH/android/modules/gms/base.jar"/>
 	<classpathentry exported="true" kind="var" path="AKYLAS_SDK_PATH/android/modules/gms/location.jar"/>
 	<classpathentry exported="true" kind="var" path="AKYLAS_SDK_PATH/android/modules/gms/basement.jar"/>
+	<classpathentry kind="var" path="AKYLAS_SDK_PATH/android/modules/gms/tasks.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

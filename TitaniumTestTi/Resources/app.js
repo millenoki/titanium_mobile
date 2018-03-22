@@ -4306,13 +4306,13 @@ firstWindow
 			// maxRowHeight:140
 		},
 		events: {
-			'scrollend': function (e) {
+			scrollend: function (e) {
 				firstWindow.startBarDeltaY = firstWindow.barDeltaY;
 				firstWindow.startToolbarDeltaY = firstWindow.toolbarDeltaY;
 				firstWindow.startScrollY = e.contentOffset.y;
 
 			},
-			'scroll': {
+			scroll: {
 				variables: {
 					offset: 'contentOffset.y'
 				},
@@ -4353,7 +4353,7 @@ firstWindow
 				]
 
 			},
-			'itemclick': listViewClickHandle
+			itemclick: listViewClickHandle
 		}
 	});
 firstWindow.addEventListener('open', function () {

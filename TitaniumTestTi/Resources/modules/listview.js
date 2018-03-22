@@ -128,7 +128,7 @@ function listViewExs(_args) {
 		properties: {
 			height: 40,
 			width: 'FILL',
-			backgroundColor: 'gray',
+			backgroundColor: 'blue',
 			bottom: 30
 		}
 	});
@@ -149,10 +149,10 @@ function listViewEx1(_args) {
 		defaultItemTemplate: 'default',
 		allowsSelection: false,
 		templates: {
-			'default': {
-				'properties': {
-					'height': 85,
-					'dispatchPressed': true,
+			default: {
+				properties: {
+					height: 85,
+					dispatchPressed: true,
 					// "borderColor": "black",
 					// "borderPadding": {
 					// "left": -1,
@@ -160,137 +160,136 @@ function listViewEx1(_args) {
 					// "top": -1
 					// }
 				},
-				'childTemplates': [ {
-					'type': 'Ti.UI.View',
-					'properties': {
-						'rclass': 'NewsRowHolder'
+				childTemplates: [ {
+					type: 'Ti.UI.View',
+					properties: {
+						rclass: 'NewsRowHolder'
 					},
-					'childTemplates': [ {
-						'type': 'Ti.UI.ImageView',
-						'bindId': 'imageView',
-						'properties': {
+					childTemplates: [ {
+						type: 'Ti.UI.ImageView',
+						bindId: 'imageView',
+						properties: {
 							preventListViewSelection: true,
-							'dispatchPressed': true,
-							'top': 8,
-							'scaleType': 2,
-							'width': 50,
-							'height': 50,
-							'image': '/images/news_default.png',
-							'backgroundColor': '#C5C5C5',
-							'backgroundSelectedColor': 'red',
-
-							'left': 8,
-							'retina': false,
-							'localLoadSync': true,
-							'preventDefaultImage': true
+							dispatchPressed: true,
+							top: 8,
+							scaleType: 2,
+							width: 50,
+							height: 50,
+							image: '/images/news_default.png',
+							backgroundColor: '#C5C5C5',
+							backgroundSelectedColor: 'red',
+							left: 8,
+							retina: false,
+							localLoadSync: true,
+							preventDefaultImage: true
 						},
-						'childTemplates': [ {
-							'type': 'Ti.UI.View',
-							'properties': {
-								'backgroundSelectedColor': '#88dddddd',
-								'dispatchPressed': true,
-								'touchPassThrough': true
+						childTemplates: [ {
+							type: 'Ti.UI.View',
+							properties: {
+								backgroundSelectedColor: '#88dddddd',
+								dispatchPressed: true,
+								touchPassThrough: true
 							},
-							'childTemplates': [ {
-								'type': 'Ti.UI.View',
-								'properties': {
-									'rclass': 'NewsRowImageHoverTicker',
-									'touchPassThrough': true,
-									'backgroundColor': '#2096D7',
-									'width': 20,
-									'height': 20,
-									'right': -10,
-									'bottom': -10,
-									'transform': 'r45',
-									'backgroundSelectedColor': '#B0C113'
+							childTemplates: [ {
+								type: 'Ti.UI.View',
+								properties: {
+									rclass: 'NewsRowImageHoverTicker',
+									touchPassThrough: true,
+									backgroundColor: '#2096D7',
+									width: 20,
+									height: 20,
+									right: -10,
+									bottom: -10,
+									transform: 'r45',
+									backgroundSelectedColor: '#B0C113'
 								}
 							} ]
 						} ]
 					}, {
-						'type': 'Ti.UI.Label',
-						'bindId': 'source',
-						'properties': {
-							'font': {
-								'size': 11
+						type: 'Ti.UI.Label',
+						bindId: 'source',
+						properties: {
+							font: {
+								size: 11
 							},
-							'left': 5,
-							'height': 13,
-							'bottom': 5,
-							'width': 50,
-							'verticalAlign': 'top',
-							'color': 'white',
-							'padding': {
-								'left': 5,
-								'right': 5
+							left: 5,
+							height: 13,
+							bottom: 5,
+							width: 50,
+							verticalAlign: 'top',
+							color: 'white',
+							padding: {
+								left: 5,
+								right: 5
 							},
-							'ellipsize': 'END'
+							ellipsize: 'END'
 						}
 					}, {
-						'type': 'Ti.UI.View',
-						'properties': {
-							'touchEnabled': false,
-							'layout': 'vertical',
-							'left': 66,
-							'top': 5,
-							'bottom': 5
+						type: 'Ti.UI.View',
+						properties: {
+							touchEnabled: false,
+							layout: 'vertical',
+							left: 66,
+							top: 5,
+							bottom: 5
 						},
-						'childTemplates': [ {
-							'type': 'Ti.UI.Label',
-							'bindId': 'title',
-							'properties': {
-								'padding': {
-									'right': 75,
-									'left': 5
+						childTemplates: [ {
+							type: 'Ti.UI.Label',
+							bindId: 'title',
+							properties: {
+								padding: {
+									right: 75,
+									left: 5
 								},
-								'color': 'white',
-								'verticalAlign': 'top',
-								'width': 'FILL',
-								'maxLines': 2,
-								'height': 'SIZE',
-								'ellipsize': 'END',
-								'font': {
-									'size': 16,
-									'weight': 'bold'
+								color: 'white',
+								verticalAlign: 'top',
+								width: 'FILL',
+								maxLines: 2,
+								height: 'SIZE',
+								ellipsize: 'END',
+								font: {
+									size: 16,
+									weight: 'bold'
 								}
 							},
-							'childTemplates': [ {
-								'type': 'Ti.UI.Label',
-								'bindId': 'date',
-								'properties': {
-									'rclass': 'NewsRowDate',
-									'font': {
-										'size': 10
+							childTemplates: [ {
+								type: 'Ti.UI.Label',
+								bindId: 'date',
+								properties: {
+									rclass: 'NewsRowDate',
+									font: {
+										size: 10
 									},
-									'padding': {
-										'top': 4,
-										'left': 5,
-										'right': 5
+									padding: {
+										top: 4,
+										left: 5,
+										right: 5
 									},
-									'textAlign': 'right',
-									'right': 0,
-									'width': 75,
-									'verticalAlign': 'top',
-									'color': 'white',
-									'height': 'FILL',
-									'ellipsize': 'END'
+									textAlign: 'right',
+									right: 0,
+									width: 75,
+									verticalAlign: 'top',
+									color: 'white',
+									height: 'FILL',
+									ellipsize: 'END'
 								}
 							} ]
 						}, {
-							'type': 'Ti.UI.Label',
-							'bindId': 'description',
-							'properties': {
-								'rclass': 'NewsRowSubtitle',
-								'verticalAlign': 'top',
-								'color': 'white',
-								'width': 'FILL',
-								'padding': {
-									'left': 5,
-									'right': 5
+							type: 'Ti.UI.Label',
+							bindId: 'description',
+							properties: {
+								rclass: 'NewsRowSubtitle',
+								verticalAlign: 'top',
+								color: 'white',
+								width: 'FILL',
+								padding: {
+									left: 5,
+									right: 5
 								},
-								'height': 'FILL',
-								'ellipsize': 'END',
-								'font': {
-									'size': 13
+								height: 'FILL',
+								ellipsize: 'END',
+								font: {
+									size: 13
 								}
 							}
 						} ]

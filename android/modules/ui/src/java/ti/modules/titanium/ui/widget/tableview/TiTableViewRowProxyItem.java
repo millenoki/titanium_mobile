@@ -305,17 +305,18 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		if (selectorSource != newSelectorSource){
 			selectorDrawable = null;
-		selectorSource = newSelectorSource;
-		if (selectorSource != null) {
-			TableViewProxy tableViewProxy = getRowProxy().getTable();
-			if (tableViewProxy != null) {
-				TiUITableView tableView = tableViewProxy.getTableView();
-				if (tableViewProxy != null) {
-					TiTableView view = tableView.getTableView();
-					if (view != null) {
-						view.enableCustomSelector();
-					}
-				}
+			selectorSource = newSelectorSource;
+			if (selectorSource != null) {
+    			TableViewProxy tableViewProxy = getRowProxy().getTable();
+    			if (tableViewProxy != null) {
+    				TiUITableView tableView = tableViewProxy.getTableView();
+    				if (tableViewProxy != null) {
+    					TiTableView view = tableView.getTableView();
+    					if (view != null) {
+    						view.enableCustomSelector();
+    					}
+    				}
+    			}
 			}
 		}
         if (p.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) ||

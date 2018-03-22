@@ -131,7 +131,7 @@ public abstract class KrollObject implements Handler.Callback
     {
         super.finalize();
         if (proxySupport != null) {
-            proxySupport.GCFinalize();
+            proxySupport.get().GCFinalize();
             proxySupport = null;
         }
     }

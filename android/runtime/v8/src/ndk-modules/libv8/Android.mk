@@ -8,7 +8,7 @@
 LOCAL_PATH := $(call my-dir)
 
 define GetFromPkg
-$(shell node -p "require('$(LOCAL_PATH)/../../../../../package.json').$(1)")
+$(shell /usr/local/bin/node -p "require('$(LOCAL_PATH)/../../../../../package.json').$(1)")
 endef
 
 include $(CLEAR_VARS)

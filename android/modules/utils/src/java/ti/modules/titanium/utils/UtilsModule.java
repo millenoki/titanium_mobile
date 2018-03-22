@@ -58,15 +58,11 @@ public class UtilsModule extends KrollModule
 	{
 		if (obj instanceof TiFileProxy) {
 			// recursively call base64encode after converting Ti.Filesystem.File to a Ti.Blob wrapping it
-			return base64encode(TiBlob.blobFromFile(((TiFileProxy) obj).getBaseFile()));
+			return base64encode(TiBlob.blobFromObject(((TiFileProxy) obj).getBaseFile()));
 		}
 		byte[] data = convertToBytes(obj);
 		if (data != null) {
-			try {
-				return TiBlob.blobFromObject(Base64.encodeToString(data, Base64.NO_WRAP));
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, "UTF-8 is not a supported encoding type");
-			}
+			return TiBlob.blobFromObject(Base64.encodeToString(data, Base64.NO_WRAP));
 		}
 		return null;
 	}
@@ -76,11 +72,11 @@ public class UtilsModule extends KrollModule
 	{
 		if (obj instanceof TiFileProxy) {
 			// recursively call base64decode after converting Ti.Filesystem.File to a Ti.Blob wrapping it
-			return base64decode(TiBlob.blobFromFile(((TiFileProxy) obj).getBaseFile()));
+			return base64decode(TiBlob.blobFromObject(((TiFileProxy) obj).getBaseFile()));
 		}
 		byte[] data = convertToBytes(obj);
 		if (data != null) {
-			return TiBlob.blobFromData(Base64.decode(data, Base64.NO_WRAP));
+			return TiBlob.blobFromObject(Base64.decode(data, Base64.NO_WRAP));
 		}
 		return null;
 	}
