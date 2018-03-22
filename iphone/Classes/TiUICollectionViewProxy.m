@@ -90,6 +90,16 @@ static NSDictionary *listViewKeysToReplace;
   [super dealloc];
 }
 
+- (void)gainFocus
+{
+  [[self listView] viewGetFocus];
+}
+
+- (void)resignFocus
+{
+  [[self listView] viewResignFocus];
+}
+
 - (TiUICollectionView *)listView
 {
   return (TiUICollectionView *)self.view;

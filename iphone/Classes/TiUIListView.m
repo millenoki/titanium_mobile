@@ -153,9 +153,6 @@ static NSDictionary *replaceKeysForRow;
     searchController.view.hidden = YES;
     [searchController setActive:NO];
   }
-
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
-
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 

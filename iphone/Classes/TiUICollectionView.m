@@ -151,6 +151,10 @@ static TiProxyTemplate *sDefaultItemTemplate;
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  if ([searchController isActive]) {
+    searchController.view.hidden = YES;
+    [searchController setActive:NO];
+  }
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
   
@@ -530,13 +534,10 @@ static TiProxyTemplate *sDefaultItemTemplate;
   // * The hide when the search controller was active is animated
   // * The animation only occurs once
 
-  if ([[self searchController] isActive]) {
-    [[self searchController] setActive:NO];
-    searchActive = NO;
+  if ([self dismissSearchController]) {
     return;
   }
 
-  searchActive = NO;
   if (![(TiViewProxy *)self.proxy viewReady]) {
     return;
   }
@@ -759,19 +760,19 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
   if ([self isSearchActive]) {
     [self buildResultsForSearchText];
-    [self reloadTableViewData];
-//    if (_hasHeaderView) {
-//      NSInteger sectionCount = [_searchResults count];
-//      if (sectionCount > 0) {
-//        NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, sectionCount)];
-//        [_tableView reloadSections:set];
-//      } else {
-//        [_tableView reloadSections:[NSIndexSet indexSetWithIndex:1]];
-//      }
-//
-//    } else {
-//      [_tableView reloadData];
-//    }
+//    [self reloadTableViewData];
+    if (_hasHeaderView) {
+      NSInteger sectionCount = [_searchResults count];
+      if (sectionCount > 0) {
+        NSIndexSet *set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, sectionCount)];
+        [_tableView reloadSections:set];
+      } else {
+        [_tableView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+      }
+
+    } else {
+      [_tableView reloadData];
+    }
   }
 }
 
@@ -821,6 +822,17 @@ static TiProxyTemplate *sDefaultItemTemplate;
   
 }
 #pragma mark - Public API
+
+- (void)setDimBackgroundForSearch_:(id)arg
+{
+  ENSURE_SINGLE_ARG_OR_NIL(arg, NSNumber);
+  
+  if (searchController && [TiUtils boolValue:arg def:YES]) {
+    [self createDimmingView];
+  } else {
+    _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+  }
+}
 
 - (void)setPruneSectionsOnEdit_:(id)args
 {
@@ -2066,9 +2078,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
   if ([searchBar.text length] == 0) {
     self.searchString = @"";
     [self updateSearchResults:nil];
-    if ([[self searchController] isActive]) {
-      [[self searchController] setActive:NO];
-    }
+    [self dismissSearchController];
   }
 }
 
@@ -2207,6 +2217,38 @@ static TiProxyTemplate *sDefaultItemTemplate;
   [dimmingView removeFromSuperview];
 }
 
+- (BOOL)dismissSearchController
+{
+  if ([searchController isActive]) {
+    [searchController setActive:NO];
+    return true;
+  }
+  return false;
+}
+
+- (void)keyboardWillChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  
+  [self keyboardDidShowAtHeight:height];
+}
+
+- (void)keyboardDidChangeFrame:(NSNotification *)notification
+{
+  NSDictionary *userInfo = [notification userInfo];
+  CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
+  
+  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  
+  [self keyboardDidShowAtHeight:height];
+}
 
 #pragma mark - UISearchResultsUpdating
 
@@ -2248,7 +2290,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
   // As Search controller is presented, we can not open window over it. If any other window get opened above it, we are deactivating Search Controller with saved state if it is activated. And activate Search Controller again when this window get focus in viewGetFocus method.
   
   if (isSearched && [searchController isActive]) {
-    [searchController setActive:false];
+    [searchController setActive:NO];
   } else {
     isSearched = NO;
   }
