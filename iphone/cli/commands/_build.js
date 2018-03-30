@@ -4572,8 +4572,9 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 };
 
 iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(next) {
+	const dest = path.join(this.buildDir, this.tiapp.name + '.entitlements');
 	if (!this.forceRebuild || this.cli.argv.xcode) {
-		delete this.buildDirFiles[path.join(this.buildDir, this.tiapp.name + '.entitlements')];
+		this.unmarkBuildDirFile(dest);
 		return next();
 	}
 	this.logger.info(__('Creating Entitlements.plist'));
@@ -4615,15 +4616,14 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist(ne
 		}
 	}
 
-	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, path.join(this.buildDir, this.tiapp.name + '.entitlements'), false, next);
+	this._embedCapabilitiesAndWriteEntitlementsPlist(plist, dest, false, next);
 };
 
 iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
-	// if (this.cli.arg.xcode) {
-	// 	var filePath 
-	// 	this.infoPlist = new appc.plist()
-	// 	delete this.buildDirFiles[path.join(this.buildDir, this.tiapp.name + '.entitlements')];
-	// 	return next();
+	const dest = path.join(this.buildDir, 'Info.plist');
+	// if (!this.forceRebuild || this.cli.argv.xcode) {
+	// 	this.unmarkBuildDirFile(dest);
+	// 	return;
 	// }
 	this.logger.info(__('Creating Info.plist'));
 
@@ -4931,8 +4931,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 	// write the Info.plist
 	const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['Info.plist'],
 		contents = plist.toString('xml'),
-		hash = this.hash(contents),
-		dest = path.join(this.buildDir, 'Info.plist');
+		hash = this.hash(contents);
 
 	this.currentBuildManifest.files['Info.plist'] = {
 		hash:  hash,
@@ -4955,6 +4954,11 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 };
 
 iOSBuilder.prototype.writeMain = function writeMain() {
+	const dest = path.join(this.buildDir, 'main.m');
+	if (!this.forceRebuild || this.cli.argv.xcode) {
+		this.unmarkBuildDirFile(dest);
+		return;
+	}
 	this.logger.info(__('Creating main.m'));
 
 	const consts = {
@@ -4978,8 +4982,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 		contents = fs.readFileSync(path.join(this.platformPath, 'main.m')).toString().replace(/(__.+?__)/g, function (match, key) {
 			const s = consts.hasOwnProperty(key) ? consts[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
-		}),
-		dest = path.join(this.buildDir, 'main.m');
+		});
 
 	// if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
 	if (!fs.existsSync(dest)) {
@@ -4997,14 +5000,16 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 };
 
 iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
+	let dest = this.xcodeProjectConfigFile;
 	if (!this.forceRebuild || this.cli.argv.xcode) {
+		this.unmarkBuildDirFile(dest);
+		this.unmarkBuildDirFile(path.join(this.buildDir, 'module.xcconfig'));
 		return;
 	}
 	this.logger.info(__('Creating Xcode config files'));
 
 	// write the project.xcconfig
-	let dest = this.xcodeProjectConfigFile,
-		contents = [
+	let contents = [
 			'TI_VERSION=' + this.titaniumSdkVersion,
 			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
 			'TI_APPID=' + this.tiapp.id,
@@ -5078,6 +5083,9 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 
 iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	if (!this.forceRebuild || this.cli.argv.xcode) {
+		this.unmarkBuildDirFiles(path.join(this.buildDir, 'lib'));
+		this.unmarkBuildDirFiles(path.join(this.buildDir, 'externalLibs'));
+		this.unmarkBuildDirFiles(path.join(this.buildDir, 'externalEmbeddedFrameworks'));
 		return;
 	}
 	this.logger.info(__('Copying Titanium libraries'));
@@ -5144,6 +5152,12 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 
 iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 	if (!this.forceRebuild || this.cli.argv.xcode) {
+		this.unmarkBuildDirFiles(path.join(this.buildDir, 'Classes'));
+		this.unmarkBuildDirFiles(path.join(this.buildDir, 'headers'));
+		this.unmarkBuildDirFiles(path.join(this.buildDir, '*xcodeproj*'));
+		this.unmarkBuildDirFile(path.join(this.buildDir, this.tiapp.name.replace(/[-\W]/g, '_') + '_Prefix.pch'));
+		this.unmarkBuildDirFile(path.join(this.buildDir, 'LaunchScreen.storyboard'));
+
 		return;
 	}
 	this.logger.info(__('Copying Titanium iOS files'));
@@ -7447,6 +7461,10 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 		const releaseDir = path.join(this.buildDir, 'build', 'Products', 'Release-iphoneos');
 		if (fs.lstatSync(path.join(releaseDir, this.tiapp.name + '.app')).isSymbolicLink()) {
 			this.unmarkBuildDirFiles(releaseDir);
+		}
+		const debugDir = path.join(this.buildDir, 'build', 'Products', 'Debug-iphoneos');
+		if (fs.lstatSync(path.join(debugDir, this.tiapp.name + '.app')).isSymbolicLink()) {
+			this.unmarkBuildDirFiles(debugDir);
 		}
 	} catch (e) {
 		// ignore
