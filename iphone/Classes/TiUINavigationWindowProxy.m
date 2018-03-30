@@ -494,7 +494,7 @@
   if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
     barFrameBeforePush = [[navController navigationBar] frame];
     //        [(ADTransitioningViewController*)viewController setTransition:transition];
-    [navController pushViewController:viewController animated:YES];
+    [navController pushViewController:viewController animated:transition!=nil];
   } else {
     [navController pushViewController:viewController withTransition:transition];
   }
@@ -625,16 +625,16 @@
     props = nil;
   BOOL animated = props != nil ? [TiUtils boolValue:@"animated" properties:props def:YES] : YES;
   TiTransition *transition = nil;
-  if (animated) {
+//  if (animated) {
     transition = [TiTransitionHelper transitionFromArg:[props objectForKey:@"transition"] defaultArg:[self defaultTransition] containerView:self.view];
-  }
+//  }
   if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
     ((ADTransitioningViewController *)[window hostingController]).transition = transition.adTransition;
   }
 
   [window windowWillOpen];
 
-  [self _pushViewController:[window hostingController] withTransition:transition.adTransition];
+  [self _pushViewController:[window hostingController] withTransition:animated?transition.adTransition:nil];
 }
 
 - (void)popOnUIThread:(NSArray *)args
