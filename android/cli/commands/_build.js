@@ -1970,18 +1970,20 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 
     if (argv.target !== 'dist-playstore') {
         // determine if we're going to be minifying javascript
-        const compileJSProp = this.tiapp['compile-js'];
+        // const compileJSProp = this.tiapp['compile-js'];
         if (argv['skip-js-minify']) {
-            if (this.minifyJS) {
-                this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
-            }
-            this.encryptJS = this.minifyJS = false;
-        } else if (compileJSProp !== undefined) {
-            if (this.minifyJS && !compileJSProp.value) {
-                this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
-            }
-            this.encryptJS = this.minifyJS = !!compileJSProp;
-        }
+			if (this.compileJS) {
+				logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
+					'--skip-js-minify'.cyan));
+			}
+			this.compileJS = this.encryptJS = this.minifyJS = false;
+		} else if (this.tiapp['compile-js'] !== undefined) {
+			// if (this.compileJS && !compileJSProp.value) {
+			// 	logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
+			// 		'ti.compilejs'.cyan));
+			// }
+			this.encryptJS = this.minifyJS = !!this.tiapp['compile-js'];
+		}
         this.currentBuildManifest.encryptJS = !!this.encryptJS;
     }
 
