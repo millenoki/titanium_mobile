@@ -6716,64 +6716,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}, this);
 		},
 
-		function copyResources(next) {
-			async.eachSeries(Object.keys(resourcesToCopy), function (file, next) {
-				const info = resourcesToCopy[file],
-					srcStat = fs.statSync(info.src),
-					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
-					prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
-					destExists = fs.existsSync(info.dest),
-					// destStat = destExists && fs.statSync(info.dest),
-					unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
-				let contents = info.contents || null,
-					hash = null;
-
-				let fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime
-					|| ((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
-
-				this.currentBuildManifest.files[file] = {
-					hash: contents === null && prev ? prev.hash : hash || this.hash(contents || ''),
-					mtime: contents === null && prev ? prev.mtime : srcMtime,
-					size: contents === null && prev ? prev.size : srcStat.size
-				};
-
-				delete this.buildDirFiles[info.dest];
-
-				this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-				if (!fileChanged) {
-					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-					} else if (this.copyFileSync(info.src, info.dest, {
-						// contents: contents || (contents = fs.readFileSync(info.src)), 
-						forceCopy: unsymlinkable })) {
-					if (this.useAppThinning && info.isImage && !this.forceRebuild) {
-						this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
-						this.forceRebuild = true;
-					}
-				} else {
-					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-				}
-					this.unmarkBuildDirFile(info.dest);
-					cb();
-				})(info.src, info.dest, next);
-
-			}.bind(this), next);
-		},
-
-		function copyCSSFiles() {
-			this.logger.debug(__('Copying CSS files'));
-			Object.keys(cssFiles).forEach(function (file) {
-				const info = cssFiles[file];
-				if (this.minifyCSS) {
-					this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
-					const dir = path.dirname(info.dest);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-					fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
-				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
-					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-				}
-				this.unmarkBuildDirFile(info.dest);
-			}, this);
-		},
 		function  compileTsFiles() {
 			if (!tsFiles || tsFiles.length === 0) {
 				return;
@@ -6965,6 +6907,64 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			}.bind(this), next);
 		},
 
+		function copyResources(next) {
+			async.eachSeries(Object.keys(resourcesToCopy), function (file, next) {
+				const info = resourcesToCopy[file],
+					srcStat = fs.statSync(info.src),
+					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+					prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+					destExists = fs.existsSync(info.dest),
+					// destStat = destExists && fs.statSync(info.dest),
+					unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file));
+				let contents = info.contents || null,
+					hash = null;
+
+				let fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime
+					|| ((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
+
+				this.currentBuildManifest.files[file] = {
+					hash: contents === null && prev ? prev.hash : hash || this.hash(contents || ''),
+					mtime: contents === null && prev ? prev.mtime : srcMtime,
+					size: contents === null && prev ? prev.size : srcStat.size
+				};
+
+				delete this.buildDirFiles[info.dest];
+
+				this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+					if (!fileChanged) {
+						this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+					} else if (this.copyFileSync(info.src, info.dest, {
+						// contents: contents || (contents = fs.readFileSync(info.src)), 
+						forceCopy: unsymlinkable })) {
+						if (this.useAppThinning && info.isImage && !this.forceRebuild) {
+							this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+							this.forceRebuild = true;
+						}
+					} else {
+						this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+					}
+					this.unmarkBuildDirFile(info.dest);
+					cb();
+				})(info.src, info.dest, next);
+
+			}.bind(this), next);
+		},
+
+		function copyCSSFiles() {
+			this.logger.debug(__('Copying CSS files'));
+			Object.keys(cssFiles).forEach(function (file) {
+				const info = cssFiles[file];
+				if (this.minifyCSS) {
+					this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
+					const dir = path.dirname(info.dest);
+					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+					fs.writeFileSync(info.dest, new CleanCSS({ processImport: false }).minify(fs.readFileSync(info.src).toString()).styles);
+				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
+					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+				}
+				this.unmarkBuildDirFile(info.dest);
+			}, this);
+		},
 		function writeAppProps() {
 			this.logger.info(__('Writing app properties'));
 
