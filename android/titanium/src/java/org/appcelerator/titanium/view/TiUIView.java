@@ -2339,10 +2339,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (tag != null && tag instanceof TiUIView) {
             result = (TiUIView) tag;
 		}
+        if (result == null && childView instanceof ViewGroup && ((ViewGroup) childView).getChildCount() == 1) {
+            return associatedTiViewForView(((ViewGroup) childView).getChildAt(0));
+        }
         return result;
 	}
 
-    public boolean touchPassThrough(final View view, final MotionEvent event) {
+    public boolean touchPassThrough(View view, final MotionEvent event) {
         if (!isTouchEnabled || getOpacity() == 0) {
             return true;
 	}
@@ -2355,6 +2358,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         if (touchPassThrough == true && action == MotionEvent.ACTION_DOWN) {
             if (view != null) {
+                if (view == borderView) {
+                    view = nativeView;
+                }
                 int[] location = new int[2];
                 if (viewContainsTouch(view, x, y, location)) {
                     // View parent = getParentViewForChild();
