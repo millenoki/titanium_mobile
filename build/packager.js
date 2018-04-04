@@ -310,7 +310,9 @@ Packager.prototype.package = function (next) {
 					return cb(new Error('Unable to find node-ios-device module'));
 				}
 
-				exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' }, cb);
+				exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' }, function () {
+					cb();
+				});
 
 			} else {
 				cb();
