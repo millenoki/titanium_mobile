@@ -9,7 +9,7 @@
 #import "ADTransitionController.h"
 #import "TiWindowProxy.h"
 
-#define AD_SYSTEM_VERSION_GREATER_THAN_7 ([[[UIDevice currentDevice] systemVersion] compare:@"7" options:NSNumericSearch] == NSOrderedDescending)
+//#define AD_SYSTEM_VERSION_GREATER_THAN_7 ([[[UIDevice currentDevice] systemVersion] compare:@"7" options:NSNumericSearch] == NSOrderedDescending)
 
 @interface TiUINavigationWindowProxy : TiWindowProxy <UINavigationControllerDelegate, ADTransitionControllerDelegate, TiOrientationController, TiTab> {
   @private

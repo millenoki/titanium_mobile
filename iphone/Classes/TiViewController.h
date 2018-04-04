@@ -9,6 +9,11 @@
 #import "TiControllerProtocols.h"
 #import <UIKit/UIKit.h>
 
+@interface ControllerWrapperView : UIView
+@property (nonatomic, assign) TiViewProxy *proxy;
+
+@end
+
 @interface TiViewController : ADTransitioningViewController {
 
   TiViewProxy *_proxy;

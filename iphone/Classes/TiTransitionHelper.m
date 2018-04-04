@@ -235,11 +235,13 @@ static NSDictionary *typeMap = nil;
     ADTransitionOrientation subtype = [TiUtils intValue:@"substyle" properties:arg def:transition ? transition.orientation : [TiUtils intValue:@"substyle" properties:defaultArg def:ADTransitionRightToLeft]];
     NWTransition type = [TiUtils intValue:@"style" properties:arg def:transition ? ([self typeFromObject:transition]) : [TiUtils intValue:@"style" properties:defaultArg def:NWTransitionUndefined]];
 
-    if (type == NWTransitionUndefined && [arg objectForKey:@"from"]) {
+    if ([arg objectForKey:@"from"] || [arg objectForKey:@"to"]) {
       //must be custom animation
       result = [[[TiTransition alloc] initCustomTransitionWithDict:arg] autorelease];
     } else {
       result = [self tiTransitionForType:type subType:subtype withDuration:duration containerView:container options:arg reversed:reversed];
+      result.adTransition.onlyForPush = [TiUtils boolValue:@"onlyForPush" properties:arg def:NO];
+      result.adTransition.onlyForPop = [TiUtils boolValue:@"onlyForPop" properties:arg def:NO];
     }
   }
   return result;

@@ -217,6 +217,27 @@ static NSArray *animProps;
   return [reverseProps autorelease];
 }
 
+-(NSDictionary*) reverseDictFromProp:(NSDictionary *)options onProxy:(TiProxy *)theProxy {
+  id<NSFastEnumeration> keys = [options allKeys];
+  NSMutableDictionary* result = [[NSMutableDictionary alloc] initWithCapacity:[(NSArray *)keys count]];
+  for (NSString *key in keys) {
+    if ([key isEqualToString:@"duration"]) {
+      continue;
+    }
+    if ([theProxy bindingForKey:key]) {
+      [result setObject:[self reverseDictFromProp:[options objectForKey:key] onProxy:[theProxy bindingForKey:key]] forKey:key];
+    } else {
+      id value = [theProxy valueForUndefinedKey:key];
+      if (value) {
+        [result setObject:value forKey:key];
+      } else {
+        [result setObject:[NSNull null] forKey:key];
+      }
+    }
+  }
+  return [result autorelease];
+}
+
 - (void)internalApplyOptions:(NSDictionary *)options onProxy:(TiProxy *)theProxy fromProps:(BOOL)fromProps isFake:(BOOL)fake reverse:(BOOL)reverse
 {
 
@@ -226,34 +247,15 @@ static NSArray *animProps;
     [theProxy setFakeApplyProperties:YES];
   }
   if ([realOptions objectForKey:prop]) {
-    [theProxy applyProperties:[realOptions objectForKey:prop]];
+    NSMutableDictionary* toApply = [NSMutableDictionary dictionaryWithDictionary:[realOptions objectForKey:prop]];
+    [toApply removeObjectForKey:@"duration"];
+    [theProxy applyProperties:toApply];
   } else if (fromProps && reverse) {
-    id<NSFastEnumeration> keys = [self allKeys];
-    NSMutableDictionary *reverseProps = [[NSMutableDictionary alloc] initWithCapacity:[(NSArray *)keys count]];
-    for (NSString *key in keys) {
-      id value = [theProxy valueForUndefinedKey:key];
-      if (value) {
-        [reverseProps setObject:value forKey:key];
-      } else {
-        [reverseProps setObject:[NSNull null] forKey:key];
-      }
-    }
-    [theProxy applyProperties:reverseProps];
-    [reverseProps release];
+    [theProxy applyProperties:[self reverseDictFromProp:[self allProperties] onProxy:theProxy]];
   } else if (!fromProps && !reverse) {
     NSDictionary *from = [realOptions objectForKey:@"from"];
     if (from) {
-      NSMutableDictionary *toProps = [[[NSMutableDictionary alloc] initWithCapacity:[from count]] autorelease];
-      id<NSFastEnumeration> keys = [from allKeys];
-      for (NSString *key in keys) {
-        id value = [theProxy valueForUndefinedKey:key];
-        if (value) {
-          [toProps setObject:value forKey:key];
-        } else {
-          [toProps setObject:[NSNull null] forKey:key];
-        }
-      }
-      [theProxy applyProperties:toProps];
+      [theProxy applyProperties:[self reverseDictFromProp:from onProxy:theProxy]];
     }
   }
   [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
@@ -300,6 +302,8 @@ static NSArray *animProps;
   }];
   [realOptions removeObjectForKey:@"from"];
   [realOptions removeObjectForKey:@"to"];
+  [realOptions removeObjectForKey:@"duration"];
+  [realOptions removeObjectForKey:@"curve"];
   if (!fromProps && [realOptions count] > 0) {
     [theProxy applyProperties:realOptions];
   }

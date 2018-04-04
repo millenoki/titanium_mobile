@@ -10,10 +10,6 @@
 #import "TiModalNavViewController.h"
 #import "TiViewProxy.h"
 
-@interface ControllerWrapperView : UIView
-@property (nonatomic, assign) TiViewProxy *proxy;
-
-@end
 
 @implementation ControllerWrapperView
 

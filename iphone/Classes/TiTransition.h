@@ -12,6 +12,11 @@
 
 #define kPerspective -1000
 
+@interface TiADTransition: ADTransition <TiAnimationDelegate> {
+  
+}
+@end
+
 static inline NSString *NSStringFromCATransform3D(CATransform3D transform)
 {
   return [NSString stringWithFormat:@"[%f %f %f %f; %f %f %f %f; %f %f %f %f; %f %f %f %f]",
