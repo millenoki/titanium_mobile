@@ -1151,7 +1151,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (view != null) {
                     ViewCompat.setTransitionName(view,
                             TiConvert.toString(newValue));
-			}
+                }
 			}
 			}
         case TiC.PROPERTY_HIT_RECT: {
@@ -1788,6 +1788,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             ViewCompat.setTranslationZ(borderView, mCurrentTranslationZ);
             ViewCompat.setElevation(rootView, 0);
             ViewCompat.setTranslationZ(rootView, 0);
+        }
+        final String transitionName = ViewCompat.getTransitionName(rootView);
+        if (transitionName != null) {
+            ViewCompat.setTransitionName(borderView, transitionName);
+            ViewCompat.setTransitionName(rootView, null);
         }
         if (TiC.LOLLIPOP_OR_GREATER) {
             if (mOutlineProvider != null) {

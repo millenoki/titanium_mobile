@@ -741,7 +741,7 @@ public abstract class TiWindowProxy extends TiViewProxy {
         if (LOLLIPOP_OR_GREATER) {
             TiUIView v = view.peekView();
             if (v != null) {
-                Pair<View, String> p = new Pair<View, String>(v.getNativeView(),
+                Pair<View, String> p = new Pair<View, String>(v.getOuterView(),
                         transitionName);
                 sharedElementPairs.add(p);
             }
