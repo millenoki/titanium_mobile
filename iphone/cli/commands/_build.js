@@ -6720,6 +6720,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			if (!tsFiles || tsFiles.length === 0) {
 				return;
 			}
+			this.unmarkBuildDirFiles(this.buildTsOutputDir);
+			this.unmarkBuildDirFiles(this.buildTsDir);
 			const tiTsDef = path.join(this.platformPath, '..', 'titanium.d.ts');
 			tsFiles.unshift(tiTsDef);
 			this.logger.debug(__('Compiling TS files: %s', tsFiles));
