@@ -7287,6 +7287,90 @@ function GIFTest() {
 
 	win.open();
 }
+if (__ANDROID__) {
+	function AndroidTransitionTest() {
+		function openTransitionWindow() {
+			var winB = Ti.UI.createWindow({
+				childTemplates: [ {
+					type: 'Ti.UI.ScrollView',
+					properties: {
+						layout: 'vertical',
+						backgroundColor: 'green',
+						width: 'FILL',
+						height: 'FILL',
+					},
+					childTemplates: [ {
+						type: 'Ti.UI.ImageView',
+						properties: {
+							transitionName:"logo",
+							top: 10,
+							width: 'FILL',
+							backgroundColor: 'red',
+							scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
+							height: 'SIZE',
+							image: 'http://phandroid.s3.amazonaws.com/wp-content/uploads/2012/02/Android-At-Home-banner.jpg'
+						}
+					}, {
+						type: 'Ti.UI.Label',
+						properties: {
+							transitionName:"text",
+							backgroundColor: 'blue',
+							textAlign:'center',
+							font:{size:14},
+							text: 'As you should have been able to see the logo and this label transition from Window A to this new Window as if they were the same. Use the system navigation bar back button to close this window. The level up indicator in the Action Bar does not honour activityReturnTransition.'
+						}
+					} ]
+				} ]
+			});
+			winB.addSharedElement(winA.textView, 'text');
+			winB.addSharedElement(winA.logoView, 'logo');
+			winB.activityEnterTransition = 
+			winB.open();
+		}
+
+		var winA = Ti.UI.createWindow({
+			childTemplates: [ {
+				type: 'Ti.UI.ScrollView',
+				properties: {
+					layout: 'vertical',
+					backgroundColor: 'green',
+					width: 'FILL',
+					height: 'FILL',
+				},
+				childTemplates: [ {
+					type: 'Ti.UI.ImageView',
+					bindId:'logoView',
+					properties: {
+						transitionName:"logo",
+						top: 10,
+							width: 50,
+							backgroundColor: 'red',
+							scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
+							// borderRadius:20,
+							height: 50,
+						image: 'http://phandroid.s3.amazonaws.com/wp-content/uploads/2012/02/Android-At-Home-banner.jpg'
+					}
+				}, {
+					type: 'Ti.UI.Label',
+					properties: {
+						transitionName:"text",
+						bindId:'textView',
+						backgroundColor: 'blue',
+						font:{size:14},
+						text: 'As you should have been able to see the logo and this label transition from Window A to this new Window as if they were the same. Use the system navigation bar back button to close this window. The level up indicator in the Action Bar does not honour activityReturnTransition.'
+					}
+				} ]
+			} ],
+			events:{
+				click:openTransitionWindow
+			}
+		});
+	
+		winA.open();
+	}
+// AndroidTransitionTest();
+}
+
 
 // GIFTest();
 
