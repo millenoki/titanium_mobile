@@ -79,7 +79,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
             this.parentView = new WeakReference<View>(parentView);
             if (item != null) {
               ViewGroup.LayoutParams params = item.getTiLayoutParams();
-              if (params instanceof TiCompositeLayout.LayoutParams && !((TiCompositeLayout.LayoutParams) params).fixedSizeHeight()) {
+              if (params instanceof TiCompositeLayout.LayoutParams && ((TiCompositeLayout.LayoutParams) params).percentHeight()) {
                   hasHeightRelyingOnPercent = true;
               }
           }
