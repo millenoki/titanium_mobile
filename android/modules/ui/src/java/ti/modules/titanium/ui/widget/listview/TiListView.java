@@ -44,128 +44,133 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
     private SwipeMenuAdapter mSwipeMenuAdapater;
     private boolean mNeedsSwipeMenu = true;
-//    private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
-//        @Override
-//        public void onStartSwipe(View view, int position, int direction) {
-//
-//        }
-//
-//        @Override
-//        public void onMenuShown(View view, int position, int direction) {
-//
-//        }
-//
-//        @Override
-//        public void onMenuClosed(View view, int position, int direction) {
-//
-//        }
-//
-//        @Override
-//        public void beforeMenuShow(View view, int position, int direction) {
-//
-//        }
-//
-//        @Override
-//        public void beforeMenuClose(View view, int position, int direction) {
-//
-//        }
-//
-//    };
+    // private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
+    // @Override
+    // public void onStartSwipe(View view, int position, int direction) {
+    //
+    // }
+    //
+    // @Override
+    // public void onMenuShown(View view, int position, int direction) {
+    //
+    // }
+    //
+    // @Override
+    // public void onMenuClosed(View view, int position, int direction) {
+    //
+    // }
+    //
+    // @Override
+    // public void beforeMenuShow(View view, int position, int direction) {
+    //
+    // }
+    //
+    // @Override
+    // public void beforeMenuClose(View view, int position, int direction) {
+    //
+    // }
+    //
+    // };
 
     public TiListView(TiViewProxy proxy, Activity activity) {
         super(proxy, activity);
-		}
+    }
 
-		@Override
+    @Override
     protected CustomListView createListView(final Activity activity) {
         CustomListView result = new CustomListView(activity) {
 
-		@Override
+            @Override
             protected void onLayout(boolean changed, int left, int top,
                     int right, int bottom) {
 
-			super.onLayout(changed, left, top, right, bottom);
-				if (changed) {
+                super.onLayout(changed, left, top, right, bottom);
+                if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiListView.this);
-					}
-				}
+                }
+            }
 
-		@Override
+            @Override
             public boolean dispatchTouchEvent(MotionEvent event) {
                 boolean touchPassThrough = touchPassThrough(this, event);
-                if (touchPassThrough) return false;
+                if (touchPassThrough)
+                    return false;
 
                 return super.dispatchTouchEvent(event);
-		}
+            }
 
-		@Override
+            @Override
             protected void dispatchDraw(Canvas canvas) {
                 try {
                     super.dispatchDraw(canvas);
                 } catch (IndexOutOfBoundsException e) {
                     // samsung error
-		}
-		}
-		@Override
+                }
+            }
+
+            @Override
             public void setClipChildren(final boolean clip) {
                 super.setClipChildren(clip);
                 getWrappedList().setClipChildren(clip);
-			}
+            }
         };
 
         return result;
-				}
+    }
 
-			@Override
+    @Override
     protected void setListViewAdapter(TiBaseAdapter adapter) {
 
         SingleAnimationAdapter animationAdapter = null;
         BaseAdapter currentAdapter = adapter;
         if (mUseAppearAnimation) {
-            currentAdapter = animationAdapter = new SingleAnimationAdapter(adapter) {
-	@Override
-                protected Animator getAnimator(int position, View view, ViewGroup parent) {
-
+            currentAdapter = animationAdapter = new SingleAnimationAdapter(
+                    adapter) {
+                @Override
+                protected Animator getAnimator(int position, View view,
+                        ViewGroup parent) {
 
                     if (mAppearAnimators != null) {
                         Animator anim = mAppearAnimators.clone();
                         anim.setTarget(view);
                         return anim;
                     } else if (view instanceof TiBaseAbsListViewItemHolder) {
-                        Object data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
+                        Object data = ((TiBaseAbsListViewItemHolder) view)
+                                .getItemData();
                         Object anim = null;
                         if (data instanceof HashMap) {
                             anim = ((HashMap) data).get("appearAnimation");
-		}
+                        }
                         if (anim == null) {
                             anim = mAppearAnimation;
-	}
+                        }
                         if (anim != null) {
-                            TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view.findViewById(listContentId);
+                            TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view
+                                    .findViewById(listContentId);
                             AbsListItemProxy proxy = itemContent.getProxy();
-                            Animator animator = proxy.getAnimatorSetForAnimation(anim);
+                            Animator animator = proxy
+                                    .getAnimatorSetForAnimation(anim);
                             return animator;
-		}
-		}
-			return null;
-		}
+                        }
+                    }
+                    return null;
+                }
             };
-			}
+        }
         if (mNeedsSwipeMenu) {
-            currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(currentAdapter, getProxy()
-                    .getActivity(), null);
-		}
+            currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(
+                    currentAdapter, getProxy().getActivity(), null);
+        }
 
         StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
                 currentAdapter);
-        stickyListHeadersAdapterDecorator
-                .setListViewWrapper(new StickyListHeadersListViewWrapper(
-                        listView));
+        stickyListHeadersAdapterDecorator.setListViewWrapper(
+                new StickyListHeadersListViewWrapper(listView));
         if (animationAdapter != null) {
             animationAdapter.getViewAnimator().setAnimationDurationMillis(0);
-	}
+        }
         listView.setAdapter(stickyListHeadersAdapterDecorator);
-	}
+    }
 
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
@@ -175,63 +180,64 @@ public class TiListView extends TiAbsListView<CustomListView> {
             listView.setScrollingEnabled(newValue);
             break;
         case "appearAnimation":
-            if (newValue instanceof HashMap || newValue instanceof TiAnimation) {
+            if (newValue instanceof HashMap
+                    || newValue instanceof TiAnimation) {
                 mAppearAnimation = newValue;
                 mUseAppearAnimation = mAppearAnimation != null;
-		} else {
+            } else {
                 int id = TiConvert.toInt(newValue);
                 if (id != 0) {
-                    mAppearAnimators = AnimatorInflater.loadAnimator(getProxy().getActivity(), id) ;
-		} else {
+                    mAppearAnimators = AnimatorInflater
+                            .loadAnimator(getProxy().getActivity(), id);
+                } else {
                     mAppearAnimators = null;
-		}
+                }
                 mUseAppearAnimation = mAppearAnimators != null;
-	}
+            }
             mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
 
-				break;
+            break;
         case "useAppearAnimation":
             mUseAppearAnimation = TiConvert.toBoolean(newValue, false);
             mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
-           break;
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
-			}
-		}
+        }
+    }
 
     public void closeSwipeMenu(boolean animated) {
         if (mSwipeMenuAdapater != null) {
-			if (animated) {
+            if (animated) {
                 mSwipeMenuAdapater.closeMenusAnimated();
-			} else {
+            } else {
                 mSwipeMenuAdapater.closeMenus();
-					}
-			}
-		}
+            }
+        }
+    }
 
     public void insert(final int position, final Object item) {
         if (listView != null) {
             listView.insert(position, item);
-		}
-		}
+        }
+    }
 
     public void insert(final int position, final Object... items) {
-		if (listView != null) {
+        if (listView != null) {
             listView.insert(position, items);
-		}
-		}
-
+        }
+    }
 
     public void remove(final int position) {
         if (listView != null) {
             listView.remove(position);
-	}
-	}
+        }
+    }
 
-    public void remove( final int position, final int count) {
+    public void remove(final int position, final int count) {
         if (listView != null) {
             listView.remove(position, count);
-	}
-}
+        }
+    }
 }

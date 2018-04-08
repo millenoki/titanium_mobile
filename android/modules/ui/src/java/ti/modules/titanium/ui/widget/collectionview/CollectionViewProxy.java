@@ -7,6 +7,8 @@
 
 package ti.modules.titanium.ui.widget.collectionview;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
@@ -17,37 +19,31 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListViewProxy;
+import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
+import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewInterface;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = UIModule.class,propertyAccessors = {
-        TiC.PROPERTY_SCROLL_DIRECTION,
-        TiC.PROPERTY_STICKY_HEADERS,
-        TiC.PROPERTY_NUM_COLUMNS,
-        TiC.PROPERTY_COLUMN_WIDTH,
-        TiC.PROPERTY_SCROLLING_ENABLED,
-        TiC.PROPERTY_HEADER_TITLE,
+@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
+        TiC.PROPERTY_SCROLL_DIRECTION, TiC.PROPERTY_STICKY_HEADERS,
+        TiC.PROPERTY_NUM_COLUMNS, TiC.PROPERTY_COLUMN_WIDTH,
+        TiC.PROPERTY_SCROLLING_ENABLED, TiC.PROPERTY_HEADER_TITLE,
         TiC.PROPERTY_FOOTER_TITLE,
-//        TiC.PROPERTY_SECTIONS,
+        // TiC.PROPERTY_SECTIONS,
         TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
         TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
-        TiC.PROPERTY_SEPARATOR_COLOR,
-        TiC.PROPERTY_SEARCH_TEXT,
-        TiC.PROPERTY_SEARCH_VIEW,
-        TiC.PROPERTY_HEADER_VIEW,
-        TiC.PROPERTY_FOOTER_VIEW,
-        TiC.PROPERTY_SEARCH_VIEW_EXTERNAL,
+        TiC.PROPERTY_SEPARATOR_COLOR, TiC.PROPERTY_SEARCH_TEXT,
+        TiC.PROPERTY_SEARCH_VIEW, TiC.PROPERTY_HEADER_VIEW,
+        TiC.PROPERTY_FOOTER_VIEW, TiC.PROPERTY_SEARCH_VIEW_EXTERNAL,
         TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
-        TiC.PROPERTY_SCROLL_HIDES_KEYBOARD
-    }, propertyDontEnumAccessors = {
-        TiC.PROPERTY_TEMPLATES
-    })
+        TiC.PROPERTY_SCROLL_HIDES_KEYBOARD }, propertyDontEnumAccessors = {
+                TiC.PROPERTY_TEMPLATES })
 public class CollectionViewProxy extends AbsListViewProxy {
 
     private static final String TAG = "CollectionViewProxy";
 
     public CollectionViewProxy() {
         super();
-      defaultValues.put(TiC.PROPERTY_SCROLL_DIRECTION, "vertical");
+        defaultValues.put(TiC.PROPERTY_SCROLL_DIRECTION, "vertical");
     }
 
     @Override
@@ -71,7 +67,7 @@ public class CollectionViewProxy extends AbsListViewProxy {
     public Class sectionClass() {
         return CollectionSectionProxy.class;
     }
-    
+
     public void handleCloseSwipeMenu(Object obj, KrollFunction callback) {
         Boolean animated = true;
         if (obj != null) {
@@ -84,12 +80,46 @@ public class CollectionViewProxy extends AbsListViewProxy {
     }
 
     @Kroll.method()
-    public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj, final @Kroll.argument(optional = true) KrollFunction callback) {
+    public void closeSwipeMenu(
+            final @Kroll.argument(optional = true) Object obj,
+            final @Kroll.argument(optional = true) KrollFunction callback) {
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                handleCloseSwipeMenu(obj, callback);                
+                handleCloseSwipeMenu(obj, callback);
             }
         }, false);
+    }
+
+    @Kroll.getProperty
+    @Kroll.method
+    public Object getContentOffset() {
+        TiUIView listView = peekView();
+        if (listView != null) {
+            return ((TiCollectionView) listView).getContentOffset();
+        }
+        return getProperty(TiC.PROPERTY_CONTENT_OFFSET);
+    }
+    @Kroll.method
+    public void setContentOffset(final Object offset,
+            @Kroll.argument(optional = true) HashMap options) {
+        
+        final boolean animated = TiConvert.toBoolean(options,
+                TiC.PROPERTY_ANIMATED, true);
+        final TiUIView listView = peekView();
+        if (listView instanceof TiCollectionViewInterface) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    ((TiCollectionView) listView).setContentOffset(offset, animated);
+
+                }
+            }, false);
+        }
+    }
+
+    @Kroll.setProperty
+    public void setContentOffset(Object offset) {
+        setContentOffset(offset, null);
     }
 }

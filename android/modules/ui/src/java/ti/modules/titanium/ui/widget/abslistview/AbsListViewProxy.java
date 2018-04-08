@@ -15,12 +15,14 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.app.Activity;
 
 @Kroll.proxy(propertyAccessors = {
@@ -484,5 +486,37 @@ public abstract class AbsListViewProxy extends TiViewProxy {
             ((TiAbsListView) listView).closePullView(animated);
         }
     }
+    
+    @Kroll.method
+    public void setContentOffset(final Object offset,
+            @Kroll.argument(optional = true) HashMap options) {
+        
+        final boolean animated = TiConvert.toBoolean(options,
+                TiC.PROPERTY_ANIMATED, true);
+        final TiUIView listView = peekView();
+        if (listView instanceof TiCollectionViewInterface) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    ((TiAbsListView) listView).setContentOffset(offset, animated);
 
+                }
+            }, false);
+        }
+    }
+
+    @Kroll.setProperty
+    public void setContentOffset(Object offset) {
+        setContentOffset(offset, null);
+    }
+    
+    @Kroll.getProperty
+    @Kroll.method
+    public Object getContentOffset() {
+        TiUIView listView = peekView();
+        if (peekView() != null) {
+            return ((TiAbsListView) listView).getContentOffset();
+        }
+        return getProperty(TiC.PROPERTY_CONTENT_OFFSET);
+    }
 }

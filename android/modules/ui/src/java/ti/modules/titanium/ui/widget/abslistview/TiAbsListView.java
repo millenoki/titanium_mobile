@@ -26,6 +26,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -66,6 +67,7 @@ import yaochangwei.pulltorefreshlistview.widget.RefreshableListView;
 import yaochangwei.pulltorefreshlistview.widget.RefreshableListView.OnPullListener;
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -541,7 +543,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         KrollDict point = new KrollDict();
         point.put(TiC.PROPERTY_X, 0);
         point.put(TiC.PROPERTY_Y, yScroll);
-        eventArgs.put("contentOffset", point);
+        eventArgs.put(TiC.PROPERTY_CONTENT_OFFSET, point);
 		return eventArgs;
 	}
 	
@@ -1533,10 +1535,10 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	public void scrollToTop(final int y, boolean animated)
 	{
 		if (animated) {
-			listView.smoothScrollToPosition(0);
+			listView.smoothScrollToPositionFromTop(0, y);
 		}
 		else {
-			listView.setSelection(0); 
+			listView.setSelectionFromTop(0, y); 
 		}
 	}
 
@@ -1675,5 +1677,24 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         }
         ((RefreshableListView) listView).closeHeaderPullView(animated);
     }
+
+    public Object getContentOffset() {
+        if (nativeView == null)
+            return proxy.getProperty(TiC.PROPERTY_CONTENT_OFFSET);
+        KrollDict point = new KrollDict();
+        point.put(TiC.PROPERTY_X, 0);
+        point.put(TiC.PROPERTY_Y, getScroll());
+        return point;
+    }
     
+    public void setContentOffset(final Object value, final boolean animated) {
+        if (nativeView == null)
+            return;
+        TiPoint point = TiConvert.toPoint(value);
+        if (point != null) {
+            Point p = point.compute(nativeView.getWidth(),
+                    nativeView.getHeight());
+            scrollToTop(p.y, animated);
+        }
+    }
 }
