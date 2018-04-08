@@ -1816,6 +1816,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
         tiApp.setCurrentActivity(this, this);
         TiApplication.updateActivityTransitionState(false);
+        
+        if (!windowStack.empty()) {
+            windowStack.peek().onWindowFocusChange(true);
+        }
 
         if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_RESUME);
@@ -1836,7 +1840,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
         isResumed = true;
         isPaused = false;
-
+        
+        
         // Checkpoint for ti.foreground event
         // String deployType =
         // tiApp.getAppProperties().getString("ti.deploytype", "unknown");
