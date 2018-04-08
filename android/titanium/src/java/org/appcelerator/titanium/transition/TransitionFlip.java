@@ -13,7 +13,9 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 
+@SuppressLint("NewApi")
 public class TransitionFlip extends Transition {
     private static float CAMERA_DISTANCE = 10000;
     public TransitionFlip(int subtype, boolean isOut, int duration) {
