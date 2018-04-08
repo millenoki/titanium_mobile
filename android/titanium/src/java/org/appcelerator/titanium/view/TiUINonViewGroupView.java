@@ -4,10 +4,11 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressLint("NewApi")
 public class TiUINonViewGroupView extends TiUIView {
 
 	public TiUINonViewGroupView(TiViewProxy proxy) {
