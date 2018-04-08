@@ -684,7 +684,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	
 	
 
-	private void updateScaleType()
+	public void updateScaleType()
 	{
 		if (!configured) return;
 		updateScaleTypeForImageView(imageView);
@@ -774,13 +774,15 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	
 	public void setConfigured(boolean configured)
 	{
-		this.configured = configured;
-		
-		if (configured)
-		{
-			updateScaleType();
-			readyToLayout = true;
-		}
+	    if (this.configured != configured) {
+	        this.configured = configured;
+	        
+	        if (configured)
+	        {
+	            updateScaleType();
+	            readyToLayout = true;
+	        }
+	    }
 	}
 	
 	public void setTintColor(int color){
