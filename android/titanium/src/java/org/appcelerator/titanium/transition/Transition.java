@@ -104,7 +104,7 @@ public abstract class Transition {
 		} else if (outAnimator !=null) {
 			set.playTogether(outAnimator);
 		}
-		set.setDuration(duration);
+//		set.setDuration(duration);
 		return set;
 	}
 	
