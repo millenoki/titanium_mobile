@@ -32,6 +32,7 @@
  @param arg A single proxy to add or NSArray of proxies.
  */
 - (void)add:(id)arg;
+- (void)add:(id)arg atIndex:(NSInteger)index;
 
 /**
  Subclass can directly use that method to handle it all!
