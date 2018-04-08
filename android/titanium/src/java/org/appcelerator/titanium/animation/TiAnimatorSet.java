@@ -37,12 +37,16 @@ public class TiAnimatorSet extends TiAnimator {
 	}
 	
 	public void resetSet() {
+	    AnimatorSet oldSet = set;
 		set = clonableSet.clone();
+		oldSet.removeAllListeners();
 	}
 	
 	public void resetReverseSet() {
 		if (clonableReverseSet != null) {
+		    AnimatorSet oldSet = clonableReverseSet;
 			reverseSet = clonableReverseSet.clone();
+			oldSet.removeAllListeners();
 		}
 	}
 	
