@@ -377,8 +377,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                int deletedCount = deleteItemsData(index, count);
-                notifyItemRangeRemoved(index, deletedCount, fanimated);
+                notifyItemRangeRemoved(index, count, fanimated);
+                deleteItemsData(index, count);
             }
         }, true);
 	}
