@@ -142,6 +142,10 @@ public class TiAnimator
 			cancelRunningAnimations = TiConvert.toBoolean(options, TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS);
             options.remove(TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS);
 		}
+		if (options.containsKey(TiC.PROPERTY_DONT_APPLY_ON_FINISH)) {
+            dontApplyOnFinish = TiConvert.toBoolean(options, TiC.PROPERTY_DONT_APPLY_ON_FINISH);
+            options.remove(TiC.PROPERTY_DONT_APPLY_ON_FINISH);
+        }
 		if (options.containsKey(TiC.PROPERTY_CURVE)) {
 			Object value = options.get(TiC.PROPERTY_CURVE);
 			if (value instanceof Number) {

@@ -606,7 +606,7 @@ static NSArray *animProps;
  */
 - (void)animation:(HLSAnimation *)animation didFinishStep:(HLSAnimationStep *)animationStep animated:(BOOL)animated_
 {
-  if (!autoreverse && [repeat integerValue] > 1) {
+  if (dontApplyOnFinish || !autoreverse && [repeat integerValue] > 1) {
     [self resetProxyProperties];
   }
 }
