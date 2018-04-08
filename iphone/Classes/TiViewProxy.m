@@ -3951,6 +3951,8 @@ SEL GetterForKrollProperty(NSString *key)
     ENSURE_ARG_OR_NIL_AT_INDEX(view2Proxy, args, 1, TiViewProxy);
     ENSURE_ARG_OR_NIL_AT_INDEX(props, args, 2, NSDictionary);
     ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
+    NSInteger index = -1;
+    
     [callback retain];
     void (^onCompletion)() = ^() {
       if (view1Proxy) {
@@ -3968,10 +3970,11 @@ SEL GetterForKrollProperty(NSString *key)
     if ([self viewAttached] && parentVisible && [self viewLayedOut]) {
       if (view1Proxy != nil) {
         pthread_rwlock_wrlock(&childrenLock);
-        if (![children containsObject:view1Proxy]) {
+        index = [children indexOfObject:view1Proxy];
+        if (index == -1) {
           pthread_rwlock_unlock(&childrenLock);
           if (view2Proxy) {
-            [self add:view2Proxy];
+            [self add:view2Proxy atIndex:index];
           }
           _transitioning = NO;
           [self handlePendingTransition];
@@ -4020,7 +4023,7 @@ SEL GetterForKrollProperty(NSString *key)
       [[self view] transitionFromView:view1 toView:view2 withTransition:transition animationBlock:animationBlock completionBlock:onCompletion];
     } else {
       if (view2Proxy) {
-        [self add:view2Proxy];
+        [self add:view2Proxy atIndex:index];
   }
       onCompletion();
 }
