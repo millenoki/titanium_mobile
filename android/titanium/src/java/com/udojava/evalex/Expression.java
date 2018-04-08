@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Udo Klimaschewski
+ * Copyright 2012-2018 Udo Klimaschewski
  * 
  * http://UdoJava.com/
  * http://about.me/udo.klimaschewski
@@ -31,168 +31,80 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 
 /**
-* <h1>EvalEx - Java Expression Evaluator</h1>
-* 
-* <h2>Introduction</h2>
-* EvalEx is a handy expression evaluator for Java, that allows to evaluate simple mathematical and boolean expressions.
-* <br>
-* Key Features:
-* <ul>
-* <li>Uses BigDecimal for calculation and result</li>
-* <li>Single class implementation, very compact</li>
-* <li>No dependencies to external libraries</li>
-* <li>Precision and rounding mode can be set</li>
-* <li>Supports variables</li>
-* <li>Standard boolean and mathematical operators</li>
-* <li>Standard basic mathematical and boolean functions</li>
-* <li>Custom functions and operators can be added at runtime</li>
-* </ul>
-* <br>
-* <h2>Examples</h2>
-* <pre>
-*  BigDecimal result = null;
-*  
-*  Expression expression = new Expression("1+1/3");
-*  result = expression.eval():
-*  expression.setPrecision(2);
-*  result = expression.eval():
-*  
-*  result = new Expression("(3.4 + -4.1)/2").eval();
-*  
-*  result = new Expression("SQRT(a^2 + b^2").with("a","2.4").and("b","9.253").eval();
-*  
-*  BigDecimal a = new BigDecimal("2.4");
-*  BigDecimal b = new BigDecimal("9.235");
-*  result = new Expression("SQRT(a^2 + b^2").with("a",a).and("b",b).eval();
-*  
-*  result = new Expression("2.4/PI").setPrecision(128).setRoundingMode(RoundingMode.UP).eval();
-*  
-*  result = new Expression("random() > 0.5").eval();
-* 
-*  result = new Expression("not(x<7 || sqrt(max(x,9)) <= 3))").with("x","22.9").eval();
-* </pre>
-* <br>
-* <h2>Supported Operators</h2>
-* <table>
-*   <tr><th>Mathematical Operators</th></tr>
-*   <tr><th>Operator</th><th>Description</th></tr>
-*   <tr><td>+</td><td>Additive operator</td></tr>
-*   <tr><td>-</td><td>Subtraction operator</td></tr>
-*   <tr><td>*</td><td>Multiplication operator</td></tr>
-*   <tr><td>/</td><td>Division operator</td></tr>
-*   <tr><td>%</td><td>Remainder operator (Modulo)</td></tr>
-*   <tr><td>^</td><td>Power operator</td></tr>
-* </table>
-* <br>
-* <table>
-*   <tr><th>Boolean Operators<sup>*</sup></th></tr>
-*   <tr><th>Operator</th><th>Description</th></tr>
-*   <tr><td>=</td><td>Equals</td></tr>
-*   <tr><td>==</td><td>Equals</td></tr>
-*   <tr><td>!=</td><td>Not equals</td></tr>
-*   <tr><td>&lt;&gt;</td><td>Not equals</td></tr>
-*   <tr><td>&lt;</td><td>Less than</td></tr>
-*   <tr><td>&lt;=</td><td>Less than or equal to</td></tr>
-*   <tr><td>&gt;</td><td>Greater than</td></tr>
-*   <tr><td>&gt;=</td><td>Greater than or equal to</td></tr>
-*   <tr><td>&amp;&amp;</td><td>Boolean and</td></tr>
-*   <tr><td>||</td><td>Boolean or</td></tr>
-* </table>
-* *Boolean operators result always in a BigDecimal value of 1 or 0 (zero). Any non-zero value is treated as a _true_ value. Boolean _not_ is implemented by a function.
-* <br>
-* <h2>Supported Functions</h2>
-* <table>
-*   <tr><th>Function<sup>*</sup></th><th>Description</th></tr>
-*   <tr><td>NOT(<i>expression</i>)</td><td>Boolean negation, 1 (means true) if the expression is not zero</td></tr>
-*   <tr><td>IF(<i>condition</i>,<i>value_if_true</i>,<i>value_if_false</i>)</td><td>Returns one value if the condition evaluates to true or the other if it evaluates to false</td></tr>
-*   <tr><td>RANDOM()</td><td>Produces a random number between 0 and 1</td></tr>
-*   <tr><td>MIN(<i>e1</i>,<i>e2</i>)</td><td>Returns the smaller of both expressions</td></tr>
-*   <tr><td>MAX(<i>e1</i>,<i>e2</i>)</td><td>Returns the bigger of both expressions</td></tr>
-*   <tr><td>ABS(<i>expression</i>)</td><td>Returns the absolute (non-negative) value of the expression</td></tr>
-*   <tr><td>ROUND(<i>expression</i>,precision)</td><td>Rounds a value to a certain number of digits, uses the current rounding mode</td></tr>
-*   <tr><td>FLOOR(<i>expression</i>)</td><td>Rounds the value down to the nearest integer</td></tr>
-*   <tr><td>CEILING(<i>expression</i>)</td><td>Rounds the value up to the nearest integer</td></tr>
-*   <tr><td>LOG(<i>expression</i>)</td><td>Returns the natural logarithm (base e) of an expression</td></tr>
-*   <tr><td>LOG10(<i>expression</i>)</td><td>Returns the common logarithm (base 10) of an expression</td></tr>
-*   <tr><td>SQRT(<i>expression</i>)</td><td>Returns the square root of an expression</td></tr>
-*   <tr><td>SIN(<i>expression</i>)</td><td>Returns the trigonometric sine of an angle (in degrees)</td></tr>
-*   <tr><td>COS(<i>expression</i>)</td><td>Returns the trigonometric cosine of an angle (in degrees)</td></tr>
-*   <tr><td>TAN(<i>expression</i>)</td><td>Returns the trigonometric tangens of an angle (in degrees)</td></tr>
-*   <tr><td>SINH(<i>expression</i>)</td><td>Returns the hyperbolic sine of a value</td></tr>
-*   <tr><td>COSH(<i>expression</i>)</td><td>Returns the hyperbolic cosine of a value</td></tr>
-*   <tr><td>TANH(<i>expression</i>)</td><td>Returns the hyperbolic tangens of a value</td></tr>
-*   <tr><td>RAD(<i>expression</i>)</td><td>Converts an angle measured in degrees to an approximately equivalent angle measured in radians</td></tr>
-*   <tr><td>DEG(<i>expression</i>)</td><td>Converts an angle measured in radians to an approximately equivalent angle measured in degrees</td></tr>
-* </table>
-* *Functions names are case insensitive.
-* <br>
-* <h2>Supported Constants</h2>
-* <table>
-*   <tr><th>Constant</th><th>Description</th></tr>
-*   <tr><td>PI</td><td>The value of <i>PI</i>, exact to 100 digits</td></tr>
-*   <tr><td>TRUE</td><td>The value one</td></tr>
-*   <tr><td>FALSE</td><td>The value zero</td></tr>
-* </table>
-* 
-* <h2>Add Custom Operators</h2>
-* 
-* Custom operators can be added easily, simply create an instance of `Expression.Operator` and add it to the expression.
-* Parameters are the operator string, its precedence and if it is left associative. The operators `eval()` method will be called with the BigDecimal values of the operands.
-* All existing operators can also be overridden.
-* <br>
-* For example, add an operator `x >> n`, that moves the decimal point of _x_ _n_ digits to the right:
-* 
-* <pre>
-* Expression e = new Expression("2.1234 >> 2");
-* 
-* e.addOperator(e.new Operator(">>", 30, true) {
-*     {@literal @}Override
-*     public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
-*         return v1.movePointRight(v2.toBigInteger().intValue());
-*     }
-* });
-* 
-* e.eval(); // returns 212.34
-* </pre>
-* <br>
-* <h2>Add Custom Functions</h2>
-* 
-* Adding custom functions is as easy as adding custom operators. Create an instance of `Expression.Function`and add it to the expression.
-* Parameters are the function name and the count of required parameters. The functions `eval()` method will be called with a list of the BigDecimal parameters.
-* All existing functions can also be overridden.
-* <br>
-* For example, add a function `average(a,b,c)`, that will calculate the average value of a, b and c:
-* <br>
-* <pre>
-* Expression e = new Expression("2 * average(12,4,8)");
-* 
-* e.addFunction(e.new Function("average", 3) {
-*     {@literal @}Override
-*     public BigDecimal eval(List<BigDecimal> parameters) {
-*         BigDecimal sum = parameters.get(0).add(parameters.get(1)).add(parameters.get(2));
-*         return sum.divide(new BigDecimal(3));
-*     }
-* });
-* 
-* e.eval(); // returns 16
-* </pre>
-* The software is licensed under the MIT Open Source license (see LICENSE file).
-* <br>
-* <ul>
-* <li>The *power of* operator (^) implementation was copied from [Stack Overflow](http://stackoverflow.com/questions/3579779/how-to-do-a-fractional-power-on-bigdecimal-in-java) Thanks to Gene Marin</li>
-* <li>The SQRT() function implementation was taken from the book [The Java Programmers Guide To numerical Computing](http://www.amazon.de/Java-Number-Cruncher-Programmers-Numerical/dp/0130460419) (Ronald Mak, 2002)</li>
-* </ul>
-* 
-*@author Udo Klimaschewski (http://about.me/udo.klimaschewski)
-*/
+ * <h1>EvalEx - Java Expression Evaluator</h1>
+ * 
+ * <h2>Introduction</h2> EvalEx is a handy expression evaluator for Java, that
+ * allows to evaluate simple mathematical and boolean expressions. <br>
+ * For more information, see:
+ * <a href="https://github.com/uklimaschewski/EvalEx">EvalEx GitHub
+ * repository</a>
+ * <ul>
+ * <li>The software is licensed under the MIT Open Source license (see <a href=
+ * "https://raw.githubusercontent.com/uklimaschewski/EvalEx/master/LICENSE">LICENSE
+ * file</a>).</li>
+ * <li>The *power of* operator (^) implementation was copied from <a href=
+ * "http://stackoverflow.com/questions/3579779/how-to-do-a-fractional-power-on-bigdecimal-in-java">Stack
+ * Overflow</a>. Thanks to Gene Marin.</li>
+ * <li>The SQRT() function implementation was taken from the book <a href=
+ * "http://www.amazon.de/Java-Number-Cruncher-Programmers-Numerical/dp/0130460419">The
+ * Java Programmers Guide To numerical Computing</a> (Ronald Mak, 2002).</li>
+ * </ul>
+ * 
+ * @authors Thanks to all who contributed to this project: <a href=
+ *          "https://github.com/uklimaschewski/EvalEx/graphs/contributors">Contributors</a>
+ * @see <a href="https://github.com/uklimaschewski/EvalEx">GitHub repository</a>
+ */
 public class Expression {
+
+	/**
+	 * Unary operators precedence: + and - as prefix
+	 */
+	public static final int OPERATOR_PRECEDENCE_UNARY = 60;
+
+	/**
+	 * Equality operators precedence: =, ==, !=. <>
+	 */
+	public static final int OPERATOR_PRECEDENCE_EQUALITY = 7;
+
+	/**
+	 * Comparative operators precedence: <,>,<=,>=
+	 */
+	public static final int OPERATOR_PRECEDENCE_COMPARISON = 10;
+
+	/**
+	 * Or operator precedence: ||
+	 */
+	public static final int OPERATOR_PRECEDENCE_OR = 2;
+
+	/**
+	 * And operator precedence: &&
+	 */
+	public static final int OPERATOR_PRECEDENCE_AND = 4;
+
+	/**
+	 * Power operator precedence: ^
+	 */
+	public static final int OPERATOR_PRECEDENCE_POWER = 40;
+
+	/**
+	 * Multiplicative operators precedence: *,/,%
+	 */
+	public static final int OPERATOR_PRECEDENCE_MULTIPLICATIVE = 30;
+
+	/**
+	 * Additive operators precedence: + and -
+	 */
+	public static final int OPERATOR_PRECEDENCE_ADDITIVE = 20;
 
 	/**
 	 * Definition of PI as a constant, can be used in expressions as variable.
@@ -201,49 +113,89 @@ public class Expression {
 			"3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679");
 
 	/**
+	 * Definition of e: "Euler's number" as a constant, can be used in
+	 * expressions as variable.
+	 */
+	public static final BigDecimal e = new BigDecimal(
+			"2.71828182845904523536028747135266249775724709369995957496696762772407663");
+
+	/**
 	 * The {@link MathContext} to use for calculations.
 	 */
-	private MathContext mc = MathContext.DECIMAL32;
+	private MathContext mc = null;
+
+	/**
+	 * The characters (other than letters and digits) allowed as the first
+	 * character in a variable.
+	 */
+	private String firstVarChars = "_";
+
+	/**
+	 * The characters (other than letters and digits) allowed as the second or
+	 * subsequent characters in a variable.
+	 */
+	private String varChars = "_";
 
 	/**
 	 * The original infix expression.
+	 */
+	private final String originalExpression;
+
+	/**
+	 * The current infix expression, with optional variable substitutions.
 	 */
 	private String expression = null;
 
 	/**
 	 * The cached RPN (Reverse Polish Notation) of the expression.
 	 */
-	private List<String> rpn = null;
+	private List<Token> rpn = null;
 
 	/**
 	 * All defined operators with name and implementation.
 	 */
-	private Map<String, Operator> operators = new HashMap<String, Expression.Operator>();
+	private Map<String, com.udojava.evalex.Operator> operators = new TreeMap<String, com.udojava.evalex.Operator>(
+			String.CASE_INSENSITIVE_ORDER);
 
 	/**
 	 * All defined functions with name and implementation.
 	 */
-	private Map<String, Function> functions = new HashMap<String, Expression.Function>();
+	private Map<String, com.udojava.evalex.LazyFunction> functions = new TreeMap<String, com.udojava.evalex.LazyFunction>(
+			String.CASE_INSENSITIVE_ORDER);
 
 	/**
 	 * All defined variables with name and value.
 	 */
-	private Map<String, BigDecimal> variables = new HashMap<String, BigDecimal>();
+	private Map<String, LazyNumber> variables = new TreeMap<String, LazyNumber>(String.CASE_INSENSITIVE_ORDER);
 
 	/**
 	 * What character to use for decimal separators.
 	 */
-	private final char decimalSeparator = '.';
+	private static final char decimalSeparator = '.';
 
 	/**
 	 * What character to use for minus sign (negative values).
 	 */
-	private final char minusSign = '-';
+	private static final char minusSign = '-';
+
+	/**
+	 * The BigDecimal representation of the left parenthesis, used for parsing
+	 * varying numbers of function parameters.
+	 */
+	private static final LazyNumber PARAMS_START = new LazyNumber() {
+		public BigDecimal eval() {
+			return null;
+		}
+
+		public String getString() {
+			return null;
+		}
+	};
 
 	/**
 	 * The expression evaluators exception class.
 	 */
-	public class ExpressionException extends RuntimeException {
+	public static class ExpressionException extends RuntimeException {
 		private static final long serialVersionUID = 1118142866870779047L;
 
 		public ExpressionException(String message) {
@@ -252,70 +204,99 @@ public class Expression {
 	}
 
 	/**
-	 * Abstract definition of a supported expression function. A function is
-	 * defined by a name, the number of parameters and the actual processing
-	 * implementation.
+	 * LazyNumber interface created for lazily evaluated functions
 	 */
-	public abstract class Function {
-		/**
-		 * Name of this function.
-		 */
-		private String name;
-		/**
-		 * Number of parameters expected for this function.
-		 */
-		private int numParams;
+	public interface LazyNumber {
+		BigDecimal eval();
 
+		String getString();
+	}
+
+	/**
+	 * Construct a LazyNumber from a BigDecimal
+	 */
+	private LazyNumber CreateLazyNumber(final BigDecimal bigDecimal) {
+		return new LazyNumber() {
+			@Override
+			public String getString() {
+				return bigDecimal.toPlainString();
+			}
+
+			@Override
+			public BigDecimal eval() {
+				return bigDecimal;
+			}
+		};
+	}
+
+	public abstract class LazyFunction extends AbstractLazyFunction {
 		/**
 		 * Creates a new function with given name and parameter count.
-		 * 
+		 *
 		 * @param name
 		 *            The name of the function.
 		 * @param numParams
 		 *            The number of parameters for this function.
+		 *            <code>-1</code> denotes a variable number of parameters.
+		 * @param booleanFunction
+		 *            Whether this function is a boolean function.
 		 */
-		public Function(String name, int numParams) {
-			this.name = name.toUpperCase();
-			this.numParams = numParams;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getNumParams() {
-			return numParams;
+		public LazyFunction(String name, int numParams, boolean booleanFunction) {
+			super(name, numParams, booleanFunction);
 		}
 
 		/**
-		 * Implementation for this function.
-		 * 
-		 * @param parameters
-		 *            Parameters will be passed by the expression evaluator as a
-		 *            {@link List} of {@link BigDecimal} values.
-		 * @return The function must return a new {@link BigDecimal} value as a
-		 *         computing result.
+		 * Creates a new function with given name and parameter count.
+		 *
+		 * @param name
+		 *            The name of the function.
+		 * @param numParams
+		 *            The number of parameters for this function.
+		 *            <code>-1</code> denotes a variable number of parameters.
 		 */
-		public abstract BigDecimal eval(List<BigDecimal> parameters);
+		public LazyFunction(String name, int numParams) {
+			super(name, numParams);
+		}
+	}
+
+	/**
+	 * Abstract definition of a supported expression function. A function is
+	 * defined by a name, the number of parameters and the actual processing
+	 * implementation.
+	 */
+	public abstract class Function extends AbstractFunction {
+
+		public Function(String name, int numParams) {
+			super(name, numParams);
+		}
+
+		public Function(String name, int numParams, boolean booleanFunction) {
+			super(name, numParams, booleanFunction);
+		}
 	}
 
 	/**
 	 * Abstract definition of a supported operator. An operator is defined by
 	 * its name (pattern), precedence and if it is left- or right associative.
 	 */
-	public abstract class Operator {
+	public abstract class Operator extends AbstractOperator {
+
 		/**
-		 * This operators name (pattern).
+		 * Creates a new operator.
+		 * 
+		 * @param oper
+		 *            The operator name (pattern).
+		 * @param precedence
+		 *            The operators precedence.
+		 * @param leftAssoc
+		 *            <code>true</code> if the operator is left associative,
+		 *            else <code>false</code>.
+		 * @param booleanOperator
+		 *            Whether this operator is boolean.
 		 */
-		private String oper;
-		/**
-		 * Operators precedence.
-		 */
-		private int precedence;
-		/**
-		 * Operator is left associative.
-		 */
-		private boolean leftAssoc;
+		public Operator(String oper, int precedence, boolean leftAssoc, boolean booleanOperator) {
+			super(oper, precedence, leftAssoc, booleanOperator);
+		}
 
 		/**
 		 * Creates a new operator.
@@ -329,46 +310,59 @@ public class Expression {
 		 *            else <code>false</code>.
 		 */
 		public Operator(String oper, int precedence, boolean leftAssoc) {
-			this.oper = oper;
-			this.precedence = precedence;
-			this.leftAssoc = leftAssoc;
+			super(oper, precedence, leftAssoc);
+		}
+	}
+
+	public abstract class UnaryOperator extends AbstractUnaryOperator {
+
+		public UnaryOperator(String oper, int precedence, boolean leftAssoc) {
+			super(oper, precedence, leftAssoc);
+		}
+	}
+
+	enum TokenType {
+		VARIABLE, FUNCTION, LITERAL, OPERATOR, UNARY_OPERATOR, OPEN_PAREN, COMMA, CLOSE_PAREN, HEX_LITERAL, STRINGPARAM
+	}
+
+	class Token {
+		public String surface = "";
+		public TokenType type;
+		public int pos;
+
+		public void append(char c) {
+			surface += c;
 		}
 
-		public String getOper() {
-			return oper;
+		public void append(String s) {
+			surface += s;
 		}
 
-		public int getPrecedence() {
-			return precedence;
+		public char charAt(int pos) {
+			return surface.charAt(pos);
 		}
 
-		public boolean isLeftAssoc() {
-			return leftAssoc;
+		public int length() {
+			return surface.length();
 		}
 
-		/**
-		 * Implementation for this operator.
-		 * 
-		 * @param v1
-		 *            Operand 1.
-		 * @param v2
-		 *            Operand 2.
-		 * @return The result of the operation.
-		 */
-		public abstract BigDecimal eval(BigDecimal v1, BigDecimal v2);
+		@Override
+		public String toString() {
+			return surface;
+		}
 	}
 
 	/**
 	 * Expression tokenizer that allows to iterate over a {@link String}
 	 * expression token by token. Blank characters will be skipped.
 	 */
-	private class Tokenizer implements Iterator<String> {
+	private class Tokenizer implements Iterator<Token> {
 
 		/**
 		 * Actual position in expression string.
 		 */
 		private int pos = 0;
-		
+
 		/**
 		 * The original input expression.
 		 */
@@ -376,7 +370,7 @@ public class Expression {
 		/**
 		 * The previous token or <code>null</code> if none.
 		 */
-		private String previousToken;
+		private Token previousToken;
 
 		/**
 		 * Creates a new tokenizer for an expression.
@@ -385,7 +379,7 @@ public class Expression {
 		 *            The expression string.
 		 */
 		public Tokenizer(String input) {
-			this.input = input;
+			this.input = input.trim();
 		}
 
 		@Override
@@ -406,9 +400,15 @@ public class Expression {
 			}
 		}
 
+		private boolean isHexDigit(char ch) {
+			return ch == 'x' || ch == 'X' || (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')
+					|| (ch >= 'A' && ch <= 'F');
+		}
+
 		@Override
-		public String next() {
-			StringBuilder token = new StringBuilder();
+		public Token next() {
+			Token token = new Token();
+
 			if (pos >= input.length()) {
 				return previousToken = null;
 			}
@@ -416,45 +416,95 @@ public class Expression {
 			while (Character.isWhitespace(ch) && pos < input.length()) {
 				ch = input.charAt(++pos);
 			}
-			if (Character.isDigit(ch)) {
-				while ((Character.isDigit(ch) || ch == decimalSeparator)
-						&& (pos < input.length())) {
+			token.pos = pos;
+
+			boolean isHex = false;
+
+			if (Character.isDigit(ch) || (ch == decimalSeparator && Character.isDigit(peekNextChar()))) {
+				if (ch == '0' && (peekNextChar() == 'x' || peekNextChar() == 'X'))
+					isHex = true;
+				while ((isHex
+						&& isHexDigit(
+								ch))
+						|| (Character.isDigit(ch) || ch == decimalSeparator || ch == 'e' || ch == 'E'
+								|| (ch == minusSign && token.length() > 0
+										&& ('e' == token.charAt(token.length() - 1)
+												|| 'E' == token.charAt(token.length() - 1)))
+								|| (ch == '+' && token.length() > 0
+										&& ('e' == token.charAt(token.length() - 1)
+												|| 'E' == token.charAt(token.length() - 1))))
+								&& (pos < input.length())) {
 					token.append(input.charAt(pos++));
 					ch = pos == input.length() ? 0 : input.charAt(pos);
 				}
-			} else if (ch == minusSign
-					&& Character.isDigit(peekNextChar())
-					&& ("(".equals(previousToken) || ",".equals(previousToken)
-							|| previousToken == null || operators
-							.containsKey(previousToken))) {
-				token.append(minusSign);
+				token.type = isHex ? TokenType.HEX_LITERAL : TokenType.LITERAL;
+			} else if (ch == '"') {
 				pos++;
-				token.append(next());
-			} else if (Character.isLetter(ch) || (ch == '_')) {
-				while ((Character.isLetter(ch) || Character.isDigit(ch) || (ch == '_')) && (pos < input.length())) {
+				if (previousToken.type != TokenType.STRINGPARAM) {
+					ch = input.charAt(pos);
+					while (ch != '"') {
+						token.append(input.charAt(pos++));
+						ch = pos == input.length() ? 0 : input.charAt(pos);
+					}
+					token.type = TokenType.STRINGPARAM;
+				} else {
+					return next();
+				}
+			} else if (Character.isLetter(ch) || firstVarChars.indexOf(ch) >= 0) {
+				while ((Character.isLetter(ch) || Character.isDigit(ch) || varChars.indexOf(ch) >= 0
+						|| token.length() == 0 && firstVarChars.indexOf(ch) >= 0) && (pos < input.length())) {
 					token.append(input.charAt(pos++));
 					ch = pos == input.length() ? 0 : input.charAt(pos);
 				}
+				// Remove optional white spaces after function or variable name
+				if (ch == ' ') {
+					while (ch == ' ' && pos < input.length()) {
+						ch = input.charAt(pos++);
+					}
+					pos--;
+				}
+				token.type = ch == '(' ? TokenType.FUNCTION : TokenType.VARIABLE;
 			} else if (ch == '(' || ch == ')' || ch == ',') {
+				if (ch == '(') {
+					token.type = TokenType.OPEN_PAREN;
+				} else if (ch == ')') {
+					token.type = TokenType.CLOSE_PAREN;
+				} else {
+					token.type = TokenType.COMMA;
+				}
 				token.append(ch);
 				pos++;
 			} else {
-				while (!Character.isLetter(ch) && !Character.isDigit(ch) && ch != '_'
-						&& !Character.isWhitespace(ch) && ch != '('
-						&& ch != ')' && ch != ',' && (pos < input.length())) {
-					token.append(input.charAt(pos));
+				String greedyMatch = "";
+				int initialPos = pos;
+				ch = input.charAt(pos);
+				int validOperatorSeenUntil = -1;
+				while (!Character.isLetter(ch) && !Character.isDigit(ch) && firstVarChars.indexOf(ch) < 0
+						&& !Character.isWhitespace(ch) && ch != '(' && ch != ')' && ch != ','
+						&& (pos < input.length())) {
+					greedyMatch += ch;
 					pos++;
-					ch = pos == input.length() ? 0 : input.charAt(pos);
-					if (ch == minusSign) {
-						break;
+					if (operators.containsKey(greedyMatch)) {
+						validOperatorSeenUntil = pos;
 					}
+					ch = pos == input.length() ? 0 : input.charAt(pos);
 				}
-				if (!operators.containsKey(token.toString())) {
-					throw new ExpressionException("Unknown operator '" + token
-							+ "' at position " + (pos - token.length() + 1));
+				if (validOperatorSeenUntil != -1) {
+					token.append(input.substring(initialPos, validOperatorSeenUntil));
+					pos = validOperatorSeenUntil;
+				} else {
+					token.append(greedyMatch);
+				}
+
+				if (previousToken == null || previousToken.type == TokenType.OPERATOR
+						|| previousToken.type == TokenType.OPEN_PAREN || previousToken.type == TokenType.COMMA) {
+					token.surface += "u";
+					token.type = TokenType.UNARY_OPERATOR;
+				} else {
+					token.type = TokenType.OPERATOR;
 				}
 			}
-			return previousToken = token.toString();
+			return previousToken = token;
 		}
 
 		@Override
@@ -462,59 +512,73 @@ public class Expression {
 			throw new ExpressionException("remove() not supported");
 		}
 
-		/**
-		 * Get the actual character position in the string.
-		 * 
-		 * @return The actual character position.
-		 */
-		public int getPos() {
-			return pos;
-		}
-
 	}
 
 	/**
-	 * Creates a new expression instance from an expression string.
+	 * Creates a new expression instance from an expression string with a given
+	 * default match context of {@link MathContext#DECIMAL32}.
 	 * 
 	 * @param expression
 	 *            The expression. E.g. <code>"2.4*sin(3)/(2-4)"</code> or
 	 *            <code>"sin(y)>0 & max(z, 3)>3"</code>
 	 */
 	public Expression(String expression) {
+		this(expression, MathContext.DECIMAL32);
+	}
+
+	/**
+	 * Creates a new expression instance from an expression string with a given
+	 * default match context.
+	 * 
+	 * @param expression
+	 *            The expression. E.g. <code>"2.4*sin(3)/(2-4)"</code> or
+	 *            <code>"sin(y)>0 & max(z, 3)>3"</code>
+	 * @param defaultMathContext
+	 *            The {@link MathContext} to use by default.
+	 */
+	public Expression(String expression, MathContext defaultMathContext) {
+		this.mc = defaultMathContext;
 		this.expression = expression;
-		addOperator(new Operator("+", 20, true) {
+		this.originalExpression = expression;
+		addOperator(new Operator("+", OPERATOR_PRECEDENCE_ADDITIVE, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.add(v2, mc);
 			}
 		});
-		addOperator(new Operator("-", 20, true) {
+		addOperator(new Operator("-", OPERATOR_PRECEDENCE_ADDITIVE, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.subtract(v2, mc);
 			}
 		});
-		addOperator(new Operator("*", 30, true) {
+		addOperator(new Operator("*", OPERATOR_PRECEDENCE_MULTIPLICATIVE, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.multiply(v2, mc);
 			}
 		});
-		addOperator(new Operator("/", 30, true) {
+		addOperator(new Operator("/", OPERATOR_PRECEDENCE_MULTIPLICATIVE, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.divide(v2, mc);
 			}
 		});
-		addOperator(new Operator("%", 30, true) {
+		addOperator(new Operator("%", OPERATOR_PRECEDENCE_MULTIPLICATIVE, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.remainder(v2, mc);
 			}
 		});
-		addOperator(new Operator("^", 40, false) {
+		addOperator(new Operator("^", OPERATOR_PRECEDENCE_POWER, false) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				/*- 
 				 * Thanks to Gene Marin:
 				 * http://stackoverflow.com/questions/3579779/how-to-do-a-fractional-power-on-bigdecimal-in-java
@@ -525,103 +589,134 @@ public class Expression {
 				BigDecimal remainderOf2 = v2.remainder(BigDecimal.ONE);
 				BigDecimal n2IntPart = v2.subtract(remainderOf2);
 				BigDecimal intPow = v1.pow(n2IntPart.intValueExact(), mc);
-				BigDecimal doublePow = new BigDecimal(Math.pow(dn1,
-						remainderOf2.doubleValue()));
+				BigDecimal doublePow = new BigDecimal(Math.pow(dn1, remainderOf2.doubleValue()));
 
 				BigDecimal result = intPow.multiply(doublePow, mc);
 				if (signOf2 == -1) {
-					result = BigDecimal.ONE.divide(result, mc.getPrecision(),
-							RoundingMode.HALF_UP);
+					result = BigDecimal.ONE.divide(result, mc.getPrecision(), RoundingMode.HALF_UP);
 				}
 				return result;
 			}
 		});
-		addOperator(new Operator("&&", 4, false) {
+		addOperator(new Operator("&&", OPERATOR_PRECEDENCE_AND, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
-				boolean b1 = !v1.equals(BigDecimal.ZERO);
-				boolean b2 = !v2.equals(BigDecimal.ZERO);
+				assertNotNull(v1, v2);
+				boolean b1 = v1.compareTo(BigDecimal.ZERO) != 0;
+				boolean b2 = v2.compareTo(BigDecimal.ZERO) != 0;
 				return b1 && b2 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator("||", 2, false) {
+		addOperator(new Operator("||", OPERATOR_PRECEDENCE_OR, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
-				boolean b1 = !v1.equals(BigDecimal.ZERO);
-				boolean b2 = !v2.equals(BigDecimal.ZERO);
+				assertNotNull(v1, v2);
+				boolean b1 = v1.compareTo(BigDecimal.ZERO) != 0;
+				boolean b2 = v2.compareTo(BigDecimal.ZERO) != 0;
 				return b1 || b2 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator(">", 10, false) {
+		addOperator(new Operator(">", OPERATOR_PRECEDENCE_COMPARISON, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.compareTo(v2) == 1 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator(">=", 10, false) {
+		addOperator(new Operator(">=", OPERATOR_PRECEDENCE_COMPARISON, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.compareTo(v2) >= 0 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator("<", 10, false) {
+		addOperator(new Operator("<", OPERATOR_PRECEDENCE_COMPARISON, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
-				return v1.compareTo(v2) == -1 ? BigDecimal.ONE
-						: BigDecimal.ZERO;
+				assertNotNull(v1, v2);
+				return v1.compareTo(v2) == -1 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator("<=", 10, false) {
+		addOperator(new Operator("<=", OPERATOR_PRECEDENCE_COMPARISON, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return v1.compareTo(v2) <= 0 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addOperator(new Operator("=", 7, false) {
+		addOperator(new Operator("=", OPERATOR_PRECEDENCE_EQUALITY, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				if (v1 == v2) {
+					return BigDecimal.ONE;
+				}
+				if (v1 == null || v2 == null) {
+					return BigDecimal.ZERO;
+				}
 				return v1.compareTo(v2) == 0 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
-		addOperator(new Operator("==", 7, false) {
+		addOperator(new Operator("==", OPERATOR_PRECEDENCE_EQUALITY, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
 				return operators.get("=").eval(v1, v2);
 			}
 		});
 
-		addOperator(new Operator("!=", 7, false) {
+		addOperator(new Operator("!=", OPERATOR_PRECEDENCE_EQUALITY, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				if (v1 == v2) {
+					return BigDecimal.ZERO;
+				}
+				if (v1 == null || v2 == null) {
+					return BigDecimal.ONE;
+				}
 				return v1.compareTo(v2) != 0 ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
-		addOperator(new Operator("<>", 7, false) {
+		addOperator(new Operator("<>", OPERATOR_PRECEDENCE_EQUALITY, false, true) {
 			@Override
 			public BigDecimal eval(BigDecimal v1, BigDecimal v2) {
+				assertNotNull(v1, v2);
 				return operators.get("!=").eval(v1, v2);
 			}
 		});
+		addOperator(new UnaryOperator("-", OPERATOR_PRECEDENCE_UNARY, false) {
+			@Override
+			public BigDecimal evalUnary(BigDecimal v1) {
+				return v1.multiply(new BigDecimal(-1));
+			}
+		});
+		addOperator(new UnaryOperator("+", OPERATOR_PRECEDENCE_UNARY, false) {
+			@Override
+			public BigDecimal evalUnary(BigDecimal v1) {
+				return v1.multiply(BigDecimal.ONE);
+			}
+		});
 
-		addFunction(new Function("NOT", 1) {
+		addFunction(new Function("NOT", 1, true) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				boolean zero = parameters.get(0).compareTo(BigDecimal.ZERO) == 0;
 				return zero ? BigDecimal.ONE : BigDecimal.ZERO;
 			}
 		});
 
-		addFunction(new Function("IF", 3) {
+		addLazyFunction(new LazyFunction("IF", 3) {
 			@Override
-			public BigDecimal eval(List<BigDecimal> parameters) {
-				boolean isTrue = !parameters.get(0).equals(BigDecimal.ZERO);
-				return isTrue ? parameters.get(1) : parameters.get(2);
+			public LazyNumber lazyEval(List<LazyNumber> lazyParams) {
+				BigDecimal result = lazyParams.get(0).eval();
+				assertNotNull(result);
+				boolean isTrue = result.compareTo(BigDecimal.ZERO) != 0;
+				return isTrue ? lazyParams.get(1) : lazyParams.get(2);
 			}
 		});
 
@@ -635,30 +730,63 @@ public class Expression {
 		addFunction(new Function("SIN", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
-				double d = Math.sin(Math.toRadians(parameters.get(0)
-						.doubleValue()));
+				assertNotNull(parameters.get(0));
+				double d = Math.sin(Math.toRadians(parameters.get(0).doubleValue()));
 				return new BigDecimal(d, mc);
 			}
 		});
 		addFunction(new Function("COS", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
-				double d = Math.cos(Math.toRadians(parameters.get(0)
-						.doubleValue()));
+				assertNotNull(parameters.get(0));
+				double d = Math.cos(Math.toRadians(parameters.get(0).doubleValue()));
 				return new BigDecimal(d, mc);
 			}
 		});
 		addFunction(new Function("TAN", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
-				double d = Math.tan(Math.toRadians(parameters.get(0)
-						.doubleValue()));
+				assertNotNull(parameters.get(0));
+				double d = Math.tan(Math.toRadians(parameters.get(0).doubleValue()));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ASIN", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				double d = Math.toDegrees(Math.asin(parameters.get(0).doubleValue()));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ACOS", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				double d = Math.toDegrees(Math.acos(parameters.get(0).doubleValue()));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ATAN", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				double d = Math.toDegrees(Math.atan(parameters.get(0).doubleValue()));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ATAN2", 2) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0), parameters.get(1));
+				double d = Math.toDegrees(Math.atan2(parameters.get(0).doubleValue(), parameters.get(1).doubleValue()));
 				return new BigDecimal(d, mc);
 			}
 		});
 		addFunction(new Function("SINH", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.sinh(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
@@ -666,6 +794,7 @@ public class Expression {
 		addFunction(new Function("COSH", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.cosh(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
@@ -673,13 +802,123 @@ public class Expression {
 		addFunction(new Function("TANH", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.tanh(parameters.get(0).doubleValue());
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("SEC", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: sec(x) = 1 / cos(x) */
+				double one = 1;
+				double d = Math.cos(Math.toRadians(parameters.get(0).doubleValue()));
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("CSC", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: csc(x) = 1 / sin(x) */
+				double one = 1;
+				double d = Math.sin(Math.toRadians(parameters.get(0).doubleValue()));
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("SECH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: sech(x) = 1 / cosh(x) */
+				double one = 1;
+				double d = Math.cosh(parameters.get(0).doubleValue());
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("CSCH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: csch(x) = 1 / sinh(x) */
+				double one = 1;
+				double d = Math.sinh(parameters.get(0).doubleValue());
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("COT", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: cot(x) = cos(x) / sin(x) = 1 / tan(x) */
+				double one = 1;
+				double d = Math.tan(Math.toRadians(parameters.get(0).doubleValue()));
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("ACOT", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: acot(x) = atan(1/x) */
+				if (parameters.get(0).doubleValue() == 0) {
+					throw new ExpressionException("Number must not be 0");
+				}
+				double d = Math.toDegrees(Math.atan(1 / parameters.get(0).doubleValue()));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("COTH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: coth(x) = 1 / tanh(x) */
+				double one = 1;
+				double d = Math.tanh(parameters.get(0).doubleValue());
+				return new BigDecimal((one / d), mc);
+			}
+		});
+		addFunction(new Function("ASINH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: asinh(x) = ln(x + sqrt(x^2 + 1)) */
+				double d = Math.log(parameters.get(0).doubleValue()
+						+ (Math.sqrt(Math.pow(parameters.get(0).doubleValue(), 2) + 1)));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ACOSH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: acosh(x) = ln(x + sqrt(x^2 - 1)) */
+				if (Double.compare(parameters.get(0).doubleValue(), 1) < 0) {
+					throw new ExpressionException("Number must be x >= 1");
+				}
+				double d = Math.log(parameters.get(0).doubleValue()
+						+ (Math.sqrt(Math.pow(parameters.get(0).doubleValue(), 2) - 1)));
+				return new BigDecimal(d, mc);
+			}
+		});
+		addFunction(new Function("ATANH", 1) {
+			@Override
+			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
+				/** Formula: atanh(x) = 0.5*ln((1 + x)/(1 - x)) */
+				if (Math.abs(parameters.get(0).doubleValue()) > 1 || Math.abs(parameters.get(0).doubleValue()) == 1) {
+					throw new ExpressionException("Number must be |x| < 1");
+				}
+				double d = 0.5
+						* Math.log((1 + parameters.get(0).doubleValue()) / (1 - parameters.get(0).doubleValue()));
 				return new BigDecimal(d, mc);
 			}
 		});
 		addFunction(new Function("RAD", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.toRadians(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
@@ -687,35 +926,54 @@ public class Expression {
 		addFunction(new Function("DEG", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.toDegrees(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
 		});
-		addFunction(new Function("MAX", 2) {
+		addFunction(new Function("MAX", -1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
-				BigDecimal v1 = parameters.get(0);
-				BigDecimal v2 = parameters.get(1);
-				return v1.compareTo(v2) > 0 ? v1 : v2;
+				if (parameters.size() == 0) {
+					throw new ExpressionException("MAX requires at least one parameter");
+				}
+				BigDecimal max = null;
+				for (BigDecimal parameter : parameters) {
+					assertNotNull(parameter);
+					if (max == null || parameter.compareTo(max) > 0) {
+						max = parameter;
+					}
+				}
+				return max;
 			}
 		});
-		addFunction(new Function("MIN", 2) {
+		addFunction(new Function("MIN", -1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
-				BigDecimal v1 = parameters.get(0);
-				BigDecimal v2 = parameters.get(1);
-				return v1.compareTo(v2) < 0 ? v1 : v2;
+				if (parameters.size() == 0) {
+					throw new ExpressionException("MIN requires at least one parameter");
+				}
+				BigDecimal min = null;
+				for (BigDecimal parameter : parameters) {
+					assertNotNull(parameter);
+					if (min == null || parameter.compareTo(min) < 0) {
+						min = parameter;
+					}
+				}
+				return min;
 			}
 		});
 		addFunction(new Function("ABS", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				return parameters.get(0).abs(mc);
 			}
 		});
 		addFunction(new Function("LOG", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.log(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
@@ -723,6 +981,7 @@ public class Expression {
 		addFunction(new Function("LOG10", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				double d = Math.log10(parameters.get(0).doubleValue());
 				return new BigDecimal(d, mc);
 			}
@@ -730,6 +989,7 @@ public class Expression {
 		addFunction(new Function("ROUND", 2) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0), parameters.get(1));
 				BigDecimal toRound = parameters.get(0);
 				int precision = parameters.get(1).intValue();
 				return toRound.setScale(precision, mc.getRoundingMode());
@@ -738,6 +998,7 @@ public class Expression {
 		addFunction(new Function("FLOOR", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				BigDecimal toRound = parameters.get(0);
 				return toRound.setScale(0, RoundingMode.FLOOR);
 			}
@@ -745,6 +1006,7 @@ public class Expression {
 		addFunction(new Function("CEILING", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				BigDecimal toRound = parameters.get(0);
 				return toRound.setScale(0, RoundingMode.CEILING);
 			}
@@ -752,6 +1014,7 @@ public class Expression {
 		addFunction(new Function("SQRT", 1) {
 			@Override
 			public BigDecimal eval(List<BigDecimal> parameters) {
+				assertNotNull(parameters.get(0));
 				/*
 				 * From The Java Programmers Guide To numerical Computing
 				 * (Ronald Mak, 2003)
@@ -761,11 +1024,9 @@ public class Expression {
 					return new BigDecimal(0);
 				}
 				if (x.signum() < 0) {
-					throw new ExpressionException(
-							"Argument to SQRT() function must not be negative");
+					throw new ExpressionException("Argument to SQRT() function must not be negative");
 				}
-				BigInteger n = x.movePointRight(mc.getPrecision() << 1)
-						.toBigInteger();
+				BigInteger n = x.movePointRight(mc.getPrecision() << 1).toBigInteger();
 
 				int bits = (n.bitLength() + 1) >> 1;
 				BigInteger ix = n.shiftRight(bits);
@@ -782,10 +1043,27 @@ public class Expression {
 			}
 		});
 
-		variables.put("PI", PI);
-		variables.put("TRUE", BigDecimal.ONE);
-		variables.put("FALSE", BigDecimal.ZERO);
+		variables.put("e", CreateLazyNumber(e));
+		variables.put("PI", CreateLazyNumber(PI));
+		variables.put("NULL", null);
+		variables.put("TRUE", CreateLazyNumber(BigDecimal.ONE));
+		variables.put("FALSE", CreateLazyNumber(BigDecimal.ZERO));
 
+	}
+
+	private void assertNotNull(BigDecimal v1) {
+		if (v1 == null) {
+			throw new ArithmeticException("Operand may not be null");
+		}
+	}
+
+	private void assertNotNull(BigDecimal v1, BigDecimal v2) {
+		if (v1 == null) {
+			throw new ArithmeticException("First operand may not be null");
+		}
+		if (v2 == null) {
+			throw new ArithmeticException("Second operand may not be null");
+		}
 	}
 
 	/**
@@ -798,9 +1076,15 @@ public class Expression {
 	private boolean isNumber(String st) {
 		if (st.charAt(0) == minusSign && st.length() == 1)
 			return false;
+		if (st.charAt(0) == '+' && st.length() == 1)
+			return false;
+		if (st.charAt(0) == decimalSeparator && (st.length() == 1 || !Character.isDigit(st.charAt(1))))
+			return false;
+		if (st.charAt(0) == 'e' || st.charAt(0) == 'E')
+			return false;
 		for (char ch : st.toCharArray()) {
-			if (!Character.isDigit(ch) && ch != minusSign
-					&& ch != decimalSeparator)
+			if (!Character.isDigit(ch) && ch != minusSign && ch != decimalSeparator && ch != 'e' && ch != 'E'
+					&& ch != '+')
 				return false;
 		}
 		return true;
@@ -815,111 +1099,273 @@ public class Expression {
 	 * @return A RPN representation of the expression, with each token as a list
 	 *         member.
 	 */
-	private List<String> shuntingYard(String expression) {
-		List<String> outputQueue = new ArrayList<String>();
-		Stack<String> stack = new Stack<String>();
+	private List<Token> shuntingYard(String expression) {
+		List<Token> outputQueue = new ArrayList<Token>();
+		Stack<Token> stack = new Stack<Token>();
 
 		Tokenizer tokenizer = new Tokenizer(expression);
 
-		String lastFunction = null;
-		String previousToken = null;
+		Token lastFunction = null;
+		Token previousToken = null;
 		while (tokenizer.hasNext()) {
-			String token = tokenizer.next();
-			if (isNumber(token)) {
+			Token token = tokenizer.next();
+			switch (token.type) {
+			case STRINGPARAM:
+				stack.push(token);
+				break;
+			case LITERAL:
+			case HEX_LITERAL:
 				outputQueue.add(token);
-			} else if (variables.containsKey(token)) {
+				break;
+			case VARIABLE:
 				outputQueue.add(token);
-			} else if (functions.containsKey(token.toUpperCase())) {
+				break;
+			case FUNCTION:
 				stack.push(token);
 				lastFunction = token;
-			} else if (Character.isLetter(token.charAt(0))) {
-				stack.push(token);
-			} else if (",".equals(token)) {
-				while (!stack.isEmpty() && !"(".equals(stack.peek())) {
+				break;
+			case COMMA:
+				if (previousToken != null && previousToken.type == TokenType.OPERATOR) {
+					throw new ExpressionException("Missing parameter(s) for operator " + previousToken
+							+ " at character position " + previousToken.pos);
+				}
+				while (!stack.isEmpty() && stack.peek().type != TokenType.OPEN_PAREN) {
 					outputQueue.add(stack.pop());
 				}
 				if (stack.isEmpty()) {
-					throw new ExpressionException("Parse error for function '"
-							+ lastFunction + "'");
+					if (lastFunction == null) {
+						throw new ExpressionException("Unexpected comma at character position " + token.pos);
+					} else {
+						throw new ExpressionException(
+								"Parse error for function '" + lastFunction + "' at character position " + token.pos);
+					}
 				}
-			} else if (operators.containsKey(token)) {
-				Operator o1 = operators.get(token);
-				String token2 = stack.isEmpty() ? null : stack.peek();
-				while (operators.containsKey(token2)
-						&& ((o1.isLeftAssoc() && o1.getPrecedence() <= operators
-								.get(token2).getPrecedence()) || (o1
-								.getPrecedence() < operators.get(token2)
-								.getPrecedence()))) {
-					outputQueue.add(stack.pop());
-					token2 = stack.isEmpty() ? null : stack.peek();
+				break;
+			case OPERATOR: {
+				if (previousToken != null
+						&& (previousToken.type == TokenType.COMMA || previousToken.type == TokenType.OPEN_PAREN)) {
+					throw new ExpressionException(
+							"Missing parameter(s) for operator " + token + " at character position " + token.pos);
 				}
+				com.udojava.evalex.Operator o1 = operators.get(token.surface);
+				if (o1 == null) {
+					throw new ExpressionException("Unknown operator '" + token + "' at position " + (token.pos + 1));
+				}
+
+				shuntOperators(outputQueue, stack, o1);
 				stack.push(token);
-			} else if ("(".equals(token)) {
+				break;
+			}
+			case UNARY_OPERATOR: {
+				if (previousToken != null && previousToken.type != TokenType.OPERATOR
+						&& previousToken.type != TokenType.COMMA && previousToken.type != TokenType.OPEN_PAREN) {
+					throw new ExpressionException(
+							"Invalid position for unary operator " + token + " at character position " + token.pos);
+				}
+				com.udojava.evalex.Operator o1 = operators.get(token.surface);
+				if (o1 == null) {
+					throw new ExpressionException(
+							"Unknown unary operator '" + token.surface.substring(0, token.surface.length() - 1)
+									+ "' at position " + (token.pos + 1));
+				}
+
+				shuntOperators(outputQueue, stack, o1);
+				stack.push(token);
+				break;
+			}
+			case OPEN_PAREN:
 				if (previousToken != null) {
-					if (isNumber(previousToken)) {
-						throw new ExpressionException("Missing operator at character position " + tokenizer.getPos());
+					if (previousToken.type == TokenType.LITERAL || previousToken.type == TokenType.CLOSE_PAREN
+							|| previousToken.type == TokenType.VARIABLE
+							|| previousToken.type == TokenType.HEX_LITERAL) {
+						// Implicit multiplication, e.g. 23(a+b) or (a+b)(a-b)
+						Token multiplication = new Token();
+						multiplication.append("*");
+						multiplication.type = TokenType.OPERATOR;
+						stack.push(multiplication);
+					}
+					// if the ( is preceded by a valid function, then it
+					// denotes the start of a parameter list
+					if (previousToken.type == TokenType.FUNCTION) {
+						outputQueue.add(token);
 					}
 				}
 				stack.push(token);
-			} else if (")".equals(token)) {
-				while (!stack.isEmpty() && !"(".equals(stack.peek())) {
+				break;
+			case CLOSE_PAREN:
+				if (previousToken != null && previousToken.type == TokenType.OPERATOR) {
+					throw new ExpressionException("Missing parameter(s) for operator " + previousToken
+							+ " at character position " + previousToken.pos);
+				}
+				while (!stack.isEmpty() && stack.peek().type != TokenType.OPEN_PAREN) {
 					outputQueue.add(stack.pop());
 				}
 				if (stack.isEmpty()) {
-					throw new RuntimeException("Mismatched parentheses");
+					throw new ExpressionException("Mismatched parentheses");
 				}
 				stack.pop();
-				if (!stack.isEmpty()
-						&& functions.containsKey(stack.peek().toUpperCase())) {
+				if (!stack.isEmpty() && stack.peek().type == TokenType.FUNCTION) {
 					outputQueue.add(stack.pop());
 				}
 			}
 			previousToken = token;
 		}
+
 		while (!stack.isEmpty()) {
-			String element = stack.pop();
-			if ("(".equals(element) || ")".equals(element)) {
-				throw new RuntimeException("Mismatched parentheses");
-			}
-			if (!operators.containsKey(element)) {
-				throw new RuntimeException("Unknown operator or function: "
-						+ element);
+			Token element = stack.pop();
+			if (element.type == TokenType.OPEN_PAREN || element.type == TokenType.CLOSE_PAREN) {
+				throw new ExpressionException("Mismatched parentheses");
 			}
 			outputQueue.add(element);
 		}
 		return outputQueue;
 	}
 
+	private void shuntOperators(List<Token> outputQueue, Stack<Token> stack, com.udojava.evalex.Operator o1) {
+		Expression.Token nextToken = stack.isEmpty() ? null : stack.peek();
+		while (nextToken != null
+				&& (nextToken.type == Expression.TokenType.OPERATOR
+						|| nextToken.type == Expression.TokenType.UNARY_OPERATOR)
+				&& ((o1.isLeftAssoc() && o1.getPrecedence() <= operators.get(nextToken.surface).getPrecedence())
+						|| (o1.getPrecedence() < operators.get(nextToken.surface).getPrecedence()))) {
+			outputQueue.add(stack.pop());
+			nextToken = stack.isEmpty() ? null : stack.peek();
+		}
+	}
+
 	/**
 	 * Evaluates the expression.
 	 * 
-	 * @return The result of the expression.
+	 * @return The result of the expression. Trailing zeros are stripped.
 	 */
 	public BigDecimal eval() {
+		return eval(true);
+	}
 
-		Stack<BigDecimal> stack = new Stack<BigDecimal>();
+	/**
+	 * Evaluates the expression.
+	 * 
+	 * @param stripTrailingZeros
+	 *            If set to <code>true</code> trailing zeros in the result are
+	 *            stripped.
+	 * 
+	 * @return The result of the expression.
+	 */
+	public BigDecimal eval(boolean stripTrailingZeros) {
 
-		for (String token : getRPN()) {
-			if (operators.containsKey(token)) {
-				BigDecimal v1 = stack.pop();
-				BigDecimal v2 = stack.pop();
-				stack.push(operators.get(token).eval(v2, v1));
-			} else if (variables.containsKey(token)) {
-				stack.push(variables.get(token).round(mc));
-			} else if (functions.containsKey(token.toUpperCase())) {
-				Function f = functions.get(token.toUpperCase());
-				ArrayList<BigDecimal> p = new ArrayList<BigDecimal>(
-						f.getNumParams());
-				for (int i = 0; i < f.numParams; i++) {
-					p.add(0,stack.pop());
+		Stack<LazyNumber> stack = new Stack<LazyNumber>();
+
+		for (final Token token : getRPN()) {
+			switch (token.type) {
+			case UNARY_OPERATOR: {
+				final LazyNumber value = stack.pop();
+				LazyNumber result = new LazyNumber() {
+					public BigDecimal eval() {
+						return operators.get(token.surface).eval(value.eval(), null);
+					}
+
+					@Override
+					public String getString() {
+						return String.valueOf(operators.get(token.surface).eval(value.eval(), null));
+					}
+				};
+				stack.push(result);
+				break;
+			}
+			case OPERATOR:
+				final LazyNumber v1 = stack.pop();
+				final LazyNumber v2 = stack.pop();
+				LazyNumber result = new LazyNumber() {
+					public BigDecimal eval() {
+						return operators.get(token.surface).eval(v2.eval(), v1.eval());
+					}
+
+					public String getString() {
+						return String.valueOf(operators.get(token.surface).eval(v2.eval(), v1.eval()));
+					}
+				};
+				stack.push(result);
+				break;
+			case VARIABLE:
+				if (!variables.containsKey(token.surface)) {
+					throw new ExpressionException("Unknown operator or function: " + token);
 				}
-				BigDecimal fResult = f.eval(p);
+
+				stack.push(new LazyNumber() {
+					public BigDecimal eval() {
+						LazyNumber lazyVariable = variables.get(token.surface);
+						BigDecimal value = lazyVariable == null ? null : lazyVariable.eval();
+						return value == null ? null : value.round(mc);
+					}
+
+					public String getString() {
+						return token.surface;
+					}
+				});
+				break;
+			case FUNCTION:
+				com.udojava.evalex.LazyFunction f = functions.get(token.surface.toUpperCase(Locale.ROOT));
+				ArrayList<LazyNumber> p = new ArrayList<LazyNumber>(!f.numParamsVaries() ? f.getNumParams() : 0);
+				// pop parameters off the stack until we hit the start of
+				// this function's parameter list
+				while (!stack.isEmpty() && stack.peek() != PARAMS_START) {
+					p.add(0, stack.pop());
+				}
+
+				if (stack.peek() == PARAMS_START) {
+					stack.pop();
+				}
+
+				LazyNumber fResult = f.lazyEval(p);
 				stack.push(fResult);
-			} else {
-				stack.push(new BigDecimal(token, mc));
+				break;
+			case OPEN_PAREN:
+				stack.push(PARAMS_START);
+				break;
+			case LITERAL:
+				stack.push(new LazyNumber() {
+					public BigDecimal eval() {
+						if (token.surface.equalsIgnoreCase("NULL")) {
+							return null;
+						}
+
+						return new BigDecimal(token.surface, mc);
+					}
+
+					public String getString() {
+						return String.valueOf(new BigDecimal(token.surface, mc));
+					}
+				});
+				break;
+			case STRINGPARAM:
+				stack.push(new LazyNumber() {
+					public BigDecimal eval() {
+						return null;
+					}
+
+					public String getString() {
+						return token.surface;
+					}
+				});
+				break;
+			case HEX_LITERAL:
+				stack.push(new LazyNumber() {
+					public BigDecimal eval() {
+						return new BigDecimal(new BigInteger(token.surface.substring(2), 16), mc);
+					}
+
+					public String getString() {
+						return new BigInteger(token.surface.substring(2), 16).toString();
+					}
+				});
+				break;
+			default:
+				throw new ExpressionException(
+						"Unexpected token '" + token.surface + "' at character position " + token.pos);
 			}
 		}
-		return stack.pop().stripTrailingZeros();
+		BigDecimal result = stack.pop().eval();
+		return result == null ? null : stripTrailingZeros ? result.stripTrailingZeros() : result;
 	}
 
 	/**
@@ -948,6 +1394,32 @@ public class Expression {
 	}
 
 	/**
+	 * Sets the characters other than letters and digits that are valid as the
+	 * first character of a variable.
+	 *
+	 * @param chars
+	 *            The new set of variable characters.
+	 * @return The expression, allows to chain methods.
+	 */
+	public Expression setFirstVariableCharacters(String chars) {
+		this.firstVarChars = chars;
+		return this;
+	}
+
+	/**
+	 * Sets the characters other than letters and digits that are valid as the
+	 * second and subsequent characters of a variable.
+	 *
+	 * @param chars
+	 *            The new set of variable characters.
+	 * @return The expression, allows to chain methods.
+	 */
+	public Expression setVariableCharacters(String chars) {
+		this.varChars = chars;
+		return this;
+	}
+
+	/**
 	 * Adds an operator to the list of supported operators.
 	 * 
 	 * @param operator
@@ -955,8 +1427,12 @@ public class Expression {
 	 * @return The previous operator with that name, or <code>null</code> if
 	 *         there was none.
 	 */
-	public Operator addOperator(Operator operator) {
-		return operators.put(operator.getOper(), operator);
+	public com.udojava.evalex.Operator addOperator(com.udojava.evalex.Operator operator) {
+		String key = operator.getOper();
+		if (operator instanceof UnaryOperator) {
+			key += "u";
+		}
+		return operators.put(key, operator);
 	}
 
 	/**
@@ -967,7 +1443,19 @@ public class Expression {
 	 * @return The previous operator with that name, or <code>null</code> if
 	 *         there was none.
 	 */
-	public Function addFunction(Function function) {
+	public com.udojava.evalex.Function addFunction(com.udojava.evalex.Function function) {
+		return (com.udojava.evalex.Function) functions.put(function.getName(), function);
+	}
+
+	/**
+	 * Adds a lazy function function to the list of supported functions
+	 *
+	 * @param function
+	 *            The function to add.
+	 * @return The previous operator with that name, or <code>null</code> if
+	 *         there was none.
+	 */
+	public com.udojava.evalex.LazyFunction addLazyFunction(com.udojava.evalex.LazyFunction function) {
 		return functions.put(function.getName(), function);
 	}
 
@@ -981,35 +1469,9 @@ public class Expression {
 	 * @return The expression, allows to chain methods.
 	 */
 	public Expression setVariable(String variable, BigDecimal value) {
-		variables.put(variable, value);
+		variables.put(variable, CreateLazyNumber(value));
 		return this;
 	}
-	
-	public static String fastReplace(String source, String os, String ns) {
-        if (source == null) {
-            return null;
-        }
-        int i = 0;
-        if ((i = source.indexOf(os, i)) >= 0) {
-            char[] sourceArray = source.toCharArray();
-            char[] nsArray = ns.toCharArray();
-            int oLength = os.length();
-            StringBuilder buf = new StringBuilder(sourceArray.length);
-            buf.append(sourceArray, 0, i).append(nsArray);
-            i += oLength;
-            int j = i;
-            // Replace all remaining instances of oldString with newString.
-            while ((i = source.indexOf(os, i)) > 0) {
-                buf.append(sourceArray, j, i - j).append(nsArray);
-                i += oLength;
-                j = i;
-            }
-            buf.append(sourceArray, j, sourceArray.length - j);
-            source = buf.toString();
-            buf.setLength(0);
-        }
-        return source;
-    }
 
 	/**
 	 * Sets a variable value.
@@ -1022,12 +1484,55 @@ public class Expression {
 	 */
 	public Expression setVariable(String variable, String value) {
 		if (isNumber(value))
-			variables.put(variable, new BigDecimal(value));
-		else {
-			expression = fastReplace(expression, variable, value);
+			variables.put(variable, CreateLazyNumber(new BigDecimal(value, mc)));
+		else if (value.equalsIgnoreCase("null")) {
+			variables.put(variable, null);
+		} else {
+			final String expStr = value;
+			variables.put(variable, new LazyNumber() {
+				private final Map<String, LazyNumber> outerVariables = variables;
+				private final Map<String, com.udojava.evalex.LazyFunction> outerFunctions = functions;
+				private final Map<String, com.udojava.evalex.Operator> outerOperators = operators;
+				private final String innerExpressionString = expStr;
+				private final MathContext inneMc = mc;
+
+				@Override
+				public String getString() {
+					return innerExpressionString;
+				}
+
+				@Override
+				public BigDecimal eval() {
+					Expression innerE = new Expression(innerExpressionString, inneMc);
+					innerE.variables = outerVariables;
+					innerE.functions = outerFunctions;
+					innerE.operators = outerOperators;
+					BigDecimal val = innerE.eval();
+					return val;
+				}
+			});
 			rpn = null;
 		}
 		return this;
+	}
+
+	/**
+	 * Creates a new inner expression for nested expression.
+	 * 
+	 * @param expression
+	 *            The string expression.
+	 * @return The inner Expression instance.
+	 */
+	private Expression createEmbeddedExpression(final String expression) {
+		final Map<String, LazyNumber> outerVariables = variables;
+		final Map<String, com.udojava.evalex.LazyFunction> outerFunctions = functions;
+		final Map<String, com.udojava.evalex.Operator> outerOperators = operators;
+		final MathContext inneMc = mc;
+		Expression exp = new Expression(expression, inneMc);
+		exp.variables = outerVariables;
+		exp.functions = outerFunctions;
+		exp.operators = outerOperators;
+		return exp;
 	}
 
 	/**
@@ -1088,8 +1593,10 @@ public class Expression {
 	 * 
 	 * @return A new iterator instance for this expression.
 	 */
-	public Iterator<String> getExpressionTokenizer() {
-		return new Tokenizer(this.expression);
+	public Iterator<Token> getExpressionTokenizer() {
+		final String expression = this.expression;
+
+		return new Tokenizer(expression);
 	}
 
 	/**
@@ -1099,11 +1606,79 @@ public class Expression {
 	 * 
 	 * @return The cached RPN instance.
 	 */
-	private List<String> getRPN() {
+	private List<Token> getRPN() {
 		if (rpn == null) {
 			rpn = shuntingYard(this.expression);
+			validate(rpn);
 		}
 		return rpn;
+	}
+
+	/**
+	 * Check that the expression has enough numbers and variables to fit the
+	 * requirements of the operators and functions, also check for only 1 result
+	 * stored at the end of the evaluation.
+	 */
+	private void validate(List<Token> rpn) {
+		/*-
+		* Thanks to Norman Ramsey:
+		* http://http://stackoverflow.com/questions/789847/postfix-notation-validation
+		*/
+		// each push on to this stack is a new function scope, with the value of
+		// each
+		// layer on the stack being the count of the number of parameters in
+		// that scope
+		Stack<Integer> stack = new Stack<Integer>();
+
+		// push the 'global' scope
+		stack.push(0);
+
+		for (final Token token : rpn) {
+			switch (token.type) {
+			case UNARY_OPERATOR:
+				if (stack.peek() < 1) {
+					throw new ExpressionException("Missing parameter(s) for operator " + token);
+				}
+				break;
+			case OPERATOR:
+				if (stack.peek() < 2) {
+					throw new ExpressionException("Missing parameter(s) for operator " + token);
+				}
+				// pop the operator's 2 parameters and add the result
+				stack.set(stack.size() - 1, stack.peek() - 2 + 1);
+				break;
+			case FUNCTION:
+				com.udojava.evalex.LazyFunction f = functions.get(token.surface.toUpperCase(Locale.ROOT));
+				if (f == null) {
+					throw new ExpressionException("Unknown function '" + token + "' at position " + (token.pos + 1));
+				}
+
+				int numParams = stack.pop();
+				if (!f.numParamsVaries() && numParams != f.getNumParams()) {
+					throw new ExpressionException(
+							"Function " + token + " expected " + f.getNumParams() + " parameters, got " + numParams);
+				}
+				if (stack.size() <= 0) {
+					throw new ExpressionException("Too many function calls, maximum scope exceeded");
+				}
+				// push the result of the function
+				stack.set(stack.size() - 1, stack.peek() + 1);
+				break;
+			case OPEN_PAREN:
+				stack.push(0);
+				break;
+			default:
+				stack.set(stack.size() - 1, stack.peek() + 1);
+			}
+		}
+
+		if (stack.size() > 1) {
+			throw new ExpressionException("Too many unhandled function parameter lists");
+		} else if (stack.peek() > 1) {
+			throw new ExpressionException("Too many numbers or variables");
+		} else if (stack.peek() < 1) {
+			throw new ExpressionException("Empty expression");
+		}
 	}
 
 	/**
@@ -1113,12 +1688,145 @@ public class Expression {
 	 * @return A string with the RPN representation for this expression.
 	 */
 	public String toRPN() {
-		String result = new String();
-		for (String st : getRPN()) {
-			result = result.isEmpty() ? result : result + " ";
-			result += st;
+		StringBuilder result = new StringBuilder();
+		for (Token t : getRPN()) {
+			if (result.length() != 0)
+				result.append(" ");
+			if (t.type == TokenType.VARIABLE && variables.containsKey(t.surface)) {
+				LazyNumber innerVariable = variables.get(t.surface);
+				String innerExp = innerVariable.getString();
+				if (isNumber(innerExp)) { // if it is a number, then we don't
+											// expan in the RPN
+					result.append(t.toString());
+				} else { // expand the nested variable to its RPN representation
+					Expression exp = createEmbeddedExpression(innerExp);
+					String nestedExpRpn = exp.toRPN();
+					result.append(nestedExpRpn);
+				}
+			} else {
+				result.append(t.toString());
+			}
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Exposing declared variables in the expression.
+	 * 
+	 * @return All declared variables.
+	 */
+	public Set<String> getDeclaredVariables() {
+		return Collections.unmodifiableSet(variables.keySet());
+	}
+
+	/**
+	 * Exposing declared operators in the expression.
+	 * 
+	 * @return All declared operators.
+	 */
+	public Set<String> getDeclaredOperators() {
+		return Collections.unmodifiableSet(operators.keySet());
+	}
+
+	/**
+	 * Exposing declared functions.
+	 * 
+	 * @return All declared functions.
+	 */
+	public Set<String> getDeclaredFunctions() {
+		return Collections.unmodifiableSet(functions.keySet());
+	}
+
+	/**
+	 * @return The original expression string
+	 */
+	public String getExpression() {
+		return expression;
+	}
+
+	/**
+	 * Returns a list of the variables in the expression.
+	 * 
+	 * @return A list of the variable names in this expression.
+	 */
+	public List<String> getUsedVariables() {
+		List<String> result = new ArrayList<String>();
+		Tokenizer tokenizer = new Tokenizer(expression);
+		while (tokenizer.hasNext()) {
+			Token nextToken = tokenizer.next();
+			String token = nextToken.toString();
+			if (nextToken.type != TokenType.VARIABLE || token.equals("PI") || token.equals("e") || token.equals("TRUE")
+					|| token.equals("FALSE")) {
+				continue;
+			}
+			result.add(token);
 		}
 		return result;
+	}
+
+	/**
+	 * The original expression used to construct this expression, without
+	 * variables substituted.
+	 */
+	public String getOriginalExpression() {
+		return this.originalExpression;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		Expression that = (Expression) o;
+		if (this.expression == null) {
+			return that.expression == null;
+		} else {
+			return this.expression.equals(that.expression);
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public int hashCode() {
+		return this.expression == null ? 0 : this.expression.hashCode();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public String toString() {
+		return this.expression;
+	}
+
+	/**
+	 * Checks whether the expression is a boolean expression. An expression is
+	 * considered a boolean expression, if the last operator or function is
+	 * boolean. The IF function is handled special. If the third parameter is
+	 * boolean, then the IF is also considered boolean, else non-boolean.
+	 * 
+	 * @return <code>true</code> if the last operator/function was a boolean.
+	 */
+	public boolean isBoolean() {
+		List<Token> rpn = getRPN();
+		if (rpn.size() > 0) {
+			for (int i = rpn.size() - 1; i >= 0; i--) {
+				Token t = rpn.get(i);
+				/*
+				 * The IF function is handled special. If the third parameter is
+				 * boolean, then the IF is also considered a boolean. Just skip
+				 * the IF function to check the second parameter.
+				 */
+				if (t.surface.equals("IF"))
+					continue;
+				if (t.type == TokenType.FUNCTION) {
+					return functions.get(t.surface).isBooleanFunction();
+				} else if (t.type == TokenType.OPERATOR) {
+					return operators.get(t.surface).isBooleanOperator();
+				}
+			}
+		}
+		return false;
 	}
 
 }
