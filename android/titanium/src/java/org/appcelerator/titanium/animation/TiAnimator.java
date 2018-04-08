@@ -278,7 +278,7 @@ public class TiAnimator
 	public void handleFinish()
 	{		
 	    if (!dontApplyOnFinish) {
-	        if (autoreverse == true) {
+	        if (autoreverse == true || cancelled) {
 	            resetAnimationProperties();
 	        }
 	        else {
@@ -307,8 +307,10 @@ public class TiAnimator
 	                });
 	            }
 	        }
+	    } else if (cancelled) { // if dont apply and cancelled we should reset
+            resetAnimationProperties();
 	    }
-		
+		 
 		if (proxy != null) {
 			proxy.animationFinished(this);
 		}
