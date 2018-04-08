@@ -268,7 +268,8 @@ public class AnimatableProxy extends ParentingProxy {
 	@Kroll.method
 	public void cancelAllAnimations() {
 		synchronized (runningAnimationsLock) {
-			for (int i = 0; i < runningAnimations.size(); i++) {
+		    final int count = runningAnimations.size();
+			for (int i = count - 1; i >= 0; i--) {
 				runningAnimations.get(i).cancel();
 			}
 			runningAnimations.clear();
