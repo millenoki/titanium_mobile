@@ -72,7 +72,7 @@ public class TiAnimatorListener implements AnimatorListener {
 //    }
 
     public void onAnimationEnd(Animator animation) {
-        if (tiSet == null) {
+        if (tiSet == null || tiSet.set() != animation) {
             return;// prevent double onEnd!
         }
 
