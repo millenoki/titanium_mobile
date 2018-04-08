@@ -2891,6 +2891,59 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return [result autorelease];
 }
 
+
++ (NSDictionary*)prepareMathTargetProps:(NSDictionary *)targetDict forExpressions:(NSDictionary *)expressions forTarget:(TiProxy *)target withEvaluator:(DDMathEvaluator *)eval cashedValues:(NSDictionary *)cashedValues
+{
+  NSDictionary *props = [targetDict valueForKey:@"properties"];
+  if (!props) {
+    props = targetDict;
+  }
+  NSDictionary *targetVariables = [targetDict valueForKey:@"targetVariables"];
+  if (!cashedValues) {
+    cashedValues = [[[NSMutableDictionary alloc] init] autorelease];
+  }
+  NSMutableDictionary *targetVariablesComputed = nil;
+  if (targetVariables) {
+    targetVariablesComputed = [NSMutableDictionary dictionaryWithCapacity:[targetVariables count]];
+    [targetVariables enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+      id value = [target valueForKey:obj];
+      [targetVariablesComputed setObject:value ? value : @"0" forKey:key];
+    }];
+  }
+  NSMutableDictionary *realProps = [NSMutableDictionary dictionaryWithCapacity:[props count]];
+  __block NSError *error;
+  __block NSMutableDictionary *toUse;
+  [props enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    if (IS_OF_CLASS(obj, NSDictionary)) {
+      TiProxy * binded = [target bindingForKey:key];
+      if (binded) {
+        [realProps setValue:[TiUtils prepareMathTargetProps:(NSDictionary*)obj forExpressions:expressions forTarget:binded withEvaluator:eval cashedValues:cashedValues] forKey:key];
+      }
+    } else {
+      toUse = [NSMutableDictionary dictionaryWithDictionary:expressions];
+      if (targetVariablesComputed) {
+        [toUse addEntriesFromDictionary:targetVariablesComputed];
+      }
+      id current = [target valueForKey:key];
+      if (!current || IS_OF_CLASS(current, NSNull)) {
+        current = @"0";
+      }
+      [toUse setObject:current forKey:@"current"];
+      if ([cashedValues objectForKey:obj]) {
+        [realProps setValue:[cashedValues objectForKey:obj] forKey:key];
+      } else {
+        id result = [eval evaluateString:obj withSubstitutions:toUse error:&error];
+        if (error) {
+          result = [TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"_"];
+        }
+        [realProps setValue:result forKey:key];
+        [cashedValues setValue:result forKey:obj];
+      }
+    }
+  }];
+  return realProps;
+}
+
 + (BOOL)applyMathDict:(NSDictionary *)mathDict forEvent:(NSDictionary *)event fromProxy:(TiProxy *)proxy
 {
   NSMutableDictionary *variables = nil;
@@ -2947,35 +3000,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
       }
       if (!target)
         continue;
-      NSDictionary *props = [targetDict valueForKey:@"properties"];
-      NSDictionary *targetVariables = [targetDict valueForKey:@"targetVariables"];
-      NSMutableDictionary *targetVariablesComputed = nil;
-      if (targetVariables) {
-        targetVariablesComputed = [NSMutableDictionary dictionaryWithCapacity:[targetVariables count]];
-        [targetVariables enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-          id value = [target valueForKey:obj];
-          [targetVariablesComputed setObject:value ? value : @"0" forKey:key];
-        }];
-      }
-      NSMutableDictionary *realProps = [NSMutableDictionary dictionaryWithCapacity:[props count]];
-      __block NSError *error;
-      __block NSMutableDictionary *toUse;
-      [props enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        toUse = [NSMutableDictionary dictionaryWithDictionary:expressions];
-        if (targetVariablesComputed) {
-          [toUse addEntriesFromDictionary:targetVariablesComputed];
-        }
-        id current = [target valueForKey:key];
-        if (!current || IS_OF_CLASS(current, NSNull)) {
-          current = @"0";
-        }
-        [toUse setObject:current forKey:@"current"];
 
-        [realProps setValue:[eval evaluateString:obj withSubstitutions:toUse error:&error] forKey:key];
-        if (error) {
-          [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"_"] forKey:key];
-        }
-      }];
+      NSDictionary *realProps = [TiUtils prepareMathTargetProps:targetDict forExpressions:expressions forTarget:target withEvaluator:eval cashedValues:nil];
       [target applyProperties:realProps];
     }
   }
