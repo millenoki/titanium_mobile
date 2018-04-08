@@ -1749,6 +1749,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_DONT_APPLY_ON_FINISH = "dontApplyOnFinish";
+
 	/**
 	 * @module.api
 	 */
