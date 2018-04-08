@@ -15,8 +15,12 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,7 +127,8 @@ public class TiUIHelper
 	private static Method overridePendingTransition;
 	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
 	private static Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<String, Typeface>());
-	
+	private static String[] mCustomTypeFacesList;
+
 	public static class FontDesc {
 		public Float size = 15.0f;
 		public int sizeUnit = TypedValue.COMPLEX_UNIT_PX;
@@ -625,28 +630,43 @@ public class TiUIHelper
 		if (mCustomTypeFaces.containsKey(fontFamily)) {
 			return mCustomTypeFaces.get(fontFamily);
 		}
-		AssetManager mgr = context.getAssets();
-		try {
-		    Typeface tf = null;
-			String[] fontFiles = mgr.list(customFontPath);
-			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase()) || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+		if (mCustomTypeFacesList == null) {
+		    AssetManager mgr = context.getAssets();
+	        try {
+	            ArrayList<String> fileList = new ArrayList<String>(Arrays.asList(mgr.list(customFontPath)));
+	            Iterator it = fileList.iterator();
+	            while(it.hasNext())
+	            {
+	                String text = (String) it.next();
+	                if ( !text.endsWith(".ttf") && !text.endsWith(".otf") )
+	                {
+	                    it.remove();
+	                }
+	            }
+	            mCustomTypeFacesList = fileList.toArray(new String[] {});
+            } catch (Exception e) {
+                Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
+            }
+		}
+		if (mCustomTypeFacesList != null) {
+            Typeface tf = null;
+	        AssetManager mgr = context.getAssets();
+	        for (String f : mCustomTypeFacesList) {
+                if (f.equals(fontFamily) || f.startsWith(fontFamily + ".") || f.startsWith(fontFamily + "-")) {
                     tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized(mCustomTypeFaces) {
-						mCustomTypeFaces.put(fontFamily, tf);
-					}
-					return tf;
-				}
-			}
-		    tf = Typeface.create(fontFamily, Typeface.NORMAL);
-		    if (tf != null) {
-		        synchronized(mCustomTypeFaces) {
+                    synchronized(mCustomTypeFaces) {
+                        mCustomTypeFaces.put(fontFamily, tf);
+                    }
+                    return tf;
+                }
+            }
+            tf = Typeface.create(fontFamily, Typeface.NORMAL);
+            if (tf != null) {
+                synchronized(mCustomTypeFaces) {
                     mCustomTypeFaces.put(fontFamily, tf);
                 }
                 return tf;
-		    }
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
+            }
 		}
 
 		mCustomTypeFaces.put(fontFamily, null);
@@ -1626,6 +1646,60 @@ public class TiUIHelper
 	}
 
     private static final char VAR_PREFIX = '_';
+    
+    
+    static HashMap<String, Object> prepareExpressions(KrollProxy target, HashMap<String, Object> targetDict, KrollDict expressions, HashMap cashedValues) {
+        HashMap<String, Object> props = targetDict.containsKey("properties")?TiConvert.toHashMap(targetDict.get("properties")):targetDict;
+        KrollDict realProps = new KrollDict();
+        if (cashedValues == null) {
+            cashedValues = new HashMap();
+        }
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
+            final String key = entry.getKey();
+            final Object theValue = entry.getValue();
+            if (theValue instanceof HashMap) {
+                Object binded =  target.getProperty(key);
+                if (binded instanceof KrollProxy) {
+                    realProps.put(key, prepareExpressions((KrollProxy)binded, (HashMap<String, Object>) theValue, expressions, cashedValues));
+                }
+            } else {
+                final String value = TiConvert.toString(entry.getValue());
+                Object current = ((KrollProxy) target).getProperty(key);
+                if (current != null) {
+                    expressions.put(VAR_PREFIX+"current", current);
+                }
+                else {
+                    expressions.put(VAR_PREFIX+"current", 0);
+                }
+                if (cashedValues.containsKey(value)) {
+                    realProps.put(key, cashedValues.get(value));
+                } else {
+                    Expression expression = new Expression(value);
+                    for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                        Object value2 = entry2.getValue();
+                        if (value2 != null) {
+                            expression.with(entry2.getKey(), TiConvert.toString(value2));
+                        }
+                    }
+                    try {
+                        String result = expression.eval().toPlainString();
+                        cashedValues.put(value, result);
+                        realProps.put(key, result);
+                    } catch (Exception e) {
+                        String result = new String(value);
+                        for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                            result = TiUtils.fastReplace(result, entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                        }
+                        cashedValues.put(value, result);
+                        realProps.put(key, result);
+                    }
+                }
+            }
+        }
+        return realProps;
+    }
+    
+    
     public static void applyMathDict(final KrollDict mathDict, final KrollDict event, final KrollProxy source) {
         if (event == null) return;
         KrollDict expressions = new KrollDict();
@@ -1662,7 +1736,7 @@ public class TiUIHelper
                       return;
                   }
               } catch (Exception e) {
-                  Log.d(TAG, "fuck");
+                  TiApplication.showExceptionError(e);
               }
 	    }
 	    
@@ -1692,8 +1766,8 @@ public class TiUIHelper
                     }
                   expressions.put(VAR_PREFIX+entry.getKey(), expression.eval().toPlainString());
                 } catch (Exception e) {
-                    
-                    return;
+                    TiApplication.showExceptionError(e);
+//                    return; 
                 }
             }
 	    }
@@ -1723,56 +1797,8 @@ public class TiUIHelper
                                     expressions.put(VAR_PREFIX + key, 0);
                                 }
                             }
-                        }
-                        
-                        
-                        HashMap<String, Object> props = TiConvert.toHashMap(targetDict.get("properties"));
-                        KrollDict realProps = new KrollDict();
-                        for (Map.Entry<String, Object> entry : props.entrySet()) {
-                            final String key = entry.getKey();
-                            final String value = TiConvert.toString(entry.getValue());
-                            Object current = ((KrollProxy) target).getProperty(key);
-                            if (current != null) {
-                                expressions.put(VAR_PREFIX+"current", current);
-                            }
-                            else {
-                                expressions.put(VAR_PREFIX+"current", 0);
-                            }
-                            
-//                            Scope scope = Scope.create();
-//                            try {
-//                                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-//                                    Variable v = scope.getVariable("$"+entry2.getKey());
-//                                    v.setValue(TiConvert.toFloat(entry2.getValue(), 0));
-//                                }
-//                                parsii.eval.Expression expr = Parser.parse(value, scope);
-//                                realProps.put(entry.getKey(), expr.evaluate());
-//                                
-//                            } catch (ParseException e1) {
-//                                String result = new String(value);
-//                              for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-//                                  result = replace(result, "$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
-//                              }
-//                              realProps.put(key, result);
-//                            } 
-                            
-                            Expression expression = new Expression(value);
-                            for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                                Object value2 = entry2.getValue();
-                                if (value2 != null) {
-                                    expression.with(entry2.getKey(), TiConvert.toString(value2));
-                                }
-                            }
-                            try {
-                                realProps.put(key, expression.eval().toPlainString());
-                            } catch (Exception e) {
-                                String result = new String(value);
-                                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                                    result = TiUtils.fastReplace(result, entry2.getKey(), TiConvert.toString(entry2.getValue()));
-                                }
-                                realProps.put(key, result);
-                            }
-                        }
+                        }                        
+                        HashMap realProps = prepareExpressions((KrollProxy) target, targetDict, expressions, null);
                         ((KrollProxy) target).applyPropertiesInternal(realProps, false, false);
                     }
                 }
