@@ -5651,6 +5651,8 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig() {
 		// we should always overwrite those keys
 		delete parsedConfig.noEmit;
 		delete parsedConfig.outDir;
+		delete parsedConfig.baseUrl;
+		delete parsedConfig.paths;
 		Object.keys(parsedConfig).forEach(function (prop) {
 			options[prop] = parsedConfig[prop];
 		}, this);
