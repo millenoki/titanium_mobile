@@ -28,6 +28,11 @@ public class TICollectionViewItemHolder extends TiBaseAbsListViewItemHolder {
                     parentView.get().getMeasuredWidth(),
                     MeasureSpec.UNSPECIFIED);
         }
+        if (heightMeasureSpec == 0) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    parentView.get().getMeasuredHeight(),
+                    MeasureSpec.UNSPECIFIED);
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
