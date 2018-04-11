@@ -645,6 +645,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 {
   return [[[TiAnimatorProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+#endif
 #ifdef USE_TI_UIIOSSNAPBEHAVIOR
 - (id)createSnapBehavior:(id)args
 {
@@ -709,6 +710,8 @@ MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD, UIWebViewNavigationTypeBac
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_RELOAD, UIWebViewNavigationTypeReload);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED, UIWebViewNavigationTypeFormResubmitted);
 MAKE_SYSTEM_PROP(WEBVIEW_NAVIGATIONTYPE_OTHER, UIWebViewNavigationTypeOther);
+
+#if defined(USE_TI_UIIOSACTIVITY) || defined(USE_TI_UIIOSACTIVITYVIEW)
 
 MAKE_SYSTEM_PROP(ACTIVITY_CATEGORY_ACTION, UIActivityCategoryAction);
 MAKE_SYSTEM_PROP(ACTIVITY_CATEGORY_SHARE, UIActivityCategoryShare);
