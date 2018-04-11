@@ -1,37 +1,5 @@
 {
 	"min_api_level": "13",
-	"dependencies":
-	{
-		"appcompat":[],
-		"cardview":[],
-		"compat":[],
-		"design":[],
-		"accelerometer":[],
-		"analytics":[],
-		"android":["ui", "filesystem"],
-		"app":[],
-		"audio": ["filesystem"],
-		"calendar":[],
-		"contacts":[],
-		"database":[],
-		"filesystem":[],
-		"gesture":["ui"],
-		"geolocation":[],
-		"image": [],
-		"locale":[],
-		"media":["filesystem"],
-		"network":["xml"],
-		"platform":[],
-		"ui":["filesystem","media","appcompat","cardview","design","compat"],
-		"utils":[],
-		"xml":[]
-	},
-    "gmsDependencies":
-	{
-        "network": ["gcm"],
-        "geolocation": ["base", "basement","location"]
-    },
-    "required": ["ui", "android", "app", "locale", "analytics"],
     "libraries": {
         "android": ["jaxen-1.1.1.jar",
                     "kroll-common.jar",
@@ -44,17 +12,12 @@
                     ],
 		"xml":["jaxen-1.1.1.jar"],
         "ui": [
-               "android-support-v7-recyclerview.jar",
-               "stickylistheadersview.jar",
-               "flexibleadapter.jar",
-               "recyclerviewfastscroller.jar",
-               "listviewanimations.jar",
                "okhttp-3.9.1.jar",
                "okio-1.13.0.jar",
                "picasso-3.0.0.jar"
                ],
         "network": ["thirdparty.jar"],
-		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar", "android-support-v7-recyclerview.jar"],
+		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar"],
 		"cardview":["android-support-v7-cardview.jar"],
 		"compat":["android-support-compat.jar"],
 		"design":["android-support-design.jar"],
@@ -65,6 +28,47 @@
 		"v8":["kroll-v8.jar", "java_websocket.jar"],
 		"defaultRuntime":"v8"
 	},
+    "requiredModules": ["android", "app", "locale"],
+	"modulesDependencies":
+	{
+		"appcompat":[],
+		"cardview":[],
+		"compat":[],
+		"design":[],
+		"accelerometer":[],
+		"analytics":[],
+		"android":["ui"],
+		"app":[],
+		"audio": ["filesystem"],
+		"calendar":[],
+		"contacts":[],
+		"database":[],
+		"filesystem":[],
+		"gesture":[],
+		"geolocation":[],
+		"image": [],
+		"locale":[],
+		"media":["filesystem"],
+		"network":["xml"],
+		"platform":[],
+		"ui":["filesystem","media","appcompat","design","compat"],
+		"utils":[],
+		"xml":[]
+	},
+	"gmsModuleDependencies":
+	{
+        "network": ["gcm"],
+        "geolocation": ["base", "basement","location"]
+    },
+	"symbolModulesDependencies":
+	{
+		"ui.cardview": ["cardview"]
+	},
+	"symbolLibraries":
+	{
+		"ui.listview": ["stickylistheadersview.jar","listviewanimations.jar"],
+		"ui.collectionview": ["flexibleadapter.jar", "recyclerviewfastscroller.jar", "android-support-v7-recyclerview.jar"]
+	},
 	"modulepackage": {
 		"appcompat":"android.support.v7.appcompat",
 		"cardview":"android.support.v7.cardview",
@@ -72,5 +76,10 @@
 		"design":"android.support.design",
 		"ui":"ti.modules.titanium.ui"
 	},
-	"googleplayservices_features":["com.google.android.gms.gcm.*", "com.google.android.gms.common.GoogleApiAvailability", "com.google.android.gms.common.GooglePlayServicesUtil"]
-	}
+	"gmsDependencies":
+	{
+        "network.registerForPushNotifications": ["base" ,"gcm"],
+		"geolocation": ["base", "basement","location"],
+		"android.getGooglePlayServicesState":["base"]
+    }
+}

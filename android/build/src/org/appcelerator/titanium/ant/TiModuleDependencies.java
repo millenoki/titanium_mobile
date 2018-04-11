@@ -29,11 +29,11 @@ public class TiModuleDependencies {
 	}
 	
 	public Map<String, List<String>> getDependencies() {
-		return (Map<String, List<String>>)map.get("dependencies");
+		return (Map<String, List<String>>)map.get("modulesDependencies");
 	}
 
 	public Map<String, List<String>> getGMSDependencies() {
-		return (Map<String, List<String>>)map.get("gmsDependencies");
+		return (Map<String, List<String>>)map.get("gmsModuleDependencies");
 	}
 	
 	public Map<String, String> getModulePackages() {
@@ -53,7 +53,7 @@ public class TiModuleDependencies {
 	}
 	
 	public List<String> getRequiredModules() {
-		return (List<String>)map.get("required");
+		return (List<String>)map.get("requiredModules");
 	}
 	
 	public Map<String, List<String>> getLibraries() {

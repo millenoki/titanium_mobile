@@ -3496,6 +3496,7 @@ AndroidBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 };
 
 AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
+	this.logger.debug(__('Processing Ti Symbols'));
 	var depMap = this.dependencyMap,
 		modulesMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'modules.json'))),
 		modulesPath = path.join(this.platformPath, 'modules'),
@@ -3506,8 +3507,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		jarLibraries = this.jarLibraries = {},
 		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
-        googlePlayServicesFeaturesKey = 'googleplayservices_features',
-        googlePlayServicesKeep = this.googlePlayServicesKeep = depMap[googlePlayServicesFeaturesKey],
+        googlePlayServicesKeep = this.googlePlayServicesKeep = {},
 		customModules = this.customModules = [],
 		ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
 
@@ -3589,17 +3589,17 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 			}
 		}, this);
 
-        depMap.gmsDependencies[namespace] && depMap.gmsDependencies[namespace].forEach(function(keep) {
-            if (googlePlayServicesKeep.indexOf(keep) === -1) {
-                googlePlayServicesKeep.push(keep);
-            }
-            this.needsGooglePlayServices = true;
-        }, this);
-		depMap.dependencies[namespace] && depMap.dependencies[namespace].forEach(addTitaniumLibrary, this);
+        // depMap.gmsDependencies[namespace] && depMap.gmsDependencies[namespace].forEach(function(keep) {
+        //     if (googlePlayServicesKeep.indexOf(keep) === -1) {
+        //         googlePlayServicesKeep.push(keep);
+        //     }
+        //     this.needsGooglePlayServices = true;
+        // }, this);
+		depMap.modulesDependencies[namespace] && depMap.modulesDependencies[namespace].forEach(addTitaniumLibrary, this);
 	}
 
 	// get all required titanium modules
-	depMap.required.forEach(addTitaniumLibrary, this);
+	depMap.requiredModules.forEach(addTitaniumLibrary, this);
 
 	// if we need to include all titanium modules, then do it
 	if (this.includeAllTiModules) {
@@ -3613,14 +3613,15 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	// for each Titanium symbol found when we copied the JavaScript files, we need
 	// extract the Titanium namespace and make sure we include its jar library
 	Object.keys(this.tiSymbols).forEach(function (file) {
+		// this.logger.debug(__('Processing Ti Symbols in file') + " " +  file);
 		this.tiSymbols[file].forEach(function (symbol) {
+			// this.logger.debug(__('Processing Ti Symbol') + " " +  symbol);
 
-            var parts = symbol.replace(/^(Ti|Titanium)./, '').replace(/create/gi, '').split('.').slice(0, -1);
+			var parts = symbol.replace(/^(Ti|Titanium)./, '').replace(/create/gi, '').split('.');
             if (parts.length) {
                 if (parts.indexOf('iPhone') !== -1 || parts.indexOf('iOS') !== -1) {
                     return;
-                }
-
+				}
                 const namespace = parts[0].toLowerCase();
 				if (namespace) {
 					addTitaniumLibrary.call(this, namespace);
@@ -3628,10 +3629,44 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
                         while (parts.length > 1) {
                             const binding = parts[parts.length - 1];
                             if (tiNamespaces[namespace].indexOf(binding) === -1) {
-                                tiNamespaces[namespace].push(binding);
-					}
-				parts.pop();
-			}
+								var symbolFull = parts.join('.').toLowerCase();
+								// console.log('handling symbol', symbolFull);
+								tiNamespaces[namespace].push(binding);
+								//look for gmsDependencies
+								if (depMap.gmsDependencies[symbolFull]) {
+									depMap.gmsDependencies[symbolFull].forEach(keep=> {
+										if (googlePlayServicesKeep.indexOf(keep) === -1) {
+											googlePlayServicesKeep.push(keep);
+										}
+									});
+									this.needsGooglePlayServices = true;
+								}
+								if (depMap.symbolModulesDependencies[symbolFull]) {
+									depMap.symbolModulesDependencies[symbolFull].forEach(nsp=>{
+										addTitaniumLibrary.call(this, nsp);
+									})
+								}
+								if (depMap.symbolLibraries[symbolFull]) {
+									depMap.symbolLibraries[symbolFull].forEach(function (jar) {
+										jar = path.join(this.platformPath, jar);
+										if (this.isExternalAndroidLibraryAvailable(jar)) {
+											this.logger.debug('Excluding dependency library ' + jar.cyan);
+											return;
+										}
+							
+										if (fs.existsSync(jar) && !jarLibraries[jar]) {
+											this.logger.debug(__('Adding dependency library %s', jar.cyan));
+											tiNamespaces[namespace] = [];
+											jarLibraries[jar] = 1;
+										}
+									}, this);
+								}
+							}
+							
+
+
+							parts.pop();
+						}
                     }
                 }
             }
@@ -3736,31 +3771,13 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
         }, this);
 
-			metadata && metadata.exports.forEach(function (namespace) {
-				if (!appModulesMap[namespace]) {
-					const r = createModuleDescriptor(namespace);
-					r && appModules.push(r);
-				}
-			});
-
-        const moduleDependencyFile = path.join(module.modulePath, 'dependency.json');
-        if (fs.existsSync(moduleDependencyFile)) {
-            const moduleDepMap = JSON.parse(fs.readFileSync(moduleDependencyFile));
-            if (moduleDepMap) {
-                if (moduleDepMap[googlePlayServicesFeaturesKey]) {
-                    moduleDepMap[googlePlayServicesFeaturesKey].forEach(function(keep) {
-                        if (googlePlayServicesKeep.indexOf(keep) === -1) {
-                            googlePlayServicesKeep.push(keep);
-                        }
-                    });
-                    this.needsGooglePlayServices = true;
-                }
-                if (moduleDepMap.required) {
-                    moduleDepMap.required.forEach(addTitaniumLibrary, this);
-                }
-            }
-        }
-		}, this);
+		metadata && metadata.exports.forEach(function (namespace) {
+			if (!appModulesMap[namespace]) {
+				const r = createModuleDescriptor(namespace);
+				r && appModules.push(r);
+			}
+		});
+	}, this);
 
 	// write the app.json
     // var output = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsDir, 'app.json');
