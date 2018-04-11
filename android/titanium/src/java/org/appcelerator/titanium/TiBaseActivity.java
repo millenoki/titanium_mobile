@@ -1050,8 +1050,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
 
         super.onCreate(savedInstanceState);
-
-        postponeEnterTransition();
+        ActivityCompat.postponeEnterTransition(this);
 
         // set the current activity back to what it was originally
         tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1098,7 +1097,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         super.onActivityReenter(resultCode, data);
 
         // Postpone the shared element return transition.
-        postponeEnterTransition();
+        ActivityCompat.postponeEnterTransition(this);
 
         // TODO: Call the "scheduleStartPostponedTransition()" method
         // above when you know for certain that the shared element is
@@ -1129,7 +1128,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
             }
         }
         setCustomActionBar();
-        startPostponedEnterTransition();
+        ActivityCompat.startPostponedEnterTransition(this);
     }
 
     private void setCustomActionBar() {
