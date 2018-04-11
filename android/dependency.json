@@ -67,7 +67,7 @@
 	"symbolLibraries":
 	{
 		"ui.listview": ["stickylistheadersview.jar","listviewanimations.jar"],
-		"ui.collectionview": ["flexibleadapter.jar", "recyclerviewfastscroller.jar", "android-support-v7-recyclerview.jar"]
+		"ui.collectionview": ["flexibleadapter.jar", "recyclerviewfastscroller.jar", "android-support-v7-recyclerview.jar","listviewanimations.jar"]
 	},
 	"modulepackage": {
 		"appcompat":"android.support.v7.appcompat",
