@@ -2057,7 +2057,7 @@ public class TiCollectionView extends TiUINonViewGroupView implements
         View content = getCellAt(sectionIndex, itemIndex);
         if (content != null) {
             TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
-                    .findViewById(TiAbsListView.listContentId);
+                    .findViewById(TiBaseAbsListViewItem.listContentId);
             if (listItem != null) {
                 if (listItem.getItemIndex() == itemIndex) {
                     return listItem.getViewProxyFromBinding(bindId);

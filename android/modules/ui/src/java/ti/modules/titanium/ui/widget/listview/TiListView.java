@@ -146,7 +146,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
                         }
                         if (anim != null) {
                             TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view
-                                    .findViewById(listContentId);
+                                    .findViewById(TiBaseAbsListViewItem.listContentId);
                             AbsListItemProxy proxy = itemContent.getProxy();
                             Animator animator = proxy
                                     .getAnimatorSetForAnimation(anim);

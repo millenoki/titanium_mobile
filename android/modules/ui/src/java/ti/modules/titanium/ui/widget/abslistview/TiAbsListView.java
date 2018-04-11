@@ -92,7 +92,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
 	private HashMap<String, TiAbsListViewTemplate> templatesByBinding;
-	public static int listContentId = 24123;
 	public static int isCheck;
 	public static int hasChild;
 	public static int disclosure;
@@ -304,7 +303,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			
 			TiBaseAbsListViewItem itemContent = null;
 			if (content != null && (int)content.getTag() == itemViewType) {
-				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
+				itemContent = (TiBaseAbsListViewItem) content.findViewById(TiBaseAbsListViewItem.listContentId);
 				if (itemContent == null) {
 				    return content;
 				}
@@ -316,7 +315,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			} else {
 				content = new TiBaseAbsListViewItemHolder(getContext());
 				content.setTag(itemViewType);
-				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
+				itemContent = (TiBaseAbsListViewItem) content.findViewById(TiBaseAbsListViewItem.listContentId);
 
 				AbsListItemProxy itemProxy = template.generateCellProxy(proxy, getCellProxyRootType());
 				itemProxy.setListProxy(proxy);
@@ -464,7 +463,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public boolean canShowLeftMenu(int position, final DynamicListItemView view) {
             if (!canShowMenus) return false;
-            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiAbsListView.listContentId);
+            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiBaseAbsListViewItem.listContentId);
             if (viewItem != null) {
                 TiAbsListItem listItem = viewItem.getListItem();
                 return listItem.canShowLeftMenu();
@@ -475,7 +474,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public boolean canShowRightMenu(int position, final DynamicListItemView view) {
             if (!canShowMenus) return false;
-            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiAbsListView.listContentId);
+            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiBaseAbsListViewItem.listContentId);
             if (viewItem != null) {
                 TiAbsListItem listItem = viewItem.getListItem();
                 return listItem.canShowRightMenu();
@@ -485,7 +484,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
         @Override
         public View[] getLeftButtons(int position, final DynamicListItemView view) {
-            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiAbsListView.listContentId);
+            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiBaseAbsListViewItem.listContentId);
             if (viewItem != null) {
                 TiAbsListItem listItem = viewItem.getListItem();
                 return listItem.getLeftButtons();
@@ -495,7 +494,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
         @Override
         public View[] getRightButtons(int position, final DynamicListItemView view) {
-            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiAbsListView.listContentId);
+            TiBaseAbsListViewItem viewItem = (TiBaseAbsListViewItem) view.findViewById(TiBaseAbsListViewItem.listContentId);
             if (viewItem != null) {
                 TiAbsListItem listItem = viewItem.getListItem();
                 return listItem.getRightButtons();
@@ -768,7 +767,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             return this;
         }
         if (childView instanceof WrapperView) {
-            View view = childView.findViewById(listContentId);
+            View view = childView.findViewById(TiBaseAbsListViewItem.listContentId);
             if (view != null) {
                 return ((TiCompositeLayout) view).getView();
             }
@@ -1604,7 +1603,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	    
 	    View content = getCellAt(sectionIndex, itemIndex);
         if (content != null) {
-            TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content.findViewById(TiAbsListView.listContentId);
+            TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content.findViewById(TiBaseAbsListViewItem.listContentId);
             if (listItem != null) {
                 if (listItem.getItemIndex() == itemIndex) {
                     return listItem.getViewProxyFromBinding(bindId);
@@ -1623,7 +1622,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 
         for (int i = 0; i < childCount; i++) {
             View child = listView.getListChildAt(i);
-            TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) child.findViewById(listContentId);
+            TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) child.findViewById(TiBaseAbsListViewItem.listContentId);
             if (itemContent != null) {
                 //first visible item of ours
                 int firstposition = findItemPosition(itemContent.getSectionIndex(), itemContent.getItemIndex());

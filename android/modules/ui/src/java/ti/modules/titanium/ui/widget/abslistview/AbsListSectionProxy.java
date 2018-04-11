@@ -450,7 +450,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
             if (content != null && visible) {
                 TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
-                        .findViewById(TiAbsListView.listContentId);
+                        .findViewById(TiBaseAbsListViewItem.listContentId);
                 if (listItem != null) {
                     if (listItem.getItemIndex() == i) {
                         TiAbsListViewTemplate template = getListView()
@@ -538,7 +538,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 View content = listView.getCellAt(sectionIndex, index);
                 if (content != null && visible) {
                     TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
-                            .findViewById(TiAbsListView.listContentId);
+                            .findViewById(TiBaseAbsListViewItem.listContentId);
                     if (listItem != null) {
                         if (listItem.getItemIndex() == index) {
                             TiAbsListViewTemplate template = getListView()
