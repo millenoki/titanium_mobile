@@ -31,6 +31,7 @@ typedef enum {
 @property (nonatomic, readonly) TiUICollectionItemProxy *proxy;
 @property (nonatomic, readonly) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
+@property (nonatomic) BOOL touchPassThrough;
 
 - (id)prepareWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy;
 

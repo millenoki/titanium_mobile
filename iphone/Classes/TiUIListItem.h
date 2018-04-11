@@ -30,6 +30,7 @@ typedef enum {
 @property (nonatomic, retain) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 @property (nonatomic) BOOL delaysContentTouches;
+@property (nonatomic) BOOL touchPassThrough;
 
 - (id)initWithStyle:(UITableViewCellStyle)style position:(int)position grouped:(BOOL)grouped reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy;
 - (id)initWithProxy:(TiUIListItemProxy *)proxy position:(int)position grouped:(BOOL)grouped reuseIdentifier:(NSString *)reuseIdentifier;

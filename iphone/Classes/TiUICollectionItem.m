@@ -50,6 +50,15 @@
 
 DEFINE_EXCEPTIONS
 
+-(id)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+  id hitView = [super hitTest:point withEvent:event];
+  if (self.touchPassThrough && (hitView == self.contentView || hitView == self.viewHolder)) {
+    return nil;
+  } else {
+    return hitView;
+  }
+}
+
 - (id)prepareWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy
 {
   _templateStyle = style;
@@ -72,11 +81,13 @@ DEFINE_EXCEPTIONS
   _proxy.listItem = self;
   _proxy.modelDelegate = self;
   configurationSet = NO;
+  self.touchPassThrough = NO;
   [_proxy dirtyItAll];
 }
 
 - (void)configurationStart
 {
+  self.touchPassThrough = NO;
   [_viewHolder configurationStart];
 }
 

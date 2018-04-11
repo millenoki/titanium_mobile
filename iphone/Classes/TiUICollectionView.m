@@ -1212,6 +1212,7 @@ static TiProxyTemplate *sDefaultItemTemplate;
         TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
         [cell prepareWithStyle:TiUICollectionItemTemplateStyleCustom proxy:cellProxy];
         [cell configurationStart];
+        cell.touchPassThrough = YES;
         [cellProxy add:[self holdedProxyForKey:@"headerWrapper"]];
         [cellProxy windowWillOpen];
         [cellProxy windowDidOpen];
@@ -1288,6 +1289,9 @@ static TiProxyTemplate *sDefaultItemTemplate;
 
   NSString *sectionKey = (kind == UICollectionElementKindSectionHeader) ? @"headerView" : @"footerView";
   id item = [theSection valueForKey:sectionKey];
+  if (!item) {
+    return nil;
+  }
   id templateId = [item valueForKey:@"template"];
   if (templateId == nil) {
     templateId = (kind == UICollectionElementKindSectionHeader) ? @"header" : @"footer";
@@ -1529,7 +1533,18 @@ static TiProxyTemplate *sDefaultItemTemplate;
 }
 - (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section
 {
-  return _stickyHeaders;
+  if (_stickyHeaders) {
+    if (_hasHeaderView) {
+      if (section == 0) {
+        return false;
+      } else {
+        section -= 1;
+      }
+    }
+    TiUICollectionSectionProxy *theSection = [self.listViewProxy sectionForIndex:section];
+    return [theSection valueForKey:@"headerView"] != nil;
+  }
+  return false;
 }
 
 - (void)onStickyHeaderChange:(NSInteger)sectionIndex

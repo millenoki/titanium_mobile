@@ -129,6 +129,16 @@
 
 DEFINE_EXCEPTIONS
 
+-(id)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+  id hitView = [super hitTest:point withEvent:event];
+  if (self.touchPassThrough && (hitView == self.contentView || hitView == self.viewHolder)) {
+    return nil;
+  } else {
+    return hitView;
+  }
+}
+
+
 - (id)initWithStyle:(UITableViewCellStyle)style position:(int)position grouped:(BOOL)grouped reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy
 {
   self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -181,6 +191,7 @@ DEFINE_EXCEPTIONS
   _proxy.listItem = self;
   _proxy.modelDelegate = self;
   configurationSet = NO;
+  self.touchPassThrough = NO;
   [_proxy dirtyItAll];
 }
 
