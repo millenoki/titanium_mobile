@@ -7,6 +7,7 @@ import org.appcelerator.titanium.animation.ScaleProperty;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.ViewAnimator;
 
@@ -15,6 +16,7 @@ import android.widget.ViewAnimator;
 //import com.nineoldandroids.animation.ObjectAnimator;
 //import com.nineoldandroids.view.ViewHelper;
 
+@SuppressLint("NewApi")
 public class TransitionBackFade extends Transition {
 	private static final float scale = 0.2f;
 	public TransitionBackFade(int subtype, boolean isOut, int duration) {
