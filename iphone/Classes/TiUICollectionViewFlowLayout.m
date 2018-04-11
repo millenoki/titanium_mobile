@@ -115,7 +115,7 @@
   NSMutableIndexSet *missingSections = [NSMutableIndexSet indexSet];
   for (NSUInteger idx = 0; idx < [attributesArray count]; idx++) {
     UICollectionViewLayoutAttributes *attributes = attributesArray[idx];
-    if (!attributes) {
+    if (!attributes || ![self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
       continue;
     }
     if (attributes.representedElementCategory == UICollectionElementCategoryCell) {
