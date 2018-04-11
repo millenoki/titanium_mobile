@@ -28,7 +28,7 @@
 		"v8":["kroll-v8.jar", "java_websocket.jar"],
 		"defaultRuntime":"v8"
 	},
-    "requiredModules": ["android", "app", "locale"],
+    "requiredModules": ["android", "app", "locale", "analytics"],
 	"modulesDependencies":
 	{
 		"appcompat":[],
