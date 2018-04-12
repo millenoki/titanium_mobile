@@ -5,6 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #if defined(USE_TI_UITEXTWIDGET) || defined(USE_TI_UITEXTAREA) || defined(USE_TI_UITEXTFIELD) || defined(USE_TI_UISEARCHBAR)
+#ifndef USE_TI_UITEXTWIDGET
+#define USE_TI_UITEXTWIDGET
+#endif
+#endif
+#ifdef USE_TI_UITEXTWIDGET
 
 #import "TiViewProxy.h"
 

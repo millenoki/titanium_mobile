@@ -9,7 +9,7 @@
 #import "TiCollectionView.h"
 #import "TiBase.h"
 #import "TiUIHelper.h"
-#import "TiUIListView.h"
+#import "TiUIView.h"
 
 @implementation TiCollectionView {
   BOOL _shouldHighlightCurrentItem;

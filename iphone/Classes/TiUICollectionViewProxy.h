@@ -7,6 +7,10 @@
 
 #ifdef USE_TI_UICOLLECTIONVIEW
 
+#ifndef USE_TI_UISEARCHBAR
+#define USE_TI_UISEARCHBAR
+#endif
+
 #import "TiScrollingViewProxy.h"
 #import "TiUICollectionSectionProxy.h"
 
