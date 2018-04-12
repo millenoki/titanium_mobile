@@ -3048,16 +3048,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 const program = ts.createProgram(tsFiles, options, host);
                 const emitResult = program.emit();
 
-                const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+                // const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
-                allDiagnostics.forEach(function(diagnostic) {
-                    if (diagnostic.file) {
-                        const data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-                        const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-                        this.logger.error(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName, data.line + 1, data.character + 1, message));
-                    } else {
-                        this.logger.error(__('[TSC]:%s', diagnostic.messageText));
-                    }
+                // allDiagnostics.forEach(function(diagnostic) {
+                //     if (diagnostic.file) {
+                //         const data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                //         const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+                //         this.logger.error(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName, data.line + 1, data.character + 1, message));
+                //     } else {
+                //         this.logger.error(__('[TSC]:%s', diagnostic.messageText));
+                //     }
                 }.bind(this));
                 this.logger.debug(__('TSC done!'));
             },
