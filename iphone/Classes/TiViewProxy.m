@@ -371,10 +371,10 @@
     step.duration = [animation getAnimationDuration];
     step.curve = [animation curve];
     [(TiViewAnimationStep *)step addViewAnimation:hlsAnimation forView:self.view];
-    }
+  }
 
   return [HLSAnimation animationWithAnimationStep:step];
-  }
+}
 
 - (void)handleAnimation:(TiAnimation *)animation witDelegate:(id)delegate
 {
