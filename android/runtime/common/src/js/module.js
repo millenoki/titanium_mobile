@@ -282,6 +282,15 @@ Module.prototype.require = function (request, context) {
 		request = path.normalize(request);
 	}
 
+	if (Module.cache[request]) {
+		return Module.cache[request].exports || true;
+	}
+
+	loaded = this.loadAsFileOrDirectory(request, context);
+	if (loaded) {
+		return loaded;
+	}
+
 	// 1. If X is a core module,
 	loaded = this.loadCoreModule(request, context);
 	if (loaded) {
@@ -290,43 +299,43 @@ Module.prototype.require = function (request, context) {
 		return loaded;
 	}
 
-	if (isrelative || request.substring(0, 1) === '/') {
-		loaded = this.loadAsFileOrDirectory(request, context);
+	// if (isrelative || request.substring(0, 1) === '/') {
+	// 	loaded = this.loadAsFileOrDirectory(request, context);
+	// 	if (loaded) {
+	// 		return loaded;
+	// 	}
+	// } else {
+	// Look for CommonJS module
+	if (request.indexOf('/') === -1) {
+		// For CommonJS we need to look for module.id/module.id.js first...
+		// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+		loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
 		if (loaded) {
 			return loaded;
 		}
-	} else {
-		// Look for CommonJS module
-		if (request.indexOf('/') === -1) {
-			// For CommonJS we need to look for module.id/module.id.js first...
-			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
-			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
-			if (loaded) {
-				return loaded;
-			}
-			// Then try module.id as directory
-			loaded = this.loadAsDirectory('/' + request, context);
-			if (loaded) {
-				return loaded;
-			}
-		}
-
-		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
-		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		//		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
-
-		loaded = this.loadAsFileOrDirectory(request, context);
-		if (loaded) {
-			return loaded;
-		}
-
-		// Allow looking through node_modules
-		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-		loaded = this.loadNodeModules(request, this.path, context);
+		// Then try module.id as directory
+		loaded = this.loadAsDirectory('/' + request, context);
 		if (loaded) {
 			return loaded;
 		}
 	}
+
+	// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
+	// Fallback to old Titanium behavior of assuming it's actually an absolute path
+	//		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
+
+	loaded = this.loadAsFileOrDirectory(request, context);
+	if (loaded) {
+		return loaded;
+	}
+
+	// Allow looking through node_modules
+	// 3. LOAD_NODE_MODULES(X, dirname(Y))
+	loaded = this.loadNodeModules(request, this.path, context);
+	if (loaded) {
+		return loaded;
+	}
+	// }
 	// 4. THROW "not found"
 	throw new Error('Requested module not found: ' + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
 };

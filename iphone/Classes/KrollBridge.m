@@ -1346,14 +1346,15 @@ CFMutableSetRef krollBridgeRegistry = nil;
         // Need base path to work from for relative modules...
         NSString *relativePath = (workingPath == nil) ? path : [self normalizePath:[[workingPath stringByAppendingPathComponent:path] stringByStandardizingPath]];
 
+        module = [self loadAsFileOrDirectory:relativePath withContext:context];
+        if (module) {
+          return module;
+        }
+        
         module = [self loadCoreModule:relativePath withContext:kroll];
         if (module) {
           // a. return the core module
           // b. STOP
-          return module;
-        }
-        module = [self loadAsFileOrDirectory:relativePath withContext:context];
-        if (module) {
           return module;
         }
         // Treat '/' special as absolute, drop the leading '/'
