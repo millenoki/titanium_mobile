@@ -2485,7 +2485,6 @@
 		24CA8C63111165890084E2DE /* Tableview & Groupview */ = {
 			isa = PBXGroup;
 			children = (
-				B4D5829511264FF500A6B66C /* TiUITextWidget.h */,
 				D5908158168B593B00362307 /* TiUIHorizontalTableView.m */,
 				D5908159168B593B00362307 /* TiUIHorizontalTableViewProxy.m */,
 				D590815A168B593B00362307 /* TiUIHorizontalTableViewProxy.h */,
@@ -2567,6 +2566,7 @@
 				B4D5828E11264F8600A6B66C /* Textarea */,
 				B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */,
 				B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */,
+				B4D5829511264FF500A6B66C /* TiUITextWidget.h */,
 				B4D5829611264FF500A6B66C /* TiUITextWidget.m */,
 			);
 			name = "Text widgets";
