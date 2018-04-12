@@ -7,6 +7,7 @@
 #import "TiAnimation.h"
 #import "TiViewProxy.h"
 #import "CAMediaTimingFunction+HLSExtensions.h"
+//#import "UIView+RZViewActions.h"
 
 @interface TiViewAnimationStep ()
 
@@ -64,6 +65,14 @@
             }
             
         };
+      
+//      NSMutableArray* seqArray = [NSMutableArray array];
+//      [viewAnimation getAnimationsList:seqArray forView:view forStep:self];
+//      RZViewAction *seq = [RZViewAction sequence:seqArray];
+//
+//      [UIView rz_runAction:seq withCompletion:^(BOOL finished) {
+//        [self notifyAsynchronousAnimationStepDidStopFinished:finished];
+//      }];
         
         void (^complete)(BOOL) = ^(BOOL finished) {
             [self notifyAsynchronousAnimationStepDidStopFinished:finished];

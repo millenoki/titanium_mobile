@@ -64,6 +64,26 @@
 
 }
 
+//-(void)getAnimationsList:(NSMutableArray*)list forView:(UIView*)_view forStep:(TiViewAnimationStep*) step {
+//  TiViewAnimation *viewAnimation = (TiViewAnimation *)[step objectAnimationForObject:_view];
+//  NSTimeInterval animationDuration = step.duration;
+//  UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); //Backwards compatible
+//  if (viewAnimation.animationProxy.shouldBeginFromCurrentState) {
+//    options |= UIViewAnimationOptionBeginFromCurrentState;
+//  }
+//  RZViewAction* action = [RZViewAction action:^{
+//    [m_tiViewProxy setRunningAnimationRecursive:step];
+//    [m_animationProxy applyToOptionsForAnimation:self];
+//    [m_tiViewProxy setRunningAnimationRecursive:nil];
+//  } withOptions:options duration:animationDuration];
+//  if (m_animationProxy.delay) {
+//    [list addObject:[RZViewAction sequence:@[[RZViewAction waitForDuration:m_animationProxy.delay], action]]];
+//  } else {
+//    [list addObject:action];
+//
+//  }
+//}
+
 #pragma mark Accessors and mutators
 
 @synthesize tiViewProxy = m_tiViewProxy;

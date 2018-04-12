@@ -35,7 +35,7 @@ static NSArray *animProps;
     repeat = [NSNumber numberWithInt:1];
     duration = 0;
     reverseDuration = 0;
-    _curve = [[TiAnimation timingFunctionForCurve:kTiAnimCurveEaseInOut] retain];
+    _curve = nil;
     restartFromBeginning = NO;
     transition = UIViewAnimationTransitionNone;
     animated = NO;
@@ -249,13 +249,15 @@ static NSArray *animProps;
   if ([realOptions objectForKey:prop]) {
     NSMutableDictionary* toApply = [NSMutableDictionary dictionaryWithDictionary:[realOptions objectForKey:prop]];
     [toApply removeObjectForKey:@"duration"];
+    [toApply removeObjectForKey:@"delay"];
+    [toApply removeObjectForKey:@"curve"];
     [theProxy applyProperties:toApply];
-  } else if (fromProps && reverse) {
-    [theProxy applyProperties:[self reverseDictFromProp:[self allProperties] onProxy:theProxy]];
+  } else if (fromProps && !reverse) {
+    realOptions = [NSMutableDictionary dictionaryWithDictionary:[self reverseDictFromProp:[self allProperties] onProxy:theProxy]];
   } else if (!fromProps && !reverse) {
     NSDictionary *from = [realOptions objectForKey:@"from"];
     if (from) {
-      [theProxy applyProperties:[self reverseDictFromProp:from onProxy:theProxy]];
+      realOptions = [NSMutableDictionary dictionaryWithDictionary:[self reverseDictFromProp:from onProxy:theProxy]];
     }
   }
   [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
@@ -263,39 +265,34 @@ static NSArray *animProps;
 
     TiProxy *bindedProxy = [theProxy bindingForKey:key];
     if (IS_OF_CLASS(obj, NSDictionary) && bindedProxy) {
-      if (IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy *)bindedProxy animationClassType] isSubclassOfClass:animationClassType]) {
+      id delayProp = [obj objectForKey:@"delay"];
+      id durationProp = [obj objectForKey:@"duration"];
+      id curveProp = [obj objectForKey:@"curve"];
+      if ((!delayProp && !durationProp && !curveProp)) {
+        [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
       } else {
-        if ([obj objectForKey:@"delay"]) {
-          void (^bindedAnimation)() = ^{
-            [CATransaction begin];
-            if ([obj objectForKey:@"duration"]) {
-              [CATransaction setAnimationDuration:[TiUtils floatValue:[obj objectForKey:@"duration"]] / 1000];
-            }
-            if ([obj objectForKey:@"curve"]) {
-              [CATransaction setAnimationTimingFunction:[TiUtils curveValue:[obj objectForKey:@"curve"]]];
-            }
-            [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
-            [CATransaction commit];
-          };
-
-          void (^complete)(BOOL) = ^(BOOL finished) {
-          };
-          [UIView animateWithDuration:[TiUtils floatValue:@"duration" properties:obj def:duration] / 1000
-                                delay:[TiUtils floatValue:[obj objectForKey:@"delay"]] / 1000
-                              options:UIViewAnimationOptionAllowUserInteraction
-                           animations:bindedAnimation
-                           completion:complete];
-        } else {
-          [CATransaction begin];
-          if ([obj objectForKey:@"duration"]) {
-            [CATransaction setAnimationDuration:[TiUtils floatValue:[obj objectForKey:@"duration"]] / 1000];
-          }
-          if ([obj objectForKey:@"curve"]) {
-            [CATransaction setAnimationTimingFunction:[TiUtils curveValue:[obj objectForKey:@"curve"]]];
-          }
-          [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
-          [CATransaction commit];
-        }
+//        void (^bindedAnimation)() = ^{
+//          if (curveProp) {
+//            [CATransaction begin];
+//            [CATransaction setAnimationDuration:[TiUtils floatValue:durationProp def:duration] / 1000];
+//            [CATransaction setAnimationTimingFunction:[TiUtils curveValue:curveProp]];
+//            [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+//            [CATransaction commit];
+//          } else {
+//            [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+//          }
+//        };
+//
+//        void (^complete)(BOOL) = ^(BOOL finished) {
+//        };
+//        double innerDuration = [TiUtils floatValue:durationProp def:duration] / 1000;
+//        double innerDelay = [TiUtils floatValue:delayProp def:delay] / 1000;
+//        [UIView animateWithDuration:innerDuration
+//                                delay:innerDelay
+//                              options:UIViewAnimationOptionAllowUserInteraction
+//                           animations:bindedAnimation
+//                           completion:complete];
+        
       }
       [realOptions removeObjectForKey:key];
     }
@@ -303,8 +300,9 @@ static NSArray *animProps;
   [realOptions removeObjectForKey:@"from"];
   [realOptions removeObjectForKey:@"to"];
   [realOptions removeObjectForKey:@"duration"];
+  [realOptions removeObjectForKey:@"delay"];
   [realOptions removeObjectForKey:@"curve"];
-  if (!fromProps && [realOptions count] > 0) {
+  if ([realOptions count] > 0) {
     [theProxy applyProperties:realOptions];
   }
   if (fake) {
@@ -319,7 +317,7 @@ static NSArray *animProps;
 
 - (void)applyToOptions:(TiProxy *)theProxy
 {
-  [self internalApplyOptions:[self allProperties] onProxy:theProxy fromProps:NO isFake:YES reverse:NO];
+  [self internalApplyOptions:[self allProperties] onProxy:theProxy fromProps:NO isFake:NO reverse:NO];
 }
 
 - (void)applyFromOptionsForAnimation:(TiHLSAnimation *)anim

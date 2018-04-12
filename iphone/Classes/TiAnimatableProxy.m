@@ -250,7 +250,8 @@
     NSDictionary *toProps = [animation propertiesForAnimation:self destination:YES reverse:NO];
     [toProps enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull obj, BOOL *_Nonnull stop) {
       TiProxy *bindedProxy = [self bindingForKey:key];
-      if ((obj == [NSNull null] || IS_OF_CLASS(obj, NSDictionary)) && IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy *)bindedProxy animationClassType] isSubclassOfClass:animationClassType]) {
+      if ((obj == [NSNull null] || IS_OF_CLASS(obj, NSDictionary)) && IS_OF_CLASS(bindedProxy, TiAnimatableProxy) &&
+          ([obj objectForKey:@"duration"] || [obj objectForKey:@"delay"] || [obj objectForKey:@"curve"])) {
         TiAnimation *childAnim = [TiAnimation animationFromArg:obj context:[bindedProxy executionContext] create:NO];
         if (childAnim.duration == 0) {
           childAnim.duration = animation.duration;
