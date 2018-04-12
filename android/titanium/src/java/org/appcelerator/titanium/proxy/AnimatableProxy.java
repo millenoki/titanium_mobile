@@ -19,12 +19,14 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.view.animation.Interpolator;
 
 //import android.animation.Animator;
 //import android.animation.AnimatorSet;
 //import android.animation.ValueAnimator;
 
+@SuppressLint("NewApi")
 @SuppressWarnings({"rawtypes"})
 @Kroll.proxy
 public class AnimatableProxy extends ParentingProxy {
@@ -181,6 +183,28 @@ public class AnimatableProxy extends ParentingProxy {
 //        }
 //    }
 	
+	
+	static void prepareAnimationList(List<Animator> list, Double setDuration, Double setDelay, Interpolator interpolator) {
+	    for (int i = 0; i < list.size(); i++) {
+            Animator anim = list.get(i);
+            if (anim instanceof AnimatorSet) {
+                prepareAnimationList(((AnimatorSet) anim).getChildAnimations(), setDuration, setDelay, interpolator);
+            } else {
+                final long duration = anim.getDuration();
+                final long startDelay = anim.getStartDelay();
+                final Object interpo = anim.getInterpolator();
+                if (startDelay == 0 && setDelay != null) {
+                    anim.setStartDelay(setDelay.longValue());
+                }
+                if (duration == 0 && setDuration != null) {
+                    anim.setDuration(setDuration.longValue());
+                }
+                if (interpo == null && interpolator != null) {
+                    anim.setInterpolator(interpolator);
+                }
+            }
+        }
+	}
 	public void prepareAnimatorSet(TiAnimatorSet tiSet) {
 		tiSet.aboutToBePrepared();
 		AnimatorSet set = tiSet.set();
@@ -200,48 +224,21 @@ public class AnimatableProxy extends ParentingProxy {
 		int repeatCount = (tiSet.repeat == ValueAnimator.INFINITE ? tiSet.repeat : tiSet.repeat - 1);
 		tiSet.setRepeatCount(repeatCount);
 		Interpolator interpolator = tiSet.getCurve();
+		Double setDuration = tiSet.getDuration();
+		Double setDelay = tiSet.delay;
 
-		// for (int i = 0; i < list.size(); i++) {
-		// 	ValueAnimator anim = (ValueAnimator) list.get(i);
-		// 	if (tiSet.delay != null)
-		// 		anim.setStartDelay(tiSet.delay.longValue());
-		// 	if (tiSet.getDuration() != null)
-		// 		anim.setDuration(tiSet.getDuration().longValue());
-		// 	if (interpolator != null)
-		// 		anim.setInterpolator(interpolator);
-		// }
+		prepareAnimationList(list, setDuration, setDelay, interpolator);
         set.playTogether(list);
-        {
-            if (tiSet.delay != null)
-                set.setStartDelay(tiSet.delay.longValue());
-            if (tiSet.getDuration() != null)
-                set.setDuration(tiSet.getDuration().longValue());
-            if (interpolator != null)
-                set.setInterpolator(interpolator);
-        }
 
-		
 		//reverse set
 		if (listReverse != null) {
 			AnimatorSet reverseSet = tiSet.getOrCreateReverseSet();
+			Double reverseSetDuration = tiSet.getReverseDuration();
+	        Double reverseSetDelay = tiSet.delay;
 			Interpolator reverseInterpolator = tiSet.getReverseCurve();
-			// for (int i = 0; i < listReverse.size(); i++) {
-			// 	ValueAnimator anim = (ValueAnimator) listReverse.get(i);
-			// 	//no startdelay for the reversed animation
-			// 	if (tiSet.getReverseDuration() != null)
-			// 		anim.setDuration(tiSet.getReverseDuration().longValue());
-			// 	if (reverseInterpolator != null)
-			// 		anim.setInterpolator(reverseInterpolator);
-			// }
+	        prepareAnimationList(list, reverseSetDuration, reverseSetDelay, reverseInterpolator);
 			reverseSet.playTogether(listReverse);
-            {
-                if (tiSet.getReverseDuration() != null)
-                    reverseSet.setDuration(tiSet.getReverseDuration().longValue());
-                if (reverseInterpolator != null)
-                    reverseSet.setInterpolator(reverseInterpolator);
-            }
 		}
-		///
 		
 		tiSet.setListener(listener);
 		tiSet.createClonableSets(); //create clonable after adding listener so that it is cloned too

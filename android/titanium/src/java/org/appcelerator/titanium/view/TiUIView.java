@@ -2715,23 +2715,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             final Object toValue, final HashMap properties, final View view,
             final View parentView, List<Animator> list,
             final boolean needsReverse, List<Animator> listReverse) {
+        ObjectAnimator anim = null;
+        ObjectAnimator reverseAnim = null;
         switch (key) {
         case TiC.PROPERTY_OPACITY: {
-            list.add(ObjectAnimator.ofFloat(this, key,
-                    TiConvert.toFloat(toValue, 1.0f)));
+            anim = ObjectAnimator.ofFloat(this, key,
+                    TiConvert.toFloat(toValue, 1.0f));
             if (needsReverse) {
-                listReverse.add(ObjectAnimator.ofFloat(this, key,
-                        TiConvert.toFloat(properties, key, 1.0f)));
+                reverseAnim = ObjectAnimator.ofFloat(this, key, TiConvert.toFloat(properties, key, 1.0f));
             }
             break;
         }
         case TiC.PROPERTY_BORDER_RADIUS: {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, key,
+            anim = ObjectAnimator.ofFloat(this, key,
                     TiConvert.toFloat(toValue, 0));
-            list.add(anim);
+//            list.add(anim);
             if (needsReverse) {
-                listReverse.add(
-                        ObjectAnimator.ofFloat(this, key, getBorderRadius()));
+                reverseAnim = ObjectAnimator.ofFloat(this, key, getBorderRadius());
             }
             break;
         }
@@ -2739,11 +2739,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             float elevation = TiConvert
                     .toTiDimension(toValue, TiDimension.TYPE_WIDTH)
                     .getAsPixels();
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, key, elevation);
-            list.add(anim);
+            anim = ObjectAnimator.ofFloat(this, key, elevation);
+//            list.add(anim);
             if (needsReverse) {
-                listReverse
-                        .add(ObjectAnimator.ofFloat(this, key, getElevation()));
+                reverseAnim = ObjectAnimator.ofFloat(this, key, getElevation());
             }
             break;
         }
@@ -2751,25 +2750,24 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             float translationZ = TiConvert
                     .toTiDimension(toValue, TiDimension.TYPE_WIDTH)
                     .getAsPixels();
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, key,
+            anim = ObjectAnimator.ofFloat(this, key,
                     translationZ);
-            list.add(anim);
+//            list.add(anim);
             if (needsReverse) {
-                listReverse.add(
-                        ObjectAnimator.ofFloat(this, key, getTranslationZ()));
+                reverseAnim = ObjectAnimator.ofFloat(this, key, getTranslationZ());
             }
             break;
         }
         case TiC.PROPERTY_BACKGROUND_COLOR: {
-            ObjectAnimator anim = ObjectAnimator.ofInt(this, key,
+            anim = ObjectAnimator.ofInt(this, key,
                     TiConvert.toColor(toValue));
             anim.setEvaluator(new ArgbEvaluator());
-            list.add(anim);
+//            list.add(anim);
             if (needsReverse) {
-                anim = ObjectAnimator.ofInt(this, key,
+                reverseAnim = ObjectAnimator.ofInt(this, key,
                         TiConvert.toColor(properties, key));
-                anim.setEvaluator(new ArgbEvaluator());
-                listReverse.add(anim);
+                reverseAnim.setEvaluator(new ArgbEvaluator());
+//                listReverse.add(anim);
             }
             break;
         }
@@ -2777,16 +2775,16 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             Ti2DMatrix matrix = TiConvert.toMatrix(toValue);
             if (parentView instanceof FreeLayout) {
                 Ti2DMatrixEvaluator evaluator = new Ti2DMatrixEvaluator(view);
-                ObjectAnimator anim = ObjectAnimator.ofObject(this,
+                anim = ObjectAnimator.ofObject(this,
                         "ti2DMatrix", evaluator, matrix);
-                list.add(anim);
+//                list.add(anim);
                 if (needsReverse) {
                     Ti2DMatrix reverseMatrix = getLayoutParams().matrix;
                     if (reverseMatrix == null) {
                         reverseMatrix = TiConvert.IDENTITY_MATRIX;
                     }
-                    listReverse.add(ObjectAnimator.ofObject(this, "ti2DMatrix",
-                            evaluator, reverseMatrix));
+                    reverseAnim = ObjectAnimator.ofObject(this, "ti2DMatrix",
+                            evaluator, reverseMatrix);
                 }
             } else {
                 DecomposedType decompose = matrix.getAffineTransform(view)
@@ -2802,8 +2800,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         (float) decompose.scaleX));
                 propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
                         (float) decompose.scaleY));
-                list.add(ObjectAnimator.ofPropertyValuesHolder(view,
-                        propertiesList.toArray(new PropertyValuesHolder[0])));
+                anim = ObjectAnimator.ofPropertyValuesHolder(view,
+                        propertiesList.toArray(new PropertyValuesHolder[0]));
                 if (needsReverse) {
                     matrix = TiConvert.toMatrix(properties,
                             TiC.PROPERTY_TRANSFORM);
@@ -2819,9 +2817,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                             (float) decompose.scaleX));
                     propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
                             (float) decompose.scaleY));
-                    listReverse.add(ObjectAnimator.ofPropertyValuesHolder(view,
+                    reverseAnim = ObjectAnimator.ofPropertyValuesHolder(view,
                             propertiesList
-                                    .toArray(new PropertyValuesHolder[0])));
+                                    .toArray(new PropertyValuesHolder[0]));
                 }
             }
             break;
@@ -2830,7 +2828,16 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             propertySet(key, toValue, proxy.getProperty(key), true);
             break;
         }
-
+        if (anim != null) {
+            anim.setInterpolator(null);
+            anim.setDuration(0);
+            list.add(anim);
+        }
+        if (reverseAnim != null) {
+           reverseAnim.setInterpolator(null);
+           reverseAnim.setDuration(0);
+          listReverse.add(reverseAnim);
+        }
     }
 
     public void setFakeAnimParam(float value) {
@@ -2878,11 +2885,20 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 view.setLayoutParams(animParams);
                 Animator anim = createLayoutAnimator(view, oldAnimationFraction,
                         1.0f);
+                anim.setInterpolator(null);
+//                final long duration = anim.getDuration();
+//                final long startDelay = anim.getStartDelay();
+//                final Object interpo = anim.getInterpolator();
+//                if (anim.getDuration() == null) {
+//                    tiAnimator.setDuration(tiSet.getDuration());
+//                }
                 // ObjectAnimator anim = ObjectAnimator.ofFloat(this,
                 // "animatedRectFraction", 1.0f);
                 list.add(anim);
                 if (needsReverse) {
-                    listReverse.add(createLayoutAnimator(view, 1.0f, 0.0f));
+                    anim = createLayoutAnimator(view, 1.0f, oldAnimationFraction);
+                    anim.setInterpolator(null);
+                    listReverse.add(anim);
                 }
             }
 
@@ -2897,9 +2913,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (proxyvalue instanceof AnimatableProxy
                     && value instanceof HashMap) {
                 TiAnimatorSet tiAnimator = proxy.createAnimator(value);
-                if (tiAnimator.getDuration() == null) {
-                    tiAnimator.setDuration(tiSet.getDuration());
-                }
+//                final Double duration = tiAnimator.getDuration();
+//                final long startDelay = tiAnimator.getStartDelay();
+//                final Object interpo = tiAnimator.getCurve();
+//                if (tiAnimator.getDuration() == null) {
+//                    tiAnimator.setDuration(tiSet.getDuration());
+//                }
                 tiAnimator.autoreverse = tiSet.autoreverse;
                 tiAnimator.dontApplyOnFinish = tiSet.dontApplyOnFinish;
                 tiAnimator.setProxy((AnimatableProxy) proxyvalue);
