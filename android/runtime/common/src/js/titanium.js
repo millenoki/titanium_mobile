@@ -33,7 +33,7 @@ bootstrap.bootstrap(Titanium);
 
 // Custom JS extensions to Java modules
 require('ui').bootstrap(Titanium);
-require('network').bootstrap(Titanium);
+// require('network').bootstrap(Titanium);
 
 const Properties = require('properties');
 Properties.bootstrap(Titanium);
