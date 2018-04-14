@@ -1137,24 +1137,31 @@ public abstract class TiApplication extends Application
         if (sAppDensityString == null) {
             switch (getAppDensityDpi()) {
             case DisplayMetrics.DENSITY_HIGH:
-                sAppDensityString = "high";
+                sAppDensityString = "hdpi";
+                break;
             case DisplayMetrics.DENSITY_MEDIUM:
-                sAppDensityString = "medium";
+                sAppDensityString = "mdpi";
+                break;
             case 213: // TV
-                return "tvdpi";
+                sAppDensityString = "tvdpi";
             case 280: // Introduce in API 22.
             case 320: // DisplayMetrics.DENSITY_XHIGH (API 9)
-                sAppDensityString = "xhigh";
+                sAppDensityString = "xhdpi";
+                break;
             case 400:
             case 480:
-                sAppDensityString = "xxhigh";
+                sAppDensityString = "xxhdpi";
+                break;
             case 560:
             case 640:
-                sAppDensityString = "xxxhigh";
+                sAppDensityString = "xxxhdpi";
+                break;
             case DisplayMetrics.DENSITY_LOW:
-                sAppDensityString = "low";
+                sAppDensityString = "ldpi";
+                break;
             default:
-                sAppDensityString = "medium";
+                sAppDensityString = "mdpi";
+                break;
             }
         }
         return sAppDensityString;

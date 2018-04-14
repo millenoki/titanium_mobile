@@ -132,7 +132,7 @@ public class DisplayCapsProxy extends KrollProxy
 	@Kroll.getProperty @Kroll.method
 	public String getDensity() {
 		return TiApplication.getAppDensityString();
-			}
+	}
 
 	@Kroll.getProperty @Kroll.method
 	public float getDpi() {
