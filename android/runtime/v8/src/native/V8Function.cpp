@@ -68,8 +68,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 	}
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		return JNIUtil::undefinedObject;
 	} else if (object.IsEmpty()) {
 		return JNIUtil::undefinedObject;

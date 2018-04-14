@@ -200,8 +200,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	MaybeLocal<Value> result = fireEvent->Call(V8Runtime::v8_isolate->GetCurrentContext(), emitter, 2, args);
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 	} else if (result.IsEmpty()) {
 		return JNI_FALSE;
 	} else if (result.ToLocalChecked()->IsTrue()) {
@@ -264,8 +264,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	}
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		return JNIUtil::undefinedObject;
 	} else if (returnValue.IsEmpty()) {
 		return JNIUtil::undefinedObject;
@@ -331,8 +331,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetWindow
 	}
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 	}
 }
 

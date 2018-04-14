@@ -309,8 +309,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 	V8Runtime::RunModuleFunction()->Call(context, V8Runtime::ModuleObject(), 3, args);
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 	}
 }
 
@@ -333,8 +333,8 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativ
 	Local<Value> result = script->Run();
 
 	if (tryCatch.HasCaught()) {
-		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+		V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 		return NULL;
 	}
 
