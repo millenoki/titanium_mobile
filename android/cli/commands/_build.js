@@ -1810,16 +1810,16 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
             if (!cli.argv['ide'] || this.forceRebuild) {
                 appc.async.series(this, [
                     // 'removeOldFiles',
-        'copyGradleTemplate',
-		'generateJavaFiles',
-		'generateAidl',
+					'copyGradleTemplate',
+					'generateJavaFiles',
+					'generateAidl',
 
-		// generate the i18n files after copyModuleResources to make sure the app_name isn't
-		// overwritten by some module's strings.xml
-		'generateI18N',
+					// generate the i18n files after copyModuleResources to make sure the app_name isn't
+					// overwritten by some module's strings.xml
+					'generateI18N',
 
-		'generateTheme',
-		'generateAndroidManifest',
+					'generateTheme',
+					'generateAndroidManifest',
                 ], next);
             } else {
                 next();
@@ -1833,32 +1833,31 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
         function(next) {
             if (!cli.argv.ide) {
                 appc.async.series(this, [
-		'packageApp',
+					'packageApp',
                     // 'generateRClasses',
+					// provide a hook event before javac
+					function (next) {
+						cli.emit('build.pre.build', this, next);
+					},
 
-		// provide a hook event before javac
-		function (next) {
-			cli.emit('build.pre.build', this, next);
-		},
+					// we only need to compile java classes if any files in src or gen changed
+					'compileJavaClasses',
 
-		// we only need to compile java classes if any files in src or gen changed
-		'compileJavaClasses',
+					// provide a hook event after javac
+					function (next) {
+						cli.emit('build.post.build', this, next);
+					},
 
-		// provide a hook event after javac
-		function (next) {
-			cli.emit('build.post.build', this, next);
-		},
+					// we only need to run proguard if any java classes have changed
+					'runProguard',
 
-		// we only need to run proguard if any java classes have changed
-		'runProguard',
+					// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or
+					// any files in this.buildBinClassesDir have changed or debugging/profiling toggled
+					'runDexer',
 
-		// we only need to run the dexer if this.moduleJars or this.jarLibraries changes or
-		// any files in this.buildBinClassesDir have changed or debugging/profiling toggled
-		'runDexer',
-
-		'createUnsignedApk',
-		'createSignedApk',
-		'zipAlignApk',
+					'createUnsignedApk',
+					'createSignedApk',
+					'zipAlignApk',
                 ], next);
             } else {
                 next();
