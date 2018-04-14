@@ -60,7 +60,7 @@ bool EventEmitter::emit(Local<String> event, int argc, Local<Value> *argv)
 	Local<Object> events = events_v.As<Object>();
 
 	Local<Value> listeners_v = events->Get(event);
-	TryCatch try_catch;
+	TryCatch try_catch(isolate);
 
 	if (listeners_v->IsFunction()) {
 		// Optimized one-listener case

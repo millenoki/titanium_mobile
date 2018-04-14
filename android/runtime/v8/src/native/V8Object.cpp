@@ -71,7 +71,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
 	Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
 
-	jsObject->SetAccessor(jsName->ToString(V8Runtime::v8_isolate), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
+	jsObject->SetAccessor(V8Runtime::v8_isolate->GetCurrentContext(), jsName->ToString(V8Runtime::v8_isolate), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
 	properties->Set(jsName, jsValue);
 }
 
