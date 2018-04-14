@@ -61,7 +61,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -172,8 +171,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
     private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
     private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
+    public boolean isLayedout = false;
     public boolean isResumed = false;
-
     private boolean isPaused = false;
 
     private boolean fullscreen = false;
@@ -1770,7 +1769,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
     }
 
-    @Override
+   @Override
     /**
      * When the activity resumes, this method updates the current activity to
      * this and fires a javascript 'resume' event.
@@ -1782,22 +1781,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
             dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
         }
 
-        if (!windowStack.empty()) {
-            layout.getViewTreeObserver()
-                    .addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            if (TiC.JELLY_BEAN_OR_GREATER) {
-                                layout.getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
-                            } else {
-                                layout.getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
-                            }
-                            windowStack.peek().onWindowFocusChange(true);
-                        }
-                    });
-        }
+        
         super.onResume();
         if (isFinishing()) {
             return;
@@ -1816,9 +1800,29 @@ public abstract class TiBaseActivity extends AppCompatActivity
         tiApp.setCurrentActivity(this, this);
         TiApplication.updateActivityTransitionState(false);
         
-        if (!windowStack.empty()) {
+        
+        if (!isLayedout && !windowStack.empty()) {
+            //first layout
+            layout.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            isLayedout = true;
+                            if (TiC.JELLY_BEAN_OR_GREATER) {
+                                layout.getViewTreeObserver()
+                                        .removeOnGlobalLayoutListener(this);
+                            } else {
+                                layout.getViewTreeObserver()
+                                        .removeGlobalOnLayoutListener(this);
+                            }
+                            windowStack.peek().onWindowFocusChange(true);
+                        }
+                    });
+        } else if (isPaused && !windowStack.empty()) {            
+            //the app was paused. So the window did receive a blur on pause. Let's send focus event
             windowStack.peek().onWindowFocusChange(true);
         }
+        
 
         if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_RESUME);
@@ -1840,13 +1844,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
         isResumed = true;
         isPaused = false;
         
-        
-        // Checkpoint for ti.foreground event
-        // String deployType =
-        // tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-        if (TiApplication.getInstance().isAnalyticsEnabled()) {
-            APSAnalytics.getInstance().sendAppForegroundEvent();
-        }
     }
 
     // @Override

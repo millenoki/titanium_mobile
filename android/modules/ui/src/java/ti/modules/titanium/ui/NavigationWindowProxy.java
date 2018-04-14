@@ -340,7 +340,11 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 					
 		final ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForWindows();
 		
-        toRemove.onWindowFocusChange(false);
+		TiBaseActivity activity = (TiBaseActivity) getActivity();
+        final boolean alreadyLayedout = activity.isLayedout;
+        if(alreadyLayedout) {
+            toRemove.onWindowFocusChange(false);
+        }
 		final boolean viewWasOpened = winToFocus.isOpenedOrOpening();
 		if (viewToRemoveFrom != null) {
 			final View viewToRemove = toRemove.getOuterView();
@@ -381,7 +385,9 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		
         toRemove.blur();
         prepareCurrentWindow(winToFocus);
-        winToFocus.onWindowFocusChange(true);
+        if(alreadyLayedout) {
+            winToFocus.onWindowFocusChange(true);
+        }
 
 		return true;
 	}
@@ -548,13 +554,16 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 			fireEvent("openWindow", options, false, false);
 		}
 		TiBaseActivity activity = (TiBaseActivity) getActivity();
+		final boolean alreadyLayedout = activity.isLayedout;
 		if (viewToAddTo != null) {
 			proxy.setActivity(activity);
 			final View viewToAdd = proxy.getOrCreateView().getOuterView();
 			viewToAdd.setVisibility(View.GONE);
 			TiUIHelper.addView(viewToAddTo, viewToAdd, proxy.peekView().getLayoutParams());
 			TiWindowProxy winToBlur = getCurrentWindowInternal();
-			winToBlur.onWindowFocusChange(false);
+			if (alreadyLayedout) {
+	            winToBlur.onWindowFocusChange(false);
+			}
 			final View viewToHide = winToBlur.getOuterView();
 			if (transition != null) {
 				proxy.customHandleOpenEvent(true);
@@ -589,7 +598,9 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 				pushing = false; 
 			}
    			handleSetViewVisible(viewToAdd, View.VISIBLE);
-   			proxy.onWindowFocusChange(true);
+            if (alreadyLayedout) {
+                proxy.onWindowFocusChange(true);
+            }
 		}
 		addWindow(proxy, transition);
         prepareCurrentWindow(proxy);
