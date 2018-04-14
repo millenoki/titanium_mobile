@@ -4856,6 +4856,7 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 					this.logger.error(__('Unable to find generated R.java file') + '\n');
 					process.exit(1);
 				}
+				this.logger.error(__('packaged application: %d, %s, %s', code, out.toString(), err.toString() ));
 
 				done();
 			}.bind(this));
@@ -5293,32 +5294,31 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 		soRegExp = /\.so$/,
 		trailingSlashRegExp = /\/$/,
 		nativeLibs = {},
-		origConsoleError = console.error,
+		// origConsoleError = console.error,
 		entryNames = [];
 
 	// since the archiver library didn't set max listeners, we squelch all error output
-	console.error = function () {};
+	// console.error = function () {};
 
-	try {
+	// try {
 		fs.existsSync(this.unsignedApkFile) && fs.unlinkSync(this.unsignedApkFile);
 		const apkStream = fs.createWriteStream(this.unsignedApkFile);
 		apkStream.on('close', function () {
-			console.error = origConsoleError;
+			// console.error = origConsoleError;
 			next();
 		});
 		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(apkStream);
 
-		this.logger.info(__('Creating unsigned apk'));
+		this.logger.info(__('Creating unsigned apk: %s',  this.unsignedApkFile.cyan));
 
 		// merge files from the app.ap_ file as well as all titanium and 3rd party jar files
 		const archives = [ this.ap_File ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
 		archives.forEach(function (file) {
+			this.logger.debug(__('Processing %s', file.cyan));
 			const src = new AdmZip(file),
 				entries = src.getEntries();
-
-			this.logger.debug(__('Processing %s', file.cyan));
 
 			entries.forEach(function (entry) {
                 if (entry.entryName.indexOf('META-INF/') === -1 &&
@@ -5491,10 +5491,10 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
 
 		this.logger.info(__('Writing unsigned apk: %s', this.unsignedApkFile.cyan));
 		dest.finalize();
-	} catch (ex) {
-		console.error = origConsoleError;
-		throw ex;
-	}
+	// } catch (ex) {
+	// 	// console.error = origConsoleError;
+	// 	throw ex;
+	// }
 };
 
 AndroidBuilder.prototype.createSignedApk = function createSignedApk(next) {
