@@ -114,22 +114,28 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 		nameSymbol.Reset(isolate, NEW_SYMBOL(isolate, "name"));
 		messageSymbol.Reset(isolate, NEW_SYMBOL(isolate, "message"));
 	}
-
+	Local<Context> context;
 	if (showLine) {
 		if (!message.IsEmpty()) {
-			v8::String::Utf8Value filename(message->GetScriptResourceName());
-			v8::String::Utf8Value msg(message->Get());
-			int linenum = message->GetLineNumber();
+			context = isolate->GetCurrentContext();
+			String::Utf8Value filename(isolate, message->GetScriptResourceName());
+			String::Utf8Value msg(isolate, message->Get());
+			int linenum = message->GetLineNumber(context).FromJust();
 			LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum, *msg);
+		} else {
+			v8::String::Utf8Value msg(isolate, tryCatch.Exception());
+			LOGE(EXC_TAG, "Exception occurred at  %s", *msg);
+			return;
 		}
 	}
 
-	Local<Value> stackTrace = tryCatch.StackTrace();
-	v8::String::Utf8Value trace(stackTrace);
-
-	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
-		LOGD(EXC_TAG, *trace);
-	} else {
+    Local<Value> stack_trace_string;
+	if (tryCatch.StackTrace(context).ToLocal(&stack_trace_string) &&
+        stack_trace_string->IsString() &&
+        Local<String>::Cast(stack_trace_string)->Length() > 0) {
+      	String::Utf8Value stack_trace(isolate, stack_trace_string);
+		LOGD(EXC_TAG, *stack_trace);
+    } else {
 		Local<Value> exception = tryCatch.Exception();
 		if (exception->IsObject()) {
 			Local<Object> exceptionObj = exception.As<Object>();
@@ -137,8 +143,8 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 			Local<Value> name = exceptionObj->Get(nameSymbol.Get(isolate));
 
 			if (!message->IsUndefined() && !name->IsUndefined()) {
-				v8::String::Utf8Value nameValue(name);
-				v8::String::Utf8Value messageValue(message);
+				String::Utf8Value nameValue(name);
+				String::Utf8Value messageValue(message);
 				LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
 			}
 		} else {
@@ -162,10 +168,18 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	}
 
 	jstring title = env->NewStringUTF("Runtime Error");
-	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
-	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
-	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(v8::Local<v8::Value>::Cast(v8::Null(isolate))));
-	jstring traceString = TypeConverter::jsValueToJavaString(isolate , env, tryCatch.StackTrace(context));
+	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, tryCatch.Exception());
+	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptOrigin().ResourceName());
+	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).ToLocalChecked());
+
+	jstring traceString = NULL;
+    Local<Value> stack_trace_string;
+	if (tryCatch.StackTrace(context).ToLocal(&stack_trace_string) &&
+        stack_trace_string->IsString() &&
+        Local<String>::Cast(stack_trace_string)->Length() > 0) {
+      	// v8::String::Utf8Value stack_trace(isolate, stack_trace_string);
+		traceString = TypeConverter::jsValueToJavaString(isolate , env, stack_trace_string);
+    }
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -173,16 +187,19 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 		title,
 		errorMessage,
 		resourceName,
-		message->GetLineNumber(context),
+		message->GetLineNumber(context).FromJust(),
 		sourceLine,
-		message->GetEndColumn(context),
+		message->GetStartColumn(context).FromJust(),
+		message->GetEndColumn(context).FromJust(),
         traceString);
 
 	env->DeleteLocalRef(title);
-	env->DeleteLocalRef(traceString);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);
+	if (traceString) {
+		env->DeleteLocalRef(traceString);
+	}
 }
 
 static int uncaughtExceptionCounter = 0;
@@ -220,7 +237,7 @@ bool V8Util::constructorNameMatches(Isolate* isolate, Local<Object> object, cons
 {
 	HandleScope scope(isolate);
 	Local<String> constructorName = object->GetConstructorName();
-	return strcmp(*v8::String::Utf8Value(constructorName), name) == 0;
+	return strcmp(*String::Utf8Value(constructorName), name) == 0;
 }
 
 static Persistent<Function> isNaNFunction;

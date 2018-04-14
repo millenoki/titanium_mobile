@@ -511,7 +511,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	}
 
 	public static void dispatchException(final String title, final String message, final String sourceName, final int line,
-		final String lineSource, final int lineOffset, final String callstack)
+		final String lineSource, final int columnStart, final int columnEnd, final String callstack)
 	{
 		if (instance != null) {
 		    HashMap error = new HashMap();
@@ -520,7 +520,8 @@ public abstract class KrollRuntime implements Handler.Callback
 		    error.put("fileName", sourceName);
             error.put("lineNumber", line);
             error.put("lineSource", lineSource);
-            error.put("columnNumber", lineOffset);
+            error.put("columnNumber", columnStart);
+            error.put("columnEnd", columnEnd);
             error.put("stack", callstack);
             
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
