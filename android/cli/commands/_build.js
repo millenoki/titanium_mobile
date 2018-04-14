@@ -4441,18 +4441,18 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 		contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ],
 		contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ],
 		geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
+		networkPermissions = [ 'android.permission.INTERNET', 'android.permission.ACCESS_WIFI_STATE', 'android.permission.ACCESS_NETWORK_STATE'],
+		filesystemPermissions = [ 'android.permission.WRITE_EXTERNAL_STORAGE'],
 		vibratePermissions = [ 'android.permission.VIBRATE' ],
 		wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ],
         configChanges = ['keyboard', 'keyboardHidden', 'orientation', 'screenLayout', 'uiMode', 'screenSize', 'smallestScreenSize'],
 		permissions = {
-			'android.permission.INTERNET': 1,
-			'android.permission.ACCESS_WIFI_STATE': 1,
-			'android.permission.ACCESS_NETWORK_STATE': 1,
-			'android.permission.WRITE_EXTERNAL_STORAGE': 1
 		},
 
 		tiNamespacePermissions = {
-			geolocation: geoPermissions
+			geolocation: geoPermissions,
+			network:networkPermissions,
+			filesystem:filesystemPermissions,
 		},
 
 		tiMethodPermissions = {
