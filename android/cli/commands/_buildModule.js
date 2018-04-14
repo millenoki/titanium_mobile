@@ -26,9 +26,10 @@ const AdmZip = require('adm-zip'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	temp = require('temp'),
-	// tiappxml = require('node-titanium-sdk/lib/tiappxml'),
+	tiappxml = require('node-titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	ts = require('typescript'),
+	wrench = require('wrench'),
 	semver = require('semver'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	SymbolLoader = require('appc-aar-tools').SymbolLoader,
@@ -1046,7 +1047,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// 	build/generated/json
 	// 	build/generated/jni
 	// 	dist/
-	[ this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir, this.distDir ].forEach(function (dir) {
+	[ this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir ].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			fs.removeSync(dir);
 		}
@@ -1243,7 +1244,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		if (('_dependencies' in node) && (node['_dependencies'].length) > 0) {
 			node['_dependencies'].forEach(function (dependency, index) {
 				js += ejs.render(JS_DEPENDENCY, { name: dependency, index: index });
-			});
 			});
 		}
 		let apiName = namespace.split('.'),
