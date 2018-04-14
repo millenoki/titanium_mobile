@@ -3058,7 +3058,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 //     } else {
                 //         this.logger.error(__('[TSC]:%s', diagnostic.messageText));
                 //     }
-                }.bind(this));
+                // }.bind(this));
                 this.logger.debug(__('TSC done!'));
             },
             function(cb) {
