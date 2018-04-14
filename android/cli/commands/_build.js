@@ -1967,24 +1967,25 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 	this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-    if (argv.target !== 'dist-playstore') {
+    // if (argv.target !== 'dist-playstore') {
         // determine if we're going to be minifying javascript
-        // const compileJSProp = this.tiapp['compile-js'];
-        if (argv['skip-js-minify']) {
+		// const compileJSProp = this.tiapp['compile-js'];
+		if (argv['skip-js-minify']) {
 			if (this.compileJS) {
 				logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
 					'--skip-js-minify'.cyan));
 			}
 			this.compileJS = this.encryptJS = this.minifyJS = false;
-		} else if (this.tiapp['compile-js'] !== undefined) {
-			// if (this.compileJS && !compileJSProp.value) {
-			// 	logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
-			// 		'ti.compilejs'.cyan));
-			// }
-			this.encryptJS = this.minifyJS = !!this.tiapp['compile-js'];
+		}
+		if (this.tiapp['minify-js'] !== undefined) {
+			this.minifyJS = !!this.tiapp['minify-js'];
+		}
+		if (this.tiapp['compile-js'] !== undefined) {
+			this.encryptJS = !!this.tiapp['compile-js'];
 		}
         this.currentBuildManifest.encryptJS = !!this.encryptJS;
-    }
+        this.currentBuildManifest.minifyJS = !!this.minifyJS;
+    // }
 
 	const includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
 	if (includeAllTiModulesProp !== undefined) {

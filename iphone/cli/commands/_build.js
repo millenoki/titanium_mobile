@@ -1950,24 +1950,24 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			}, this);
 		}, this);
 
-		if (this.deployType !== 'production' && cli.argv.target !== 'simulator') {
+		// if ( cli.argv.target !== 'simulator') {
 			// determine if we're going to be minifying javascript
-			const compileJSProp = cli.tiapp.properties['ti.compilejs'];
-			if (cli.argv['skip-js-minify']) {
+			if (argv['skip-js-minify']) {
 				if (this.compileJS) {
 					logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
 						'--skip-js-minify'.cyan));
 				}
 				this.compileJS = this.encryptJS = this.minifyJS = false;
-			} else if (compileJSProp) {
-				if (this.compileJS && !compileJSProp.value) {
-					logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
-						'ti.compilejs'.cyan));
-				}
-				this.encryptJS = this.minifyJS = !!compileJSProp.value;
+			}
+			if (cli.tiapp['minify-js'] !== undefined) {
+				this.minifyJS = !!cli.tiapp['minify-js'];
+			}
+			if (cli.tiapp['compile-js'] !== undefined) {
+				this.encryptJS = !!cli.tiapp['compile-js'];
 			}
 			this.currentBuildManifest.encryptJS = !!this.encryptJS;
-		}
+			this.currentBuildManifest.minifyJS = !!this.minifyJS;
+		// }
 		// check if we are running from Xcode
 		if (cli.argv.xcode) {
 			cli.argv['skip-js-minify'] = true; // never minify Xcode builds
