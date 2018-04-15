@@ -161,6 +161,7 @@ public abstract class TiWindowProxy extends TiViewProxy {
         return pendingAnimation;
     }
 
+    protected boolean needsTransitionAnimation = false;
     @Kroll.method
     @SuppressWarnings("unchecked")
     public void open(@Kroll.argument(optional = true) Object arg) {
@@ -203,6 +204,8 @@ public abstract class TiWindowProxy extends TiViewProxy {
         } else {
             options = new HashMap();
         }
+        
+        needsTransitionAnimation = hasActivityTransitions();
 
         if (TiApplication.isUIThread()) {
             handleOpen(options);
@@ -754,7 +757,12 @@ public abstract class TiWindowProxy extends TiViewProxy {
             sharedElementPairs.clear();
         }
     }
-
+    
+    protected boolean hasActivityTransitions() {
+        return false;
+    }
+    
+    
     /**
      * Helper method to create an activity options bundle.
      * 
@@ -765,22 +773,25 @@ public abstract class TiWindowProxy extends TiViewProxy {
     @SuppressWarnings("unchecked")
     @Nullable
     protected Bundle createActivityOptionsBundle(Activity activity) {
-        if (hasActivityTransitions()) {
+        if (hasSharedElementsTransitions()) {
             Bundle b = ActivityOptions
                     .makeSceneTransitionAnimation(activity,
                             sharedElementPairs.toArray(
                                     new Pair[sharedElementPairs.size()]))
                     .toBundle();
             return b;
-        } else {
-            return null;
+        } else if (needsTransitionAnimation) {
+            return ActivityOptions
+                    .makeSceneTransitionAnimation(activity)
+                    .toBundle();
         }
+        return null;
     }
 
     /**
      * @return true if this window has activity transitions
      */
-    protected boolean hasActivityTransitions() {
+    protected boolean hasSharedElementsTransitions() {
         final boolean animated = TiConvert.toBoolean(getProperties(),
                 TiC.PROPERTY_ANIMATED, true);
         return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null

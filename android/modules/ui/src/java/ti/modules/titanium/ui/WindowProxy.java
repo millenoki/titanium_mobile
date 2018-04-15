@@ -441,8 +441,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	                return;
 		        }
             }
-			if (super.hasActivityTransitions()) {
-			    activity.finishAfterTransition();
+			if (this.needsTransitionAnimation || super.hasSharedElementsTransitions()) {
+			    activity.supportFinishAfterTransition();
 			} else {
 			    activity.finish();
 			}
@@ -838,43 +838,95 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	 * @param win The window holding the activity.
 	 * @param props The property dictionary. 
 	 */
-	private void applyActivityTransitions(Window win, KrollDict props) {
+	private boolean applyActivityTransitions(Window win, KrollDict props) {
+	    boolean hasTransitions = false;
 	    if (LOLLIPOP_OR_GREATER) {
 	        // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
 	        // And setting a null transition makes the view unaccounted from transition. 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
 	            win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
+	            hasTransitions = true;
 	        } 
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
 	            win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
 	            win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
 	            win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
 	            win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
 	            win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
 	            win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
+                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
 	            win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
+                hasTransitions = true;
 	        }
 	    } 
+	    return hasTransitions;
 	}
+	
+	@Override
+	protected boolean hasActivityTransitions() {
+        boolean hasTransitions = false;
+        final KrollDict props = properties;
+        if (LOLLIPOP_OR_GREATER) {
+            // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
+            // And setting a null transition makes the view unaccounted from transition. 
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
+                hasTransitions = true;
+            } 
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
+                hasTransitions = true;
+            }
+
+            if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
+                hasTransitions = true;
+            }
+        } 
+        return hasTransitions;
+    }
 
 	/**
 	 * Creates a transition for the supplied transition type. 
@@ -936,6 +988,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
     			default:
     				break;
 			}
+//			if (t!=null) {
+//			    t.setDuration(1000);
+//			}
 			return t;
 		} else {
 			return null;

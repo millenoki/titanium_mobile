@@ -1001,7 +1001,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
         // Doing this on every create in case the activity is externally
         // created.
-        TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
+//        TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
         // Set the theme of the activity before calling super.onCreate().
         // On 2.3 devices, it does not work if the theme is set after
@@ -1010,7 +1010,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
         if (theme != -1) {
             this.setTheme(theme);
         }
-        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
 
         // Set ActionBar into split mode must be done before the decor view has
         // been created
@@ -1038,7 +1037,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
         this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         if (TiC.LOLLIPOP_OR_GREATER) {
             this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-        }
+            this.requestWindowFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+       }
 
         if (layout == null) {
             layout = createLayout(getIntentInt(TiC.PROPERTY_LAYOUT_ID, -1));
@@ -1053,11 +1053,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
         // set the current activity back to what it was originally
         tiApp.setCurrentActivity(this, tempCurrentActivity);
-
+        
         // If user changed the layout during app.js load, keep that
         if (!overridenLayout) {
             setContentView(layout);
         }
+        
         // sometimes we get a weird right and bottom padding :s
         getWindow().getDecorView().setPadding(0, 0, 0, 0);
 
@@ -1066,7 +1067,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // make sure we call windowCreated after setContentView because
         // it's a bad idea to query the actionBar before.
         windowCreated(savedInstanceState);
-
+      
+       
         if (activityProxy != null) {
             dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
             activityProxy.fireEvent(TiC.EVENT_CREATE);
