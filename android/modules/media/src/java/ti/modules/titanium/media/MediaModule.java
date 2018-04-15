@@ -8,7 +8,6 @@ package ti.modules.titanium.media;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -30,7 +29,6 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiFileProxy;
-import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -392,17 +390,6 @@ public class MediaModule extends KrollModule
 		return false;
 	}
 
-	@Kroll.method
-	public boolean hasAudioRecorderPermissions() {
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-		Context context = TiApplication.getInstance().getApplicationContext();
-		if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
-	}
 
 	private boolean hasCameraPermission() {
 		if (Build.VERSION.SDK_INT < 23) {
@@ -494,18 +481,6 @@ public class MediaModule extends KrollModule
 	}
 	}
 
-	@Kroll.method
-	public void requestAudioRecorderPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
-		if (hasAudioRecorderPermissions()) {
-			return;
-		}
-		String[] permissions = new String[] { Manifest.permission.RECORD_AUDIO };
-		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_MICROPHONE, getKrollObject(), permissionCallback);
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-        if (currentActivity != null) {
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
-	}
-	}
 
 	/*
 	 * Current implementation on Android limited to saving Images only to photo gallery
@@ -1330,13 +1305,6 @@ public class MediaModule extends KrollModule
 
 		return result;
 
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getCanRecord()
-	{
-		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
 	}
 
 	@Override

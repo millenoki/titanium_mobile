@@ -4,14 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.media;
+package ti.modules.titanium.audio;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
 import org.appcelerator.titanium.io.TiFileFactory;
-import org.appcelerator.titanium.util.TiFileHelper;
 
 import java.io.File;
 import java.io.FileInputStream;

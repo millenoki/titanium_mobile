@@ -7,11 +7,20 @@
 
 package ti.modules.titanium.audio;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.audio.streamer.AudioStreamerExoService;
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 
 @Kroll.module @ContextSpecific
@@ -52,5 +61,41 @@ public class AudioModule extends KrollModule
     public static FocusableAudioWidget focusedAudioWidget() {
         return sFocusedAudioWidget;
     }
+    
+
+    @Kroll.method
+    public boolean hasAudioRecorderPermissions() {
+        if (Build.VERSION.SDK_INT < 23) {
+            return true;
+        }
+        Context context = TiApplication.getInstance().getApplicationContext();
+        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+    
+
+    @Kroll.method
+    public void requestAudioRecorderPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback) {
+        if (hasAudioRecorderPermissions()) {
+            return;
+        }
+        String[] permissions = new String[] { Manifest.permission.RECORD_AUDIO };
+        TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_MICROPHONE, getKrollObject(), permissionCallback);
+        Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+        if (currentActivity != null) {
+        currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
+    }
+    }
+    
+
+    @Kroll.method
+    @Kroll.getProperty
+    public boolean getCanRecord()
+    {
+        return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
+    }
+
 }
 

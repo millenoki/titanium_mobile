@@ -4,14 +4,17 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.media;
+package ti.modules.titanium.audio;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiFileFactory;
 
-@Kroll.proxy(creatableInModule=MediaModule.class)
+import ti.modules.titanium.audio.AudioModule;
+import ti.modules.titanium.audio.TiAudioRecorder;
+
+@Kroll.proxy(creatableInModule=AudioModule.class)
 public class AudioRecorderProxy extends KrollProxy {
 
 	TiAudioRecorder tiAudioRecorder = new TiAudioRecorder();
