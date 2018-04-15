@@ -101,6 +101,7 @@ public abstract class TiApplication extends Application
     private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
     private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
     private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
+    private static final String PROPERTY_DEPLOYTYPE = "ti.deploytype";
     private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
     private static final String PROPERTY_AUTO_RESTART = "ti.android.autoRestart";
     private static String TITANIUM_USER_AGENT;
@@ -144,6 +145,7 @@ public abstract class TiApplication extends Application
     private WeakReference<Activity> currentActivity;
     private String buildVersion = "", buildTimestamp = "", buildHash = "";
     private String defaultUnit;
+    private String deploytType;
     private BroadcastReceiver externalStorageReceiver;
     private AccessibilityManager accessibilityManager = null;
     private boolean forceFinishRootActivity = false;
@@ -523,6 +525,7 @@ public abstract class TiApplication extends Application
 
         appProperties = new TiProperties(getApplicationContext(),
                 APPLICATION_PREFERENCES_NAME, false);
+        
 
         baseUrl = TiC.URL_ANDROID_ASSET_RESOURCES;
 
@@ -574,11 +577,8 @@ public abstract class TiApplication extends Application
         TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
         TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
 
-        String deployType = appProperties.getString("ti.deploytype", "unknown");
+        String deployType = getDeployType();
         String buildType = appInfo.getBuildType();
-        if ("unknown".equals(deployType)) {
-            deployType = getDeployType();
-        }
         if (buildType != null && !buildType.equals("")) {
             TiPlatformHelper.getInstance().setBuildType(buildType);
         }
@@ -980,9 +980,9 @@ public abstract class TiApplication extends Application
             Log.w(TAG, "Titanium Javascript runtime: unknown");
         }
 
-        TiConfig.DEBUG = TiConfig.LOGD = appProperties
+        TiConfig.DEBUG = TiConfig.LOGD = getAppProperties()
                 .getBool("ti.android.debug", false);
-        USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW,
+        USE_LEGACY_WINDOW = getAppProperties().getBool(PROPERTY_USE_LEGACY_WINDOW,
                 false);
 
         startExternalStorageMonitor();
@@ -1097,12 +1097,12 @@ public abstract class TiApplication extends Application
     /**
      * @deprecated
      */
-    public TiProperties getSystemProperties() {
-        // This should actually be removed, but we are changing it to
-        // 'appProperties' instead so we don't break module
-        // developers who use this.
-        return appProperties;
-    }
+//    public TiProperties getSystemProperties() {
+//        // This should actually be removed, but we are changing it to
+//        // 'appProperties' instead so we don't break module
+//        // developers who use this.
+//        return appProperties;
+//    }
 
     public ITiAppInfo getAppInfo() {
         return appInfo;
@@ -1244,7 +1244,10 @@ public abstract class TiApplication extends Application
     }
 
     public String getDeployType() {
-        return getAppInfo().getDeployType();
+        if (deploytType == null) {
+            deploytType = getAppProperties().getString(PROPERTY_DEPLOYTYPE, getAppInfo().getDeployType());
+        }
+        return deploytType;
     }
 
     public String getUserAgent() {

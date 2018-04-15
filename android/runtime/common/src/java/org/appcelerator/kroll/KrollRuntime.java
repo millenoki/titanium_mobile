@@ -122,7 +122,6 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public static void init(Context context, KrollRuntime runtime)
 	{
-		KrollAssetHelper.init(context);
 		// Initialized the runtime if it isn't already initialized
 		if (runtimeState != State.INITIALIZED) {
 			boolean onMainThread = runtime.runOnMainThread(context);

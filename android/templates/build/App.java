@@ -74,6 +74,7 @@ public final class <%= classname %>Application extends TiApplication
 		<% } %>
 <% }); %>
 
+		KrollAssetHelper.init(this);
 		postAppInfo();
 		KrollRuntime.init(this, runtime);
 
