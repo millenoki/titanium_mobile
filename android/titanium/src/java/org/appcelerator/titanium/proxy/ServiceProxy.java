@@ -22,8 +22,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import ti.modules.titanium.TitaniumModule;
 
-@Kroll.proxy
+@Kroll.proxy(creatableInModule=TitaniumModule.class)
 /**
  * This is a proxy representation of the Android Service type.
  * Refer to <a href="http://developer.android.com/reference/android/app/Service.html" >Android Service</a> for more details.
