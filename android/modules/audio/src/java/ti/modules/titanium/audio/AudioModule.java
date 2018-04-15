@@ -17,12 +17,14 @@ import org.appcelerator.titanium.TiC;
 
 import ti.modules.titanium.audio.streamer.AudioStreamerExoService;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 
+@SuppressLint("NewApi")
 @Kroll.module @ContextSpecific
 public class AudioModule extends KrollModule
 	implements Handler.Callback
@@ -85,8 +87,8 @@ public class AudioModule extends KrollModule
         TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_MICROPHONE, getKrollObject(), permissionCallback);
         Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {
-        currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
-    }
+            currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_MICROPHONE);
+        }
     }
     
 
