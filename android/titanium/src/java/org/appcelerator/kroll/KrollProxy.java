@@ -56,11 +56,10 @@ import org.json.JSONObject;
  * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = {
+@Kroll.proxy(propertyAccessors = {
         TiC.PROPERTY_BUBBLE_PARENT,
         TiC.PROPERTY_BIND_ID}, propertyDontEnumAccessors = {
                 KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent {
     public static interface SetPropertyChangeListener {
         public void onSetProperty(KrollProxy proxy, String name, Object value);

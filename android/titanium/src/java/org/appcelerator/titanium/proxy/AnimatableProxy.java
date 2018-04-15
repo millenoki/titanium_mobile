@@ -27,7 +27,6 @@ import android.view.animation.Interpolator;
 //import android.animation.ValueAnimator;
 
 @SuppressLint("NewApi")
-@SuppressWarnings({"rawtypes"})
 @Kroll.proxy
 public class AnimatableProxy extends ParentingProxy {
 	private static final String TAG = "AnimatableProxy";
