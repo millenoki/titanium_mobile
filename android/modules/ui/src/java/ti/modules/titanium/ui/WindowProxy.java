@@ -23,7 +23,9 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
+import org.appcelerator.titanium.animation.CubicBezierInterpolator;
 import org.appcelerator.titanium.animation.TiAnimator;
+import org.appcelerator.titanium.animation.TiInterpolator;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.DecorViewProxy;
@@ -34,16 +36,21 @@ import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
+
+import android.animation.TimeInterpolator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.transition.ArcMotion;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -52,6 +59,7 @@ import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.Transition;
+import android.transition.Transition.EpicenterCallback;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -838,96 +846,124 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	 * @param win The window holding the activity.
 	 * @param props The property dictionary. 
 	 */
-	private boolean applyActivityTransitions(Window win, KrollDict props) {
-	    boolean hasTransitions = false;
+	private void applyActivityTransitions(Window win, KrollDict props) {
 	    if (LOLLIPOP_OR_GREATER) {
 	        // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
 	        // And setting a null transition makes the view unaccounted from transition. 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
 	            win.setEnterTransition(createTransition(props, TiC.PROPERTY_ENTER_TRANSITION));
-	            hasTransitions = true;
 	        } 
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
 	            win.setExitTransition(createTransition(props, TiC.PROPERTY_EXIT_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
 	            win.setReturnTransition(createTransition(props, TiC.PROPERTY_RETURN_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
 	            win.setReenterTransition(createTransition(props, TiC.PROPERTY_REENTER_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
 	            win.setSharedElementEnterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
 	            win.setSharedElementExitTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
 	            win.setSharedElementReenterTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION));
-                hasTransitions = true;
 	        }
 
 	        if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
 	            win.setSharedElementReturnTransition(createTransition(props, TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION));
-                hasTransitions = true;
 	        }
 	    } 
-	    return hasTransitions;
 	}
 	
 	@Override
 	protected boolean hasActivityTransitions() {
-        boolean hasTransitions = false;
-        final KrollDict props = properties;
         if (LOLLIPOP_OR_GREATER) {
+            final KrollDict props = properties;
             // Return and reenter transitions defaults to enter and exit transitions respectively only if they are not set.
             // And setting a null transition makes the view unaccounted from transition. 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_ENTER_TRANSITION)) {
-                hasTransitions = true;
+                return true;
             } 
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_EXIT_TRANSITION)) {
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_RETURN_TRANSITION)) {
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_REENTER_TRANSITION)) {
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION)) { 
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION)) {
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION)) { 
-                hasTransitions = true;
+                return true;
             }
 
             if (props.containsKeyAndNotNull(TiC.PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION)) { 
-                hasTransitions = true;
+                return true;
             }
         } 
-        return hasTransitions;
+        return false;
     }
-
+	
+	private Transition createTransition(final int transitionType) {
+	    switch (transitionType) {
+            case TiUIView.TRANSITION_EXPLODE:
+                return new Explode();
+    
+            case TiUIView.TRANSITION_FADE_IN:
+                return new Fade(Fade.IN);
+                
+            case TiUIView.TRANSITION_FADE_OUT:
+                return new Fade(Fade.OUT);
+    
+            case TiUIView.TRANSITION_SLIDE_TOP:
+                return new Slide(Gravity.TOP);
+    
+            case TiUIView.TRANSITION_SLIDE_RIGHT:
+                return new Slide(Gravity.RIGHT);
+    
+            case TiUIView.TRANSITION_SLIDE_BOTTOM:
+                return new Slide(Gravity.BOTTOM);
+    
+            case TiUIView.TRANSITION_SLIDE_LEFT:
+                return new Slide(Gravity.LEFT);
+    
+            case TiUIView.TRANSITION_CHANGE_BOUNDS:
+                return new ChangeBounds();
+                
+            case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
+                return new ChangeClipBounds();
+                
+            case TiUIView.TRANSITION_CHANGE_TRANSFORM:
+                return new ChangeTransform();
+    
+            case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
+                return new ChangeImageTransform();
+    
+            default:
+                return null;
+        }
+	}
 	/**
 	 * Creates a transition for the supplied transition type. 
 	 * @param props The property dictionary.
@@ -939,58 +975,54 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private Transition createTransition(KrollDict props, String key) {
 		if (LOLLIPOP_OR_GREATER) {
 			Transition t = null;
-			final int transitionType = props.getInt(key);
-			switch (transitionType) {
-    			case TiUIView.TRANSITION_EXPLODE:
-    				t = new Explode();
-    				break;
-    
-    			case TiUIView.TRANSITION_FADE_IN:
-    				t = new Fade(Fade.IN);
-    				break;
-    				
-    			case TiUIView.TRANSITION_FADE_OUT:
-    				t = new Fade(Fade.OUT);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_TOP:
-    				t = new Slide(Gravity.TOP);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_RIGHT:
-    				t = new Slide(Gravity.RIGHT);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_BOTTOM:
-    				t = new Slide(Gravity.BOTTOM);
-    				break;
-    
-    			case TiUIView.TRANSITION_SLIDE_LEFT:
-    				t = new Slide(Gravity.LEFT);
-    				break;
-    
-    			case TiUIView.TRANSITION_CHANGE_BOUNDS:
-    				t = new ChangeBounds();
-    				break;
-    				
-    			case TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS:
-    				t = new ChangeClipBounds();
-    				break;
-    				
-    			case TiUIView.TRANSITION_CHANGE_TRANSFORM:
-    				t = new ChangeTransform();
-    				break;
-    
-    			case TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM:
-    				t = new ChangeImageTransform();
-    				break;
-    
-    			default:
-    				break;
+			Object value = props.get(key);
+			if (value instanceof Number) {
+			    t = createTransition(TiConvert.toInt(value));
+			} else if (value instanceof HashMap){
+			    HashMap options = TiConvert.toHashMap(value);
+			    Object type = options.get(TiC.PROPERTY_TYPE);
+			    if (type == null) {
+			        return null;
+			    }
+                t = createTransition(TiConvert.toInt(type));
+                if (t == null) {
+                    return t;
+                }
+                long duration = t.getDuration();
+                if (options.containsKey(TiC.PROPERTY_DURATION)) {
+                    duration = TiConvert.toInt(options, TiC.PROPERTY_DURATION);
+                    t.setDuration(duration);
+                }
+                if (options.containsKey(TiC.PROPERTY_DELAY)) {
+                    t.setStartDelay(TiConvert.toInt(options, TiC.PROPERTY_DELAY));
+                }
+                if (options.containsKey("epiCenter")) {
+                    
+                    final RectF rect = TiConvert.toRect(options, "epiCenter");
+                    t.setEpicenterCallback(new EpicenterCallback() {
+                        @Override
+                        public Rect onGetEpicenter(Transition transition) {
+                            Rect result = new Rect();
+                            rect.round(result);
+                            return result;
+                        }
+                    });
+                }
+                if (options.containsKey(TiC.PROPERTY_CURVE)) {
+                    Object curve = options.get(TiC.PROPERTY_CURVE);
+                    if (value instanceof Number) {
+                        t.setInterpolator(TiInterpolator.getInterpolator(TiConvert.toInt(curve), duration));
+                    }
+                    
+                    else if (value instanceof Object[]) {
+                        double[] values = TiConvert.toDoubleArray((Object[]) value);
+                        if (values.length == 4) {
+                            t.setInterpolator(new CubicBezierInterpolator(values[0], values[1], values[2], values[3]));
+                        }
+                    }
+                }
 			}
-//			if (t!=null) {
-//			    t.setDuration(1000);
-//			}
+
 			return t;
 		} else {
 			return null;
