@@ -128,6 +128,10 @@ class Bootstrap(object):
 
 		self.initTable.append("%s, %s, %s" % (proxy, initFunction, disposeFunction))
 
+	def canBeCreated(self, proxyMap):
+		creatableInModule = proxyMap["proxyAttrs"].get("creatableInModule", None)
+		return creatableInModule and creatableInModule != Kroll_DEFAULT
+
 	def getParentModuleClass(self, proxyMap):
 		creatableInModule = proxyMap["proxyAttrs"].get("creatableInModule", None)
 		parentModule = proxyMap["proxyAttrs"].get("parentModule", None)
@@ -243,9 +247,15 @@ class Bootstrap(object):
 			if namespace == self.moduleName:
 				childNamespace = childAPI
 
-			childJS += JS_GETTER % { "var": var, "child": childAPI }
-			childJS += self.indentCode(self.processNode(node[childAPI], childNamespace, indent + 1))
-			childJS += JS_CLOSE_GETTER
+			childNode = node[childAPI]
+			childClassName = childNode["_className"]
+			childProxyMap = self.bindings["proxies"][childClassName]
+			childNodeIsModule = childProxyMap["isModule"]
+
+			if childNodeIsModule or self.canBeCreated(childProxyMap):
+				childJS += JS_GETTER % { "var": var, "child": childAPI }
+				childJS += self.indentCode(self.processNode(childNode, childNamespace, indent + 1))
+				childJS += JS_CLOSE_GETTER
 
 		if hasChildren:
 			js += "		if (!(\"__propertiesDefined__\" in %s)) {" % var
