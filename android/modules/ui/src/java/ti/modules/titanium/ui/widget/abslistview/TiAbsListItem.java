@@ -153,29 +153,29 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 
 	protected void handleAccessory(int accessory) {
 		
-		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiAbsListView.accessory);
+		// ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiAbsListView.accessory);
 
-		switch(accessory) {
+		// switch(accessory) {
 
-			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
-                accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiAbsListView.isCheck);
-				break;
-			case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
-                accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiAbsListView.hasChild);
-				break;
+		// 	case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
+        //         accessoryImage.setVisibility(View.VISIBLE);
+		// 		accessoryImage.setImageResource(TiAbsListView.isCheck);
+		// 		break;
+		// 	case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
+        //         accessoryImage.setVisibility(View.VISIBLE);
+		// 		accessoryImage.setImageResource(TiAbsListView.hasChild);
+		// 		break;
 
-			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
-                accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiAbsListView.disclosure);
-				break;
+		// 	case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
+        //         accessoryImage.setVisibility(View.VISIBLE);
+		// 		accessoryImage.setImageResource(TiAbsListView.disclosure);
+		// 		break;
 	
-			default:
-                accessoryImage.setVisibility(View.GONE);
-				accessoryImage.setImageDrawable(null);
-				break;
-		}
+		// 	default:
+        //         accessoryImage.setVisibility(View.GONE);
+		// 		accessoryImage.setImageDrawable(null);
+		// 		break;
+		// }
 	}
 
 	public void release() {

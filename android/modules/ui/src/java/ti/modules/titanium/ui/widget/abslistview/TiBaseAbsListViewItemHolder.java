@@ -37,7 +37,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
         p.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
         p.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
         ImageView imageView = new ImageView(context);
-        imageView.setId(TiAbsListView.accessory);
+//        imageView.setId(TiAbsListView.accessory);
         imageView.setFocusable(false);
         imageView.setAdjustViewBounds(true);
         imageView.setMaxWidth((int) (25 * scale));

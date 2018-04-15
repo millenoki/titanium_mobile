@@ -92,10 +92,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
 	private HashMap<String, TiAbsListViewTemplate> templatesByBinding;
-	public static int isCheck;
-	public static int hasChild;
-	public static int disclosure;
-	public static int accessory = 24124;
+	// public static int isCheck;
+	// public static int hasChild;
+	// public static int disclosure;
+	// public static int accessory = 24124;
 	private int[] marker = new int[2];
 	private String searchText;
 	private boolean caseInsensitive;
@@ -736,15 +736,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		listView.setFocusable(true);
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
-		try {
-//			headerFooterId = TiRHelper.getApplicationResource("layout.titanium_ui_list_header_or_footer");
-//			titleId = TiRHelper.getApplicationResource("id.titanium_ui_list_header_or_footer_title");
-			isCheck = TiRHelper.getApplicationResource("drawable.btn_check_buttonless_on_64");
-			hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
-			disclosure = TiRHelper.getApplicationResource("drawable.disclosure_64");
-		} catch (ResourceNotFoundException e) {
-			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
-		}
+// 		try {
+// //			headerFooterId = TiRHelper.getApplicationResource("layout.titanium_ui_list_header_or_footer");
+// //			titleId = TiRHelper.getApplicationResource("id.titanium_ui_list_header_or_footer_title");
+// 			isCheck = TiRHelper.getApplicationResource("drawable.btn_check_buttonless_on_64");
+// 			hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
+// 			disclosure = TiRHelper.getApplicationResource("drawable.disclosure_64");
+// 		} catch (ResourceNotFoundException e) {
+// 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
+// 		}
 		setNativeView(listView);
 	}
 	

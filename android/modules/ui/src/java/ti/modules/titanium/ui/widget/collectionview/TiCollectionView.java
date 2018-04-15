@@ -112,9 +112,9 @@ public class TiCollectionView extends TiUINonViewGroupView implements
     private HashMap<String, TiAbsListViewTemplate> templatesByBinding;
     private SparseArray<TiAbsListViewTemplate> templatesByType;
     public static int listContentId = 24123;
-    public static int isCheck;
-    public static int hasChild;
-    public static int disclosure;
+    // public static int isCheck;
+    // public static int hasChild;
+    // public static int disclosure;
     private int[] marker = new int[2];
     private String searchText;
     private boolean caseInsensitive;
@@ -1122,15 +1122,15 @@ public class TiCollectionView extends TiUINonViewGroupView implements
         mRecyclerView
                 .setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
-        try {
-            isCheck = TiRHelper.getApplicationResource(
-                    "drawable.btn_check_buttonless_on_64");
-            hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
-            disclosure = TiRHelper
-                    .getApplicationResource("drawable.disclosure_64");
-        } catch (ResourceNotFoundException e) {
-            Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
-        }
+        // try {
+        //     isCheck = TiRHelper.getApplicationResource(
+        //             "drawable.btn_check_buttonless_on_64");
+        //     hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
+        //     disclosure = TiRHelper
+        //             .getApplicationResource("drawable.disclosure_64");
+        // } catch (ResourceNotFoundException e) {
+        //     Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
+        // }
 
         // RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
         // @Override
