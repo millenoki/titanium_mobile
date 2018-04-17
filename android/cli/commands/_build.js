@@ -3297,18 +3297,23 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             }
             delete license['ios'];
             delete license['android'];
-            this.modules.forEach(function(module) {
-                const moduleLicenseFile = path.join(module.modulePath, 'license.json');
-                if (fs.existsSync(moduleLicenseFile)) {
-                    const moduleLicense = JSON.parse(fs.readFileSync(moduleLicenseFile));
-                    if (moduleLicense) {
-                        for (let key in moduleLicense) {
-                            if (moduleLicense.hasOwnProperty(key)) {
-                                license[key] = moduleLicense[key];
-                            }
-                        }
-                    }
-                }
+            this.modules.forEach((module)=> {
+				const moduleLicenseFile = path.join(module.modulePath, 'license.json');
+				try {
+					if (fs.existsSync(moduleLicenseFile)) {
+						const moduleLicense = JSON.parse(fs.readFileSync(moduleLicenseFile));
+						if (moduleLicense) {
+							for (let key in moduleLicense) {
+								if (moduleLicense.hasOwnProperty(key)) {
+									license[key] = moduleLicense[key];
+								}
+							}
+						}
+					}
+				} catch(e) {
+					this.logger.error(__('Could not read module license file: %s'), moduleLicenseFile);
+				}
+                
             });
             fs.writeFileSync(
                 licenseFile,
@@ -3509,7 +3514,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 		jarLibraries = this.jarLibraries = {},
 		appModules = this.appModules = [], // also used in the App.java template
 		appModulesMap = {},
-        googlePlayServicesKeep = this.googlePlayServicesKeep = {},
+        googlePlayServicesKeep = this.googlePlayServicesKeep = [],
 		customModules = this.customModules = [],
 		ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
 
@@ -3779,6 +3784,26 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 				r && appModules.push(r);
 			}
 		});
+		const moduleDependencyFile = path.join(module.modulePath, 'dependency.json');
+        if (fs.existsSync(moduleDependencyFile)) {
+            const moduleDepMap = JSON.parse(fs.readFileSync(moduleDependencyFile));
+            if (moduleDepMap) {
+                if (moduleDepMap.gmsDependencies) {
+                    moduleDepMap.gmsDependencies.forEach(function(keep) {
+                        if (googlePlayServicesKeep.indexOf(keep) === -1) {
+                            googlePlayServicesKeep.push(keep);
+                        }
+                    });
+                    this.needsGooglePlayServices = true;
+                }
+                if (moduleDepMap.required) {
+                    moduleDepMap.required.forEach(addTitaniumLibrary, this);
+				}
+				if (moduleDepMap.requiredModules) {
+                    moduleDepMap.requiredModules.forEach(addTitaniumLibrary, this);
+                }
+            }
+        }
 	}, this);
 
 	// write the app.json
