@@ -9,12 +9,7 @@
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-16
 
-APP_CPPFLAGS += -std=c++11 -fno-builtin-stpcpy -fno-rtti -Os -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=64 -ffunction-sections -fdata-sections
-APP_CFLAGS += -std=c++11 -fno-builtin-stpcpy -fno-rtti -Os -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=64 -ffunction-sections -fdata-sections
 APP_STL := c++_shared 
-
-APP_LDFLAGS +=  -Wl,--gc-sections,--strip-all,--icf=safe #,--exclude-libs=ALL
-APP_LDLIBS +=   -Wl,--gc-sections,--strip-all,--icf=safe #,--exclude-libs=ALL
 
 ifeq ($(BUILD_X86), 1)
 	APP_ABI := arm64-v8a armeabi-v7a x86

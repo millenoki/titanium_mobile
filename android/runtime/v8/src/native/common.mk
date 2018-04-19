@@ -19,14 +19,25 @@ ifeq ($(TI_DEBUG),1)
 CFLAGS += -DTI_DEBUG=1 -g
 endif
 
+LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
+
 CFLAGS += -Wno-conversion-null -Wno-format-security -Wno-format -Wno-tautological-compare -Wno-unused-result -Wno-deprecated-register
+
+CFLAGS += -std=c++11 -fno-builtin-stpcpy -fno-rtti -Os -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=64 -ffunction-sections -fdata-sections
+
+LDLIBS += -Wl,--gc-sections,--strip-all#,--exclude-libs=ALL
+
 # Limitting the stack protector to functions with buffer larger than 4 bytes instead of the default 8
 # This is neccessary due to TIMOB-24940
 CFLAGS += -fstack-protector --param=ssp-buffer-size=4
 
 ifeq ($(TARGET_ARCH_ABI),x86)
-    LOCAL_CFLAGS += -mtune=atom -mssse3 -mfpmath=sse
+    CFLAGS += -mtune=atom -mssse3 -mfpmath=sse
+else
+	# LDFLAGS += -Wl,--icf=safe
+	LDLIBS += -Wl,--icf=safe
 endif
+
 
 CLEAN_GEN := rm -f $(GENERATED_DIR)/*
 CLEAN_OBJ := rm -rf $(OBJ_DIR)/*
@@ -36,7 +47,6 @@ CLEAN_GEN := if exist $(GENERATED_DIR) (rd /s /q $(subst /,\\,$(GENERATED_DIR)) 
 CLEAN_OBJ := if exist $(OBJ_DIR) (rd /s /q $(subst /,\\,$(OBJ_DIR)) && mkdir $(subst /,\\,$(OBJ_DIR)))
 endif
 
-LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 ABS_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/*.cpp) \
 	$(wildcard $(LOCAL_PATH)/modules/*.cpp)
