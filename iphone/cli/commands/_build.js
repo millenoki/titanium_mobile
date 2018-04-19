@@ -1951,22 +1951,22 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		}, this);
 
 		// if ( cli.argv.target !== 'simulator') {
-			// determine if we're going to be minifying javascript
-			if (argv['skip-js-minify']) {
-				if (this.compileJS) {
-					logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
-						'--skip-js-minify'.cyan));
-				}
-				this.compileJS = this.encryptJS = this.minifyJS = false;
+		// determine if we're going to be minifying javascript
+		if (cli.argv['skip-js-minify']) {
+			if (this.compileJS) {
+				logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified',
+					'--skip-js-minify'.cyan));
 			}
-			if (cli.tiapp['minify-js'] !== undefined) {
-				this.minifyJS = !!cli.tiapp['minify-js'];
-			}
-			if (cli.tiapp['compile-js'] !== undefined) {
-				this.encryptJS = !!cli.tiapp['compile-js'];
-			}
-			this.currentBuildManifest.encryptJS = !!this.encryptJS;
-			this.currentBuildManifest.minifyJS = !!this.minifyJS;
+			this.compileJS = this.encryptJS = this.minifyJS = false;
+		}
+		if (cli.tiapp['minify-js'] !== undefined) {
+			this.minifyJS = !!cli.tiapp['minify-js'];
+		}
+		if (cli.tiapp['compile-js'] !== undefined) {
+			this.encryptJS = !!cli.tiapp['compile-js'];
+		}
+		this.currentBuildManifest.encryptJS = !!this.encryptJS;
+		this.currentBuildManifest.minifyJS = !!this.minifyJS;
 		// }
 		// check if we are running from Xcode
 		if (cli.argv.xcode) {
@@ -2868,6 +2868,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 
 	this.currentBuildManifest.useBabel = this.useBabel = !!this.tiapp['use-babel'];
+	this.currentBuildManifest.useWebpack = this.useWebpack = !!this.tiapp['use-webpack'];
 	// we test the package.json hash in case babel settings changed
 	this.currentBuildManifest.packageJSONHash = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')) : '';
 
@@ -2916,6 +2917,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.buildAssetsDir = path.join(this.buildDir, 'assets');
 	this.buildTsDir = path.join(this.buildDir, 'ts');
 	this.buildTsOutputDir = path.join(this.buildDir, 'tsoutput');
+	this.buildWebpackOutputDir = path.join(this.buildDir, 'webpack');
 
 	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
@@ -5662,12 +5664,15 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig() {
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	const filenameRegExp = /^(.*)\.(\w+)$/,
 		useAppThinning = this.useAppThinning,
+		useWebpack = this.useWebpack,
+		buildWebpackOutputDir = this.buildWebpackOutputDir,
 
 		jsonPackageTitanium = fs.existsSync(path.join(this.projectDir, 'package.json')) && JSON.parse(fs.readFileSync(path.join(this.projectDir, 'package.json'))).titanium,
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
 		ignoreFiles = this.ignoreFiles,
+
 
 		unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/,
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'), // eslint-disable-line security/detect-non-literal-regexp
@@ -5700,20 +5705,26 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		origSrc = origSrc || src;
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			const from = path.join(src, name),
+				ignoreForWebpack = useWebpack && src != buildWebpackOutputDir,
 				relPath = from.replace(origSrc + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
 			let ignored = false;
-			if (toIgnore) {
-				for (let i = 0; i < toIgnore.length; i++) {
-					if (minimatch(relPath, toIgnore[i], { dot: true })) {
-						ignored = true;
-						that.logger.debug(__('Ignoring %s', from.cyan));
-						break;
+			if (ignoreForWebpack && /\.(ts|css|js|json)$/.test(from)) {
+				ignored = true;
+			} else {
+				if (toIgnore) {
+					for (let i = 0; i < toIgnore.length; i++) {
+						if (minimatch(relPath, toIgnore[i], { dot: true })) {
+							ignored = true;
+							that.logger.debug(__('Ignoring %s', from.cyan));
+							break;
+						}
 					}
 				}
 			}
+
 
 			if (!ignored && (!ignore || !ignore.test(name)) && (!ignoreDirs || !isDir || !ignoreDirs.test(name)) && (!ignoreFiles || isDir || !ignoreFiles.test(name)) && fs.existsSync(from)) {
 				const to = path.join(dest, name);
@@ -5779,8 +5790,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								} else {
 									that.logger.trace(__('No change, skipping %s', from.cyan));
 								}
-								break;
 							}
+							break;
 						case 'css':
 							cssFiles[info.relPath] = info;
 							break;
@@ -5806,7 +5817,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							break;
 
 						case 'html':
-							console.log('html', info);
 							jsanalyze.analyzeHtmlFile(info.src, info.relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
 								htmlJsFiles[file] = 1;
 							});
@@ -6756,11 +6766,47 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			// 		this.logger.error(__('TsCompile:%s', diagnostic.messageText));
 			// 	}
 			// }.bind(this));
+			walk(this.buildTsOutputDir, this.xcodeAppDir);
 			this.logger.debug(__('TsCompile done!'));
 		},
-		function onTsDone(next) {
-			walk(this.buildTsOutputDir, this.xcodeAppDir);
-			next();
+		function webpack(next) {
+			if (!useWebpack) {
+				return next();
+			}
+			module.paths.unshift(path.join(this.projectDir, 'node_modules'));
+			const configFile = path.join(this.projectDir, 'webpack.config.js');
+			if (!fs.existsSync(configFile)) {
+				this.logger.error(__('Missing webpack config file'));
+				process.exit(1);
+			}
+			const webpack = require('webpack');
+			var webpackConfig = require(configFile);
+			webpackConfig.output.path = this.buildWebpackOutputDir;
+			webpack(webpackConfig).run(function (err, stats) {
+				if (err) {
+					this.logger.error(__('Webpack error: %s', (err.message || err.toString())));
+					this.logger.error(err);
+					process.exit(1);
+				} else {
+					this.unmarkBuildDirFiles(this.buildWebpackOutputDir);
+
+					//we need to fix __webpack_require__
+					fs.existsSync(buildWebpackOutputDir) && fs.readdirSync(this.buildWebpackOutputDir).forEach(function (name) {
+						if (name.endsWith('.js')) {
+							const src = path.join(this.buildWebpackOutputDir, name);
+							let content = fs.readFileSync(src, 'utf8');
+							content = content.replace(/modules\[moduleId\]\.call\(module.exports/, 'modules[moduleId].call(global');
+							content = content.replace(/return e\[r\]\.call\(i\.exports/, 'return e[r].call(global');
+
+							fs.writeFileSync(src, content);
+						}
+
+					}.bind(this));
+
+					walk(this.buildWebpackOutputDir, this.xcodeAppDir);
+					next();
+				}
+			}.bind(this))
 		},
 		function processJSFiles(next) {
 			this.logger.info(__('Processing JavaScript files with babel:%s ', this.useBabel));
@@ -7351,7 +7397,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	}
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
-	if (this.target === 'simulator' || this.includeAllTiModules) { 
+	if (this.target === 'simulator' || this.includeAllTiModules) {
 		const definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
 		contents = fs.readFileSync(definesFile).toString();
