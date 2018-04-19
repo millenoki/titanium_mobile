@@ -1,5 +1,6 @@
 #import "TiParentingProxy.h"
 #import "TiProxyTemplate.h"
+#import "TiUIView.h"
 #import "TiUtils.h"
 
 @implementation TiParentingProxy {
@@ -398,11 +399,11 @@
 //        [context.krollContext invokeBlockOnThread:^{
 //        }];
 #ifdef HYPERLOOP
-  } else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
+  } else if ([object isKindOfClass:[UIView class]] || [object respondsToSelector:nativeObjSel]) {
     Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
     if (hyperloopViewProxy != nil) {
       child = [(TiViewProxy *)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-      [child performSelector:@selector(setNativeView:) withObject:arg];
+      [child performSelector:@selector(setNativeView:) withObject:object];
     }
 #endif
   } else if (([object isKindOfClass:[TiProxy class]])) {
