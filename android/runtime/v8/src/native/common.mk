@@ -33,7 +33,9 @@ CFLAGS += -fstack-protector --param=ssp-buffer-size=4
 
 ifeq ($(TARGET_ARCH_ABI),x86)
     CFLAGS += -mtune=atom -mssse3 -mfpmath=sse
-else
+endif
+
+ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 	# LDFLAGS += -Wl,--icf=safe
 	LDLIBS += -Wl,--icf=safe
 endif
