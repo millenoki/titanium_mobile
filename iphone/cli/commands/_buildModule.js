@@ -641,8 +641,11 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		function (cb) {
             if (fs.existsSync(this.buildAssetsDir)) {
                 wrench.rmdirSyncRecursive(this.buildAssetsDir)
-            }
-            wrench.mkdirSyncRecursive(this.buildAssetsDir);
+			}
+			if (fs.existsSync(this.buildAssetsDir)) {
+				fs.removeSync(this.buildAssetsDir);
+			}
+			fs.mkdirsSync(this.buildAssetsDir);
 
             var tsFiles = [path.join(this.assetsDir, moduleTS)];
             if (!fs.existsSync(tsFiles[0])) {

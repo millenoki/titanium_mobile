@@ -1016,18 +1016,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	const classpath = this.classPaths,
 		javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
 		javaFiles = [];
-	// Remove these folders and re-create them
-	// 	build/class
-	// 	build/generated/json
-	// 	build/generated/jni
-	// 	bin/
 
-	[ this.buildDir, this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir, this.buildGenJsDir ].forEach(function (dir) {
-		if (fs.existsSync(dir)) {
-			wrench.rmdirSyncRecursive(dir);
-		}
-		wrench.mkdirSyncRecursive(dir);
-	}, this);
 
 	this.dirWalker(this.javaSrcDir, function (file) {
 		if (path.extname(file) === '.java') {
@@ -1046,8 +1035,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// 	build/class
 	// 	build/generated/json
 	// 	build/generated/jni
-	// 	dist/
-	[ this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir ].forEach(function (dir) {
+	[ this.buildDir, this.buildClassesDir, this.buildGenJsonDir, this.buildGenJniDir, this.buildGenJsDir ].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			fs.removeSync(dir);
 		}
@@ -1578,7 +1566,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				}
 
 					const dir = path.dirname(to);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+					fs.existsSync(dir) || fs.mkdirSyncRecursive(dir);
 
 					const exists = fs.existsSync(to);
 					if (!exists || r.contents !== fs.readFileSync(to).toString()) {
