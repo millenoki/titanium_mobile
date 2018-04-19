@@ -2,7 +2,7 @@ package org.appcelerator.titanium.view;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,8 +18,10 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.View.MeasureSpec;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
+@SuppressLint("NewApi")
 public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutListener {
 
     // Constants
@@ -156,20 +158,27 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
         return null;
     }
     
-    private Bitmap makeBitmapMask(final View view) {
+    private Bitmap makeBitmapMask(final View view, boolean shouldLayout) {
         if (view != null) {
             Drawable d =  view.getBackground();
             float scaleFactor = 0.5f;
-            int width = (int) (getMeasuredWidth() * scaleFactor);
-            int height = (int) (getMeasuredHeight() * scaleFactor);
+            int width = getMeasuredWidth();
+            int height = getMeasuredHeight();
             if (d!= null && width > 0 && height > 0) {
+                if (shouldLayout) {
+                    view.measure(MeasureSpec.makeMeasureSpec(width,
+                            MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height,
+                                    MeasureSpec.EXACTLY));
+                    view.layout(0, 0, width, height);
+                }
+                Bitmap mask = Bitmap.createBitmap((int)(width * scaleFactor),
+                        (int)(height * scaleFactor), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(mask);
+                
                 d.setBounds((int) (view.getLeft() * scaleFactor), 
                         (int) (view.getTop() * scaleFactor), 
                         (int) (view.getRight() * scaleFactor), 
                         (int) (view.getBottom() * scaleFactor));
-                Bitmap mask = Bitmap.createBitmap(width,
-                        height, Bitmap.Config.ARGB_8888);
-                Canvas canvas = new Canvas(mask);
                 d.draw(canvas);
                 return mask;
             } else {
@@ -222,6 +231,10 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
      @Override
      protected void onSizeChanged(int w, int h, int oldw, int oldh) {
          super.onSizeChanged(w, h, oldw, oldh);
+         if (needsMaskViewLayout) {
+             needsMaskViewLayout = false;
+             swapBitmapMask(makeBitmapMask(mMaskView, true));
+         }
          updateSize(w, h);
      }
      
@@ -241,9 +254,15 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
+        if (needsMaskViewLayout) {
+            needsMaskViewLayout = false;
+            swapBitmapMask(makeBitmapMask(mMaskView, true));
+        }
         updateSize(getMeasuredWidth(), getMeasuredHeight());
     }
 
+    
+    private boolean needsMaskViewLayout = false;
     private void setSize(int width, int height) {
         if (width > 0 && height > 0) {
             if (mDrawableMask != null) {
@@ -291,12 +310,21 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     }
     
     public void setMaskView(View maskView) {
+        needsMaskViewLayout = false;
         if (maskView == null) {
             clearMaskView();
         }
         else {
             mMaskView = maskView;
-            addObserverForView(mMaskView);
+            if (maskView.getParent() == null) {
+                if (getMeasuredWidth() == 0 || getMeasuredHeight() == 0) {
+                    needsMaskViewLayout = true;
+                } else {
+                    makeBitmapMask(mMaskView, true);
+                }
+            } else {
+                addObserverForView(mMaskView);
+            }
         }
         updateEnabledState();
         invalidate();
@@ -432,7 +460,7 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
 
     @Override
     public void onGlobalLayout() {
-        swapBitmapMask(makeBitmapMask(mMaskView));
+        swapBitmapMask(makeBitmapMask(mMaskView, false));
         invalidate();
     }
 }
