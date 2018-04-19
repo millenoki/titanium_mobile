@@ -9,16 +9,12 @@
 APP_BUILD_SCRIPT = src/native/Android.mk
 TARGET_PLATFORM = android-16
 
-# APP_CPPFLAGS += -std=c++11 -fexceptions -fno-builtin-stpcpy -fno-rtti -O3 -fvisibility=hidden -ffunction-sections -fno-data-sections -Wl,--exclude-libs=ALL -Wl,--gc-sections
-APP_CPPFLAGS += -std=c++11 -fexceptions -fno-builtin-stpcpy -fno-rtti -O3
+APP_CPPFLAGS += -std=c++11 -fno-builtin-stpcpy -fno-rtti -Os -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=64 -ffunction-sections -fdata-sections
+APP_CFLAGS += -std=c++11 -fno-builtin-stpcpy -fno-rtti -Os -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -funswitch-loops -finline-limit=64 -ffunction-sections -fdata-sections
 APP_STL := c++_shared 
 
-	# APP_CPPFLAGS += -fvisibility=hidden -ffunction-sections -fno-data-sections -Wl,--exclude-libs=ALL -Wl,--gc-sections
-
-APP_CPPFLAGS += -ffunction-sections -fdata-sections
-APP_CFLAGS += -ffunction-sections -fdata-sections
-APP_LDFLAGS += -fuse-ld=bfd -Wl,--gc-sections
-APP_LDLIBS += -fuse-ld=bfd -Wl,--gc-sections
+APP_LDFLAGS +=  -Wl,--gc-sections,--strip-all,--icf=safe #,--exclude-libs=ALL
+APP_LDLIBS +=   -Wl,--gc-sections,--strip-all,--icf=safe #,--exclude-libs=ALL
 
 ifeq ($(BUILD_X86), 1)
 	APP_ABI := arm64-v8a armeabi-v7a x86
