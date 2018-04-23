@@ -6780,7 +6780,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				process.exit(1);
 			}
 			const webpack = require('webpack');
-			var webpackConfig = require(configFile);
+			var webpackConfig = require(configFile)({
+				platform:'ios',
+				deployType:this.deployType,
+				target:this.target,
+			});
 			webpackConfig.output.path = this.buildWebpackOutputDir;
 			webpack(webpackConfig).run(function (err, stats) {
 				if (err) {
@@ -6979,8 +6983,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				};
 
 				delete this.buildDirFiles[info.dest];
-
-				this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
+				setImmediate(function () {
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 					if (!fileChanged) {
 						this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 					} else if (this.copyFileSync(info.src, info.dest, {
@@ -6997,6 +7001,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					this.unmarkBuildDirFile(info.dest);
 					cb();
 				})(info.src, info.dest, next);
+			}.bind(this));
 
 			}.bind(this), next);
 		},

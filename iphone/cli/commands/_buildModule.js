@@ -22,7 +22,7 @@ const appc = require('node-appc'),
 	iosPackageJson = appc.pkginfo.package(module),
 	jsanalyze = require('node-titanium-sdk/lib/jsanalyze'),
 	ejs = require('ejs'),
-	fs = require('fs'),
+	fs = require('fs-extra'),
 	markdown = require('markdown').markdown,
 	path = require('path'),
 	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
@@ -1051,7 +1051,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
             dest.directory(this.platformDir, path.join(moduleFolder, 'platform'));
-				}
+		}
 
 		// 4. hooks folder
 		const hookFiles = {};
