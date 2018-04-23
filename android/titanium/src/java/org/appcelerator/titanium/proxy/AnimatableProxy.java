@@ -235,12 +235,12 @@ public class AnimatableProxy extends ParentingProxy {
 			Double reverseSetDuration = tiSet.getReverseDuration();
 	        Double reverseSetDelay = tiSet.delay;
 			Interpolator reverseInterpolator = tiSet.getReverseCurve();
-	        prepareAnimationList(list, reverseSetDuration, reverseSetDelay, reverseInterpolator);
+	        prepareAnimationList(listReverse, reverseSetDuration, reverseSetDelay, reverseInterpolator);
 			reverseSet.playTogether(listReverse);
 		}
 		
-		tiSet.setListener(listener);
-		tiSet.createClonableSets(); //create clonable after adding listener so that it is cloned too
+		tiSet.createClonableSets();
+        tiSet.setListener(listener);
 	}
 
 	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse) {

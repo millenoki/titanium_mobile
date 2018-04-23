@@ -72,7 +72,7 @@ public class TiAnimatorListener implements AnimatorListener {
 //    }
 
     public void onAnimationEnd(Animator animation) {
-        if (tiSet == null || tiSet.set() != animation) {
+        if (tiSet == null || (tiSet.set() != animation && tiSet.reverseSet() != animation)) {
             return;// prevent double onEnd!
         }
 
@@ -96,7 +96,7 @@ public class TiAnimatorListener implements AnimatorListener {
                 tiSet.resetSet();
                 reverseSet.start();
                 return;
-            } else if (animation == reverseSet) {
+            } else {
                 if (repeatCount < 0 || currentRepeatCount > 0) {
                     // start repeat without reverse
                     if (this.animationProxy != null) {
