@@ -542,7 +542,7 @@ iOSBuilder.prototype.configOptionDeployType = function configOptionDeployType(or
 		desc: __('the type of deployment; only used when target is %s or %s', 'simulator'.cyan, 'device'.cyan),
 		hint: __('type'),
 		order: order,
-		values: ['test', 'development']
+		values: ['test', 'development', 'production']
 	};
 };
 
@@ -7402,7 +7402,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	}
 	// if we're doing a simulator build or we're including all titanium modules,
 	// return now since we don't care about writing the defines.h
-	if (this.target === 'simulator' || this.includeAllTiModules) {
+	if ((this.target === 'simulator' && this.deployType !== 'production') || this.includeAllTiModules) {
 		const definesFile = path.join(this.platformPath, 'Classes', 'defines.h');
 
 		contents = fs.readFileSync(definesFile).toString();
