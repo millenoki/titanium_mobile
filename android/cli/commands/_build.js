@@ -3087,7 +3087,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 					process.exit(1);
 				}
 				const webpack = require('webpack');
-				var webpackConfig = require(configFile);
+				var webpackConfig = require(configFile)({
+					platform:'android',
+					deployType:this.deployType,
+					target:this.target,
+				});
 				webpackConfig.output.path = this.buildWebpackOutputDir;
 				webpack(webpackConfig).run(function (err, stats) {
 					if (err) {
