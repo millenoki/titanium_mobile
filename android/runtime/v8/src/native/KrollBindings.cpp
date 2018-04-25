@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -179,8 +179,17 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 		cache = bindingCache.Get(isolate);
 	}
 
+
+	// If in the cache, and we were able to successfully get it and convert it to an object, then return
+	// Otherwise if anything goes wrong, fall back to re-generating.
 	if (cache->Has(context, binding).FromMaybe(false)) {
-		return cache->Get(context, binding)->ToObject(context);
+		MaybeLocal<Value> maybeExport = cache->Get(context, binding);
+		if (!maybeExport.IsEmpty()) {
+			MaybeLocal<Object> maybeExportedObject = maybeExport.ToLocalChecked()->ToObject(context);
+			if (!maybeExportedObject.IsEmpty()) {
+				return maybeExportedObject.ToLocalChecked();
+			}
+		}
 	}
 
 	v8::String::Utf8Value bindingValue(binding);
@@ -258,7 +267,7 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 		uint32_t length = propertyNames->Length();
 
 		for (uint32_t i = 0; i < length; i++) {
-			v8::String::Utf8Value binding(propertyNames->Get(context, i));
+			v8::String::Utf8Value binding(propertyNames->Get(context, i).ToLocalChecked()); // FIXME Handle when empty!
 			int bindingLength = binding.length();
 
 			struct titanium::bindings::BindEntry *generated = bindings::generated::lookupGeneratedInit(*binding, bindingLength);
