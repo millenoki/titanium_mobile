@@ -95,15 +95,15 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 
 	if (showLine) {
 		if (!message.IsEmpty()) {
-			v8::String::Utf8Value filename(message->GetScriptResourceName());
-			v8::String::Utf8Value msg(message->Get());
+			v8::String::Utf8Value filename(isolate, message->GetScriptResourceName());
+			v8::String::Utf8Value msg(isolate, message->Get());
 			int linenum = message->GetLineNumber();
 			LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum, *msg);
 		}
 	}
 
 	Local<Value> stackTrace = tryCatch.StackTrace();
-	v8::String::Utf8Value trace(stackTrace);
+	v8::String::Utf8Value trace(isolate, stackTrace);
 
 	if (trace.length() > 0 && !stackTrace->IsUndefined()) {
 		LOGD(EXC_TAG, *trace);
@@ -115,12 +115,12 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 			Local<Value> name = exceptionObj->Get(nameSymbol.Get(isolate));
 
 			if (!message->IsUndefined() && !name->IsUndefined()) {
-				v8::String::Utf8Value nameValue(name);
-				v8::String::Utf8Value messageValue(message);
+				v8::String::Utf8Value nameValue(isolate, name);
+				v8::String::Utf8Value messageValue(isolate, message);
 				LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
 			}
 		} else {
-			v8::String::Utf8Value error(exception);
+			v8::String::Utf8Value error(isolate, exception);
 			LOGE(EXC_TAG, *error);
 		}
 	}
@@ -223,7 +223,7 @@ bool V8Util::constructorNameMatches(Isolate* isolate, Local<Object> object, cons
 {
 	HandleScope scope(isolate);
 	Local<String> constructorName = object->GetConstructorName();
-	return strcmp(*v8::String::Utf8Value(constructorName), name) == 0;
+	return strcmp(*v8::String::Utf8Value(isolate, constructorName), name) == 0;
 }
 
 static Persistent<Function> isNaNFunction;

@@ -382,7 +382,7 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 		return;
 	}
 
-	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(env, property);
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(isolate, env, property);
 	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
 
 	proxy->unreferenceJavaObject(javaProxy);

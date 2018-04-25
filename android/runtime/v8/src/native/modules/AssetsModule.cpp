@@ -51,7 +51,7 @@ void AssetsModule::readAsset(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	jstring resourceName = TypeConverter::jsStringToJavaString(env, jsResourceName.ToLocalChecked());
+	jstring resourceName = TypeConverter::jsStringToJavaString(isolate, env, jsResourceName.ToLocalChecked());
 
 	jstring assetData = (jstring) env->CallStaticObjectMethod(
 		JNIUtil::krollAssetHelperClass,
@@ -98,7 +98,7 @@ void AssetsModule::readFile(const FunctionCallbackInfo<Value>& args)
 		return;
 	}
 
-	v8::String::Utf8Value filename(args[0]);
+	v8::String::Utf8Value filename(isolate, args[0]);
 
 	FILE *file = fopen(*filename, "r");
 

@@ -48,7 +48,7 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 	Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(context).FromMaybe(String::Empty(isolate)));
 
 	if (exports.IsEmpty()) {
-		v8::String::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(isolate, className);
 		LOGE(TAG, "Failed to find class for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
@@ -58,14 +58,14 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 	Local<Array> names;
 	MaybeLocal<Array> possibleNames = exports->GetPropertyNames(context);
 	if (!possibleNames.ToLocal(&names) || names->Length() < 1) {
-		v8::String::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(isolate, className);
 		LOGE(TAG, "Failed to find constructor in exports for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
 	}
 	MaybeLocal<Value> possibleConstructor = exports->Get(context, names->Get(context, 0).ToLocalChecked());
 	if (possibleConstructor.IsEmpty()) {
-		v8::String::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(isolate, className);
 		LOGE(TAG, "Failed to get constructor in exports for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
@@ -174,7 +174,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// So, I think we can just skip this hack altogether? Or maybe just assume "app://app.js"?
 	if (javaSourceUrl == NULL) {
 		Local<String> sourceUrl = v8::StackTrace::CurrentStackTrace(isolate, 1, v8::StackTrace::kScriptName)->GetFrame(0)->GetScriptNameOrSourceURL();
-		// v8::String::Utf8Value sourceUrlThing(sourceUrl);
+		// v8::String::Utf8Value sourceUrlThing(isolate, sourceUrl);
 		// LOGE(TAG, "Was given no sourceURL. Trying to hack one from stack trace: %s", *sourceUrlThing);
 		javaSourceUrl = TypeConverter::jsValueToJavaString(isolate, env, sourceUrl);
 	}

@@ -89,7 +89,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	Local<Value> jsEvent = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, event);
 
 #ifdef TI_DEBUG
-	v8::String::Utf8Value eventName(jsEvent);
+	v8::String::Utf8Value eventName(isolate, jsEvent);
 	LOGV(TAG, "firing event \"%s\"", *eventName);
 #endif
 

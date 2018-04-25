@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2017-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ InspectorClient::InspectorClient(v8::Local<v8::Context> context, v8::Platform* p
 	// FIXME Replace reference to V8Runtime::v8_isolate with isolate_
 	isolate_ = V8Runtime::v8_isolate;
 	inspector_ = v8_inspector::V8Inspector::create(V8Runtime::v8_isolate, this);
-	v8::String::Value contextName(STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
+	v8::String::Value contextName(V8Runtime::v8_isolate, STRING_NEW(V8Runtime::v8_isolate, "Titanium Main Context"));
 	inspector_->contextCreated(v8_inspector::V8ContextInfo(
 			context, kContextGroupId, v8_inspector::StringView(*contextName, contextName.length())));
 
@@ -56,7 +56,7 @@ void InspectorClient::connect()
 void InspectorClient::BreakAtStart()
 {
 	v8::HandleScope scope(V8Runtime::v8_isolate);
-	v8::String::Value pauseReason(STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
+	v8::String::Value pauseReason(V8Runtime::v8_isolate, STRING_NEW(V8Runtime::v8_isolate, "PauseOnNextStatement"));
 	session_->schedulePauseOnNextStatement(v8_inspector::StringView(*pauseReason, pauseReason.length()), v8_inspector::StringView());
 }
 
@@ -78,7 +78,7 @@ void InspectorClient::runMessageLoopOnPause(int context_group_id)
 	running_nested_loop_ = true;
 	while (!terminated_) {
 		v8::Local<v8::String> message = JSDebugger::WaitForMessage();
-		v8::String::Value buffer(message);
+		v8::String::Value buffer(V8Runtime::v8_isolate, message);
 		v8_inspector::StringView message_view(*buffer, buffer.length());
 		sendMessage(message_view);
 

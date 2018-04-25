@@ -149,7 +149,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 		return;
 	}
 
-	jstring javaProperty = TypeConverter::jsStringToJavaString(env, property);
+	jstring javaProperty = TypeConverter::jsStringToJavaString(isolate, env, property);
 	bool javaValueIsNew;
 	jobject javaValue = TypeConverter::jsValueToJavaObject(isolate, env, value, &javaValueIsNew);
 
@@ -279,7 +279,7 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
-	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
+	jstring javaEventType = TypeConverter::jsStringToJavaString(isolate, env, eventType);
 
 	proxy->unreferenceJavaObject(javaProxy);
 
@@ -320,7 +320,7 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	jobject javaProxy = proxy->getJavaObject();
 	jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
 
-	jstring javaEventType = TypeConverter::jsStringToJavaString(env, eventType);
+	jstring javaEventType = TypeConverter::jsStringToJavaString(isolate, env, eventType);
 	bool isNew;
 	jobject javaEventData = TypeConverter::jsValueToJavaObject(isolate, env, eventData, &isNew);
 
@@ -388,7 +388,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Local<Object> prototype = jsProxy->GetPrototype()->ToObject(isolate);
 		Local<Function> constructor = prototype->Get(constructorSymbol.Get(isolate)).As<Function>();
 		Local<String> javaClassName = constructor->Get(javaClassSymbol.Get(isolate)).As<String>();
-		v8::String::Utf8Value javaClassNameVal(javaClassName);
+		v8::String::Utf8Value javaClassNameVal(isolate, javaClassName);
 		std::string javaClassNameString(*javaClassNameVal);
 		std::replace( javaClassNameString.begin(), javaClassNameString.end(), '.', '/');
 		// Create a copy of the char* since I'm seeing it get mangled when passed on to findClass later
@@ -410,7 +410,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		bool extend = true;
 		Local<Object> createProperties = args[0].As<Object>();
 		Local<String> constructorName = createProperties->GetConstructorName();
-		if (strcmp(*v8::String::Utf8Value(constructorName), "Arguments") == 0) {
+		if (strcmp(*v8::String::Utf8Value(isolate, constructorName), "Arguments") == 0) {
 			extend = false;
 			int32_t argsLength = createProperties->Get(STRING_NEW(isolate, "length"))->Int32Value();
 			if (argsLength > 1) {
@@ -489,19 +489,21 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 		return;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
 	Local<Array> changes = args[0].As<Array>();
 	uint32_t length = changes->Length();
 	jobjectArray jChanges = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
 
 	for (uint32_t i = 0; i < length; ++i) {
-		Local<Array> change = changes->Get(i).As<Array>();
-		Local<String> name = change->Get(INDEX_NAME)->ToString(isolate);
-		Local<Value> oldValue = change->Get(INDEX_OLD_VALUE);
-		Local<Value> value = change->Get(INDEX_VALUE);
+		// FIXME Actually handle possible empty values
+		Local<Array> change = changes->Get(context, i).ToLocalChecked().As<Array>();
+		Local<String> name = change->Get(context, INDEX_NAME).ToLocalChecked()->ToString(context).ToLocalChecked();
+		Local<Value> oldValue = change->Get(context, INDEX_OLD_VALUE).ToLocalChecked();
+		Local<Value> value = change->Get(context, INDEX_VALUE).ToLocalChecked();
 
 		jobjectArray jChange = env->NewObjectArray(3, JNIUtil::objectClass, NULL);
 
-		jstring jName = TypeConverter::jsStringToJavaString(env, name);
+		jstring jName = TypeConverter::jsStringToJavaString(isolate, env, name);
 		env->SetObjectArrayElement(jChange, INDEX_NAME, jName);
 		env->DeleteLocalRef(jName);
 
