@@ -105,6 +105,7 @@ void InspectorClient::Initialize(v8::Local<v8::Object> target, v8::Local<v8::Con
 void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	v8::Isolate* isolate = args.GetIsolate();
+	v8::Local<v8::Context> context = isolate->GetCurrentContext();
 	v8::HandleScope scope(isolate);
 
 	assert(args.Length() >= 2);
@@ -118,9 +119,12 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	// Instead, we pass the app.js source and filename and compile it, schedule a pause and then run it.
 	// This does duplicate some existing logic in ScriptModule.cpp for Script.runInThisContext impl
 	v8::TryCatch tryCatch(isolate);
-	v8::Local<v8::String> source = args[0]->ToString();
-	v8::Local<v8::String> filename = args[1]->ToString();
-	v8::Local<v8::Script> script = v8::Script::Compile(source, filename);
+	v8::Local<v8::String> source_text = args[0]->ToString(context).FromMaybe(v8::String::Empty(isolate));
+	v8::Local<v8::String> filename = args[1]->ToString(context).FromMaybe(v8::String::Empty(isolate));
+	v8::ScriptOrigin origin(filename);
+	v8::ScriptCompiler::Source source(source_text, origin);
+
+	v8::MaybeLocal<v8::Script> script = v8::ScriptCompiler::Compile(context, &source);
 	if (script.IsEmpty()) {
 		// Hack because I can't get a proper stacktrace on SyntaxError
 		V8Util::fatalException(isolate, tryCatch); // try to throw SyntaxError exception
@@ -132,12 +136,8 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	// This basically queues up a pause to happen as soon as we invoke app.js
 	JSDebugger::debugBreak();
 
-	v8::Local<v8::Value> result = script->Run();
-	if (result.IsEmpty()) {
-		args.GetReturnValue().Set(v8::Undefined(isolate));
-		return;
-	}
-	args.GetReturnValue().Set(result);
+	v8::MaybeLocal<v8::Value> result = script.ToLocalChecked()->Run(context);
+	args.GetReturnValue().Set(result.FromMaybe(v8::Undefined(isolate).As<Value>()));
 }
 
 } // namespace titanium

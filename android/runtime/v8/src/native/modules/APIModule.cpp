@@ -83,7 +83,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 		SetProtoMethod(isolate, constructor, "debugBreak", debugBreak);
 	}
 	// Make API extend from KrollModule
-	constructor->Inherit(KrollModule::getProxyTemplate(isolate));
+	constructor->Inherit(KrollModule::getProxyTemplate(context));
 
 	// export an instance of API as "API" (basically make a static singleton)
 	v8::TryCatch tryCatch(isolate);
@@ -237,19 +237,20 @@ void APIModule::log(const FunctionCallbackInfo<Value>& args)
 
 Local<String> APIModule::combineLogMessages(const FunctionCallbackInfo<Value>& args, int startIndex)
 {
-    // Unfortunately there is no really reasonable way to do this in a memory
-    // and speed-efficient manner. Instead what we have is a series of string
-    // object concatenations, which is a rough emulation of what the + op would
-    // do in JS. Requiring the whitespace between arguments complicates matters
-    // by introducing the " " token.
-    Isolate* isolate = args.GetIsolate();
-    Local<String> space = NEW_SYMBOL(isolate, " ");
-    Local<String> message = String::Empty(isolate);
-    for (int i=startIndex; i < args.Length(); i++) {
-        message = String::Concat(message, String::Concat(space, args[i]->ToString(isolate)));
-    }
-
-    return message;
+	// Unfortunately there is no really reasonable way to do this in a memory
+	// and speed-efficient manner. Instead what we have is a series of string
+	// object concatenations, which is a rough emulation of what the + op would
+	// do in JS. Requiring the whitespace between arguments complicates matters
+	// by introducing the " " token.
+	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<String> space = NEW_SYMBOL(isolate, " ");
+	Local<String> message = String::Empty(isolate);
+	Local<String> empty = String::Empty(isolate);
+	for (int i=startIndex; i < args.Length(); i++) {
+		message = String::Concat(message, String::Concat(space, args[i]->ToString(context).FromMaybe(empty)));
+	}
+	return message;
 }
 
 void APIModule::getApiName(const FunctionCallbackInfo<Value>& args)

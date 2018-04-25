@@ -126,7 +126,7 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	KrollBindings::initFunctions(kroll, context);
 
-	SetMethod(isolate, kroll, "log", krollLog);
+	SetMethod(context, isolate, kroll, "log", krollLog);
 	// Move this into the EventEmitter::initTemplate call?
 	Local<FunctionTemplate> eect = Local<FunctionTemplate>::New(isolate, EventEmitter::constructorTemplate);
 	{

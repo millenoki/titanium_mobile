@@ -240,16 +240,20 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	Local<Array> keys;
 	unsigned int i;
 	WrappedContext *nContext = NULL;
-	Local<Object> contextArg;
 
 	if (context_flag == newContext) {
 		// Create the new context
 		context.Reset(isolate, Context::New(isolate));
 	} else if (context_flag == userContext) {
 		// Use the passed in context
-		contextArg = args[sandbox_index]->ToObject(isolate);
-		nContext = WrappedContext::Unwrap(isolate, contextArg);
-		context.Reset(isolate, nContext->context_);
+		MaybeLocal<Object> contextArg = args[sandbox_index]->ToObject(isolate->GetCurrentContext());
+		if (contextArg.IsEmpty()) {
+			// FIXME Will this ever happen? This is not likley and probably the wrong way to handle this. We should at least log it...
+			context.Reset(isolate, Context::New(isolate));
+		} else {
+			nContext = WrappedContext::Unwrap(isolate, contextArg.ToLocalChecked());
+			context.Reset(isolate, nContext->context_);
+		}
 	}
 
 	// New and user context share code. DRY it up.

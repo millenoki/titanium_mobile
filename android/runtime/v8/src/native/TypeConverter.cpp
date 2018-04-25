@@ -138,7 +138,8 @@ v8::Local<v8::Value> TypeConverter::javaStringToJsString(v8::Isolate* isolate, J
 
 	int nativeStringLength = env->GetStringLength(javaString);
 	const jchar *nativeString = env->GetStringChars(javaString, NULL);
-	v8::Local<v8::String> jsString = v8::String::NewFromTwoByte(isolate, nativeString, v8::String::kNormalString, nativeStringLength);
+	// FIXME Propagate MaybeLocal to caller?
+	v8::Local<v8::String> jsString = v8::String::NewFromTwoByte(isolate, nativeString, v8::NewStringType::kNormal, nativeStringLength).ToLocalChecked();
 	env->ReleaseStringChars(javaString, nativeString);
 
 	return jsString;

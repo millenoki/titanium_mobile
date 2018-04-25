@@ -124,15 +124,21 @@ public:
 	static void inherit(const v8::FunctionCallbackInfo<v8::Value>& args)
 	{
 		v8::Isolate* isolate = args.GetIsolate();
+		v8::Local<v8::Context> context = isolate->GetCurrentContext();
 		v8::HandleScope scope(isolate);
 		v8::Local<v8::Function> fn = args[0].As<v8::Function>();
 
 		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
 			isolate,
-			ProxyClass::getProxyTemplate(isolate),
+			ProxyClass::getProxyTemplate(context),
 			ProxyClass::javaClass,
-			fn->GetName()->ToString(isolate), fn);
-		args.GetReturnValue().Set(newType->GetFunction());
+			fn->GetName()->ToString(context).FromMaybe(v8::String::Empty(isolate)), fn);
+		v8::MaybeLocal<v8::Function> possibleResult = newType->GetFunction(context);
+		if (!possibleResult.IsEmpty()) {
+			args.GetReturnValue().Set(possibleResult.ToLocalChecked());
+		} else {
+			args.GetReturnValue().SetUndefined(); // FIXME Log something? throw error?
+		}
 	}
 
 	/**

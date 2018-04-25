@@ -66,13 +66,16 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 		}
 		jsObject = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, proxySupport).As<Object>();
 	}
+	Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
 
-	Local<Object> properties = jsObject->Get(titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate)).As<Object>();
-	Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
-	Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
-
-	jsObject->SetAccessor(V8Runtime::v8_isolate->GetCurrentContext(), jsName->ToString(V8Runtime::v8_isolate), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
-	properties->Set(jsName, jsValue);
+	MaybeLocal<Value> maybeProperties = jsObject->Get(context, titanium::Proxy::propertiesSymbol.Get(V8Runtime::v8_isolate));
+	if (!maybeProperties.IsEmpty()) {
+		Local<Object> properties = maybeProperties.ToLocalChecked().As<Object>();
+		Local<Value> jsName = TypeConverter::javaStringToJsString(V8Runtime::v8_isolate, env, name);
+		Local<Value> jsValue = TypeConverter::javaObjectToJsValue(V8Runtime::v8_isolate, env, value);
+		jsObject->SetAccessor(context, jsName->ToString(context).FromMaybe(String::Empty(V8Runtime::v8_isolate)), titanium::Proxy::getProperty, titanium::Proxy::onPropertyChanged);
+		properties->Set(jsName, jsValue);
+	}
 }
 
 
