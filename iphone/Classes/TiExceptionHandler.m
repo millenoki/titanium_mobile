@@ -47,8 +47,14 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-  DebugLog(@"[ERROR] Script Error at %@", [scriptError oneLineDescription]);
-  DebugLog(@"[ERROR] callstack:\n%@", [scriptError stackDescription]);
+  if ([scriptError message]) {
+    DebugLog(@"[ERROR] Script Error at %@", [scriptError oneLineDescription]);
+    DebugLog(@"[ERROR] callstack:\n%@", [scriptError stackDescription]);
+  } else {
+    DebugLog(@"[ERROR] Script Error %@", [scriptError dictionaryValue]);
+
+  }
+  
 
   id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
   if (currentDelegate == nil) {
@@ -113,8 +119,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     }
   }
   NSString *sourceURL = [[dictionary objectForKey:@"fileName"] description];
+  if (!sourceURL) {
+    sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
+  }
   NSInteger lineNo = [[dictionary objectForKey:@"lineNumber"] integerValue];
-
+  if (![dictionary objectForKey:@"lineNumber"]) {
+    lineNo = [[dictionary objectForKey:@"line"] integerValue];
+  }
   self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
   if (self) {
     NSString *backtrace = [[dictionary objectForKey:@"backtrace"] description];

@@ -32,9 +32,13 @@
       if ([path hasSuffix:@"/"]) {
         path = [path substringToIndex:path.length - 1];
       }
+      NSString* message = [error message];
+      if (!message) {
+        message = @"";
+      }
       NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                            @{
-                                                             @"text" : [error message]
+                                                             @"text" : message
                                                            },
                                                        @"message", nil];
       if (error.sourceURL) {
