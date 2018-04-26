@@ -111,7 +111,7 @@ void KrollBindings::getExternalBinding(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
 	if (args.Length() == 0 || !(args[0]->IsString())) {
-		JSException::Error(args.GetIsolate(), "Invalid arguments to externalBinding, expected String");
+		JSException::Error(isolate, "Invalid arguments to externalBinding, expected String");
 		return;
 	}
 
@@ -123,11 +123,8 @@ void KrollBindings::getExternalBinding(const FunctionCallbackInfo<Value>& args)
 	if (cache->Has(context, binding).FromMaybe(false)) {
 		MaybeLocal<Value> maybeExport = cache->Get(context, binding);
 		if (!maybeExport.IsEmpty()) {
-			MaybeLocal<Object> maybeExportedObject = maybeExport.ToLocalChecked()->ToObject(context);
-			if (!maybeExportedObject.IsEmpty()) {
-				args.GetReturnValue().Set(maybeExportedObject.ToLocalChecked());
-				return;
-			}
+			args.GetReturnValue().Set(maybeExport.ToLocalChecked().As<Object>());
+			return;
 		}
 	}
 
@@ -185,10 +182,7 @@ Local<Object> KrollBindings::getBinding(v8::Isolate* isolate, Local<String> bind
 	if (cache->Has(context, binding).FromMaybe(false)) {
 		MaybeLocal<Value> maybeExport = cache->Get(context, binding);
 		if (!maybeExport.IsEmpty()) {
-			MaybeLocal<Object> maybeExportedObject = maybeExport.ToLocalChecked()->ToObject(context);
-			if (!maybeExportedObject.IsEmpty()) {
-				return maybeExportedObject.ToLocalChecked();
-			}
+			return maybeExport.ToLocalChecked().As<Object>();
 		}
 	}
 

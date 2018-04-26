@@ -114,8 +114,7 @@ class V8Util {
 public:
 	static v8::Local<v8::Value> executeString(v8::Isolate* isolate, v8::Local<v8::String> source, v8::Local<v8::Value> filename);
 	static v8::Local<v8::Value> newInstanceFromConstructorTemplate(v8::Persistent<v8::FunctionTemplate>& t,
-	const v8::FunctionCallbackInfo<v8::Value>& args);
-	static void objectExtend(v8::Local<v8::Object> dest, v8::Local<v8::Object> src);
+		const v8::FunctionCallbackInfo<v8::Value>& args);
 	static void reportException(v8::Isolate* isolate, v8::TryCatch &tryCatch, bool showLine = true);
 	static void openJSErrorDialog(v8::Isolate* isolate, v8::TryCatch &tryCatch);
 	static void fatalException(v8::Isolate* isolate, v8::TryCatch &tryCatch);
