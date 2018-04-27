@@ -26,9 +26,12 @@ public:
 	};
 
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
-	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol;
-	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
-	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
+	static v8::Persistent<v8::String> javaClassSymbol;
+	static v8::Persistent<v8::String> constructorSymbol;
+	static v8::Persistent<v8::String> inheritSymbol;
+	static v8::Persistent<v8::String> propertiesSymbol;
+	static v8::Persistent<v8::String> lengthSymbol;
+	static v8::Persistent<v8::String> sourceUrlSymbol;
 
 	Proxy();
 
@@ -113,34 +116,6 @@ public:
 	 */
 	static void onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-	// This provides Javascript a way to extend one of our native / wrapped
-	// templates without needing to know about the internal java class.
-	//
-	// An example of what this might look like from JS:
-	// var MyProxy = Ti.UI.View.inherit(function MyView(options) {
-	//     // constructor code goes here.. (optional)
-	// });
-	template<typename ProxyClass>
-	static void inherit(const v8::FunctionCallbackInfo<v8::Value>& args)
-	{
-		v8::Isolate* isolate = args.GetIsolate();
-		v8::Local<v8::Context> context = isolate->GetCurrentContext();
-		v8::HandleScope scope(isolate);
-		v8::Local<v8::Function> fn = args[0].As<v8::Function>();
-
-		v8::Local<v8::FunctionTemplate> newType = inheritProxyTemplate(
-			isolate,
-			ProxyClass::getProxyTemplate(context),
-			ProxyClass::javaClass,
-			fn->GetName()->ToString(context).FromMaybe(v8::String::Empty(isolate)), fn);
-		v8::MaybeLocal<v8::Function> possibleResult = newType->GetFunction(context);
-		if (!possibleResult.IsEmpty()) {
-			args.GetReturnValue().Set(possibleResult.ToLocalChecked());
-		} else {
-			args.GetReturnValue().SetUndefined(); // FIXME Log something? throw error?
-		}
-	}
-
 	/**
 	 * Inherit a built-in proxy template for use in Javascript (used by generated code)
 	 */
@@ -148,8 +123,7 @@ public:
 		v8::Isolate* isolate,
 		v8::Local<v8::FunctionTemplate> superTemplate,
 		jclass javaClass,
-		v8::Local<v8::String> className,
-		v8::Local<v8::Function> callback = v8::Local<v8::Function>());
+		v8::Local<v8::String> className);
 
 	static void dispose(v8::Isolate* isolate);
 

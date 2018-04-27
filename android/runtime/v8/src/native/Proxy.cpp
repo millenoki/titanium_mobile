@@ -72,7 +72,7 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	Local<Function> constructor;
 	MaybeLocal<Function> maybeConstructor = proxyTemplate->GetFunction(context);
 	if (maybeConstructor.ToLocal(&constructor)) {
-		exports->Set(proxySymbol, constructor);
+		exports->Set(context, proxySymbol, constructor);
 	} else {
 		V8Util::fatalException(isolate, tryCatch);
 	}
@@ -80,40 +80,46 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 
 static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, Local<Object> proxy)
 {
+	Local<Context> context = isolate->GetCurrentContext();
 	// Call getProperty on the Proxy to get the property.
 	// We define this method in JavaScript on the Proxy prototype.
-	Local<Value> getProperty = proxy->Get(STRING_NEW(isolate, "getProperty"));
-	if (!getProperty.IsEmpty() && getProperty->IsFunction()) {
-		Local<Value> argv[1] = { property };
-		MaybeLocal<Value> value = getProperty.As<Function>()->Call(isolate->GetCurrentContext(), proxy, 1, argv);
-		if (value.IsEmpty()) {
-			return Undefined(isolate);
-		}
-		return value.ToLocalChecked();
+	MaybeLocal<Value> maybeGetProperty = proxy->Get(context, STRING_NEW(isolate, "getProperty"));
+	if (maybeGetProperty.IsEmpty()) {
+		LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");
+		return Undefined(isolate);
 	}
 
-	LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");
-	return Undefined(isolate);
+	Local<Value> getProperty = maybeGetProperty.ToLocalChecked();
+	if (!getProperty->IsFunction()) {
+		LOGE(TAG, "Proxy.prototype.getProperty is not a Function!");
+		return Undefined(isolate);
+	}
+
+	Local<Value> argv[1] = { property };
+	MaybeLocal<Value> value = getProperty.As<Function>()->Call(context, proxy, 1, argv);
+	return value.FromMaybe(Undefined(isolate).As<Value>());
 }
 
 void Proxy::getProperty(Local<Name> property, const PropertyCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
-	args.GetReturnValue().Set(getPropertyForProxy(isolate, property->ToString(isolate), args.Holder()));
+	args.GetReturnValue().Set(getPropertyForProxy(isolate, property, args.Holder()));
 }
 
 void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
 	// The name of the property can be passed either as
 	// an argument or a data parameter.
-	Local<String> name;
-	if (args.Length() >= 1) {
-		name = args[0]->ToString(isolate);
-	} else if (args.Data()->IsString()) {
-		name = args.Data().As<String>();
+	// Only support symbols/Strings for now. I think we handle indices differently
+	Local<Name> name;
+	if (args.Length() >= 1 && args[0]->IsName()) { // already String/Symbol
+		name = args[0].As<Name>();
+	} else if (args.Data()->IsName()) {
+		name = args.Data().As<Name>();
 	} else {
-		JSException::Error(isolate, "Requires property name.");
+		JSException::Error(isolate, "Requires property name as Symbol or String.");
 		return;
 	}
 
@@ -123,23 +129,29 @@ void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 static void setPropertyOnProxy(Isolate* isolate, Local<Name> property, Local<Value> value, Local<Object> proxy)
 {
 	// Call Proxy.prototype.setProperty.
-	Local<Value> setProperty = proxy->Get(STRING_NEW(isolate, "setProperty"));
-	if (!setProperty.IsEmpty() && setProperty->IsFunction()) {
-		Local<Value> argv[2] = { property, value };
-		setProperty.As<Function>()->Call(isolate->GetCurrentContext(), proxy, 2, argv);
+	Local<Context> context = isolate->GetCurrentContext();
+	MaybeLocal<Value> maybeSetProperty = proxy->Get(context, STRING_NEW(isolate, "setProperty"));
+	if (maybeSetProperty.IsEmpty()) {
+		LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
 		return;
 	}
 
-	LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
+	Local<Value>setProperty = maybeSetProperty.ToLocalChecked();
+	if (!setProperty->IsFunction()) {
+		LOGE(TAG, "Proxy.prototype.setProperty isn't a function!!!");
+		return;
+	}
+	Local<Value> argv[2] = { property, value };
+	setProperty.As<Function>()->Call(context, proxy, 2, argv);
 }
 
 void Proxy::setProperty(Local<Name> property, Local<Value> value, const PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	setPropertyOnProxy(isolate, property->ToString(isolate), value, info.This());
+	setPropertyOnProxy(isolate, property, value, info.This());
 }
 
-static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, Local<Value> value, Local<Object> proxyObject)
+static void onPropertyChangedForProxy(Isolate* isolate, Local<Name> property, Local<Value> value, Local<Object> proxyObject)
 {
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(proxyObject);
 
@@ -148,8 +160,9 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 		LOG_JNIENV_GET_ERROR(TAG);
 		return;
 	}
-
-	jstring javaProperty = TypeConverter::jsStringToJavaString(isolate, env, property);
+	// FIXME how can we handle symbols?
+	Local<Context> context = isolate->GetCurrentContext();
+	jstring javaProperty = TypeConverter::jsStringToJavaString(isolate, env, property->ToString(context).FromMaybe(String::Empty(isolate)));
 	bool javaValueIsNew;
 	jobject javaValue = TypeConverter::jsValueToJavaObject(isolate, env, value, &javaValueIsNew);
 
@@ -179,7 +192,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
-	onPropertyChangedForProxy(isolate, property->ToString(isolate), value, info.Holder());
+	onPropertyChangedForProxy(isolate, property, value, info.Holder());
 }
 
 void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -190,7 +203,7 @@ void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 		return;
 	}
 
-	Local<String> name = args.Data()->ToString(isolate);
+	Local<Name> name = args.Data().As<Name>();
 	Local<Value> value = args[0];
 	onPropertyChangedForProxy(isolate, name, value, args.Holder());
 }
@@ -274,7 +287,8 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 	}
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
-	Local<String> eventType = args[0]->ToString(isolate);
+	// TODO Support Symbols for event types?
+	Local<String> eventType = args[0].As<String>();
 	Local<Boolean> hasListeners = args[1]->ToBoolean(isolate);
 
 	jobject javaProxy = proxy->getJavaObject();
@@ -314,7 +328,8 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	}
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
-	Local<String> eventType = args[0]->ToString(isolate);
+	// TODO Support Symbols for event types?
+	Local<String> eventType = args[0].As<String>();
 	Local<Value> eventData = args[1];
 
 	jobject javaProxy = proxy->getJavaObject();
@@ -346,14 +361,16 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 
 Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 	Local<FunctionTemplate> superTemplate, jclass javaClass,
-	Local<String> className, Local<Function> callback)
+	Local<String> className)
 {
 	EscapableHandleScope scope(isolate);
 
-	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, callback);
+	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor);
 	inheritedTemplate->Set(javaClassSymbol.Get(isolate),
 		ProxyFactory::getJavaClassName(isolate, javaClass),
 		static_cast<PropertyAttribute>(DontDelete | DontEnum));
+	// FIXME Can we pass in the javaClass wrapped in an External as the Data here and avoid needing to set the special __javaClass__ property?
+	// Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, External::New(isolate, javaClass));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	inheritedTemplate->SetClassName(className);
@@ -371,13 +388,17 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	JNIEnv *env = JNIScope::getEnv();
 	Local<Object> jsProxy = args.This();
 
+	TryCatch tryCatch(isolate);
+
 	// First things first, we need to wrap the object in case future calls need to unwrap proxy!
 	Proxy* proxy = new Proxy();
 	proxy->Wrap(jsProxy);
 	proxy->Ref(); // force a reference so we don't get GC'd before we can attach the Java object
 
+	Local<Context> context = isolate->GetCurrentContext();
+
 	// every instance gets a special "_properties" object for us to use internally for get/setProperty
-	jsProxy->DefineOwnProperty(isolate->GetCurrentContext(), propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
+	jsProxy->DefineOwnProperty(context, propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
 	// Now we hook up a java Object from the JVM...
 	jobject javaProxy = Proxy::unwrapJavaProxy(args); // do we already have one that got passed in?
@@ -412,9 +433,9 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Local<String> constructorName = createProperties->GetConstructorName();
 		if (strcmp(*v8::String::Utf8Value(isolate, constructorName), "Arguments") == 0) {
 			extend = false;
-			int32_t argsLength = createProperties->Get(STRING_NEW(isolate, "length"))->Int32Value();
+			int32_t argsLength = createProperties->Get(context, STRING_NEW(isolate, "length")).FromMaybe(Integer::New(isolate, 0).As<Value>())->Int32Value();
 			if (argsLength > 1) {
-				Local<Value> properties = createProperties->Get(1);
+				Local<Value> properties = createProperties->Get(context, 1).FromMaybe(Undefined(isolate).As<Value>());
 				if (properties->IsObject()) {
 					extend = true;
 					createProperties = properties.As<Object>();
@@ -423,37 +444,42 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		}
 
 		if (extend) {
-			Local<Array> names = createProperties->GetOwnPropertyNames();
-			int length = names->Length();
-			Local<Object> properties = jsProxy->Get(propertiesSymbol.Get(isolate))->ToObject(isolate);
+			MaybeLocal<Array> maybePropertyNames = createProperties->GetOwnPropertyNames(context);
+			if (!maybePropertyNames.IsEmpty()) { // FIXME Handle when empty!
+				Local<Array> names = maybePropertyNames.ToLocalChecked();
+				int length = names->Length();
+				MaybeLocal<Value> maybeProperties = jsProxy->Get(context, propertiesSymbol.Get(isolate));
+				if (!maybeProperties.IsEmpty()) { // FIXME Handle when empty!
+					Local<Object> properties = maybeProperties.ToLocalChecked().As<Object>();
 
-			for (int i = 0; i < length; ++i) {
-				Local<Value> name = names->Get(i);
-				Local<Value> value = createProperties->Get(name);
-				bool isProperty = true;
-				if (name->IsString()) {
-					Local<String> nameString = name.As<String>();
-					if (!jsProxy->HasRealNamedCallbackProperty(nameString)
-						&& !jsProxy->HasRealNamedProperty(nameString)) {
-						jsProxy->Set(name, value);
-						isProperty = false;
+					for (int i = 0; i < length; ++i) {
+						MaybeLocal<Value> maybeName = names->Get(context, i);
+						if (maybeName.IsEmpty()) {
+							continue;
+						}
+						Local<Value> name = maybeName.ToLocalChecked();
+						MaybeLocal<Value> maybeValue = createProperties->Get(context, name);
+						if (maybeValue.IsEmpty()) {
+							continue;
+						}
+
+						Local<Value> value = maybeValue.ToLocalChecked();
+						bool isProperty = true;
+						if (name->IsName()) {
+							Local<Name> nameStringOrSymbol = name.As<Name>();
+							if (!jsProxy->HasRealNamedCallbackProperty(context, nameStringOrSymbol).FromMaybe(false)
+								&& !jsProxy->HasRealNamedProperty(context, nameStringOrSymbol).FromMaybe(false)) {
+								jsProxy->Set(context, name, value);
+								isProperty = false;
+							}
+						}
+						if (isProperty) {
+							properties->Set(context, name, value);
+						}
 					}
-				}
-				if (isProperty) {
-					properties->Set(name, value);
 				}
 			}
 		}
-	}
-
-
-	if (!args.Data().IsEmpty() && args.Data()->IsFunction()) {
-		Local<Function> proxyFn = args.Data().As<Function>();
-		Local<Value> *fnArgs = new Local<Value>[length];
-		for (int i = 0; i < length; ++i) {
-			fnArgs[i] = args[i];
-		}
-		proxyFn->Call(isolate->GetCurrentContext(), jsProxy, length, fnArgs);
 	}
 
 	if (deleteRef) {

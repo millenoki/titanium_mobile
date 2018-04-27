@@ -136,7 +136,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// depends how this constructor was called.
 	jobjectArray javaArgs;
 	if (calledFromCreate) {
-		Local<Object> arguments = args[0]->ToObject(context).ToLocalChecked(); // FIXME Handle if this may be empty!
+		Local<Object> arguments = args[0].As<Object>();
 		MaybeLocal<Value> lengthValue = arguments->Get(context, Proxy::lengthSymbol.Get(isolate));
 		Maybe<int32_t> length = Nothing<int32_t>();
 		if (!lengthValue.IsEmpty()) {
