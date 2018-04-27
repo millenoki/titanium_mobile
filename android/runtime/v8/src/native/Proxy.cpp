@@ -30,9 +30,6 @@ using namespace v8;
 namespace titanium {
 
 Persistent<FunctionTemplate> Proxy::baseProxyTemplate;
-Persistent<String> Proxy::javaClassSymbol;
-Persistent<String> Proxy::constructorSymbol;
-Persistent<String> Proxy::inheritSymbol;
 Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
@@ -45,22 +42,15 @@ Proxy::Proxy() :
 void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 {
 	Isolate* isolate = context->GetIsolate();
-	Local<String> javaClass = NEW_SYMBOL(isolate, "__javaClass__");
-	javaClassSymbol.Reset(isolate, javaClass);
-	constructorSymbol.Reset(isolate, NEW_SYMBOL(isolate, "constructor"));
-	inheritSymbol.Reset(isolate, NEW_SYMBOL(isolate, "inherit"));
 	propertiesSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_properties"));
 	lengthSymbol.Reset(isolate, NEW_SYMBOL(isolate, "length"));
 	sourceUrlSymbol.Reset(isolate, NEW_SYMBOL(isolate, "sourceUrl"));
 
-	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(isolate);
+	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(isolate, 0, External::New(isolate, JNIUtil::krollProxyClass));
 	Local<String> proxySymbol = NEW_SYMBOL(isolate, "Proxy");
 	proxyTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	proxyTemplate->SetClassName(proxySymbol);
 	proxyTemplate->Inherit(EventEmitter::constructorTemplate.Get(isolate));
-
-	proxyTemplate->Set(javaClass, ProxyFactory::getJavaClassName(isolate, JNIUtil::krollProxyClass),
-		static_cast<PropertyAttribute>(DontDelete | DontEnum));
 
 	SetProtoMethod(isolate, proxyTemplate, "_hasListenersForEventType", hasListenersForEventType);
 	SetProtoMethod(isolate, proxyTemplate, "onPropertiesChanged", proxyOnPropertiesChanged);
@@ -365,12 +355,8 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 {
 	EscapableHandleScope scope(isolate);
 
-	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor);
-	inheritedTemplate->Set(javaClassSymbol.Get(isolate),
-		ProxyFactory::getJavaClassName(isolate, javaClass),
-		static_cast<PropertyAttribute>(DontDelete | DontEnum));
-	// FIXME Can we pass in the javaClass wrapped in an External as the Data here and avoid needing to set the special __javaClass__ property?
-	// Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, External::New(isolate, javaClass));
+	// Wrap the java class in an External and we can access it via FunctionCallbackInfo.Data() in #proxyConstructor
+	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, External::New(isolate, javaClass));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
 	inheritedTemplate->SetClassName(className);
@@ -404,22 +390,15 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	jobject javaProxy = Proxy::unwrapJavaProxy(args); // do we already have one that got passed in?
 	bool deleteRef = false;
 	if (!javaProxy) {
-		// No passed in java object, so let's create an instance
-		// Look up java class from prototype...
-		Local<Object> prototype = jsProxy->GetPrototype()->ToObject(isolate);
-		Local<Function> constructor = prototype->Get(constructorSymbol.Get(isolate)).As<Function>();
-		Local<String> javaClassName = constructor->Get(javaClassSymbol.Get(isolate)).As<String>();
-		v8::String::Utf8Value javaClassNameVal(isolate, javaClassName);
-		std::string javaClassNameString(*javaClassNameVal);
-		std::replace( javaClassNameString.begin(), javaClassNameString.end(), '.', '/');
-		// Create a copy of the char* since I'm seeing it get mangled when passed on to findClass later
-		const char* jniName = strdup(javaClassNameString.c_str());
-		jclass javaClass = JNIUtil::findClass(jniName);
+		if (args.Data().IsEmpty() || !args.Data()->IsExternal()) {
+			String::Utf8Value jsClassName(isolate, jsProxy->GetConstructorName());
+			LOGE(TAG, "No JNI Java Class reference set for proxy java proxy type %s", *jsClassName);
+			return;
+		}
 
+		jclass javaClass = (jclass) args.Data().As<External>()->Value();
 		// Now we create an instance of the class and hook it up
-		LOGD(TAG, "Creating java proxy for class %s", jniName);
 		javaProxy = ProxyFactory::createJavaProxy(javaClass, jsProxy, args);
-		env->DeleteGlobalRef(javaClass); // JNIUtil::findClass returns a global reference to a class
 		deleteRef = true;
 	}
 	proxy->attach(javaProxy);
@@ -433,7 +412,7 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 		Local<String> constructorName = createProperties->GetConstructorName();
 		if (strcmp(*v8::String::Utf8Value(isolate, constructorName), "Arguments") == 0) {
 			extend = false;
-			int32_t argsLength = createProperties->Get(context, STRING_NEW(isolate, "length")).FromMaybe(Integer::New(isolate, 0).As<Value>())->Int32Value();
+			int32_t argsLength = createProperties->Get(context, lengthSymbol.Get(isolate)).FromMaybe(Integer::New(isolate, 0).As<Value>())->Int32Value();
 			if (argsLength > 1) {
 				Local<Value> properties = createProperties->Get(context, 1).FromMaybe(Undefined(isolate).As<Value>());
 				if (properties->IsObject()) {
@@ -565,9 +544,6 @@ void Proxy::proxyOnPropertiesChanged(const v8::FunctionCallbackInfo<v8::Value>& 
 void Proxy::dispose(Isolate* isolate)
 {
 	baseProxyTemplate.Reset();
-	javaClassSymbol.Reset();
-	constructorSymbol.Reset();
-	inheritSymbol.Reset();
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();
