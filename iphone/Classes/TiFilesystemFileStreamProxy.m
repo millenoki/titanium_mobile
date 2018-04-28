@@ -209,31 +209,73 @@
   }
 
   if (slicedData != nil) {
-    @try {
-      [fileHandle writeData:slicedData];
+//    @try {
+    
+      NSInteger numTries = 3;
+      size_t bytesLeft = slicedData.length;
+      while (bytesLeft > 0 && numTries > 0 ) {
+        ssize_t amountSent= write ([fileHandle fileDescriptor], [slicedData bytes]+slicedData.length-bytesLeft, bytesLeft);
+        if (amountSent < 0) {
+//          NSLog(@"write fail; tried %lu bytes; error: %zd", bytesLeft, amountSent);
+          break;
+        } else {
+          bytesLeft = bytesLeft- amountSent;
+          if (bytesLeft > 0) {
+//            NSLog(@"pipe full, retrying; tried %lu bytes; wrote %zd", (unsigned long)[slicedData length], amountSent);
+            sleep(1);  //probably too long, but this is quite rare
+            numTries--;
+          }
+        }
+      }
       [fileHandle synchronizeFile]; //force immediate save to disk
-
-      if (callback != nil) {
-        NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
-        [event setObject:self forKey:@"source"];
-        [event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
-        [event setObject:NUMINT(0) forKey:@"errorState"];
-        [event setObject:@"" forKey:@"errorDescription"];
-        [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
-      }
-    }
-    @catch (NSException *e) {
-      if (callback != nil) {
-        NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
-        [event setObject:self forKey:@"source"];
-        [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
-        [event setObject:[e reason] forKey:@"errorDescription"];
-        [event setObject:NUMINT(-1) forKey:@"errorState"];
-        [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+      if (bytesLeft >0) {
+//        if (numTries == 0) {
+//          NSLog(@"Write Fail4: couldn't write to pipe after three tries; giving up");
+//        }
+        NSString* reason = @"error writing to stream";
+        if (callback != nil) {
+          NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:reason];
+          [event setObject:self forKey:@"source"];
+          [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+          [event setObject:reason forKey:@"errorDescription"];
+          [event setObject:NUMINT(-1) forKey:@"errorState"];
+          [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        } else {
+          @throw reason;
+        }
       } else {
-        @throw e;
+        if (callback != nil) {
+          NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+          [event setObject:self forKey:@"source"];
+          [event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
+          [event setObject:NUMINT(0) forKey:@"errorState"];
+          [event setObject:@"" forKey:@"errorDescription"];
+          [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+        }
       }
-    }
+//      [fileHandle writeData:slicedData];
+
+//      if (callback != nil) {
+//        NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
+//        [event setObject:self forKey:@"source"];
+//        [event setObject:NUMUINTEGER([slicedData length]) forKey:@"bytesProcessed"];
+//        [event setObject:NUMINT(0) forKey:@"errorState"];
+//        [event setObject:@"" forKey:@"errorDescription"];
+//        [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+//      }
+//    }
+//    @catch (NSException *e) {
+//      if (callback != nil) {
+//        NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:[e reason]];
+//        [event setObject:self forKey:@"source"];
+//        [event setObject:NUMINT(0) forKey:@"bytesProcessed"];
+//        [event setObject:[e reason] forKey:@"errorDescription"];
+//        [event setObject:NUMINT(-1) forKey:@"errorState"];
+//        [self _fireEventToListener:@"write" withObject:event listener:callback thisObject:nil];
+//      } else {
+//        @throw e;
+//      }
+//    }
     return [slicedData length];
   }
   return -1;
