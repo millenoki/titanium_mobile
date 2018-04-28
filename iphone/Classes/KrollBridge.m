@@ -1331,18 +1331,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     id module; // may be TiModule* if it was a core module with no hybrid JS, or KrollWrapper* in all other cases
     @try {
 
-      // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
-      module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
-      if (module) {
-        return module;
-      }
-      // 1. If X is a core module,
-      module = [self loadCoreModule:path withContext:kroll];
-      if (module) {
-        // a. return the core module
-        // b. STOP
-        return module;
-      }
 
       // 2. If X begins with './' or '/' or '../'
       if ([path hasPrefix:@"./"] || [path hasPrefix:@"../"]) {
@@ -1367,6 +1355,20 @@ CFMutableSetRef krollBridgeRegistry = nil;
           return module;
         }
       } else {
+        
+        // TODO: this a test to load file modules first. This is for node "stream" that would load Ti StreamModule instead
+        module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
+        if (module) {
+          return module;
+        }
+        // 1. If X is a core module,
+        module = [self loadCoreModule:path withContext:kroll];
+        if (module) {
+          // a. return the core module
+          // b. STOP
+          return module;
+        }
+        
         // TODO Grab the first path segment and see if it's a node module or commonJS module
         // We should be able to organize the modules in folder to determine if the user is attempting to
         // load one of them!
