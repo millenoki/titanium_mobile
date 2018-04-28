@@ -638,6 +638,8 @@ Module.prototype._runScript = function (source, filename) {
 				return inspectorWrapper(source, filename);
 			}
 		}
+		source = 'var global = this;var exports ={};var module={exports:exports};' + source;
+
 		// run app.js "normally" (i.e. not under debugger/inspector)
 		return Script.runInThisContext(source, filename, true);
 	}
