@@ -1091,15 +1091,15 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 	let tiDependencies;
 	if (fs.existsSync(this.platformDependencyJsonFile)) {
 		const deps = JSON.parse(fs.readFileSync(this.platformDependencyJsonFile));
-		if (deps.required) {
-			tiDependencies = (tiDependencies || []).concat(deps.required);
+		if (deps.requiredModules) {
+			tiDependencies = (tiDependencies || []).concat(deps.requiredModules);
 		}
 	}
 	// const tiJSONDeps = path.join(this.projectDir, 'dependency.json');
-	if (fs.exists(this.dependencyJsonFile)) {
+	if (fs.existsSync(this.dependencyJsonFile)) {
 		const deps = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
-		if (deps.required) {
-			tiDependencies = (tiDependencies || []).concat(deps.required);
+		if (deps.requiredModules) {
+			tiDependencies = (tiDependencies || []).concat(deps.requiredModules);
 		}
 	}
 	const javaHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
@@ -1450,14 +1450,16 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 	const jsFilesToEncrypt = [];
 	this.jsFilesToEncrypt = [];
 
-	this.dirWalker(this.assetsDir, function (file) {
-		if (path.extname(file) === '.js') {
-			jsFilesToEncrypt.push({
-				file: path.relative(this.assetsDir, file),
-				src: file
-			});
-		}
-	}.bind(this));
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (path.extname(file) === '.js') {
+				jsFilesToEncrypt.push({
+					file: path.relative(this.assetsDir, file),
+					src: file
+				});
+			}
+		}.bind(this));
+	}
 	fs.existsSync(this.buildGenTsDir) && this.dirWalker(this.buildGenTsDir, function (file) {
 		if (path.extname(file) === '.js') {
 			jsFilesToEncrypt.push({
@@ -1846,13 +1848,15 @@ AndroidModuleBuilder.prototype.getTsConfig = function getTsConfig() {
 
 AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 	const tsFiles = [];
-	this.dirWalker(this.assetsDir, function (file) {
-		if (/\.d\.ts$/.test(file)) {
-			tsFiles.push(file);
-		} else if (path.extname(file) === '.ts') {
-			tsFiles.push(file);
-		}
-	});
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (/\.d\.ts$/.test(file)) {
+				tsFiles.push(file);
+			} else if (path.extname(file) === '.ts') {
+				tsFiles.push(file);
+			}
+		});
+	}
 	if (!tsFiles || tsFiles.length === 0) {
 		return;
 	}
@@ -1910,16 +1914,18 @@ AndroidModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefiniti
 		}
 	}.bind(this));
 	// also copy existing definition files
-	this.dirWalker(this.assetsDir, function (file) {
-		if (/\.d\.ts$/.test(file)) {
-			const relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
-			const dest = path.join(this.documentationBuildDir, relPath);
-			const dir = path.dirname(dest);
-			this.logger.debug(__('copying doc %s => %s', file.cyan, dest.cyan));
-			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-			fs.createReadStream(file).pipe(fs.createWriteStream(dest));
-		}
-	}.bind(this));
+	if (fs.existsSync(this.assetsDir)) {
+		this.dirWalker(this.assetsDir, function (file) {
+			if (/\.d\.ts$/.test(file)) {
+				const relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+				const dest = path.join(this.documentationBuildDir, relPath);
+				const dir = path.dirname(dest);
+				this.logger.debug(__('copying doc %s => %s', file.cyan, dest.cyan));
+				fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+				fs.createReadStream(file).pipe(fs.createWriteStream(dest));
+			}
+		}.bind(this));
+	}
 };
 
 /*
@@ -2266,13 +2272,15 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			const excludeRegex = new RegExp('.*\\' + path.sep + 'R\\.class$|.*\\' + path.sep + 'R\\$(.*)\\.class$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 
 			const assetsParentDir = path.join(this.assetsDir, '..');
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-					moduleJarArchive.append(fs.createReadStream(file), {
-						name: path.relative(assetsParentDir, file)
-					});
-				}
-			});
+			if (fs.existsSync(this.assetsDir)) {
+				this.dirWalker(this.assetsDir, function (file) {
+					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+						moduleJarArchive.append(fs.createReadStream(file), {
+							name: path.relative(assetsParentDir, file)
+						});
+					}
+				});
+			}
 
 			/**
 			 * @param  {string} file file path
@@ -2400,17 +2408,19 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				// 6. assets folder, not including js files
-				this.dirWalker(this.assetsDir, function (file) {
-					if (/\.js\.map$/.test(file)) {
-						dest.file(file, {
-							name: path.join(moduleFolder, 'assets', moduleId, path.relative(this.assetsDir, file))
-						});
-					} else if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
-						dest.file(file, {
-							name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))
-						});
-					}
-				}.bind(this));
+				if (fs.existsSync(this.assetsDir)) {
+					this.dirWalker(this.assetsDir, function (file) {
+						if (/\.js\.map$/.test(file)) {
+							dest.file(file, {
+								name: path.join(moduleFolder, 'assets', moduleId, path.relative(this.assetsDir, file))
+							});
+						} else if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
+							dest.file(file, {
+								name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))
+							});
+						}
+					}.bind(this));
+				}
 
 				// 6. js source maps
 				if (fs.existsSync(path.join(this.buildGenJsDir, moduleId))) {
