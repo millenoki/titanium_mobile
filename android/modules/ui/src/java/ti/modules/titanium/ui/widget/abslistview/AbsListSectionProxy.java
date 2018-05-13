@@ -891,9 +891,17 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			    ((TiViewProxy) proxy).getOrCreateView();
 			}
 			KrollProxyListener modelListener = (KrollProxyListener) proxy.getModelListener();
-			if (!(modelListener instanceof KrollProxyReusableListener)) {
-                continue;
-			}
+//			if (!(modelListener instanceof KrollProxyReusableListener)) {
+//			    if (data instanceof HashMap) {
+//	                HashMap diffProperties = viewItem
+//	                        .generateDiffProperties((HashMap) data.get(binding));
+//	                
+//	                if (diffProperties != null && !diffProperties.isEmpty()) {
+//	                    proxy.applyPropertiesInternal(diffProperties, false, false, false);
+//	                }
+//	            }
+//                continue;
+//			}
 			if (modelListener instanceof TiUIView) {
 	            ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
             }
@@ -903,23 +911,28 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			// if binding is contain in data given to us, process that data,
 			// otherwise
 			// apply default properties.
-			if (reusing) {
+			if (reusing && modelListener != null) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
 			if (data instanceof HashMap) {
-			    HashMap diffProperties = viewItem
+			    HashMap<String, Object> diffProperties = viewItem
 	                    .generateDiffProperties((HashMap) data.get(binding));
 	            
 	            if (diffProperties != null && !diffProperties.isEmpty()) {
-	                if (reusing) {
-	                    modelListener.processApplyProperties(diffProperties);
+	                if (modelListener != null) {
+	                    if (reusing) {
+	                        modelListener.processApplyProperties(diffProperties);
+	                    } else {
+	                        modelListener.processProperties(diffProperties);
+	                    }
 	                } else {
-	                    modelListener.processProperties(diffProperties);
+	                    proxy.getProperties().putAll(diffProperties);
 	                }
+	                
 	            }
 			}
 			
-			if (reusing) {
+			if (reusing && modelListener != null) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(false);
 			}
 		}
