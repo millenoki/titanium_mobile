@@ -3648,12 +3648,12 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 			}
 		}, this);
 
-		// depMap.gmsDependencies[namespace] && depMap.gmsDependencies[namespace].forEach(function(keep) {
-		//     if (googlePlayServicesKeep.indexOf(keep) === -1) {
-		//         googlePlayServicesKeep.push(keep);
-		//     }
-		//     this.needsGooglePlayServices = true;
-		// }, this);
+		depMap.gmsDependencies[namespace] && depMap.gmsDependencies[namespace].forEach((keep)=> {
+			if (googlePlayServicesKeep.indexOf(keep) === -1) {
+				googlePlayServicesKeep.push(keep);
+			}
+			this.needsGooglePlayServices = true;
+		}, this);
 		depMap.modulesDependencies[namespace] && depMap.modulesDependencies[namespace].forEach(addTitaniumLibrary, this);
 	}
 
