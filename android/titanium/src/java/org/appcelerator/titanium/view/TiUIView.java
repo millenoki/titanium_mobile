@@ -2886,6 +2886,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 Animator anim = createLayoutAnimator(view, oldAnimationFraction,
                         1.0f);
                 anim.setInterpolator(null);
+                anim.setDuration(0);
 //                final long duration = anim.getDuration();
 //                final long startDelay = anim.getStartDelay();
 //                final Object interpo = anim.getInterpolator();
@@ -2898,6 +2899,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (needsReverse) {
                     anim = createLayoutAnimator(view, 1.0f, oldAnimationFraction);
                     anim.setInterpolator(null);
+                    anim.setDuration(0);
                     listReverse.add(anim);
                 }
             }
@@ -2934,7 +2936,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             }
         }
         if (needsFakeAnim) {
-            list.add(ObjectAnimator.ofFloat(this, "fakeAnimParam", 0, 1));
+            Animator anim = ObjectAnimator.ofFloat(this, "fakeAnimParam", 0, 1);
+            anim.setInterpolator(null);
+            anim.setDuration(0);
+            list.add(anim);
         }
         didProcessProperties(); // needed for non animated properties
 
