@@ -79,7 +79,7 @@
 	"gmsDependencies":
 	{
         "network.registerForPushNotifications": ["base" ,"gcm"],
-		"geolocation": ["base", "basement","location"],
+		"geolocation": ["base", "basement","location", "tasks"],
 		"android.getGooglePlayServicesState":["base"]
     }
 }
