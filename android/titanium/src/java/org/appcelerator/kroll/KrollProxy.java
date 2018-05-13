@@ -427,6 +427,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// If we reach this point, the provided locale property is not valid.
 		return null;
 	}
+    
 
 	/**
 	 * Return true if the given property is a locale property.
@@ -1039,9 +1040,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         internalApplyModelProperties(changedProps);
         if (needsToUpdateNativeSide) {
             updateKrollObjectProperties(props, wait);
-
-			}
 		}
+	}
     public void applyPropertiesInternal(Object arg, boolean force, boolean wait) {
         applyPropertiesInternal(arg, force, wait, true);
 		}
@@ -1814,7 +1814,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         Object oldValue;
         synchronized (properties) {
             oldValue = properties.get(propertyName);
-		properties.put(propertyName, newValue);
+            properties.put(propertyName, newValue);
         }
 		firePropertyChanged(propertyName, oldValue, newValue);
 	}
