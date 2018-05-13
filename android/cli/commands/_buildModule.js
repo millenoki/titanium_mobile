@@ -422,7 +422,7 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
 	const _t = this,
 		classpath = this.classPaths,
-		googlePlayServicesFeaturesKey = 'googleplayservices_features';
+		googlePlayServicesFeaturesKey = 'gmsDependencies';
 
 	const tiJSONDeps = path.join(this.projectDir, 'dependency.json');
 	if (fs.existsSync(tiJSONDeps)) {
