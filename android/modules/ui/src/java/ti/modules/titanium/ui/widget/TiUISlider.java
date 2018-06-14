@@ -186,7 +186,9 @@ public class TiUISlider extends TiUIView
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_RANGE;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_CONTROLS) != 0) {
+            suppressEvent = true;
             updateControl();
+            suppressEvent = false;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_CONTROLS;
         }
         updateRightDrawable();
