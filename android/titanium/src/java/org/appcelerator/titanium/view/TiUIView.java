@@ -527,8 +527,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     @Override
     public void listenerAdded(String type, int count, KrollProxy proxy) {
         switch (type) {
-        case TiC.EVENT_SWIPE:
         case TiC.EVENT_LONGPRESS:
+            //needed to disable long gesture on move
+            getOrCreateGestureHandler().setPanEnabled(true);
+       case TiC.EVENT_SWIPE:
         case TiC.EVENT_SINGLE_TAP:
         case TiC.EVENT_DOUBLE_TAP:
             getOrCreateGestureHandler().setGlobalEnabled(true);
@@ -2109,7 +2111,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     private TiViewGestureHandler mGestureHandler;
 
-    private TiViewGestureHandler getOrCreateGestureHandler() {
+    public TiViewGestureHandler getOrCreateGestureHandler() {
         if (mGestureHandler == null) {
             mGestureHandler = new TiViewGestureHandler(this);
         }
@@ -2128,7 +2130,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (gestureEnabled) {
             getOrCreateGestureHandler().setGlobalEnabled(gestureEnabled);
         }
-        if (proxy._hasListeners(TiC.EVENT_PAN)) {
+        if (proxy._hasListeners(TiC.EVENT_PAN) ||proxy._hasListeners(TiC.EVENT_LONGPRESS)) {
             getOrCreateGestureHandler().setPanEnabled(true);
         }
         if (proxy._hasListeners(TiC.EVENT_ROTATE)) {
