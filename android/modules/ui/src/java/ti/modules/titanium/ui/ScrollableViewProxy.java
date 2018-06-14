@@ -60,7 +60,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
 
 	protected AtomicBoolean inScroll;
-	
+
     private final ArrayList<TiViewProxy> mViews;
     private final Object viewsLock;
     private boolean preload = false;
@@ -73,7 +73,7 @@ public class ScrollableViewProxy extends TiViewProxy
         viewsLock = new Object();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
-        defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
         defaultValues.put(TiC.PROPERTY_CURRENT_PAGE, 0);
 	}
 	
@@ -134,7 +134,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		return (TiUIScrollableView) getOrCreateView();
 	}
-	
+
 	@Kroll.method
     public Object getView(int page)
     {
@@ -267,7 +267,7 @@ public class ScrollableViewProxy extends TiViewProxy
 
 	@Kroll.method
 	public void insertViewsAt(int insertIndex, Object object)
-    {
+	{
         if (object instanceof TiViewProxy) {
             // insert a single view at insertIndex
             TiViewProxy proxy = (TiViewProxy) object;
@@ -306,7 +306,7 @@ public class ScrollableViewProxy extends TiViewProxy
                 }
             }
         }
-    }
+	}
 
 	@Kroll.method
 	public void removeView(Object viewObject)
@@ -433,7 +433,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			fireEvent(TiC.EVENT_SCROLL, options);
 		}
 	}
-	
+
 	public void fireScrollStart(int currentPage)
 	{
 	    if (currentPage < 0 ||  currentPage >= getViewCount()) {
@@ -473,16 +473,20 @@ public class ScrollableViewProxy extends TiViewProxy
 //		return getView().getEnabled();
 //	}
 
-	@Kroll.getProperty @Kroll.method
-	public int getCurrentPage()
+    // clang-format off
+    @Kroll.method
+    @Kroll.getProperty
+    public int getCurrentPage()
 	{
-		return getView().getCurrentPage();
+		TiUIScrollableView view = getView();
+		return (view != null) ? view.getCurrentPage() : 0;
 	}
 
-	@Kroll.setProperty @Kroll.method
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
 	public void setCurrentPage(Object page)
 	{
-		//getView().setCurrentPage(page);
 		getMainHandler().obtainMessage(MSG_SET_CURRENT, page).sendToTarget();
 	}
 

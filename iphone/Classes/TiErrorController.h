@@ -5,6 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+@interface TiErrorNavigationController : UINavigationController
+
+@end
+
 @class TiScriptError;
 @class KrollBridge;
 @interface TiErrorController : UIViewController

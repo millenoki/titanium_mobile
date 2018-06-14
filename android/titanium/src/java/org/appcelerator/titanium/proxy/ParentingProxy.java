@@ -55,7 +55,6 @@ public class ParentingProxy extends KrollProxy {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void initFromTemplate(HashMap template_, KrollProxy rootProxy,
             boolean updateKrollProperties, boolean recursive) {
@@ -262,7 +261,6 @@ public class ParentingProxy extends KrollProxy {
             Log.e(TAG, "Argument for replaceAt must be a dictionary");
             return;
         }
-        @SuppressWarnings("rawtypes")
         HashMap options = (HashMap) params;
         Integer position = -1;
         if (options.containsKey("position")) {
@@ -295,7 +293,6 @@ public class ParentingProxy extends KrollProxy {
             Log.e(TAG, "Argument for insertAt must be a dictionary");
             return;
         }
-        @SuppressWarnings("rawtypes")
         HashMap options = (HashMap) params;
         add(options.get("view"), options.get("position"));
     }

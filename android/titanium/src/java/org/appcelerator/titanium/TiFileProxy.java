@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -156,7 +157,7 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean createDirectory(@Kroll.argument(optional=true) Object arg)
+	public boolean createDirectory(@Kroll.argument(optional = true) Object arg)
 	{
 		boolean recursive = true;
 
@@ -176,7 +177,7 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean deleteDirectory(@Kroll.argument(optional=true) Object arg)
+	public boolean deleteDirectory(@Kroll.argument(optional = true) Object arg)
 	{
 		boolean recursive = false;
 
@@ -285,14 +286,17 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	@Kroll.getProperty(enumerable=false) @Kroll.method
-	public double getSize()
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty(enumerable=false)
+	public long getSize()
+	// clang-format on
 	{
 		return tbf.size();
 	}
 
 	@Kroll.method
-	public double spaceAvailable()
+	public long spaceAvailable()
 	{
 		return tbf.spaceAvailable();
 	}
@@ -317,13 +321,13 @@ public class TiFileProxy extends KrollProxy
 //                    Log.i(TAG, "Unable to write to an unrecognized file type");
 //                    return false;
 //                }
-            } else {
-				Log.i(TAG, "Unable to write to an unrecognized file type");
-				return false;
-			}
+				} else {
+					Log.i(TAG, "Unable to write to an unrecognized file type");
+					return false;
+				}
 
-			return true;
-		} catch(IOException e) {
+				return true;
+		} catch (IOException e) {
 			Log.e(TAG, "IOException encountered", e);
 			return false;
 		}
@@ -337,24 +341,55 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public double createTimestamp()
+	public long createTimestamp()
 	{
+		Log.w(
+			TAG,
+			"createTimestamp() has been deprecated in 7.2.0 in favor of createdAt() to avoid platform-differences for return type between iOS and Android. createdAt() will return a Date object on all platforms.");
 		return tbf.createTimestamp();
 	}
 
 	@Kroll.method
-	public double modificationTimestamp()
+	public long modificationTimestamp()
 	{
+		Log.w(
+			TAG,
+			"modificationTimestamp() has been deprecated in 7.2.0 in favor of modifiedAt() to avoid platform-differences for return type between iOS and Android. modifiedAt() will return a Date object on all platforms.");
 		return tbf.modificationTimestamp();
+	}
+
+	@Kroll.method
+	public Date createdAt()
+	{
+		return tbf.createdAt();
+	}
+
+	@Kroll.method
+	public Date modifiedAt()
+	{
+		return tbf.modifiedAt();
 	}
 
 	@Kroll.method
 	public FileStreamProxy open(int mode) throws IOException
 	{
-		if(!(tbf.isOpen())) {
+		if (!(tbf.isOpen())) {
 			tbf.open(mode, true);
 		}
 		return new FileStreamProxy(this);
+	}
+
+	@Kroll.method
+	public boolean append(Object[] args) throws IOException
+	{
+		if (args == null || args.length == 0) {
+			return false;
+		}
+		// delegate to #write()
+//		Object[] newArgs = new Object[2];
+//		newArgs[0] = args[0];
+//		newArgs[1] = Boolean.TRUE;
+		return write(args[0], true);
 	}
 
 	public InputStream getInputStream() throws IOException

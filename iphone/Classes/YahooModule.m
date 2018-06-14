@@ -46,7 +46,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
-  [[TiApp app] stopNetwork];
+  [APSHTTPRequest stopNetwork];
 
   NSString *responseString = [response responseString];
   NSError *error = nil;
@@ -74,7 +74,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
-  [[TiApp app] stopNetwork];
+  [APSHTTPRequest stopNetwork];
 
   NSError *error = [response error];
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];

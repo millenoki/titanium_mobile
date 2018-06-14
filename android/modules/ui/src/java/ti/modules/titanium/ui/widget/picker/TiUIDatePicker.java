@@ -32,7 +32,7 @@ public class TiUIDatePicker extends TiUIView
 
 	protected Date minDate, maxDate;
 //	protected int minuteInterval;
-	
+
 	public TiUIDatePicker(TiViewProxy proxy)
 	{
 		super(proxy);
@@ -41,7 +41,7 @@ public class TiUIDatePicker extends TiUIView
 	{
 		this(proxy);
 		Log.d(TAG, "Creating a date picker", Log.DEBUG_MODE);
-		
+
 		DatePicker picker = new DatePicker(activity)
 		{
 			@Override
@@ -56,7 +56,7 @@ public class TiUIDatePicker extends TiUIView
 		picker.setCalendarViewShown(false);
 		setNativeView(picker);
 	}
-	
+
 	private DatePicker getPicker() {
 	    return (DatePicker) nativeView;
 	}
@@ -71,7 +71,6 @@ public class TiUIDatePicker extends TiUIView
         case TiC.PROPERTY_MIN_DATE:
         {
             this.minDate = TiConvert.toDate(newValue);
-            Log.d(Log.DEBUG_MODE, "minDate " + minDate.toLocaleString());
             if (TiC.HONEYCOMB_OR_GREATER) {
                 getPicker().setMinDate(this.minDate.getTime() - 1000);
             }
@@ -116,34 +115,34 @@ public class TiUIDatePicker extends TiUIView
 	@Override
 	public void processProperties(HashMap d) {
 		super.processProperties(d);
-		
+
 
         if (!d.containsKey(TiC.PROPERTY_VALUE)) {
             //make sure .init is called
             setValue(Calendar.getInstance().getTime());
-        }
-        
-        //iPhone ignores both values if max <= min
-        if (minDate != null && maxDate != null) {
-            if (maxDate.compareTo(minDate) <= 0) {
-                Log.w(TAG, "maxDate is less or equal minDate, ignoring both settings.");
-                minDate = null;
-                maxDate = null;
-            }   
-        }
+		}
+
+		//iPhone ignores both values if max <= min
+		if (minDate != null && maxDate != null) {
+			if (maxDate.compareTo(minDate) <= 0) {
+				Log.w(TAG, "maxDate is less or equal minDate, ignoring both settings.");
+				minDate = null;
+				maxDate = null;
+			}
+		}
 	}
-	
+
 	@Override
 	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
 	{
-    	Calendar targetCalendar = Calendar.getInstance();
-    	targetCalendar.set(Calendar.YEAR, year);
-    	targetCalendar.set(Calendar.MONTH, monthOfYear);
-    	targetCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-    	targetCalendar.set(Calendar.HOUR_OF_DAY, 0);
-    	targetCalendar.set(Calendar.MINUTE, 0);
-    	targetCalendar.set(Calendar.SECOND, 0);
-    	targetCalendar.set(Calendar.MILLISECOND, 0);
+		Calendar targetCalendar = Calendar.getInstance();
+		targetCalendar.set(Calendar.YEAR, year);
+		targetCalendar.set(Calendar.MONTH, monthOfYear);
+		targetCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+		targetCalendar.set(Calendar.HOUR_OF_DAY, 0);
+		targetCalendar.set(Calendar.MINUTE, 0);
+		targetCalendar.set(Calendar.SECOND, 0);
+		targetCalendar.set(Calendar.MILLISECOND, 0);
 
 		if ((null != minDate) && (targetCalendar.getTime().before(minDate))) {
 			targetCalendar.setTime(minDate);
@@ -153,16 +152,16 @@ public class TiUIDatePicker extends TiUIView
 			targetCalendar.setTime(maxDate);
 			setValue(maxDate.getTime(), true);
 		}
-		
+
 		Date newTime = targetCalendar.getTime();
 		Object oTime = proxy.getProperty(TiC.PROPERTY_VALUE);
 		Date oldTime = null;
-		
+
 		if (oTime instanceof Date) {
 			oldTime = (Date) oTime;
 		}
-		
-		// Due to a native Android bug in 4.x, this callback is called twice, so here 
+
+		// Due to a native Android bug in 4.x, this callback is called twice, so here
 		// we check if the dates are identical, we don't fire "change" event or reset value.
 		if (oldTime != null && oldTime.equals(newTime)) {
 			return;
@@ -170,19 +169,19 @@ public class TiUIDatePicker extends TiUIView
 
 		if (!suppressChangeEvent) {
 		    if (hasListeners(TiC.EVENT_CHANGE)) {
-                KrollDict data = new KrollDict();
+			KrollDict data = new KrollDict();
                 data.put(TiC.PROPERTY_VALUE, targetCalendar.getTime());
-                fireEvent(TiC.EVENT_CHANGE, data);
-            }
+			fireEvent(TiC.EVENT_CHANGE, data);
+		}
 	        proxy.setProperty(TiC.PROPERTY_VALUE, targetCalendar.getTime());
 		}
 	}
-	
+
 	public void setValue(long value)
 	{
 		setValue(value, false);
 	}
-	
+
 	public void setValue(Date value, boolean suppressEvent) {
         long millis = (value != null)?value.getTime():Calendar.getInstance().getTimeInMillis();
         setValue(millis, suppressEvent);
@@ -209,7 +208,7 @@ public class TiUIDatePicker extends TiUIView
 		    picker.init(calendar.get(Calendar.YEAR), calendar
 	                .get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
 		}
-        suppressChangeEvent = false;
-		
+		suppressChangeEvent = false;
+
 	}
 }

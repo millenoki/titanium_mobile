@@ -231,7 +231,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
     //		DebugLog(@"[DEBUG] Firing app event: %@",type);
 
-    NSArray *array = [appListeners objectForKey:type];
+    NSArray *array = [[appListeners objectForKey:type] copy];
 
     if (array != nil && [array count] > 0) {
       NSMutableDictionary *eventObject = nil;
@@ -252,6 +252,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
         [host fireEvent:[entry listener] withObject:jsonObject remove:NO context:[entry context] thisObject:nil];
       }
     }
+    [array release];
   }
 }
 

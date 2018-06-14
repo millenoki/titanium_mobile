@@ -21,7 +21,7 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 
-/** 
+/**
  * Design Notes:
  *
  * Normally we'd use a ViewProxy/View pattern here ...but...
@@ -61,7 +61,7 @@ NSArray *moviePlayerKeys = nil;
     ;
   });
   return keySequence;
-  }
+}
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
@@ -122,8 +122,10 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)removeNotificationObserver
 {
+  if ([self observationInfo]) {
+    [self removeObserver:self forKeyPath:@"url"];
+  }
   [movie removeObserver:self forKeyPath:@"player.currentItem.duration"];
-  [self removeObserver:self forKeyPath:@"url"];
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"videoBounds"];
 
@@ -134,11 +136,11 @@ NSArray *moviePlayerKeys = nil;
   }
 }
 
-// Used to avoid duplicate code in Brightcove module; makes things easier to maintain.
 - (void)configurePlayer
 {
   [self addNotificationObserver];
   [self setValuesForKeysWithDictionary:loadProperties];
+
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
   // url we will need to set the new controller to the already created view
@@ -146,11 +148,6 @@ NSArray *moviePlayerKeys = nil;
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
   }
-}
-
-- (AVPlayerViewController *)player
-{
-  return movie;
 }
 
 - (AVPlayerViewController *)ensurePlayer
@@ -232,18 +229,18 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)updateScalingMode:(id)value
 {
-  [movie setVideoGravity:[TiUtils stringValue:value properties:nil def:AVLayerVideoGravityResize]];
+  [movie setVideoGravity:[TiUtils stringValue:value properties:loadProperties def:AVLayerVideoGravityResize]];
 }
 
 - (void)setScalingMode:(NSString *)value
 {
+  [loadProperties setValue:value forKey:@"scalingMode"];
+
   if (movie != nil) {
-    TiThreadPerformBlockOnMainThread(^{
-      [self updateScalingMode:value];
+    TiThreadPerformOnMainThread(^{
+      [self updateScalingMode:@"scalingMode"];
     },
         NO);
-  } else {
-    [loadProperties setValue:value forKey:@"scalingMode"];
   }
 }
 
@@ -380,13 +377,17 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)volume
 {
-  __block float volume = 1.0;
-  TiThreadPerformOnMainThread(^{
-    volume = [[movie player] volume];
-  },
-      YES);
+  if (movie != nil) {
+    __block float volume = 1.0;
+    TiThreadPerformOnMainThread(^{
+      volume = [[movie player] volume];
+    },
+        YES);
 
-  return NUMFLOAT(volume);
+    return NUMFLOAT(volume);
+  } else {
+    return NUMFLOAT(1.0);
+  }
 }
 
 - (void)setVolume:(NSNumber *)newVolume
@@ -469,12 +470,22 @@ NSArray *moviePlayerKeys = nil;
 
 - (NSNumber *)showsControls
 {
-  return NUMBOOL([movie showsPlaybackControls]);
+  if (movie != nil) {
+    return NUMBOOL([movie showsPlaybackControls]);
+  } else {
+    return NUMBOOL(YES);
+  }
 }
 
 - (void)setShowsControls:(NSNumber *)value
 {
-  [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  ENSURE_UI_THREAD(setShowsControls, value);
+
+  if (movie != nil) {
+    [movie setShowsPlaybackControls:[TiUtils boolValue:value def:YES]];
+  } else {
+    [loadProperties setValue:value forKey:@"showsControls"];
+  }
 }
 
 - (void)cancelAllThumbnailImageRequests:(id)value
@@ -939,7 +950,7 @@ NSArray *moviePlayerKeys = nil;
     playing = ([[movie player] rate] == 1.0);
     if (playing) {
       _playbackState = TiVideoPlayerPlaybackStatePlaying;
-    } else if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value || !movie.player.currentItem.canStepBackward) {
+    } else if (movie.player.currentItem.currentTime.value == 0 || !movie.player.currentItem.canStepBackward) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;
@@ -962,7 +973,7 @@ NSArray *moviePlayerKeys = nil;
   if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _playbackState = TiVideoPlayerPlaybackStatePlaying;
   } else if (movie.player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-    if (movie.player.currentItem.duration.value == movie.player.currentItem.currentTime.value) {
+    if (movie.player.currentItem.currentTime.value == 0) {
       _playbackState = TiVideoPlayerPlaybackStateStopped;
     } else {
       _playbackState = TiVideoPlayerPlaybackStatePaused;

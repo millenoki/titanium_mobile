@@ -497,6 +497,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   [[self webview] setDataDetectorTypes:result];
 }
 
+- (void)setZoomLevel_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self webview] stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.body.style.zoom = %@;", value]];
+}
+
 - (void)setHtml_:(NSString *)content withObject:(id)property
 {
   NSString *baseURLString = [TiUtils stringValue:@"baseURL" properties:property];
@@ -959,7 +966,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
   UIApplication *uiApp = [UIApplication sharedApplication];
 
   if ([uiApp canOpenURL:newUrl] && !willHandleUrl) {
-    [uiApp openURL:newUrl];
+    if ([TiUtils isIOS10OrGreater]) {
+      [uiApp openURL:newUrl options:@{} completionHandler:nil];
+    } else {
+      [uiApp openURL:newUrl];
+    }
     return NO;
   }
 

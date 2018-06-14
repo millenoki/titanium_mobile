@@ -27,10 +27,8 @@
 #ifndef TI_USE_AUTOLAYOUT
   RELEASE_TO_NIL(wrapperView);
 #endif
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(refreshControl);
-#endif
 #endif
   [super dealloc];
 }
@@ -271,7 +269,6 @@
 
 - (void)setRefreshControl_:(id)args
 {
-#if IS_XCODE_8
 #ifdef USE_TI_UIREFRESHCONTROL
   if (![TiUtils isIOS10OrGreater]) {
     NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
@@ -286,9 +283,6 @@
     [[self scrollView] setRefreshControl:[refreshControl control]];
   }
 #endif
-#else
-  NSLog(@"[WARN] Ti.UI.RefreshControl inside Ti.UI.ScrollView is only available in iOS 10 and later.");
-#endif
 }
 
 -(void)updateWrapperViewFrame {
@@ -297,22 +291,22 @@
   CGRect frameToCenter = wrapperView.frame;
 
   // Horizontally
-  if (frameToCenter.size.width < boundsSize.width) {
+    if (frameToCenter.size.width < boundsSize.width) {
     frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
-  } else {
-    frameToCenter.origin.x = 0;
-}
+    } else {
+      frameToCenter.origin.x = 0;
+    }
 
   // Vertically
-  if (frameToCenter.size.height < boundsSize.height) {
+    if (frameToCenter.size.height < boundsSize.height) {
     frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
-  } else {
-    frameToCenter.origin.y = 0;
-}
+    } else {
+      frameToCenter.origin.y = 0;
+    }
 
   // Center
   if (!CGRectEqualToRect(wrapperView.frame, frameToCenter)) {
-    wrapperView.frame = frameToCenter;
+  wrapperView.frame = frameToCenter;
 }
 }
 

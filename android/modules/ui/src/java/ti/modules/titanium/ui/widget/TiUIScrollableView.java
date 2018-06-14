@@ -561,8 +561,11 @@ public class TiUIScrollableView extends TiUIView implements
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         layout.addView(right, params);
 
+        // Hide this overlay by default. Will be shown if Titanium
+        // "showPagingControl" is set true.
         layout.setVisibility(View.GONE);
 
+        // Return the newly created overlay view.
         return layout;
     }
 

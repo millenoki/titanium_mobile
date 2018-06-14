@@ -32,8 +32,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   return defaultExceptionHandler;
 }
 
-- (void)reportException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
+- (void)reportException:(NSException *)exception
 {
+  NSArray *stackTrace = [exception callStackSymbols];
   NSString *message = [NSString stringWithFormat:
                                     @"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
                                 exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
@@ -42,7 +43,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   if (currentDelegate == nil) {
     currentDelegate = self;
   }
-  [currentDelegate handleUncaughtException:exception withStackTrace:stackTrace];
+  [currentDelegate handleUncaughtException:exception];
 }
 
 - (void)reportScriptError:(TiScriptError *)scriptError
@@ -75,7 +76,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 #pragma mark - TiExceptionHandlerDelegate
 
-- (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
+- (void)handleUncaughtException:(NSException *)exception
 {
   [self showScriptError:[TiUtils scriptErrorValue:exception]];
 }
@@ -92,6 +93,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 @synthesize message = _message;
 @synthesize sourceURL = _sourceURL;
 @synthesize lineNo = _lineNo;
+@synthesize column = _column;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
 @synthesize sourceLine;
@@ -115,8 +117,8 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
       message = [message stringByAppendingFormat:@" : %@", [[dictionary objectForKey:@"nativeReason"] description]];
 
     } else {
-      message = [[dictionary objectForKey:@"nativeReason"] description];
-    }
+    message = [[dictionary objectForKey:@"nativeReason"] description];
+  }
   }
   NSString *sourceURL = [[dictionary objectForKey:@"fileName"] description];
   if (!sourceURL) {
@@ -128,6 +130,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
   }
   self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
   if (self) {
+    _column = [[dictionary objectForKey:@"column"] integerValue];
     NSString *backtrace = [[dictionary objectForKey:@"backtrace"] description];
     if (backtrace == nil) {
       backtrace = [[dictionary objectForKey:@"stack"] description];
@@ -159,7 +162,13 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)description
 {
   if (self.sourceURL != nil) {
-    return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message, [self.sourceURL lastPathComponent], (long)self.lineNo];
+    // return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message, [self.sourceURL lastPathComponent], (long)self.lineNo];
+    NSString *source = [NSString stringWithContentsOfFile:[[NSURL URLWithString:self.sourceURL] path] encoding:NSUTF8StringEncoding error:NULL];
+    NSArray *lines = [source componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSString *line = [lines objectAtIndex:self.lineNo - 1];
+    NSString *linePointer = [@"" stringByPaddingToLength:self.column withString:@" " startingAtIndex:0];
+
+    return [NSString stringWithFormat:@"/%@:%ld\n%@\n%@^\n%@\n%@", [self.sourceURL lastPathComponent], (long)self.lineNo, line, linePointer, self.message, self.backtrace];
   } else {
     return [NSString stringWithFormat:@"%@", self.message];
   }
@@ -218,28 +227,16 @@ static void TiUncaughtExceptionHandler(NSException *exception)
   }
   insideException = YES;
 
-  NSArray *callStackArray = [exception callStackReturnAddresses];
-  int frameCount = (int)[callStackArray count];
-  void *backtraceFrames[frameCount];
-
-  for (int i = 0; i < frameCount; ++i) {
-    backtraceFrames[i] = (void *)[[callStackArray objectAtIndex:i] unsignedIntegerValue];
-  }
-  char **frameStrings = backtrace_symbols(&backtraceFrames[0], frameCount);
-
-  NSMutableArray *stack = [[NSMutableArray alloc] initWithCapacity:frameCount];
-  if (frameStrings != NULL) {
-    for (int i = 0; (i < frameCount) && (frameStrings[i] != NULL); ++i) {
-      [stack addObject:[NSString stringWithCString:frameStrings[i] encoding:NSASCIIStringEncoding]];
-    }
-    free(frameStrings);
-  }
-
-  [[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[[stack copy] autorelease]];
-  [stack release];
+  [[TiExceptionHandler defaultExceptionHandler] reportException:exception];
 
   insideException = NO;
   if (prevUncaughtExceptionHandler != NULL) {
     prevUncaughtExceptionHandler(exception);
+  }
+
+  // exceptions on seperate threads can cause the application to terminate
+  // if we let the thread continue
+  if (![NSThread isMainThread]) {
+    [NSThread exit];
   }
 }

@@ -196,7 +196,6 @@ public class GeolocationModule extends KrollModule
 	private Context context;
 	private TiCompass tiCompass;
 	private boolean compassListenersRegistered = false;
-	private boolean sentAnalytics = false;
 	private ArrayList<LocationRuleProxy> simpleLocationRules = new ArrayList<LocationRuleProxy>();
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
@@ -211,7 +210,7 @@ public class GeolocationModule extends KrollModule
     public double legacyLocationFrequency = 5000;
 	private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
 
-    private FusedLocationProvider fusedLocationProvider;
+	private FusedLocationProvider fusedLocationProvider;
 
     private boolean currentlyEnabled = false;
     private boolean listeningForChanges = false;
@@ -244,7 +243,7 @@ public class GeolocationModule extends KrollModule
 		super("geolocation");
 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
-		
+
 //		if (FusedLocationProvider.hasPlayServices(context)) {
 //	        fusedLocationProvider = new FusedLocationProvider(context, this);
 //        }
@@ -276,7 +275,7 @@ public class GeolocationModule extends KrollModule
 		tiCompass.unregisterListener();
 		disableLocationProviders();
 	}
-	
+
 	/**
 	 * @see org.appcelerator.kroll.KrollProxy#handleMessage(android.os.Message)
 	 */
@@ -300,15 +299,6 @@ public class GeolocationModule extends KrollModule
 		return super.handleMessage(message);
 	}
 
-	private void doAnalytics(Location location)
-	{
-        if (!TiApplication.getInstance().isAnalyticsEnabled()) return;
-		if (!sentAnalytics) {
-			tiLocation.doAnalytics(location);
-			sentAnalytics = true;
-		}
-	}
-
 	/**
 	 * Called by a registered location provider when a location update is received
 	 *
@@ -322,7 +312,6 @@ public class GeolocationModule extends KrollModule
             HashMap event = buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider()));
 			fireEvent(TiC.EVENT_LOCATION, event, false, false);
 			lastRulesCheckedLocation = location;
-			doAnalytics(location);
 			if (singleLocationCallback != null) {
 	            singleLocationCallback.call(this.getKrollObject(), new Object[] {
 	                    event
@@ -609,12 +598,12 @@ public class GeolocationModule extends KrollModule
 	            runInUiThread(new CommandNoReturn() {
 	                @Override
 	                public void execute() {
-	                    if (enableLocationProviders()) {
+	                    if (enableLocationProviders() && hasLocationPermissions()) {
 				// fire off an initial location fix if one is available
 	                        Log.d(TAG, "firing last location known check");
 	                        onLocationChanged(tiLocation.getLastKnownLocation());
-				}
-				}
+                        }
+                    }
 	            }, true); 
 			}
 		}
@@ -834,7 +823,7 @@ public class GeolocationModule extends KrollModule
        }
 //		Log.d(TAG, "doDisableLocationProviders done");
 	}
-	
+
 	/**
 	 * Enables the specified location behavior mode by registering the associated
 	 * providers with the OS.  Even if the specified mode is currently active, the
@@ -949,7 +938,7 @@ public class GeolocationModule extends KrollModule
 	}
 //        }
         return currentlyEnabled;
-    }
+	}
 
 	/**
 	 * Checks if the device has a valid location service present.  The passive location service
@@ -1201,5 +1190,5 @@ public class GeolocationModule extends KrollModule
     public float getHeadingFilter()
     {
         return tiCompass.getHeadingFilter();
-    }
+	}
 }

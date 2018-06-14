@@ -45,7 +45,8 @@ import android.os.Message;
 		TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 		TiC.PROPERTY_MAX_CLASSNAME,
-		TiC.PROPERTY_REFRESH_CONTROL
+		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_SCROLLABLE
 	})
 public class TableViewProxy extends ViewProxy
 {
@@ -88,8 +89,8 @@ public class TableViewProxy extends ViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
-        defaultValues.put(TiC.PROPERTY_FILTER_ATTRIBUTE, TiC.PROPERTY_TITLE);
-        defaultValues.put(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
+		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
+		// eventManager.addOnEventChangeListener(this);
 	}
 
 	@Override
@@ -173,9 +174,9 @@ public class TableViewProxy extends ViewProxy
 						TableViewRowProxy.fillClickEvent(dataCopy, getTableView().getModel(), item);
 						data = dataCopy;
 					}
+					}
 				}
 			}
-		}
 		}
 
 		return super.fireEvent(eventName, data, bubbles);
@@ -926,6 +927,7 @@ public class TableViewProxy extends ViewProxy
 		Object asyncResult = null;
 		switch (msg.what) {
 			case MSG_UPDATE_VIEW:
+				setModelDirtyIfNecessary();
 				result = (AsyncResult) msg.obj;
 				if (tableNativeViewCreated) {
 					tableNativeView.updateView();

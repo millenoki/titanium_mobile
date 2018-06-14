@@ -14,10 +14,11 @@
         "ui": [
                "okhttp-3.9.1.jar",
                "okio-1.13.0.jar",
-               "picasso-3.0.0.jar"
+               "picasso-3.0.0.jar",
+               "WebViewClient.jar"
                ],
         "network": ["thirdparty.jar"],
-		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar"],
+		"appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar", "android-support-animated-vector-drawable.jar", "android-support-annotations.jar", "android-support-core-ui.jar", "android-support-core-utils.jar", "android-support-fragment.jar", "android-support-media-compat.jar", "android-support-vector-drawable.jar", "android-support-transition.jar", "android-support-v7-recyclerview.jar", "android-arch-lifecycle-viewmodel.jar", "android-arch-lifecycle-livedata-core.jar", "android-arch-lifecycle-common.jar", "android-arch-core-runtime.jar", "android-arch-core-common.jar", "android-arch-lifecycle-runtime.jar"],
 		"cardview":["android-support-v7-cardview.jar"],
 		"compat":["android-support-compat.jar"],
 		"design":["android-support-design.jar"],
@@ -81,5 +82,5 @@
         "network.registerForPushNotifications": ["base" ,"gcm"],
 		"geolocation": ["base", "basement","location", "tasks"],
 		"android.getGooglePlayServicesState":["base"]
-    }
+	}
 }

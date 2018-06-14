@@ -156,11 +156,9 @@ static NSDictionary *replaceKeysForRow;
   _tableView.delegate = nil;
   _tableView.dataSource = nil;
 
-#if IS_XCODE_8
   if ([TiUtils isIOS10OrGreater]) {
     _tableView.prefetchDataSource = nil;
   }
-#endif
   RELEASE_TO_NIL(_tableView)
   RELEASE_TO_NIL(_defaultItemTemplate)
   RELEASE_TO_NIL(_searchString)
@@ -224,11 +222,9 @@ static NSDictionary *replaceKeysForRow;
     _tableView.estimatedSectionFooterHeight = 0;
     _tableView.estimatedSectionHeaderHeight = 0;
 
-#if IS_XCODE_8
     if ([TiUtils isIOS10OrGreater]) {
       _tableView.prefetchDataSource = self;
     }
-#endif
 
     if (TiDimensionIsDip(_rowHeight)) {
       [_tableView setRowHeight:_rowHeight.value];
@@ -286,13 +282,13 @@ static NSDictionary *replaceKeysForRow;
 
     TiUISearchBarProxy *searchViewProxy = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
     if (searchViewProxy) {
-      [searchViewProxy ensureSearchBarHierarchy];
+    [searchViewProxy ensureSearchBarHierarchy];
 #ifndef TI_USE_AUTOLAYOUT
       CGFloat rowWidth = [self computeRowWidth:_tableView];
       if (rowWidth > 0) {
         CGFloat right = _tableView.bounds.size.width - rowWidth;
         [searchViewProxy layoutProperties]->right = TiDimensionDip(right);
-      }
+    }
 #endif
     }
   } else {
@@ -627,7 +623,7 @@ static NSDictionary *replaceKeysForRow;
     }
     if (theValue == nil) {
       theValue = [self.proxy valueForKey:key];
-  }
+    }
   }
 
   return theValue;
@@ -774,7 +770,7 @@ static NSDictionary *replaceKeysForRow;
 
   UIView *searchSuperView = [searchController.view superview];
   searchSuperView.frame = CGRectMake(convertedOrigin.x, convertedOrigin.y, self.frame.size.width, self.frame.size.height);
-  
+
   
 }
 
@@ -854,7 +850,7 @@ static NSDictionary *replaceKeysForRow;
   [_defaultItemTemplate release];
   _defaultItemTemplate = [args copy];
   [self reloadTableViewData];
-  }
+}
 
 - (void)setRowHeight_:(id)height
 {
@@ -963,12 +959,12 @@ static NSDictionary *replaceKeysForRow;
 
 - (void)setKeepSectionsInSearch_:(id)args
 {
-  keepSectionsInSearch = [TiUtils boolValue:args def:NO];
+    keepSectionsInSearch = [TiUtils boolValue:args def:NO];
   TiUISearchBarProxy *vp = (TiUISearchBarProxy *)[self holdedProxyForKey:@"searchView"];
   if (vp && searchActive) {
-    [self buildResultsForSearchText];
+      [self buildResultsForSearchText];
     [self reloadTableViewData];
-    }
+}
 }
 
 - (void)setAllowsSelection_:(id)value
@@ -1177,7 +1173,7 @@ static NSDictionary *replaceKeysForRow;
   if ([[self searchController] isActive]) {
     [[self searchController] setActive:NO];
   }
-}
+  }
 
 - (void)windowDidClose:(id)unused
 {
@@ -1188,7 +1184,7 @@ static NSDictionary *replaceKeysForRow;
   view = [[self tableView] tableFooterView];
   if (IS_OF_CLASS(view, TiUIView)) {
     [[(TiUIView *)view viewProxy] detachView:YES];
-}
+  }
 }
 
 #pragma mark - SectionIndexTitle Support
@@ -1791,9 +1787,9 @@ static NSDictionary *replaceKeysForRow;
 
     [cellProxy release];
     [cell autorelease];
-      } else {
+  } else {
     [cell setPosition:position isGrouped:grouped];
-      }
+  }
 
   if (_rowSeparatorInsets.left != 0 || _rowSeparatorInsets.right != 0) {
     [cell setSeparatorInset:_rowSeparatorInsets];
@@ -1917,7 +1913,6 @@ static NSDictionary *replaceKeysForRow;
 
 #pragma mark - UITableViewDataSourcePrefetching
 
-#if IS_XCODE_8
 - (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
 {
   NSString *eventName = @"prefetch";
@@ -1951,7 +1946,6 @@ static NSDictionary *replaceKeysForRow;
   [self.proxy fireEvent:eventName withObject:@{ @"prefetchedItems" : cells }];
   RELEASE_TO_NIL(cells);
 }
-#endif
 
 - (NSDictionary *)listItemFromIndexPath:(NSIndexPath *)indexPath
 {
@@ -2113,7 +2107,7 @@ static NSDictionary *replaceKeysForRow;
     //                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
     //                break;
     //        }
-    }
+  }
   return size;
 }
 
@@ -2282,9 +2276,9 @@ static NSDictionary *replaceKeysForRow;
           }
   } else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
     return [self tableView:tableView rowHeight:TiDimensionCalculateValue(height, tableView.bounds.size.height)];
-          }
+  }
   return 44;
-        }
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -2363,7 +2357,7 @@ static NSDictionary *replaceKeysForRow;
   [super scrollViewDidScroll:scrollView];
 
   [self detectSectionChange];
-  }
+}
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
@@ -2371,7 +2365,7 @@ static NSDictionary *replaceKeysForRow;
     [[ImageLoader sharedLoader] suspend];
   }
   [super scrollViewWillBeginDragging:scrollView];
-  }
+}
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
@@ -2409,7 +2403,7 @@ static NSDictionary *replaceKeysForRow;
   }
   [self detectSectionChange];
   [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
-  }
+}
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
@@ -2418,7 +2412,7 @@ static NSDictionary *replaceKeysForRow;
   }
   [self detectSectionChange];
   [super scrollViewDidEndDecelerating:scrollView];
-  }
+}
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
@@ -2557,7 +2551,7 @@ static NSDictionary *replaceKeysForRow;
   self.searchString = (searchText == nil) ? @"" : searchText;
   self.searchedString = self.searchString;
   [self buildResultsForSearchText];
-  // Reload since some cells could be reused as part of previous search.
+    // Reload since some cells could be reused as part of previous search.
   [self reloadTableViewData];
 }
 

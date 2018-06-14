@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
@@ -105,7 +106,7 @@ public abstract class TiBaseFile
 	public boolean isReadonly() {
 		return modeRead && !modeWrite;
 	}
-	
+
 	/**
 	 * @return  true if the file is writable, false otherwise.
 	 * @module.api
@@ -154,7 +155,7 @@ public abstract class TiBaseFile
 			is = new BufferedInputStream(is);
 			os = new BufferedOutputStream(os);
 
-			while((count = is.read(buf)) != -1) {
+			while ((count = is.read(buf)) != -1) {
 				os.write(buf, 0, count);
 			}
 
@@ -200,9 +201,15 @@ public abstract class TiBaseFile
 		return false;
 	}
 
-	public double createTimestamp() {
+	public long createTimestamp()
+	{
 		logNotSupported("createTimestamp");
-		return 0;
+		return 0L;
+	}
+
+	public Date createdAt()
+	{
+		return new Date(createTimestamp());
 	}
 
 	public boolean deleteDirectory(boolean recursive) {
@@ -247,12 +254,18 @@ public abstract class TiBaseFile
 		return null;
 	}
 
-	public double modificationTimestamp() {
+	public long modificationTimestamp()
+	{
 		logNotSupported("modificationTimestamp");
-		return 0;
+		return 0L;
 	}
 
-	public boolean move(String destination)  throws IOException
+	public Date modifiedAt()
+	{
+		return new Date(modificationTimestamp());
+	}
+
+	public boolean move(String destination) throws IOException
 	{
 		boolean moved = false;
 
@@ -273,7 +286,7 @@ public abstract class TiBaseFile
 					throw new FileNotFoundException("Destination is not a valid location for writing");
 				}
 
-				if(copy(destination)) {
+				if (copy(destination)) {
 					moved = deleteFile();
 				}
 			} else {
@@ -347,19 +360,20 @@ public abstract class TiBaseFile
 
 	public long size() {
 		logNotSupported("size");
-		return 0;
+		return 0L;
 	}
 
-	public double spaceAvailable() {
+	public long spaceAvailable()
+	{
 		logNotSupported("spaceAvailable");
-		return 0;
+		return 0L;
 	}
 
 	public void unzip(String destination) {
 		logNotSupported("unzip");
 	}
 	public void write(Object data, boolean append) throws IOException {
-        logNotSupported("write");
+		logNotSupported("write");
 	}
 
 	public void writeFromUrl(String url, boolean append) throws IOException {
@@ -432,7 +446,7 @@ public abstract class TiBaseFile
 	public static void copyStream(InputStream is, OutputStream os) throws IOException {
 		byte[] buf = new byte[8096];
 		int count = 0;
-		while((count = is.read(buf)) != -1) {
+		while ((count = is.read(buf)) != -1) {
 			os.write(buf, 0, count);
 		}
 	}
@@ -440,7 +454,7 @@ public abstract class TiBaseFile
 	protected void copyStream(Reader r, Writer w) throws IOException {
 		char[] buf = new char[8096];
 		int count = 0;
-		while((count = r.read(buf, 0, count)) != -1) {
+		while ((count = r.read(buf, 0, count)) != -1) {
 			w.write(buf, 0, count);
 		}
 	}
@@ -463,7 +477,7 @@ public abstract class TiBaseFile
 	 * @module.api
 	 */
 	public abstract InputStream getInputStream() throws IOException;
-	
+
 	/**
 	 * Implementing subclasses should return an OutputStream for writing to the file.
 	 * @return  the OutputStream of the file.
@@ -471,7 +485,7 @@ public abstract class TiBaseFile
 	 * @module.api
 	 */
 	public abstract OutputStream getOutputStream() throws IOException;
-	
+
 	/**
 	 * Implementing subclasses should return the file object.
 	 * @return  the file object.

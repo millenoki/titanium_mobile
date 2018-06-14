@@ -7,8 +7,6 @@
 #ifdef USE_TI_GEOLOCATION
 
 #import "GeolocationModule.h"
-#import "APSAnalytics.h"
-#import "AnalyticsModule.h"
 #import "NSData+Additions.h"
 #import "TiApp.h"
 #import "TiEvaluator.h"
@@ -19,7 +17,6 @@
 #import <sys/utsname.h>
 
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @interface GeolocationCallback : NSObject <APSHTTPRequestDelegate> {
   id<TiEvaluator> context;
@@ -88,7 +85,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
-  [[TiApp app] stopNetwork];
+  [APSHTTPRequest stopNetwork];
 
   if (request != nil && [response error] == nil) {
     NSString *data = [response responseString];
@@ -186,6 +183,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
   BOOL allowsBackgroundLocationUpdates;
 	CLAuthorizationStatus requestedAuthorizationStatus;
+  BOOL showBackgroundLocationIndicator;
 }
 
 @synthesize lastLocation;
@@ -241,7 +239,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         [singleHeading removeObject:callback];
       }
     }
-    }
+  }
   if (singleLocation != nil) {
     for (KrollCallback *callback in [NSArray arrayWithArray:singleLocation]) {
       KrollContext *ctx = (KrollContext *)[callback context];
@@ -251,7 +249,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     }
   [self shutdownLocationManager];
-  }
+}
 
 - (void)_configure
 {
@@ -279,9 +277,12 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   // pauseLocationupdateAutomatically by default NO
   pauseLocationUpdateAutomatically = NO;
 
-  //Set the default based on if the user has defined a background location mode
+  // Set the default based on if the user has defined a background location mode
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+
+  // Per default, background location indicators are not visible
+  showBackgroundLocationIndicator = NO;
 
   lock = [[NSRecursiveLock alloc] init];
 
@@ -340,9 +341,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
       locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
     }
 
+#if IS_XCODE_9
+    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+      locationManager.showsBackgroundLocationIndicator = showBackgroundLocationIndicator;
+    }
+#endif
+
     locationManager.activityType = activityType;
     locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
-    }
+  }
   [lock unlock];
   return locationManager;
 }
@@ -385,8 +392,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   [self setLocationUpdateState:startLocation];
   if (!trackingHeading && !trackingLocation) {
       [self shutdownLocationManager];
-    }
   }
+}
 
 - (void)_listenerAdded:(NSString *)type count:(NSInteger)count
 {
@@ -422,7 +429,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   } else if (count == 0 && [type isEqualToString:@"location"]) {
     check = YES;
     [self setLocationUpdateState:NO];
-    }
+  }
 
   if (check && ![self _hasListeners:@"heading"] && ![self _hasListeners:@"location"]) {
     TiThreadPerformBlockOnMainThread(^{
@@ -611,6 +618,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)setAccuracy:(NSNumber *)value
 {
   ENSURE_UI_THREAD(setAccuracy, value);
+  ENSURE_TYPE(value, NSNumber);
+
   accuracy = [TiUtils doubleValue:value];
   // don't prematurely start it
   if (locationManager != nil) {
@@ -666,6 +675,30 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 - (void)setShowCalibration:(NSNumber *)value
 {
   calibration = [TiUtils boolValue:value];
+}
+
+- (NSNumber *)showBackgroundLocationIndicator
+{
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    return @(showBackgroundLocationIndicator);
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Returning \"false\" ...");
+  return @NO;
+}
+
+- (void)setShowBackgroundLocationIndicator:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+#if IS_XCODE_9
+  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
+    showBackgroundLocationIndicator = [TiUtils boolValue:value];
+    return;
+  }
+#endif
+  DebugLog(@"[ERROR] The showBackgroundLocationIndicator property is only available on iOS 11.0+. Ignoring call ...");
 }
 
 - (NSNumber *)locationServicesEnabled
@@ -881,7 +914,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 + (BOOL)hasAlwaysPermissionKeys
 {
   if (![TiUtils isIOS11OrGreater]) {
-    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways];
+    return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionAlways] != nil;
   }
 
   return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] &&
@@ -891,7 +924,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 + (BOOL)hasWhenInUsePermissionKeys
 {
-  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse];
+  return [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationUsageDescriptionWhenInUse] != nil;
 }
 - (void)executeAndReleaseCallbackWithCode:(NSInteger)code andMessage:(NSString *)message
 {
@@ -1051,19 +1084,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
 }
 
-#pragma mark Geolacation Analytics
-
-- (void)fireApplicationAnalyticsIfNeeded:(NSArray *)locations
-{
-  if (!TI_APPLICATION_ANALYTICS)
-    return;
-  static BOOL analyticsSend = NO;
-  if (!analyticsSend) {
-    analyticsSend = YES;
-    [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
-  }
-}
-
 #pragma mark Delegates
 
 - (void)locationManagerDidPauseLocationUpdates:(CLLocationManager *)manager
@@ -1162,7 +1182,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     [self fireEvent:@"location" withObject:event];
   }
 
-  [self fireApplicationAnalyticsIfNeeded:locations];
+  [self updateLastLocationDictionary:locations];
   [self fireSingleShotLocationIfNeeded:event stopIfNeeded:YES];
 }
 
@@ -1215,10 +1235,18 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return calibration;
 }
 
+#pragma mark Utilities
+
 - (void)dismissHeadingCalibrationDisplay:(id)args
 {
   ENSURE_UI_THREAD(dismissHeadingCalibrationDisplay, args);
   [[self locationManager] dismissHeadingCalibrationDisplay];
+}
+
+- (void)updateLastLocationDictionary:(NSArray *)locations
+{
+  [lastLocationDict release];
+  lastLocationDict = [[self locationDictionary:[locations lastObject]] copy];
 }
 
 @end

@@ -1637,6 +1637,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DAY_BEFORE_MONTH = "dayBeforeMonth";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DECODE_RETRIES = "decodeRetries";
 
 	/**
@@ -1749,9 +1754,9 @@ public class TiC
 	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
-    /**
-     * @module.api
-     */
+	/**
+	 * @module.api
+	 */
     public static final String PROPERTY_DONT_APPLY_ON_FINISH = "dontApplyOnFinish";
 
 	/**
@@ -2458,6 +2463,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LOCALE = "locale";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LOCATION = "location";
 
 	/**
@@ -2531,10 +2541,10 @@ public class TiC
      * @module.api
      */
 	public static final String PROPERTY_MAX_HEIGHT = "maxHeight";	
-	
+
 	/**
-	 * @module.api
-	 */
+     * @module.api
+     */
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 
 	/**
@@ -2571,6 +2581,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
 
 	/**
 	 * @module.api
@@ -2671,6 +2686,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_MODE = "mode";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_MOTHER = "mother";
 
 	/**
@@ -2727,6 +2747,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OFFSET = "offset";
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_NUMERIC_MONTHS = "numericMonths";
+
 	/**
 	 * @module.api
 	 */
@@ -2856,6 +2881,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_OPTIONS = "options";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_OPTED_OUT = "optedOut";
 
 	/**
 	 * @module.api
@@ -3257,6 +3287,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCROLLABLE = "scrollable";
 
 	/**
 	 * @module.api
@@ -3711,6 +3746,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TINT = "tint";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
@@ -4041,6 +4081,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ZINDEX = "zIndex";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ZOOM_LEVEL = "zoomLevel";
 
 	/**
 	 * @module.api

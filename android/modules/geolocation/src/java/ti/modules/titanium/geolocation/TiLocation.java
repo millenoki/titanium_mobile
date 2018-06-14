@@ -94,7 +94,7 @@ public class TiLocation implements Handler.Callback
 	{
 		return knownProviders.contains(name);
 	}
-	
+
 	public int getProviderState(String name)
     {
 	    if (!knownProviders.contains(name)) {
@@ -166,16 +166,6 @@ public class TiLocation implements Handler.Callback
 		return latestKnownLocation;
 	}
 
-	public void doAnalytics(Location location)
-	{
-		long locationTime = location.getTime();
-		TiApplication application = TiApplication.getInstance();
-		if ((locationTime - lastAnalyticsTimestamp > TiAnalyticsEventFactory.MAX_GEO_ANALYTICS_FREQUENCY)
-				&& application.isAnalyticsEnabled() && !application.isAnalyticsFiltered("ti.geo")) {
-			APSAnalytics.getInstance().sendAppGeoEvent(location);
-		}
-	}
-
 	public void forwardGeocode(String address, GeocodeResponseHandler responseHandler)
 	{
 		if (address != null) {
@@ -217,7 +207,7 @@ public class TiLocation implements Handler.Callback
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(BASE_GEO_URL)
-                .append("d=r")
+				.append("d=r")
                 .append("&c=")
                 .append(URLEncoder.encode(Locale.getDefault().getCountry(), "utf-8"))
 //				.append("&mid=")
@@ -255,27 +245,27 @@ public class TiLocation implements Handler.Callback
 					String response;
 					StringBuilder result = new StringBuilder();
 					try {
-					    URL mURL = new URL(url);
-					    connection = (HttpURLConnection) mURL.openConnection();
-					    connection.setRequestProperty("Expect", "100-continue");
-					    connection.connect();
-					    int responseCode = connection.getResponseCode();
-					    if (responseCode == 200) {
-					        InputStream in = new BufferedInputStream(connection.getInputStream());
-			                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			                String line;
-			                while ((line = reader.readLine()) != null) {
-			                    result.append(line);
-			                }
-			                response = result.toString();
-					    } else
-					        response = null;
+						URL mURL = new URL(url);
+						connection = (HttpURLConnection) mURL.openConnection();
+						connection.setRequestProperty("Expect", "100-continue");
+						connection.connect();
+						int responseCode = connection.getResponseCode();
+						if (responseCode == 200) {
+							InputStream in = new BufferedInputStream(connection.getInputStream());
+							BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								result.append(line);
+							}
+							response = result.toString();
+						} else
+							response = null;
 					} catch (Exception e) {
-					    response = null;
+						response = null;
 					} finally {
-					    if (connection != null) {
-					        connection.disconnect();
-					    }
+						if (connection != null) {
+							connection.disconnect();
+						}
 					}
 					Log.i(TAG, "received Geo [" + response + "]", Log.DEBUG_MODE);
 
@@ -363,7 +353,7 @@ public class TiLocation implements Handler.Callback
 		address.put(TiC.PROPERTY_COUNTRY, place.optString(TiC.PROPERTY_COUNTRY, ""));
 		address.put(TiC.PROPERTY_STATE, place.optString(TiC.PROPERTY_STATE, ""));
 		address.put("countryCode", place.optString(TiC.PROPERTY_COUNTRY_CODE, "")); // TIMOB-4478, remove this later, was old android name
-		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));		
+		address.put(TiC.PROPERTY_COUNTRY_CODE, place.optString(TiC.PROPERTY_COUNTRY_CODE, ""));
 		address.put(TiC.PROPERTY_LONGITUDE, place.optString(TiC.PROPERTY_LONGITUDE, ""));
 		address.put(TiC.PROPERTY_LATITUDE, place.optString(TiC.PROPERTY_LATITUDE, ""));
 		address.put(TiC.PROPERTY_DISPLAY_ADDRESS, place.optString(TiC.PROPERTY_ADDRESS));

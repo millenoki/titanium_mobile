@@ -42,7 +42,7 @@ import android.widget.RelativeLayout;
 public class TiUITableView extends TiUIView implements OnItemClickedListener,
         OnItemLongClickedListener, OnLifecycleEvent {
 	private static final String TAG = "TitaniumTableView";
-	
+
 	private static final int SEARCHVIEW_ID = 102;
 
     public static final int SEPARATOR_NONE = 0;
@@ -88,7 +88,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 		tableView.getTableViewModel().setDirty();
 		getTableView().dataSetChanged();
 	}
-	
+
     public TableViewModel getModel() {
 		return tableView.getTableViewModel();
 	}
@@ -184,21 +184,21 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 		
     
     public CustomListView getListView() {
-        return tableView.getListView();
-		}
+		return tableView.getListView();
+	}
 
     private ListView getInternalListView() {
         return (ListView) getListView().getWrappedList();
-    }
-    
+		}
+
     private void handleSetSearch(final Object searchObj) {
         TiViewProxy searchView = (TiViewProxy) searchObj;
         if (searchView != null) {
 			TiUIView search = searchView.getOrCreateView();
 			if (searchView instanceof SearchBarProxy) {
-				((TiUISearchBar)search).setOnSearchChangeListener(tableView);
+				((TiUISearchBar) search).setOnSearchChangeListener(tableView);
 			} else {
-				((TiUISearchView)search).setOnSearchChangeListener(tableView);
+				((TiUISearchView) search).setOnSearchChangeListener(tableView);
 			}
 				View sView = search.getNativeView();
 
@@ -236,7 +236,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 
 				p = new RelativeLayout.LayoutParams(
 						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
+													RelativeLayout.LayoutParams.MATCH_PARENT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -324,7 +324,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 		}
 	}
 
-    @Override
+	@Override
     public void onStop(Activity activity) {
     }
 
@@ -359,7 +359,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 
 		if (tableView != null) {
 			tableView.release();
-			tableView  = null;
+			tableView = null;
 		}
 		if (proxy != null && proxy.getActivity() != null) {
             ((TiBaseActivity) proxy.getActivity())
@@ -372,8 +372,8 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 
 	@Override
     public void registerForTouch() {
-        registerForTouch(tableView.getListView());
-		}
+		registerForTouch(tableView.getListView());
+	}
 
     @Override
     public void onLowMemory(Activity activity) {
@@ -381,4 +381,4 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
 
 			}
 
-		}
+}

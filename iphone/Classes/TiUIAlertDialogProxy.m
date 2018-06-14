@@ -70,7 +70,7 @@ static BOOL alertShowing = NO;
   RELEASE_TO_NIL(alert);
   if (alertController) {
     alertController.proxy = nil;
-    RELEASE_TO_NIL(alertController);
+  RELEASE_TO_NIL(alertController);
   }
   [super _destroy];
 }
@@ -136,136 +136,119 @@ static BOOL alertShowing = NO;
   }
 }
 
-- (void)show:(id)args
+- (void)show:(id)unused
 {
-  if (alertCondition == nil) {
-    alertCondition = [[NSCondition alloc] init];
-  }
-
+  ENSURE_UI_THREAD_1_ARG(unused);
   [self rememberSelf];
-  // prevent more than one JS thread from showing an alert box at a time
-  if ([NSThread isMainThread] == NO) {
-
-    [alertCondition lock];
-    if (alertShowing) {
-      [alertCondition wait];
-    }
-    alertShowing = YES;
-    [alertCondition broadcast];
-    [alertCondition unlock];
-    // alert show should block the JS thread like the browser
-    TiThreadPerformOnMainThread(^{
-      [self show:args];
-    },
-        YES);
-  } else {
+    
     hideOnClick = [TiUtils boolValue:[self valueForKey:@"hideOnClick"] def:YES];
     persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
-    NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
-    if (buttonNames == nil || (id)buttonNames == [NSNull null]) {
-      buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
-      NSString *ok = [self valueForUndefinedKey:@"ok"];
-      if (ok == nil) {
-        ok = @"OK";
-      }
-      [buttonNames addObject:ok];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+  NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
+  if (buttonNames == nil || (id)buttonNames == [NSNull null]) {
+    buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
+    NSString *ok = [self valueForUndefinedKey:@"ok"];
+    if (ok == nil) {
+      ok = @"OK";
     }
+    [buttonNames addObject:ok];
+  }
 
-    cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
-    destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
-    preferredIndex = [TiUtils intValue:[self valueForKey:@"preferred"] def:-1];
+  persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
+  cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+  destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+  preferredIndex = [TiUtils intValue:[self valueForKey:@"preferred"] def:-1];
 
-    if (cancelIndex >= [buttonNames count]) {
-      cancelIndex = -1;
-    }
+  if (cancelIndex >= [buttonNames count]) {
+    cancelIndex = -1;
+  }
 
-    if (destructiveIndex >= [buttonNames count]) {
-      destructiveIndex = -1;
-    }
+  if (destructiveIndex >= [buttonNames count]) {
+    destructiveIndex = -1;
+  }
 
-    if (preferredIndex >= [buttonNames count]) {
-      preferredIndex = -1;
-    }
+  if (preferredIndex >= [buttonNames count]) {
+    preferredIndex = -1;
+  }
 
-    style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
+  style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
 
     [[[TiApp app] controller] incrementActiveAlertControllerCount];
     if ([TiUtils isIOS8OrGreater]) {
-      RELEASE_TO_NIL(alertController);
+  RELEASE_TO_NIL(alertController);
 
       alertController = [[TiAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-                                                             message:[TiUtils stringValue:[self valueForKey:@"message"]]
-                                                      preferredStyle:UIAlertControllerStyleAlert] retain];
+                                                         message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                                  preferredStyle:UIAlertControllerStyleAlert] retain];
       alertController.proxy = self;
       //        ((TiAlertView*)alert).hideOnClick = hideOnClick;
-      int curIndex = 0;
-      id tintColor = [self valueForKey:@"tintColor"];
+  int curIndex = 0;
+  id tintColor = [self valueForKey:@"tintColor"];
 
-      if (tintColor != nil) {
-        [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
+  if (tintColor != nil) {
+    [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
+  }
+
+  // Configure the Buttons
+  for (id btn in buttonNames) {
+    NSString *btnName = [TiUtils stringValue:btn];
+    if (!IS_NULL_OR_NIL(btnName)) {
+
+      UIAlertActionStyle alertActionStyle;
+
+      if (curIndex == cancelIndex) {
+        alertActionStyle = UIAlertActionStyleCancel;
+      } else if (curIndex == destructiveIndex) {
+        alertActionStyle = UIAlertActionStyleDestructive;
+      } else {
+        alertActionStyle = UIAlertActionStyleDefault;
       }
-
-      // Configure the Buttons
-      for (id btn in buttonNames) {
-        NSString *btnName = [TiUtils stringValue:btn];
-        if (!IS_NULL_OR_NIL(btnName)) {
-
-          UIAlertActionStyle alertActionStyle;
-
-          if (curIndex == cancelIndex) {
-            alertActionStyle = UIAlertActionStyleCancel;
-          } else if (curIndex == destructiveIndex) {
-            alertActionStyle = UIAlertActionStyleDestructive;
-          } else {
-            alertActionStyle = UIAlertActionStyleDefault;
-          }
 
           TiAlertAction *theAction = [TiAlertAction actionWithTitle:btnName
-                                                              style:alertActionStyle
-                                                            handler:^(UIAlertAction *action) {
-                                                              [self fireClickEventWithAction:action];
-                                                            }];
+                                                          style:alertActionStyle
+                                                        handler:^(UIAlertAction *action) {
+                                                          [self fireClickEventWithAction:action];
+                                                        }];
           theAction.index = curIndex;
-          [alertController addAction:theAction];
-        }
-        curIndex++;
-      }
+      [alertController addAction:theAction];
+    }
+    curIndex++;
+  }
 
-      if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
-        [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
-      }
+  if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
+    [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
+  }
 
-      //Configure the TextFields
-      if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
-        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-          textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
-          textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]];
-          textField.text = [TiUtils stringValue:[self valueForKey:@"value"]];
-          textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
-          textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
-          textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-        }];
-      } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
-        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-          textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
-          textField.text = [TiUtils stringValue:[self valueForKey:@"loginValue"]];
-          textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
-          textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+  //Configure the TextFields
+  if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+      textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
+      textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]];
+      textField.text = [TiUtils stringValue:[self valueForKey:@"value"]];
+      textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
+      textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
+      textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+    }];
+  } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+      textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
+      textField.text = [TiUtils stringValue:[self valueForKey:@"loginValue"]];
+      textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
+      textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
           textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
-        }];
-        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-          textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
-          textField.text = [TiUtils stringValue:[self valueForKey:@"passwordValue"]];
-          textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
-          textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
+    }];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+      textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
+      textField.text = [TiUtils stringValue:[self valueForKey:@"passwordValue"]];
+      textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
+      textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
           textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
-          textField.secureTextEntry = YES;
-        }];
-      }
+      textField.secureTextEntry = YES;
+    }];
+  }
 
-      [self retain];
-      [[TiApp app] showModalController:alertController animated:YES];
+  [self retain];
+  [[TiApp app] showModalController:alertController animated:YES];
 
     } else {
       RELEASE_TO_NIL(alert);
@@ -289,7 +272,6 @@ static BOOL alertShowing = NO;
       [alert show];
       [self fireEvent:@"open" withObject:nil];
     }
-  }
 }
 
 - (void)suspended:(NSNotification *)note

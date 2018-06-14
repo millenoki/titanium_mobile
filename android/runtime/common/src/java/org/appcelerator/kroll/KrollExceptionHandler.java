@@ -37,12 +37,13 @@ public interface KrollExceptionHandler
 {
 	public class ExceptionMessage
 	{
-		public String title, message, sourceName, lineSource, callstack;
-		public int line = -1, lineOffset = -1;
-		public boolean canContinue = true;
+		public String title, message, sourceName, lineSource, jsStack, javaStack;
+        public int line = -1, lineOffset = -1;
+        public boolean canContinue = true;
 
 		public ExceptionMessage(final String title, final String message, final String sourceName, final int line,
-			final String lineSource, final int lineOffset, final String callstack)
+								final String lineSource, final int lineOffset, final String jsStack,
+								final String javaStack)
 		{
 			this.title = title;
 			this.message = message;
@@ -50,7 +51,8 @@ public interface KrollExceptionHandler
 			this.lineSource = lineSource;
 			this.line = line;
 			this.lineOffset = lineOffset;
-			this.callstack = callstack;
+			this.jsStack = jsStack;
+			this.javaStack = javaStack;
 		}
 
 	}
@@ -61,6 +63,6 @@ public interface KrollExceptionHandler
 	 * @param e An exception message containing line number, error title, message, etc
 	 * @module.api
 	 */
-    public void handleException(ExceptionMessage e);
+	public void handleException(ExceptionMessage e);
     public void handleException(HashMap e);
 }

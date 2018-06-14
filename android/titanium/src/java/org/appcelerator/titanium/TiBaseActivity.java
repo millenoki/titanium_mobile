@@ -92,7 +92,7 @@ import com.appcelerator.aps.APSAnalytics;
  * "http://developer.android.com/reference/android/app/Activity.html">Android
  * Activity documentation</a>.
  */
-@SuppressLint("NewApi")
+@SuppressLint("InlinedApi")
 public abstract class TiBaseActivity extends AppCompatActivity
         implements TiActivitySupport/* , ITiWindowHandler */
 {
@@ -137,42 +137,41 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
     }
 
-    private static final String TAG = "TiBaseActivity";
+	private static final String TAG = "TiBaseActivity";
 
-    private boolean onDestroyFired = false;
-    private int originalOrientationMode = -1;
+	private boolean onDestroyFired = false;
+	private int originalOrientationMode = -1;
     private boolean inForeground = false; // Indicates whether this activity is
                                           // in foreground or not.
-    private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
+	private TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<OnLifecycleEvent>();
     private TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<OnWindowFocusChangedEvent>();
     protected TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<interceptOnBackPressedEvent>();
     protected TiWeakList<interceptOnHomePressedEvent> interceptOnHomePressedListeners = new TiWeakList<interceptOnHomePressedEvent>();
-    private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
-    private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
+	private TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<OnInstanceStateEvent>();
+	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
     private TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
     private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
-    // private APSAnalytics analytics = APSAnalytics.getInstance();
-    private boolean sustainMode = false;
+	private boolean sustainMode = false;
 
     private static SparseArray<ArrayList<Object>> sPermissionCallback = new SparseArray();
     protected ViewGroup layout;
     protected TiCompositeLayout contentView;
-    protected TiActivitySupportHelper supportHelper;
-    protected int supportHelperId = -1;
-    protected TiWindowProxy window;
-    protected TiViewProxy view;
-    protected ActivityProxy activityProxy;
+	protected TiActivitySupportHelper supportHelper;
+	protected int supportHelperId = -1;
+	protected TiWindowProxy window;
+	protected TiViewProxy view;
+	protected ActivityProxy activityProxy;
     protected TiWeakList<ConfigurationChangedListener> configChangedListeners = new TiWeakList<ConfigurationChangedListener>();
-    protected TiMenuSupport menuHelper;
-    protected Messenger messenger;
-    protected int msgActivityCreatedId = -1;
-    protected int msgId = -1;
-    // Storing the activity's dialogs and their persistence
-    private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
-    private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
+	protected TiMenuSupport menuHelper;
+	protected Messenger messenger;
+	protected int msgActivityCreatedId = -1;
+	protected int msgId = -1;
+	//Storing the activity's dialogs and their persistence
+	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
+	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
     public boolean isLayedout = false;
-    public boolean isResumed = false;
+	public boolean isResumed = false;
     private boolean isPaused = false;
 
     private boolean fullscreen = false;
@@ -184,74 +183,76 @@ public abstract class TiBaseActivity extends AppCompatActivity
     private int softInputMode = defaultSoftInputMode;
     private boolean mReadyToQueryActionBar = false;
 
-    private boolean overridenLayout;
+	public static boolean canFinishRoot = true;
+
+	private boolean overridenLayout;
 
     public class DialogWrapper {
-        boolean isPersistent;
-        Dialog dialog;
+		boolean isPersistent;
+		Dialog dialog;
 
-        WeakReference<TiBaseActivity> dialogActivity;
+		WeakReference<TiBaseActivity> dialogActivity;
 
         public DialogWrapper(Dialog d, boolean persistent,
                 WeakReference<TiBaseActivity> activity) {
-            isPersistent = persistent;
-            dialog = d;
-            dialogActivity = activity;
-        }
+			isPersistent = persistent;
+			dialog = d;
+			dialogActivity = activity;
+		}
 
         public TiBaseActivity getActivity() {
-            if (dialogActivity == null) {
-                return null;
-            } else {
-                return dialogActivity.get();
-            }
-        }
+			if (dialogActivity == null) {
+				return null;
+			} else {
+				return dialogActivity.get();
+			}
+		}
 
         public void setActivity(WeakReference<TiBaseActivity> da) {
-            dialogActivity = da;
-        }
+			dialogActivity = da;
+		}
 
         public Dialog getDialog() {
-            return dialog;
-        }
+			return dialog;
+		}
 
         public void setDialog(Dialog d) {
-            dialog = d;
-        }
+			dialog = d;
+		}
 
         public void release() {
-            dialog = null;
-            dialogActivity = null;
-        }
+			dialog = null;
+			dialogActivity = null;
+		}
 
         public boolean getPersistent() {
-            return isPersistent;
-        }
+			return isPersistent;
+		}
 
         public void setPersistent(boolean p) {
-            isPersistent = p;
-        }
-    }
+			isPersistent = p;
+		}
+	}
 
     public boolean isWindowActivityCreated() {
         return this.window != null && this.window.isWindowActivityCreated();
     }
 
     public void addWindowToStack(TiWindowProxy proxy) {
-        if (windowStack.contains(proxy)) {
-            Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
-            return;
-        }
-        boolean isEmpty = windowStack.empty();
-        if (!isEmpty) {
+		if (windowStack.contains(proxy)) {
+			Log.e(TAG, "Window already exists in stack", Log.DEBUG_MODE);
+			return;
+		}
+		boolean isEmpty = windowStack.empty();
+		if (!isEmpty) {
             TiWindowProxy window = windowStack.peek();
             window.blur();
             window.onWindowFocusChange(false);
-        }
-        windowStack.add(proxy);
-        if (!isEmpty) {
-            proxy.onWindowFocusChange(true);
-        }
+		}
+		windowStack.add(proxy);
+		if (!isEmpty) {
+			proxy.onWindowFocusChange(true);
+		}
         updateForWindow(proxy);
     }
 
@@ -260,16 +261,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
     }
 
     public void removeWindowFromStack(final TiWindowProxy proxy) {
-        proxy.onWindowFocusChange(false);
+		proxy.onWindowFocusChange(false);
 
         boolean isTopWindow = ((!windowStack.isEmpty())
                 && (windowStack.peek() == proxy)) ? true : false;
-        windowStack.remove(proxy);
+		windowStack.remove(proxy);
 
         // Fire focus only if activity is not paused and the removed window was
         // topWindow
-        if (!windowStack.empty() && isResumed && isTopWindow) {
-            TiWindowProxy nextWindow = windowStack.peek();
+		if (!windowStack.empty() && isResumed && isTopWindow) {
+			TiWindowProxy nextWindow = windowStack.peek();
 
             if (nextWindow instanceof TiWindowManager) {
                 TiWindowProxy topWindow = ((TiWindowManager) nextWindow)
@@ -286,22 +287,22 @@ public abstract class TiBaseActivity extends AppCompatActivity
             // Fire focus only if activity is not paused and the removed window
             // was topWindow
             if (isResumed && isTopWindow) {
-                nextWindow.onWindowFocusChange(true);
-            }
+			nextWindow.onWindowFocusChange(true);
+		}
         } else {
             updateForWindow(this.window);
         }
 
-    }
+	}
 
-    /**
-     * Returns the window at the top of the stack.
+	/**
+	 * Returns the window at the top of the stack.
      * 
-     * @return the top window or null if the stack is empty.
-     */
+	 * @return the top window or null if the stack is empty.
+	 */
     public TiWindowProxy topWindowOnStack() {
-        return (windowStack.isEmpty()) ? null : windowStack.peek();
-    }
+		return (windowStack.isEmpty()) ? null : windowStack.peek();
+	}
 
     private void clearWindowStack(final boolean isFinishing) {
         if (!windowStack.isEmpty()) {
@@ -342,7 +343,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
     }
 
-    public static interface ConfigurationChangedListener {
+	public static interface ConfigurationChangedListener {
         public void onConfigurationChanged(TiBaseActivity activity,
                 Configuration newConfig);
     }
@@ -389,33 +390,33 @@ public abstract class TiBaseActivity extends AppCompatActivity
                 break;
             }
         }
-    }
+	}
 
-    /**
-     * @return the instance of TiApplication.
-     */
+	/**
+	 * @return the instance of TiApplication.
+	 */
     public TiApplication getTiApp() {
-        return (TiApplication) getApplication();
-    }
+		return (TiApplication) getApplication();
+	}
 
-    /**
-     * @return the window proxy associated with this activity.
-     */
+	/**
+	 * @return the window proxy associated with this activity.
+	 */
     public TiWindowProxy getWindowProxy() {
-        return this.window;
-    }
+		return this.window;
+	}
 
-    /**
-     * Sets the window proxy.
+	/**
+	 * Sets the window proxy.
      * 
-     * @param proxy
-     */
+	 * @param proxy
+	 */
     @SuppressLint("NewApi")
     public void setWindowProxy(TiWindowProxy proxy) {
         // proxy = proxy.getTopWindow();
         if (this.window == proxy)
             return;
-        this.window = proxy;
+		this.window = proxy;
         if (this.window == null) {
             return;
         }
@@ -533,52 +534,52 @@ public abstract class TiBaseActivity extends AppCompatActivity
             AndroidBug5497Workaround.assistActivity(this);
         } else {
             AndroidBug5497Workaround.unassistActivity(this);
-        }
-    }
+		}
+	}
 
-    /**
-     * Sets the view proxy.
+	/**
+	 * Sets the view proxy.
      * 
-     * @param proxy
-     */
+	 * @param proxy
+	 */
     public void setViewProxy(TiViewProxy proxy) {
-        this.view = proxy;
-    }
+		this.view = proxy;
+	}
 
-    /**
-     * @return activity proxy associated with this activity.
-     */
+	/**
+	 * @return activity proxy associated with this activity.
+	 */
     public ActivityProxy getActivityProxy() {
-        return activityProxy;
-    }
+		return activityProxy;
+	}
 
     public void addDialog(DialogWrapper d) {
-        if (!dialogs.contains(d)) {
-            dialogs.add(d);
-        }
-    }
+		if (!dialogs.contains(d)) {
+			dialogs.add(d);
+		}
+	}
 
     public void removeDialog(Dialog d) {
-        for (int i = 0; i < dialogs.size(); i++) {
-            DialogWrapper p = dialogs.get(i);
-            if (p.getDialog().equals(d)) {
-                p.release();
-                dialogs.remove(i);
-                return;
-            }
-        }
-    }
+		for (int i = 0; i < dialogs.size(); i++) {
+			DialogWrapper p = dialogs.get(i);
+			if (p.getDialog().equals(d)) {
+				p.release();
+				dialogs.remove(i);
+				return;
+			}
+		}
+	}
 
     public void setActivityProxy(ActivityProxy proxy) {
-        this.activityProxy = proxy;
-    }
+		this.activityProxy = proxy;
+	}
 
-    /**
-     * @return the activity's current layout.
-     */
+	/**
+	 * @return the activity's current layout.
+	 */
     public View getLayout() {
-        return layout;
-    }
+		return layout;
+	}
 
     public View getTiLayout() {
         if (contentView != null) {
@@ -588,30 +589,30 @@ public abstract class TiBaseActivity extends AppCompatActivity
     }
 
     public void setLayout(ViewGroup layout) {
-        this.layout = layout;
-    }
+		this.layout = layout;
+	}
 
     public void addConfigurationChangedListener(
             ConfigurationChangedListener listener) {
         configChangedListeners
                 .add(new WeakReference<ConfigurationChangedListener>(listener));
-    }
+	}
 
     public void removeConfigurationChangedListener(
             ConfigurationChangedListener listener) {
-        configChangedListeners.remove(listener);
-    }
+		configChangedListeners.remove(listener);
+	}
 
     protected boolean getIntentBoolean(String property, boolean defaultValue) {
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra(property)) {
-                return intent.getBooleanExtra(property, defaultValue);
-            }
-        }
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(property)) {
+				return intent.getBooleanExtra(property, defaultValue);
+			}
+		}
 
-        return defaultValue;
-    }
+		return defaultValue;
+	}
 
     protected boolean intentHasProperty(String property) {
         Intent intent = getIntent();
@@ -623,26 +624,26 @@ public abstract class TiBaseActivity extends AppCompatActivity
     }
 
     protected int getIntentInt(String property, int defaultValue) {
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra(property)) {
-                return intent.getIntExtra(property, defaultValue);
-            }
-        }
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(property)) {
+				return intent.getIntExtra(property, defaultValue);
+			}
+		}
 
-        return defaultValue;
-    }
+		return defaultValue;
+	}
 
     protected String getIntentString(String property, String defaultValue) {
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra(property)) {
-                return intent.getStringExtra(property);
-            }
-        }
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(property)) {
+				return intent.getStringExtra(property);
+			}
+		}
 
-        return defaultValue;
-    }
+		return defaultValue;
+	}
 
     // protected void updateTitle(TiWindowProxy proxy)
     // {
@@ -677,18 +678,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
     // }
 
     // private Toolbar toolbar = null;
-    // Subclasses can override to provide a custom layout
+	// Subclasses can override to provide a custom layout
     protected ViewGroup createLayout(int layoutId) {
-        LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
         String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT,
                 "");
-        if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
-            arrangement = LayoutArrangement.HORIZONTAL;
+		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
+			arrangement = LayoutArrangement.HORIZONTAL;
 
-        } else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
-            arrangement = LayoutArrangement.VERTICAL;
-        }
+		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
+			arrangement = LayoutArrangement.VERTICAL;
+		}
         contentView = new TiCompositeLayout(this, arrangement, null) {
             private boolean firstFocusRequest = true;
 
@@ -837,21 +838,21 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
     public void setFullscreen(boolean fullscreen) {
         if (this.fullscreen == fullscreen) {
-            return;
-        }
+			return;
+		}
         this.fullscreen = fullscreen;
-        if (fullscreen) {
+		if (fullscreen) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            View decorView = getWindow().getDecorView();
-            // Hide both the navigation bar and the status bar.
+			View decorView = getWindow().getDecorView();
+			// Hide both the navigation bar and the status bar.
             // SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and
             // higher, but as
             // a general rule, you should design your app to hide the status bar
             // whenever you
-            // hide the navigation bar.
+			// hide the navigation bar.
             int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
+			decorView.setSystemUiVisibility(uiOptions);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -863,17 +864,17 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
     // Subclasses can override to handle post-creation (but pre-message fire)
     // logic
-    @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
     protected void windowCreated(Bundle savedInstanceState) {
         defaultFullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
         // defaultNavBarHidden = navBarHidden =
         // getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
         navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
-        boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
+		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
         softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE,
                 defaultSoftInputMode);
         boolean hasSoftInputMode = softInputMode != -1;
-        int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
+		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
         final Window window = getWindow();
 
         setFullscreen(defaultFullscreen);
@@ -884,73 +885,73 @@ public abstract class TiBaseActivity extends AppCompatActivity
                     WindowManager.LayoutParams.TYPE_APPLICATION));
         }
 
-        if (windowFlags > 0) {
+		if (windowFlags > 0) {
             window.addFlags(windowFlags);
-        }
+		}
 
-        if (modal) {
+		if (modal) {
             if (TiC.ICS_OR_GREATER) {
                 // This flag is deprecated in API 14. On ICS, the background is
                 // not blurred but straight black.
                 window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
-            }
-        }
+			}
+		}
 
-        if (hasSoftInputMode) {
-            Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
+		if (hasSoftInputMode) {
+			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
             setSoftInputMode(softInputMode);
-        }
+		}
 
         boolean useActivityWindow = getIntentBoolean(
                 TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
-        if (useActivityWindow) {
-            int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
-            TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
-        }
-    }
+		if (useActivityWindow) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
+		}
+	}
 
     // Record if user has set a content view manually from hyperloop code during
     // require of app.js!
-    @Override
+	@Override
     public void setContentView(View view) {
-        overridenLayout = true;
-        super.setContentView(view);
-    }
+		overridenLayout = true;
+		super.setContentView(view);
+	}
 
-    @Override
+	@Override
     public void setContentView(int layoutResID) {
-        overridenLayout = true;
-        super.setContentView(layoutResID);
-    }
+		overridenLayout = true;
+		super.setContentView(layoutResID);
+	}
 
-    @Override
+	@Override
     public void setContentView(View view, LayoutParams params) {
-        overridenLayout = true;
-        super.setContentView(view, params);
-    }
+		overridenLayout = true;
+		super.setContentView(view, params);
+	}
 
-    @Override
-    /**
+	@Override
+	/**
      * When the activity is created, this method adds it to the activity stack
      * and fires a javascript 'create' event.
      * 
      * @param savedInstanceState
      *            Bundle of saved data.
-     */
+	 */
     protected void onCreate(Bundle savedInstanceState) {
         TiApplication.getInstance().activityStarted(this);
         // Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
-        inForeground = true;
-        TiApplication tiApp = getTiApp();
+		inForeground = true;
+		TiApplication tiApp = getTiApp();
 
-        if (tiApp.isRestartPending()) {
-            super.onCreate(savedInstanceState);
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		if (tiApp.isRestartPending()) {
+			super.onCreate(savedInstanceState);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
         // If all the activities has been killed and the runtime has been
         // disposed or the app's hosting process has
@@ -958,42 +959,42 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // of the top-most view proxy has been
         // lost (TiActivityWindows.dispose()). In this case, we have to restart
         // the app.
-        if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
+		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
             Log.w(TAG,
                     "Runtime has been disposed or app has been killed. Finishing.");
-            activityOnCreate(savedInstanceState);
-            TiApplication.terminateActivityStack();
-            if (Build.VERSION.SDK_INT < 23) {
-                finish();
-                tiApp.scheduleRestart(300);
-                return;
-            }
-            KrollRuntime.incrementActivityRefCount();
-            finishAndRemoveTask();
-            return;
-        }
+			activityOnCreate(savedInstanceState);
+			TiApplication.terminateActivityStack();
+			if (Build.VERSION.SDK_INT < 23) {
+				finish();
+				tiApp.scheduleRestart(300);
+				return;
+			}
+			KrollRuntime.incrementActivityRefCount();
+			finishAndRemoveTask();
+			return;
+		}
 
-        TiApplication.addToActivityStack(this);
+		TiApplication.addToActivityStack(this);
 
         // create the activity proxy here so that it is accessible from the
         // activity in all cases
-        activityProxy = new ActivityProxy(this);
+		activityProxy = new ActivityProxy(this);
 
         // Increment the reference count so we correctly clean up when all of
         // our activities have been destroyed
-        KrollRuntime.incrementActivityRefCount();
+		KrollRuntime.incrementActivityRefCount();
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
+		Intent intent = getIntent();
+		if (intent != null) {
+			if (intent.hasExtra(TiC.INTENT_PROPERTY_MESSENGER)) {
                 messenger = (Messenger) intent
                         .getParcelableExtra(TiC.INTENT_PROPERTY_MESSENGER);
                 msgActivityCreatedId = intent.getIntExtra(
                         TiC.INTENT_PROPERTY_MSG_ACTIVITY_CREATED_ID, -1);
-                msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
-            }
+				msgId = intent.getIntExtra(TiC.INTENT_PROPERTY_MSG_ID, -1);
+			}
 
-            if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
+			if (intent.hasExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
                 getWindow().setFormat(intent.getIntExtra(
                         TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN));
             }
@@ -1003,18 +1004,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // created.
 //        TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
-        // Set the theme of the activity before calling super.onCreate().
+		// Set the theme of the activity before calling super.onCreate().
         // On 2.3 devices, it does not work if the theme is set after
         // super.onCreate.
-        int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
-        if (theme != -1) {
-            this.setTheme(theme);
-        }
+		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
+		if (theme != -1) {
+			this.setTheme(theme);
+		}
 
         // Set ActionBar into split mode must be done before the decor view has
         // been created
-        // we need to do this before calling super.onCreate()
-        if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
+		// we need to do this before calling super.onCreate()
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
             getWindow().setUiOptions(
                     ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
         }
@@ -1028,15 +1029,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // but we need it right now.
         // save off the existing current activity, set ourselves to be the new
         // current activity temporarily
-        // so we don't run into problems when we give the proxy the event
-        Activity tempCurrentActivity = tiApp.getCurrentActivity();
-        tiApp.setCurrentActivity(this, this);
+		// so we don't run into problems when we give the proxy the event
+		Activity tempCurrentActivity = tiApp.getCurrentActivity();
+		tiApp.setCurrentActivity(this, this);
 
-        // we need to set window features before calling onCreate
-        this.requestWindowFeature(Window.FEATURE_PROGRESS);
-        this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		// we need to set window features before calling onCreate
+		this.requestWindowFeature(Window.FEATURE_PROGRESS);
+		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         if (TiC.LOLLIPOP_OR_GREATER) {
-            this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
             this.requestWindowFeature(Window.FEATURE_CONTENT_TRANSITIONS);
        }
 
@@ -1048,17 +1049,17 @@ public abstract class TiBaseActivity extends AppCompatActivity
                     TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
         }
 
-        super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);
         ActivityCompat.postponeEnterTransition(this);
 
-        // set the current activity back to what it was originally
-        tiApp.setCurrentActivity(this, tempCurrentActivity);
-        
-        // If user changed the layout during app.js load, keep that
-        if (!overridenLayout) {
-            setContentView(layout);
-        }
-        
+		// set the current activity back to what it was originally
+		tiApp.setCurrentActivity(this, tempCurrentActivity);
+
+		// If user changed the layout during app.js load, keep that
+		if (!overridenLayout) {
+			setContentView(layout);
+		}
+
         // sometimes we get a weird right and bottom padding :s
         getWindow().getDecorView().setPadding(0, 0, 0, 0);
 
@@ -1066,7 +1067,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
         // make sure we call windowCreated after setContentView because
         // it's a bad idea to query the actionBar before.
-        windowCreated(savedInstanceState);
+        try {
+            windowCreated(savedInstanceState);
+        } catch (Throwable t) {
+            Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+        }
       
        
         if (activityProxy != null) {
@@ -1078,14 +1083,14 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // setSupportActionBar(toolbar);
         // }
 
-        sendMessage(msgActivityCreatedId);
-        // for backwards compatibility
-        sendMessage(msgId);
+		sendMessage(msgActivityCreatedId);
+		// for backwards compatibility
+		sendMessage(msgId);
 
         // store off the original orientation for the activity set in the
         // AndroidManifest.xml
-        // for later use
-        originalOrientationMode = getRequestedOrientation();
+		// for later use
+		originalOrientationMode = getRequestedOrientation();
 
     }
 
@@ -1108,141 +1113,152 @@ public abstract class TiBaseActivity extends AppCompatActivity
     @Override
     public void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (window != null) {
+		if (window != null) {
             if (window.getWindowManager() != null)
                 window.getWindowManager().onWindowActivityCreated();
             else {
-                window.onWindowActivityCreated();
-            }
+			window.onWindowActivityCreated();
+		}
         }
         synchronized (lifecycleListeners.synchronizedList()) {
-            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-                try {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
                     TiLifecycle.fireLifecycleEvent(this, listener,
                             savedInstanceState,
                             TiLifecycle.LIFECYCLE_ON_CREATE);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching lifecycle event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-        setCustomActionBar();
+				}
+			}
+		}
+		setCustomActionBar();
         ActivityCompat.startPostponedEnterTransition(this);
-    }
+	}
 
     private void setCustomActionBar() {
-        if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
-            this.setSupportActionBar(((Toolbar) ((TiToolbarProxy) activityProxy
-                    .getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
-                            .getToolbarInstance()));
-        }
-    }
+		if (activityProxy.hasProperty(TiC.PROPERTY_SUPPORT_TOOLBAR)) {
+			try {
+				this.setSupportActionBar(
+					((Toolbar) ((TiToolbarProxy) activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR))
+						 .getToolbarInstance()));
+			} catch (RuntimeException e) {
+				Log.e(
+					TAG,
+					"Attempting to use Toolbar as ActionBar without disabling the default ActionBar in the current theme.\n"
+						+ "You must set 'windowActionBar' to false in your current theme. Or use one of the following themes:\n"
+						+ " - Theme.Titanium\n - Theme.AppCompat.Translucent.NoTitleBar\n - Theme.AppCompat.NoTitleBar\n"
+						+ "Which have ActionBar disabled by default.");
+				TiApplication.terminateActivityStack();
+				finish();
+			}
+		}
+	}
 
     public int getOriginalOrientationMode() {
-        return originalOrientationMode;
-    }
+		return originalOrientationMode;
+	}
 
     public boolean isInForeground() {
-        return inForeground;
-    }
+		return inForeground;
+	}
 
     public boolean isActivityPaused() {
         return isPaused;
     }
 
     public boolean isDestroyed() {
-        return onDestroyFired;
-    }
+		return onDestroyFired;
+	}
 
     protected void sendMessage(final int msgId) {
-        if (messenger == null || msgId == -1) {
-            return;
-        }
+		if (messenger == null || msgId == -1) {
+			return;
+		}
 
-        // fire an async message on this thread's queue
-        // so we don't block onCreate() from returning
-        TiMessenger.postOnMain(new Runnable() {
+		// fire an async message on this thread's queue
+		// so we don't block onCreate() from returning
+		TiMessenger.postOnMain(new Runnable() {
             public void run() {
-                handleSendMessage(msgId);
-            }
-        });
-    }
+				handleSendMessage(msgId);
+			}
+		});
+	}
 
     protected void handleSendMessage(int messageId) {
-        try {
+		try {
             Message message = TiMessenger.getMainMessenger().getHandler()
                     .obtainMessage(messageId, this);
-            messenger.send(message);
+			messenger.send(message);
 
-        } catch (RemoteException e) {
-            Log.e(TAG, "Unable to message creator. finishing.", e);
-            finish();
+		} catch (RemoteException e) {
+			Log.e(TAG, "Unable to message creator. finishing.", e);
+			finish();
 
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Unable to message creator. finishing.", e);
-            finish();
-        }
-    }
+		} catch (RuntimeException e) {
+			Log.e(TAG, "Unable to message creator. finishing.", e);
+			finish();
+		}
+	}
 
     protected TiActivitySupportHelper getSupportHelper() {
-        if (supportHelper == null) {
-            this.supportHelper = new TiActivitySupportHelper(this);
+		if (supportHelper == null) {
+			this.supportHelper = new TiActivitySupportHelper(this);
             // Register the supportHelper so we can get it back when the
             // activity is recovered from force-quitting.
             supportHelperId = TiActivitySupportHelpers
                     .addSupportHelper(supportHelper);
-        }
+		}
 
-        return supportHelper;
-    }
+		return supportHelper;
+	}
 
-    // Activity Support
+	// Activity Support
     public int getUniqueResultCode() {
-        return getSupportHelper().getUniqueResultCode();
-    }
+		return getSupportHelper().getUniqueResultCode();
+	}
 
-    /**
-     * See TiActivitySupport.launchActivityForResult for more details.
-     */
+	/**
+	 * See TiActivitySupport.launchActivityForResult for more details.
+	 */
     public void launchActivityForResult(Intent intent, int code,
             TiActivityResultHandler resultHandler) {
-        getSupportHelper().launchActivityForResult(intent, code, resultHandler);
-    }
+		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
+	}
 
-    /**
-     * See TiActivitySupport.launchIntentSenderForResult for more details.
-     */
+	/**
+	 * See TiActivitySupport.launchIntentSenderForResult for more details.
+	 */
     public void launchIntentSenderForResult(IntentSender intent,
             int requestCode, Intent fillInIntent, int flagsMask,
-            int flagsValues, int extraFlags, Bundle options,
+											int flagsValues, int extraFlags, Bundle options,
             TiActivityResultHandler resultHandler) {
         getSupportHelper().launchIntentSenderForResult(intent, requestCode,
                 fillInIntent, flagsMask, flagsValues, extraFlags, options,
                 resultHandler);
-    }
+	}
 
-    @Override
+	@Override
     protected void onActivityResult(int requestCode, int resultCode,
             Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, data);
         synchronized (onActivityResultListeners.synchronizedList()) {
             for (OnActivityResultEvent listener : onActivityResultListeners
                     .nonNull()) {
-                try {
+				try {
                     TiLifecycle.fireOnActivityResultEvent(this, listener,
                             requestCode, resultCode, data);
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching onActivityResult event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-        getSupportHelper().onActivityResult(requestCode, resultCode, data);
-    }
+				}
+			}
+		}
+		getSupportHelper().onActivityResult(requestCode, resultCode, data);
+	}
 
-    @Override
+	@Override
     public void onBackPressed() {
         if (!handleBackKeyPressed()) {
             // If event is not handled by any listeners allow default behavior.
@@ -1255,7 +1271,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         TiWindowProxy topWindow = null;
         if (activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
             proxy = activityProxy;
-        } else {
+					} else {
             topWindow = topWindowOnStack();
             TiWindowProxy realTopWindow = topWindow;
             if (realTopWindow != null) {
@@ -1285,7 +1301,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
         if (TiApplication.activityStack.size() <= 2) {
             if (topWindow != null && !TiConvert.toBoolean(
                     topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false)) {
-                this.moveTaskToBack(true);
+					this.moveTaskToBack(true);
                 return true;
             }
         }
@@ -1322,88 +1338,88 @@ public abstract class TiBaseActivity extends AppCompatActivity
         // } else {
         // return handleAndroidBackEvent();
         // }
-    }
+	}
 
-    @Override
+	@Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        boolean handled = false;
+		boolean handled = false;
 
-        TiViewProxy window;
-        if (this.window != null) {
-            window = this.window;
-        } else {
-            window = this.view;
-        }
+		TiViewProxy window;
+		if (this.window != null) {
+			window = this.window;
+		} else {
+			window = this.view;
+		}
 
-        if (window == null) {
-            return super.dispatchKeyEvent(event);
-        }
+		if (window == null) {
+			return super.dispatchKeyEvent(event);
+		}
 
-        switch (event.getKeyCode()) {
-        case KeyEvent.KEYCODE_BACK: {
+		switch (event.getKeyCode()) {
+			case KeyEvent.KEYCODE_BACK: {
 
-            if (event.getAction() == KeyEvent.ACTION_UP) {
+				if (event.getAction() == KeyEvent.ACTION_UP) {
                 handled = handleBackKeyPressed();
-            }
-            break;
-        }
-        case KeyEvent.KEYCODE_CAMERA: {
-            if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				}
+				break;
+			}
+			case KeyEvent.KEYCODE_CAMERA: {
+				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
                     window.fireEvent(TiC.EVENT_ANDROID_CAMERA);
                 }
                 handled = true;
             }
-            break;
-        }
-        case KeyEvent.KEYCODE_FOCUS: {
-            if (window.hasListeners(TiC.EVENT_ANDROID_FOCUS)) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				break;
+			}
+			case KeyEvent.KEYCODE_FOCUS: {
+				if (window.hasListeners(TiC.EVENT_ANDROID_FOCUS)) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
                     window.fireEvent(TiC.EVENT_ANDROID_FOCUS);
-                }
-                handled = true;
-            }
+					}
+					handled = true;
+				}
 
-            break;
-        }
-        case KeyEvent.KEYCODE_SEARCH: {
-            if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				break;
+			}
+			case KeyEvent.KEYCODE_SEARCH: {
+				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
                     window.fireEvent(TiC.EVENT_ANDROID_SEARCH);
-                }
-                handled = true;
-            }
+					}
+					handled = true;
+				}
 
-            break;
-        }
-        case KeyEvent.KEYCODE_VOLUME_UP: {
-            if (window.hasListeners(TiC.EVENT_ANDROID_VOLUP)) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				break;
+			}
+			case KeyEvent.KEYCODE_VOLUME_UP: {
+				if (window.hasListeners(TiC.EVENT_ANDROID_VOLUP)) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
                     window.fireEvent(TiC.EVENT_ANDROID_VOLUP);
-                }
-                handled = true;
-            }
+					}
+					handled = true;
+				}
 
-            break;
-        }
-        case KeyEvent.KEYCODE_VOLUME_DOWN: {
-            if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+				break;
+			}
+			case KeyEvent.KEYCODE_VOLUME_DOWN: {
+				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
+					if (event.getAction() == KeyEvent.ACTION_UP) {
                     window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN);
-                }
-                handled = true;
-            }
+					}
+					handled = true;
+				}
 
-            break;
-        }
-        }
+				break;
+			}
+		}
 
-        if (!handled) {
-            handled = super.dispatchKeyEvent(event);
-        }
+		if (!handled) {
+			handled = super.dispatchKeyEvent(event);
+		}
 
-        return handled;
-    }
+		return handled;
+	}
 
     private ActionBarProxy getActionBarProxy() {
         if (activityProxy != null) {
@@ -1412,35 +1428,35 @@ public abstract class TiBaseActivity extends AppCompatActivity
         return null;
     }
 
-    @Override
+	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // If targetSdkVersion is set to 11+, Android will invoke this function
-        // to initialize the menu (since it's part of the action bar). Due
+		// If targetSdkVersion is set to 11+, Android will invoke this function
+		// to initialize the menu (since it's part of the action bar). Due
         // to the fix for Android bug 2373, activityProxy won't be initialized
         // b/c the
-        // activity is expected to restart, so we will ignore it.
-        if (activityProxy == null) {
-            return false;
-        }
+		// activity is expected to restart, so we will ignore it.
+		if (activityProxy == null) {
+			return false;
+		}
 
-        boolean listenerExists = false;
+		boolean listenerExists = false;
         synchronized (onCreateOptionsMenuListeners.synchronizedList()) {
             for (OnCreateOptionsMenuEvent listener : onCreateOptionsMenuListeners
                     .nonNull()) {
-                try {
-                    listenerExists = true;
+				try {
+					listenerExists = true;
                     TiLifecycle.fireOnCreateOptionsMenuEvent(this, listener,
                             menu);
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching OnCreateOptionsMenuEvent: "
                             + t.getMessage(), t);
-                }
-            }
-        }
+				}
+			}
+		}
 
-        if (menuHelper == null) {
-            menuHelper = new TiMenuSupport(activityProxy);
-        }
+		if (menuHelper == null) {
+			menuHelper = new TiMenuSupport(activityProxy);
+		}
 
         return menuHelper.onCreateOptionsMenu(
                 super.onCreateOptionsMenu(menu) || listenerExists, menu);
@@ -1451,12 +1467,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
             return menuHelper.getMenu();
         }
         return null;
-    }
+	}
 
-    @Override
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
+		switch (item.getItemId()) {
+			case android.R.id.home:
             synchronized (interceptOnHomePressedListeners.synchronizedList()) {
                 for (interceptOnHomePressedEvent listener : interceptOnHomePressedListeners
                         .nonNull()) {
@@ -1475,12 +1491,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
             }
 
             ActionBarProxy actionBarProxy = getActionBarProxy();
-            if (actionBarProxy != null) {
+					if (actionBarProxy != null) {
                 KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
                         .getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
                 if (onHomeIconItemSelected != null) {
-                    KrollDict event = new KrollDict();
-                    event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
+						KrollDict event = new KrollDict();
+						event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
                     event.put(TiC.EVENT_PROPERTY_WINDOW, window);
                     onHomeIconItemSelected.call(activityProxy.getKrollObject(),
                             new Object[] { event });
@@ -1488,23 +1504,23 @@ public abstract class TiBaseActivity extends AppCompatActivity
                 }
             }
 
-            return true;
-        default:
-            return menuHelper.onOptionsItemSelected(item);
-        }
-    }
+				return true;
+			default:
+				return menuHelper.onOptionsItemSelected(item);
+		}
+	}
 
-    @Override
+	@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean listenerExists = false;
+		boolean listenerExists = false;
         synchronized (onPrepareOptionsMenuListeners.synchronizedList()) {
             for (OnPrepareOptionsMenuEvent listener : onPrepareOptionsMenuListeners
                     .nonNull()) {
-                try {
-                    listenerExists = true;
+				try {
+					listenerExists = true;
                     TiLifecycle.fireOnPrepareOptionsMenuEvent(this, listener,
                             menu);
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching OnPrepareOptionsMenuEvent: "
                             + t.getMessage(), t);
                 }
@@ -1512,38 +1528,38 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
         return menuHelper.onPrepareOptionsMenu(
                 super.onPrepareOptionsMenu(menu) || listenerExists, menu);
-    }
+	}
 
-    @Override
+	@Override
     public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+		super.onConfigurationChanged(newConfig);
 
-        for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
-            if (listener.get() != null) {
-                listener.get().onConfigurationChanged(this, newConfig);
-            }
-        }
-    }
+		for (WeakReference<ConfigurationChangedListener> listener : configChangedListeners) {
+			if (listener.get() != null) {
+				listener.get().onConfigurationChanged(this, newConfig);
+			}
+		}
+	}
 
-    @Override
+	@Override
     protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
+		super.onNewIntent(intent);
 
-        Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
+		Log.d(TAG, "Activity " + this + " onNewIntent", Log.DEBUG_MODE);
 
-        if (activityProxy != null) {
-            IntentProxy ip = new IntentProxy(intent);
-            KrollDict data = new KrollDict();
-            data.put(TiC.PROPERTY_INTENT, ip);
-            activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
-            // TODO: Deprecate old event
-            activityProxy.fireSyncEvent("newIntent", data);
-        }
-    }
+		if (activityProxy != null) {
+			IntentProxy ip = new IntentProxy(intent);
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_INTENT, ip);
+			activityProxy.fireSyncEvent(TiC.EVENT_NEW_INTENT, data);
+			// TODO: Deprecate old event
+			activityProxy.fireSyncEvent("newIntent", data);
+		}
+	}
 
     public void addOnLifecycleEventListener(OnLifecycleEvent listener) {
-        lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
-    }
+		lifecycleListeners.add(new WeakReference<OnLifecycleEvent>(listener));
+	}
 
     public void addOnInstanceStateEventListener(OnInstanceStateEvent listener) {
         instanceStateListeners
@@ -1644,63 +1660,63 @@ public abstract class TiBaseActivity extends AppCompatActivity
     }
 
     private void dispatchCallback(final String name, KrollDict data) {
-        if (data == null) {
-            data = new KrollDict();
-        }
-        data.put("source", activityProxy);
+		if (data == null) {
+			data = new KrollDict();
+		}
+		data.put("source", activityProxy);
 
-        final KrollDict d = data;
-        runOnUiThread(new Runnable() {
-            @Override
+		final KrollDict d = data;
+		runOnUiThread(new Runnable() {
+			@Override
             public void run() {
-                activityProxy.callPropertySync(name, new Object[] { d });
-            }
-        });
-    }
+				activityProxy.callPropertySync(name, new Object[] { d });
+			}
+		});
+	}
 
     private void releaseDialogs(boolean finish) {
-        // clean up dialogs when activity is pausing or finishing
+		//clean up dialogs when activity is pausing or finishing
         for (Iterator<DialogWrapper> iter = dialogs.iterator(); iter
                 .hasNext();) {
-            DialogWrapper p = iter.next();
-            Dialog dialog = p.getDialog();
-            boolean persistent = p.getPersistent();
+			DialogWrapper p = iter.next();
+			Dialog dialog = p.getDialog();
+			boolean persistent = p.getPersistent();
             // if the activity is pausing but not finishing, clean up dialogs
             // only if
-            // they are non-persistent
+			//they are non-persistent
 
-            if (finish || !persistent) {
-                if (dialog != null && dialog.isShowing()) {
+			if (finish || !persistent) {
+				if (dialog != null && dialog.isShowing()) {
                     if (dialog.getCurrentFocus() != null) {
                         TiUIHelper.hideSoftKeyboard(dialog.getCurrentFocus());
                     }
-                    dialog.dismiss();
-                }
-                dialogs.remove(p);
+					dialog.dismiss();
+				}
+				dialogs.remove(p);
             } else {
                 if (dialog != null && dialog.getCurrentFocus() != null) {
                     TiUIHelper.hideSoftKeyboard(dialog.getCurrentFocus());
                 }
-            }
-        }
-    }
+			}
+		}
+	}
 
-    @Override
+	@Override
     public void onWindowFocusChanged(boolean hasFocus) {
         synchronized (windowFocusChangedListeners.synchronizedList()) {
             for (OnWindowFocusChangedEvent listener : windowFocusChangedListeners
                     .nonNull()) {
-                try {
-                    listener.onWindowFocusChanged(hasFocus);
+				try {
+					listener.onWindowFocusChanged(hasFocus);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching onWindowFocusChanged event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-        super.onWindowFocusChanged(hasFocus);
-    }
+				}
+			}
+		}
+		super.onWindowFocusChanged(hasFocus);
+	}
 
     // @Override
     // public void startActivity(Intent intent) {
@@ -1709,99 +1725,99 @@ public abstract class TiBaseActivity extends AppCompatActivity
     // super.startActivity(intent);
     // }
 
-    @Override
-    /**
+	@Override
+	/**
      * When this activity pauses, this method sets the current activity to null,
      * fires a javascript 'pause' event, and if the activity is finishing,
      * remove all dialogs associated with it.
-     */
+	 */
     protected void onPause() {
         TiApplication.getInstance().activityPaused(this); // call before setting
                                                           // inForeground
-        inForeground = false;
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
-        }
-        super.onPause();
-        isResumed = false;
+		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
+		}
+		super.onPause();
+		isResumed = false;
         isPaused = true;
 
         // Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
-        TiApplication tiApp = getTiApp();
-        if (tiApp.isRestartPending()) {
-            releaseDialogs(true);
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			releaseDialogs(true);
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
-        if (!windowStack.empty()) {
-            windowStack.peek().onWindowFocusChange(false);
-        }
+		if (!windowStack.empty()) {
+			windowStack.peek().onWindowFocusChange(false);
+		}
 
-        TiApplication.updateActivityTransitionState(true);
-        tiApp.setCurrentActivity(this, null);
+		TiApplication.updateActivityTransitionState(true);
+		tiApp.setCurrentActivity(this, null);
         TiUIHelper.hideSoftKeyboard(getWindow().getDecorView());
 
         // release non-persistent dialogs
         releaseDialogs(this.isFinishing());
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_PAUSE);
-        }
+		}
 
         synchronized (lifecycleListeners.synchronizedList()) {
-            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-                try {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
                     TiLifecycle.fireLifecycleEvent(this, listener,
                             TiLifecycle.LIFECYCLE_ON_PAUSE);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching lifecycle event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
+				}
+			}
+		}
 
-        // Checkpoint for ti.background event
-        if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
+		// Checkpoint for ti.background event
+		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
             APSAnalytics.getInstance().sendAppBackgroundEvent();
-        }
-    }
+		}
+	}
 
-   @Override
-    /**
+	@Override
+	/**
      * When the activity resumes, this method updates the current activity to
      * this and fires a javascript 'resume' event.
-     */
+	 */
     protected void onResume() {
         TiApplication.getInstance().activityResumed(this);
-        inForeground = true;
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
-        }
+		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
+		}
 
         
-        super.onResume();
-        if (isFinishing()) {
-            return;
-        }
+		super.onResume();
+		if (isFinishing()) {
+			return;
+		}
 
         // Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
-        TiApplication tiApp = getTiApp();
-        if (tiApp.isRestartPending()) {
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
-        tiApp.setCurrentActivity(this, this);
-        TiApplication.updateActivityTransitionState(false);
-        
+		tiApp.setCurrentActivity(this, this);
+		TiApplication.updateActivityTransitionState(false);
+
         
         if (!isLayedout && !windowStack.empty()) {
             //first layout
@@ -1826,24 +1842,24 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
         
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_RESUME);
-        }
+		}
 
         synchronized (lifecycleListeners.synchronizedList()) {
-            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-                try {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
                     TiLifecycle.fireLifecycleEvent(this, listener,
                             TiLifecycle.LIFECYCLE_ON_RESUME);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching lifecycle event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
+				}
+			}
+		}
 
-        isResumed = true;
+		isResumed = true;
         isPaused = false;
         
     }
@@ -1854,78 +1870,78 @@ public abstract class TiBaseActivity extends AppCompatActivity
     // super.startActivity(intent);
     // }
 
-    @Override
-    /**
+	@Override
+	/**
      * When this activity starts, this method updates the current activity to
      * this if necessary and fire javascript 'start' and 'focus' events. Focus
      * events will only fire if the activity is not a tab activity.
-     */
+	 */
     protected void onStart() {
-        inForeground = true;
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_START, null);
-        }
-        super.onStart();
-        if (isFinishing()) {
-            return;
-        }
+		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_START, null);
+		}
+		super.onStart();
+		if (isFinishing()) {
+			return;
+		}
 
-        // Newer versions of Android appear to turn this on by default.
-        // Turn if off until an activity indicator is shown.
-        setProgressBarIndeterminateVisibility(false);
+		// Newer versions of Android appear to turn this on by default.
+		// Turn if off until an activity indicator is shown.
+		setProgressBarIndeterminateVisibility(false);
 
         // Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
 
-        TiApplication tiApp = getTiApp();
+		TiApplication tiApp = getTiApp();
 
-        if (tiApp.isRestartPending()) {
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             // we only want to set the current activity for good in the resume
             // state but we need it right now.
             // save off the existing current activity, set ourselves to be the
             // new current activity temporarily
-            // so we don't run into problems when we give the proxy the event
-            Activity tempCurrentActivity = tiApp.getCurrentActivity();
-            tiApp.setCurrentActivity(this, this);
+			// so we don't run into problems when we give the proxy the event
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
 
             activityProxy.fireEvent(TiC.EVENT_START);
 
-            // set the current activity back to what it was originally
-            tiApp.setCurrentActivity(this, tempCurrentActivity);
-        }
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
+		}
 
         synchronized (lifecycleListeners.synchronizedList()) {
-            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-                try {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
                     TiLifecycle.fireLifecycleEvent(this, listener,
                             TiLifecycle.LIFECYCLE_ON_START);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching lifecycle event: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-    }
+				}
+			}
+		}
+	}
 
-    @Override
-    /**
+	@Override
+	/**
      * When this activity stops, this method fires the javascript 'blur' and
      * 'stop' events. Blur events will only fire if the activity is not a tab
      * activity.
-     */
+	 */
     protected void onStop() {
         TiApplication.getInstance().activityStopped(this);
-        inForeground = false;
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_STOP, null);
-        }
+		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_STOP, null);
+		}
         synchronized (lifecycleListeners.synchronizedList()) {
             for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
                 try {
@@ -1939,86 +1955,86 @@ public abstract class TiBaseActivity extends AppCompatActivity
             }
         }
 
-        super.onStop();
+		super.onStop();
 
         // Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
-        if (getTiApp().isRestartPending()) {
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_STOP);
         }
 
-        KrollRuntime.suggestGC();
-    }
+		KrollRuntime.suggestGC();
+	}
 
-    @Override
-    /**
+	@Override
+	/**
      * When this activity restarts, this method updates the current activity to
      * this and fires javascript 'restart' event.
-     */
+	 */
     protected void onRestart() {
-        inForeground = true;
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
-        }
-        super.onRestart();
+		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
+		}
+		super.onRestart();
 
         // Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
 
-        TiApplication tiApp = getTiApp();
-        if (tiApp.isRestartPending()) {
-            if (!isFinishing()) {
-                finish();
-            }
+		TiApplication tiApp = getTiApp();
+		if (tiApp.isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
 
-            return;
-        }
+			return;
+		}
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             // we only want to set the current activity for good in the resume
             // state but we need it right now.
             // save off the existing current activity, set ourselves to be the
             // new current activity temporarily
-            // so we don't run into problems when we give the proxy the event
-            Activity tempCurrentActivity = tiApp.getCurrentActivity();
-            tiApp.setCurrentActivity(this, this);
+			// so we don't run into problems when we give the proxy the event
+			Activity tempCurrentActivity = tiApp.getCurrentActivity();
+			tiApp.setCurrentActivity(this, this);
 
             activityProxy.fireEvent(TiC.EVENT_RESTART);
 
-            // set the current activity back to what it was originally
-            tiApp.setCurrentActivity(this, tempCurrentActivity);
-        }
-    }
+			// set the current activity back to what it was originally
+			tiApp.setCurrentActivity(this, tempCurrentActivity);
+		}
+	}
 
-    @Override
-    /**
+	@Override
+	/**
      * When the activity is about to go into the background as a result of user
      * choice, this method fires the javascript 'userleavehint' event.
-     */
+	 */
     protected void onUserLeaveHint() {
-        Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
+		Log.d(TAG, "Activity " + this + " onUserLeaveHint", Log.DEBUG_MODE);
 
-        if (getTiApp().isRestartPending()) {
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		if (getTiApp().isRestartPending()) {
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             activityProxy.fireEvent(TiC.EVENT_USER_LEAVE_HINT);
-        }
+		}
 
-        super.onUserLeaveHint();
-    }
+		super.onUserLeaveHint();
+	}
 
-    @Override
+	@Override
     public void onLowMemory() {
         super.onLowMemory();
         synchronized (lifecycleListeners.synchronizedList()) {
@@ -2037,36 +2053,36 @@ public abstract class TiBaseActivity extends AppCompatActivity
     }
 
     @Override
-    /**
+	/**
      * When this activity is destroyed, this method removes it from the activity
      * stack, performs clean up, and fires javascript 'destroy' event.
-     */
+	 */
     protected void onDestroy() {
         // Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
-        if (activityProxy != null) {
-            dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
-        }
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
+		}
 
-        inForeground = false;
-        TiApplication tiApp = getTiApp();
-        // Clean up dialogs when activity is destroyed.
-        releaseDialogs(true);
+		inForeground = false;
+		TiApplication tiApp = getTiApp();
+		//Clean up dialogs when activity is destroyed.
+		releaseDialogs(true);
 
-        if (tiApp.isRestartPending()) {
-            super.onDestroy();
-            if (!isFinishing()) {
-                finish();
-            }
-            return;
-        }
+		if (tiApp.isRestartPending()) {
+			super.onDestroy();
+			if (!isFinishing()) {
+				finish();
+			}
+			return;
+		}
 
         synchronized (lifecycleListeners.synchronizedList()) {
-            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-                try {
+			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+				try {
                     TiLifecycle.fireLifecycleEvent(this, listener,
                             TiLifecycle.LIFECYCLE_ON_DESTROY);
 
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching lifecycle event: "
                             + t.getMessage(), t);
                 }
@@ -2074,142 +2090,142 @@ public abstract class TiBaseActivity extends AppCompatActivity
         }
         lifecycleListeners.clear();
 
-        super.onDestroy();
+		super.onDestroy();
 
-        boolean isFinishing = isFinishing();
+		boolean isFinishing = isFinishing();
 
         // If the activity is finishing, remove the windowId and supportHelperId
         // so the window and supportHelper can be released.
         // If the activity is forced to destroy by Android OS, keep the windowId
         // and supportHelperId so the activity can be recovered.
-        if (isFinishing) {
-            int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
-            TiActivityWindows.removeWindow(windowId);
-            TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
-        }
+		if (isFinishing) {
+			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
+			TiActivityWindows.removeWindow(windowId);
+			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
+		}
 
-        fireOnDestroy();
+		fireOnDestroy();
 
-        if (layout instanceof TiCompositeLayout) {
-            Log.d(TAG, "Layout cleanup.", Log.DEBUG_MODE);
-            ((TiCompositeLayout) layout).removeAllViews();
-        }
-        layout = null;
+		if (layout instanceof TiCompositeLayout) {
+			Log.d(TAG, "Layout cleanup.", Log.DEBUG_MODE);
+			((TiCompositeLayout) layout).removeAllViews();
+		}
+		layout = null;
 
         if (view != null) {
             view.releaseViews(isFinishing);
-            view = null;
-        }
+			view = null;
+		}
 
         clearWindowStack(true);
 
-        if (window != null) {
-            window.closeFromActivity(isFinishing);
-            window = null;
-        }
+		if (window != null) {
+			window.closeFromActivity(isFinishing);
+			window = null;
+		}
 
-        if (menuHelper != null) {
-            menuHelper.destroy();
-            menuHelper = null;
-        }
+		if (menuHelper != null) {
+			menuHelper.destroy();
+			menuHelper = null;
+		}
 
-        if (activityProxy != null) {
+		if (activityProxy != null) {
             KrollProxy.releaseProxyFromJava(activityProxy);
-            activityProxy = null;
-        }
+			activityProxy = null;
+		}
 
         // Don't dispose the runtime if the activity is forced to destroy by
         // Android,
-        // so we can recover the activity later.
-        KrollRuntime.decrementActivityRefCount(isFinishing);
-        KrollRuntime.suggestGC();
-    }
+		// so we can recover the activity later.
+		KrollRuntime.decrementActivityRefCount(isFinishing);
+		KrollRuntime.suggestGC();
+	}
 
-    @Override
+	@Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+		super.onSaveInstanceState(outState);
 
         // If the activity is forced to destroy by Android, save the
         // supportHelperId so
-        // we can get it back when the activity is recovered.
-        if (!isFinishing() && supportHelper != null) {
-            outState.putInt("supportHelperId", supportHelperId);
-        }
+		// we can get it back when the activity is recovered.
+		if (!isFinishing() && supportHelper != null) {
+			outState.putInt("supportHelperId", supportHelperId);
+		}
 
         synchronized (instanceStateListeners.synchronizedList()) {
             for (OnInstanceStateEvent listener : instanceStateListeners
                     .nonNull()) {
-                try {
+				try {
                     TiLifecycle.fireInstanceStateEvent(outState, listener,
                             TiLifecycle.ON_SAVE_INSTANCE_STATE);
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching OnInstanceStateEvent: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-    }
+				}
+			}
+		}
+	}
 
-    @Override
+	@Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+		super.onRestoreInstanceState(savedInstanceState);
 
-        if (savedInstanceState.containsKey("supportHelperId")) {
-            supportHelperId = savedInstanceState.getInt("supportHelperId");
+		if (savedInstanceState.containsKey("supportHelperId")) {
+			supportHelperId = savedInstanceState.getInt("supportHelperId");
             supportHelper = TiActivitySupportHelpers.retrieveSupportHelper(this,
                     supportHelperId);
-            if (supportHelper == null) {
-                Log.e(TAG, "Unable to retrieve the activity support helper.");
-            }
-        }
+			if (supportHelper == null) {
+				Log.e(TAG, "Unable to retrieve the activity support helper.");
+			}
+		}
         synchronized (instanceStateListeners.synchronizedList()) {
             for (OnInstanceStateEvent listener : instanceStateListeners
                     .nonNull()) {
-                try {
+				try {
                     TiLifecycle.fireInstanceStateEvent(savedInstanceState,
                             listener, TiLifecycle.ON_RESTORE_INSTANCE_STATE);
-                } catch (Throwable t) {
+				} catch (Throwable t) {
                     Log.e(TAG, "Error dispatching OnInstanceStateEvent: "
                             + t.getMessage(), t);
-                }
-            }
-        }
-    }
+				}
+			}
+		}
+	}
 
     // called in order to ensure that the onDestroy call is only acted upon
     // once.
-    // should be called by any subclass
+	// should be called by any subclass
     protected void fireOnDestroy() {
-        if (!onDestroyFired) {
-            if (activityProxy != null) {
+		if (!onDestroyFired) {
+			if (activityProxy != null) {
                 activityProxy.fireEvent(TiC.EVENT_DESTROY);
-            }
-            onDestroyFired = true;
-        }
-    }
+			}
+			onDestroyFired = true;
+		}
+	}
 
     protected boolean shouldFinishRootActivity() {
-        if (window != null)
+        if (window != null && canFinishRoot)
             return window.shouldExitOnClose();
         return false;
-    }
+	}
 
-    @Override
+	@Override
     public void finish() {
         finish(false);
     }
 
     public void finish(boolean force) {
-        super.finish();
+		super.finish();
 
         if (shouldFinishRootActivity() || force == true) {
-            TiApplication app = getTiApp();
-            if (app != null) {
-                TiRootActivity rootActivity = app.getRootActivity();
+			TiApplication app = getTiApp();
+			if (app != null) {
+				TiRootActivity rootActivity = app.getRootActivity();
                 if (rootActivity != null && !(rootActivity.equals(this))
                         && !rootActivity.isFinishing()) {
-                    rootActivity.finish();
-                } else if (rootActivity == null && !app.isRestartPending()) {
+					rootActivity.finish();
+				} else if (rootActivity == null && !app.isRestartPending()) {
                     // When the root activity has been killed and garbage
                     // collected and the app is not scheduled to restart,
                     // we need to force finish the root activity while this
@@ -2218,54 +2234,54 @@ public abstract class TiBaseActivity extends AppCompatActivity
                     // enabled and the user stays in some activity
                     // (eg. heavyweight window, tabgroup) other than the root
                     // activity for a while and then he wants to back
-                    // out the app.
-                    app.setForceFinishRootActivity(true);
-                }
-            }
-        }
-    }
+					// out the app.
+					app.setForceFinishRootActivity(true);
+				}
+			}
+		}
+	}
 
-    // These activityOnXxxx are all used by TiLaunchActivity when
-    // the android bug 2373 is detected and the app is being re-started.
-    // By calling these from inside its on onXxxx handlers, TiLaunchActivity
-    // can avoid calling super.onXxxx (super being TiBaseActivity), which would
-    // result in a bunch of Titanium-specific code running when we don't need it
+	// These activityOnXxxx are all used by TiLaunchActivity when
+	// the android bug 2373 is detected and the app is being re-started.
+	// By calling these from inside its on onXxxx handlers, TiLaunchActivity
+	// can avoid calling super.onXxxx (super being TiBaseActivity), which would
+	// result in a bunch of Titanium-specific code running when we don't need it
     // since we are restarting the app as fast as possible. Calling these
     // methods
     // allows TiLaunchActivity to fulfill the requirement that the Android
     // built-in
     // Activity's onXxxx must be called. (Think of these as something like
     // super.super.onXxxx
-    // from inside TiLaunchActivity.)
+	// from inside TiLaunchActivity.)
     protected void activityOnPause() {
-        super.onPause();
-    }
+		super.onPause();
+	}
 
     protected void activityOnRestart() {
-        super.onRestart();
-    }
+		super.onRestart();
+	}
 
     protected void activityOnResume() {
-        super.onResume();
-    }
+		super.onResume();
+	}
 
     protected void activityOnStop() {
-        super.onStop();
-    }
+		super.onStop();
+	}
 
     protected void activityOnStart() {
-        super.onStart();
-    }
+		super.onStart();
+	}
 
     protected void activityOnDestroy() {
-        super.onDestroy();
-    }
+		super.onDestroy();
+	}
 
     public void activityOnCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+		super.onCreate(savedInstanceState);
+	}
 
-    /**
+	/**
      * Called by the onCreate methods of TiBaseActivity to determine if an
      * unsupported application re-launch appears to be occurring.
      * 
@@ -2274,10 +2290,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
      * @param savedInstanceState
      *            The argument passed to the onCreate. A non-null value is a
      *            "tell" that the system is re-starting a killed application.
-     */
+	 */
     public static boolean isUnsupportedReLaunch(Activity activity,
             Bundle savedInstanceState) {
-        // We have to relaunch the app if
+		// We have to relaunch the app if
         // 1. all the activities have been killed and the runtime has been
         // disposed or
         // 2. the app's hosting process has been killed. In this case, onDestroy
@@ -2289,25 +2305,25 @@ public abstract class TiBaseActivity extends AppCompatActivity
                 && (KrollRuntime.isDisposed()
                         || TiApplication.getInstance().rootActivityLatch
                                 .getCount() != 0)) {
-            return true;
-        }
-        return false;
-    }
+			return true;
+		}
+		return false;
+	}
 
     public boolean hasSustainMode() {
         PowerManager manager = (PowerManager) getSystemService(
                 Context.POWER_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return manager.isSustainedPerformanceModeSupported();
-        }
-        return false;
-    }
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			return manager.isSustainedPerformanceModeSupported();
+		}
+		return false;
+	}
 
     public void setSustainMode(boolean sustainMode) {
-        if (hasSustainMode() && this.sustainMode != sustainMode) {
-            getWindow().setSustainedPerformanceMode(sustainMode);
-            this.sustainMode = sustainMode;
-        } else {
+		if (hasSustainMode() && this.sustainMode != sustainMode) {
+			getWindow().setSustainedPerformanceMode(sustainMode);
+			this.sustainMode = sustainMode;
+		} else {
             Log.w(TAG,
                     "sustainedPerformanceMode is not supported on this device");
         }
@@ -2325,5 +2341,5 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
     public void closeFrontActivities() {
         TiApplication.closeActivitiesInFrontOf(this);
-    }
+	}
 }

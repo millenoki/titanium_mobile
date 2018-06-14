@@ -293,7 +293,6 @@ public class KrollDict
 	    return TiConvert.toKrollDict(get(key));
 	}
 	
-	@SuppressWarnings("unchecked")
     public HashMap getHashMap(String key) {
 		Object value = get(key);
 		if (value instanceof KrollDict) {
@@ -344,7 +343,6 @@ public class KrollDict
     {
 	    return merge(map1, map2, true);
     }
-	@SuppressWarnings({ "rawtypes", "unchecked" })
     public static HashMap merge ( HashMap map1, HashMap map2 ,final boolean clone)
 	{
 	    if ( map1 == null || map2 == null )

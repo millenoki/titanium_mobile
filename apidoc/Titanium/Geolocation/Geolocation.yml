@@ -60,9 +60,9 @@ description: |
     updates when the user is not moving.
 
     For iOS 8 and later, add either the
-    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
+    [`NSLocationWhenInUseUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     or
-    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW18)
+    [`NSLocationAlwaysUsageDescription`](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW26)
     key to the iOS plist section of the project's `tiapp.xml` file.
 
         <ti:app>
@@ -85,7 +85,7 @@ description: |
     "When in Use" to "Always", which is the recommended way for managing location permissions in iOS 11 and later.
     Please also remember to request your desired location-permissions before using any geolocation-related API in 
     order to receive the best usability and permission-control during the app-lifecycle using <Titanium.Geolocation.hasLocationPermissions>
-    and <Ti.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
+    and <Titanium.Geolocation.requestLocationPermissions>. Also note that you also need to include the `NSLocationWhenInUseUsageDescription` key 
     in *any* case when targeting iOS 11 and later. Descriptive error-logs will be thrown if required permissions are missing.
 
     #### Configurating Location Updates on Android
@@ -139,7 +139,7 @@ description: |
         and `frequency` properties are not used in any other mode.
 
     As of Titanium SDK 7.1.0 and later, including `ti.playservices` will allow Google Play Services to be used by
-    default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.createLocationProvider) will
+    default to obtain location information. This means the provider passed into [createLocationProvider](Titanium.Geolocation.Android.createLocationProvider) will
     be ignored, as Google Play Services will select the best provider based on current device conditions.
     If Google Play Services is not available it will fallback to previous behaviour of using Android location APIs.
 
@@ -291,7 +291,7 @@ methods:
         descriptive error-log if any required keys are missing.
 
         More infos:
-          * [Available Info.plist keys](https://developer.apple.com/library/prerelease/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
+          * [Available Info.plist keys](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html)
           * [Request Always Authorization](https://developer.apple.com/documentation/corelocation/choosing_the_authorization_level_for_location_services/request_always_authorization)
     parameters:
       - name: authorizationType
@@ -849,6 +849,28 @@ properties:
     type: String
     osver: {ios: {max: "5.0"}}
 
+  - name: preferredProvider
+    deprecated:
+        since: "2.0.0"
+        notes: |
+            Android legacy mode operation is deprecated. For new development, use
+            either simple mode or manual mode. See "Configurating Location Updates on Android"
+            in the main description of this class for more information.
+    summary: |
+        Determines the preferred location provider.
+    description: |
+        Setting a preferred provider enables legacy location mode on Android.
+        Note that only a single provider can be active at one time in legacy mode.
+
+        The preferred provider affects power consumption. In general, `PROVIDER_GPS`
+        requires the most power, and `PROVIDER_PASSIVE` requires the least.
+
+        If `undefined`, the preferred provider is auto-detected.
+    type: String
+    constants: Titanium.Geolocation.PROVIDER_*
+    platforms: [android]
+    default: <Titanium.Geolocation.PROVIDER_NETWORK>
+
   - name: showCalibration
     summary: Determines whether the compass calibration UI is shown if needed.
     description: |
@@ -856,6 +878,26 @@ properties:
         in invalid heading data.
     type: Boolean
     default: true
+    platforms: [iphone, ipad]
+
+  - name: showBackgroundLocationIndicator
+    summary: |
+        Specifies that an indicator be shown when the app makes use of continuous 
+        background location updates.
+    description: |
+        Starting continuous background location updates requires the app to 
+        set `UIBackgroundModes` to include "location" and to set this property 
+        to `true` before calling `getCurrentPosition` with the intent to continue 
+        in the background.
+
+        Note that this property only applies to apps with Always authorization.
+        For apps with WhenInUse authorization, the indicator is always shown when
+        using continuous background location updates in order to maintain user
+        visibility and that the app is still in use.
+    type: Boolean
+    default: false
+    since: "7.3.0"
+    osver: { ios: { min: "11.0" } }
     platforms: [iphone, ipad]
 
   - name: trackSignificantLocationChange
@@ -1212,7 +1254,7 @@ summary: Simple object describing a location provider.
 description: |
     The `accuracy` and `power` values correspond to constants defined in the
     Android API. See
-    [android.location.Criteria](http://developer.android.com/reference/android/location/Criteria.html)
+    [android.location.Criteria](https://developer.android.com/reference/android/location/Criteria.html)
     in the Android API Reference.
 
     These values are generalizations. In general, a provider with coarse accuracy will

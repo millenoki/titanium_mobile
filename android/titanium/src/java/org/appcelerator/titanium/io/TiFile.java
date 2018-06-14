@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +31,12 @@ import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.StatFs;
 import ti.modules.titanium.BufferProxy;
 
 /**
- * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system. 
+ * An extension of {@link TiBaseFile}, used for representing a file on the device's true file system.
  * This differentiates it from TiResourceFile, which represents a file inside the application's resource bundle.
  */
 public class TiFile extends TiBaseFile
@@ -199,13 +202,21 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
-	public double createTimestamp()
+	public long createTimestamp()
 	{
-		return file.lastModified();
+		if (Build.VERSION.SDK_INT >= 26) {
+			try {
+				BasicFileAttributes attr = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+				return attr.creationTime().toMillis();
+			} catch (Throwable t) {
+				// ignore, fall back to modification timestamp
+			}
+		}
+		return modificationTimestamp();
 	}
 
 	@Override
-	public double modificationTimestamp()
+	public long modificationTimestamp()
 	{
 		return file.lastModified();
 	}
@@ -223,7 +234,7 @@ public class TiFile extends TiBaseFile
 		int idx = name.lastIndexOf(".");
 		if (idx != -1)
 		{
-			return name.substring(idx+1);
+			return name.substring(idx + 1);
 		}
 		return null;
 	}
@@ -251,10 +262,13 @@ public class TiFile extends TiBaseFile
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public double spaceAvailable()
+	public long spaceAvailable()
 	{
 		StatFs stat = new StatFs(file.getPath());
-		return (double)stat.getAvailableBlocks() * (double)stat.getBlockSize();
+		if (Build.VERSION.SDK_INT >= 18) {
+			return stat.getAvailableBytes();
+		}
+		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
 	}
 
 	/**
@@ -425,13 +439,13 @@ public class TiFile extends TiBaseFile
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
 		if (blob != null) {
-			if (binary) {
-				copyStream(blob.getInputStream(), outstream);
-			} else {
-				outwriter.write(new String(blob.getBytes(),"UTF-8"));
+				if (binary) {
+					copyStream(blob.getInputStream(), outstream);
+				} else {
+					outwriter.write(new String(blob.getBytes(), "UTF-8"));
+				}
 			}
 		}
-	}
 
 	public void writeFromUrl(String url, boolean append) throws IOException
 	{
@@ -442,29 +456,29 @@ public class TiFile extends TiBaseFile
 		TiBaseFile f = TiFileFactory.createTitaniumFile(parts, append);
 
 		if (f != null) {
-			if (binary) {
-				InputStream is = null;
-				try {
-					is = f.getInputStream();
-					copyStream(is, outstream);
-				} finally {
-					if (is != null) {
-						is.close();
+				if (binary) {
+					InputStream is = null;
+					try {
+						is = f.getInputStream();
+						copyStream(is, outstream);
+					} finally {
+						if (is != null) {
+							is.close();
+						}
 					}
-				}
-			} else {
-				BufferedReader ir = null;
-				try {
-					ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
-					copyStream(ir, outwriter);
-				} finally {
-					if(ir != null) {
-						ir.close();
+				} else {
+					BufferedReader ir = null;
+					try {
+						ir = new BufferedReader(new InputStreamReader(f.getInputStream(), "utf-8"));
+						copyStream(ir, outwriter);
+					} finally {
+						if (ir != null) {
+							ir.close();
+						}
 					}
 				}
 			}
 		}
-	}
 
     public void write(byte[] data, boolean append) throws IOException
     {
@@ -479,12 +493,12 @@ public class TiFile extends TiBaseFile
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
 
-		if (binary) {
-			outstream.write(data.getBytes());
-		} else {
-			outwriter.write(data);
+			if (binary) {
+				outstream.write(data.getBytes());
+			} else {
+				outwriter.write(data);
+			}
 		}
-	}
 
 	public void writeLine(String data) throws IOException
 	{

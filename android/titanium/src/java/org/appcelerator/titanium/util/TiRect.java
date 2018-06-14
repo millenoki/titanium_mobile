@@ -8,7 +8,6 @@ import org.appcelerator.titanium.TiDimension;
 import android.graphics.Rect;
 import android.graphics.RectF;
 
-@SuppressWarnings("rawtypes")
 public class TiRect {
 	private TiDimension x, y, width, height;
 	private RectF internalRect;

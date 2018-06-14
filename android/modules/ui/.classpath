@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/RecyclerViewFastScroller"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/kroll-apt.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FlexibleAdapter"/>
+	<classpathentry exported="true" kind="lib" path="lib/WebViewClient.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

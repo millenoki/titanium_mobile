@@ -288,7 +288,7 @@ Module.prototype.require = function (request, context) {
 
 	loaded = this.loadAsFileOrDirectory(request, context);
 	if (loaded) {
-		return loaded;
+		return loaded.exports;
 	}
 
 	// 1. If X is a core module,
@@ -297,7 +297,7 @@ Module.prototype.require = function (request, context) {
 		// a. return the core module
 		// b. STOP
 		return loaded;
-	}
+		}
 
 	// if (isrelative || request.substring(0, 1) === '/') {
 	// 	loaded = this.loadAsFileOrDirectory(request, context);
@@ -305,20 +305,20 @@ Module.prototype.require = function (request, context) {
 	// 		return loaded;
 	// 	}
 	// } else {
-	// Look for CommonJS module
-	if (request.indexOf('/') === -1) {
-		// For CommonJS we need to look for module.id/module.id.js first...
-		// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
-		loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
-		if (loaded) {
-			return loaded;
+		// Look for CommonJS module
+		if (request.indexOf('/') === -1) {
+			// For CommonJS we need to look for module.id/module.id.js first...
+			// TODO Only look for this _exact file_. DO NOT APPEND .js or .json to it!
+			loaded = this.loadAsFile('/' + request + '/' + request + '.js', context);
+			if (loaded) {
+				return loaded.exports;
+			}
+			// Then try module.id as directory
+			loaded = this.loadAsDirectory('/' + request, context);
+			if (loaded) {
+				return loaded.exports;
+			}
 		}
-		// Then try module.id as directory
-		loaded = this.loadAsDirectory('/' + request, context);
-		if (loaded) {
-			return loaded;
-		}
-	}
 
 	// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 	// Fallback to old Titanium behavior of assuming it's actually an absolute path
@@ -326,14 +326,14 @@ Module.prototype.require = function (request, context) {
 
 	loaded = this.loadAsFileOrDirectory(request, context);
 	if (loaded) {
-		return loaded;
+		return loaded.exports;
 	}
 
-	// Allow looking through node_modules
-	// 3. LOAD_NODE_MODULES(X, dirname(Y))
-	loaded = this.loadNodeModules(request, this.path, context);
-	if (loaded) {
-		return loaded;
+		// Allow looking through node_modules
+		// 3. LOAD_NODE_MODULES(X, dirname(Y))
+		loaded = this.loadNodeModules(request, this.path, context);
+		if (loaded) {
+		return loaded.exports;
 	}
 	// }
 	// 4. THROW "not found"
@@ -486,15 +486,14 @@ Module.prototype.loadJavascriptText = function (filename, context) {
 	var module;
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports || true;
+		return Module.cache[filename];
 	}
 
 	module = new Module(filename, this, context);
 	module.load(filename);
-
-	// Stick it in the cache
-	Module.cache[filename] = module;
-	return module.exports || true;
+    
+    Module.cache[filename] = module;
+	return module;
 };
 
 /**
@@ -510,7 +509,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 
 	// Look in the cache!
 	if (Module.cache[filename]) {
-		return Module.cache[filename].exports || true;
+		return Module.cache[filename];
 	}
 	module = new Module(filename, this, context);
 	module.filename = filename;
@@ -527,7 +526,7 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module.exports = JSON.parse(source);
 	module.loaded = true;
 
-	return module.exports || true;
+	return module;
 };
 
 /**
@@ -579,9 +578,9 @@ Module.prototype.loadAsDirectory = function (id, context) {
 	if (this.filenameExists(filename)) {
 		// a. Parse X/package.json, and look for "main" field.
 		const object = this.loadJavascriptObject(filename, context);
-		if (object && object.main) {
+		if (object && object.exports && object.exports.main) {
 			// b. let M = X + (json main field)
-			const m = path.resolve(id, object.main);
+			const m = path.resolve(id, object.exports.main);
 			// c. LOAD_AS_FILE(M)
 			return this.loadAsFile(m, context);
 		}

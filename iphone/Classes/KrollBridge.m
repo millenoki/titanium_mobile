@@ -61,10 +61,10 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
     // pre-cache a few modules we always use
     TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
     if (ui)
-      [self addModule:@"UI" module:ui];
+    [self addModule:@"UI" module:ui];
     TiModule *api = [host moduleNamed:@"API" context:pageContext_];
     if (api)
-      [self addModule:@"API" module:api];
+    [self addModule:@"API" module:api];
 
     if (TI_APPLICATION_ANALYTICS) {
       APSAnalytics *sharedAnalytics = [APSAnalytics sharedInstance];
@@ -72,8 +72,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
         [sharedAnalytics performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
       }
       [sharedAnalytics performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@", [module performSelector:@selector(version)]]];
-      [sharedAnalytics enableWithAppKey:TI_APPLICATION_GUID andDeployType:TI_APPLICATION_DEPLOYTYPE];
-#pragma clang diagnostic pop
+      [sharedAnalytics performSelector:@selector(enableWithAppKey:andDeployType:) withObject:TI_APPLICATION_GUID withObject:TI_APPLICATION_DEPLOYTYPE];
     }
   }
   return self;
@@ -1107,12 +1106,12 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
   // cache the module by filename
   if (![modules objectForKey:filename]) {
-    [modules setObject:module forKey:filename];
-    if (filename != nil && module != nil) {
-      // uri is optional but we point it to where we loaded it
-      [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-      [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
-    }
+  [modules setObject:module forKey:filename];
+  if (filename != nil && module != nil) {
+    // uri is optional but we point it to where we loaded it
+    [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
+    [module replaceValue:filename forKey:@"id" notification:NO]; // set id to full path, originally this was the path from require call
+  }
   }
 
   return module;

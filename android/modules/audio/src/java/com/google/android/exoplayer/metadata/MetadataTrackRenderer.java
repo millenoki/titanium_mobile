@@ -196,7 +196,6 @@ public class MetadataTrackRenderer<T> extends TrackRenderer implements Callback 
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     switch (msg.what) {

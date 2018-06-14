@@ -76,15 +76,15 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
   CGFloat bottomInset = 0;
   if (keyboardTop != 0) {
     CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] viewForKeyboardAccessory]];
-    //First, find out how much we have to compensate.
+  //First, find out how much we have to compensate.
 
-    CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-    //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
+  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
-    CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
-    //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
+  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-    //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
     bottomInset = MAX(0, obscuredHeight - unimportantArea);
   }
@@ -146,8 +146,8 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
   }
   CGPoint currentOffset = scrollView.contentOffset;
   if (!CGPointEqualToPoint(currentOffset, offsetPoint)) {
-    [scrollView setContentOffset:offsetPoint animated:YES];
-  }
+  [scrollView setContentOffset:offsetPoint animated:YES];
+}
 }
 
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFloat minimumContentHeight, CGRect responderRect)
@@ -772,9 +772,9 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
     //        [[self viewProxy] repositionWithinAnimation];
   }
 //    if (![self viewProxy].canBeResizedByFrame) return;
-// this happens when a view is added to another view but not
-// through the framework (such as a tableview header) and it
-// means we need to force the layout of our children
+  // this happens when a view is added to another view but not
+  // through the framework (such as a tableview header) and it
+  // means we need to force the layout of our children
 //	if (childrenInitialized==NO &&
 //		CGRectIsEmpty(frame)==NO &&
 //		[self.proxy isKindOfClass:[TiViewProxy class]])
@@ -1274,7 +1274,7 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
     usePathAsBorder = value;
     if (usePathAsBorder) {
       [_borderLayer swithToContentBorder];
-      self.layer.cornerRadius = 0;
+    self.layer.cornerRadius = 0;
       if (_bgLayer)
         _bgLayer.cornerRadius = 0;
       if (self.backgroundColor) {
@@ -1458,7 +1458,7 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
   RELEASE_TO_NIL(transformMatrix);
 #if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
   if ([transform_ isKindOfClass:[Ti3DMatrix class]]) {
-    transformMatrix = [transform_ retain];
+  transformMatrix = [transform_ retain];
   } else
 #endif
     transformMatrix = [[TiUtils matrixValue:transform_] retain];
@@ -1481,7 +1481,7 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
 
   self.hidden = newVal;
 
-  TiViewProxy *viewProxy = (TiViewProxy *)[self proxy];
+    TiViewProxy *viewProxy = (TiViewProxy *)[self proxy];
   if (viewProxy.parentVisible) {
     if (newVal) {
       [viewProxy willHide];
@@ -1698,6 +1698,39 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
 {
   [_bgLayer sendToBack];
   [_borderLayer bringToFront];
+}
+
+- (void)setViewShadowOffset_:(id)arg
+{
+  [[self proxy] replaceValue:arg forKey:@"viewShadowOffset" notification:NO];
+  CGPoint p = [TiUtils pointValue:arg];
+  [[self shadowLayer] setShadowOffset:CGSizeMake(p.x, p.y)];
+}
+
+- (void)setHorizontalMotionEffect_:(id)motionEffect
+{
+  CGFloat min = [TiUtils floatValue:[motionEffect objectForKey:@"min"]];
+  CGFloat max = [TiUtils floatValue:[motionEffect objectForKey:@"max"]];
+  UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x"
+                                                                                        type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
+  effect.minimumRelativeValue = @(min);
+  effect.maximumRelativeValue = @(max);
+
+  [self addMotionEffect:effect];
+  RELEASE_TO_NIL(effect);
+}
+
+- (void)setVerticalMotionEffect_:(id)motionEffect
+{
+  CGFloat min = [TiUtils floatValue:[motionEffect objectForKey:@"min"]];
+  CGFloat max = [TiUtils floatValue:[motionEffect objectForKey:@"max"]];
+  UIInterpolatingMotionEffect *effect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.y"
+                                                                                        type:UIInterpolatingMotionEffectTypeTiltAlongVerticalAxis];
+  effect.minimumRelativeValue = @(min);
+  effect.maximumRelativeValue = @(max);
+
+  [self addMotionEffect:effect];
+  RELEASE_TO_NIL(effect);
 }
 
 - (void)didAddSubview:(UIView *)view
@@ -1970,11 +2003,11 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
 - (void)recognizedDoubleTap:(UITapGestureRecognizer *)recognizer
 {
   NSDictionary *event = [self dictionaryFromGesture:recognizer];
-  //Because double-tap suppresses touchStart and double-click, we must do this:
-  if ([proxy _hasListeners:@"touchstart"]) {
+    //Because double-tap suppresses touchStart and double-click, we must do this:
+    if ([proxy _hasListeners:@"touchstart"]) {
     [proxy fireEvent:@"touchstart" withObject:event checkForListener:NO];
-  }
-  if ([proxy _hasListeners:@"dblclick"]) {
+    }
+    if ([proxy _hasListeners:@"dblclick"]) {
     [proxy fireEvent:@"dblclick" withObject:event checkForListener:NO];
   }
   [proxy fireEvent:@"doubletap" withObject:event propagate:NO checkForListener:NO];
@@ -2182,7 +2215,7 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
 
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  UITouch *touch = [touches anyObject];
+      UITouch *touch = [touches anyObject];
   CGPoint localPoint = [touch locationInView:self];
   BOOL outside = (localPoint.x < -kTOUCH_MAX_DIST || (localPoint.x - self.frame.size.width) > kTOUCH_MAX_DIST || localPoint.y < -kTOUCH_MAX_DIST || (localPoint.y - self.frame.size.height) > kTOUCH_MAX_DIST);
   if (_shouldHandleSelection && _customUserInteractionEnabled) {
@@ -2216,17 +2249,17 @@ CGPathRef CGPathCreateRoundiiRect(const CGRect rect, const CGFloat *radii)
       if (hasTouchEnd) {
         [proxy fireEvent:@"touchend" withObject:evt checkForListener:NO];
         //                [self handleControlEvents:UIControlEventTouchCancel];
-      }
+    }
 
-      // Click handling is special; don't propagate if we have a delegate,
-      // but DO invoke the touch delegate.
-      // clicks should also be handled by any control the view is embedded in.
+    // Click handling is special; don't propagate if we have a delegate,
+    // but DO invoke the touch delegate.
+    // clicks should also be handled by any control the view is embedded in.
       if (!outside && hasDblclick && [touch tapCount] == 2) {
         [proxy fireEvent:@"dblclick" withObject:evt checkForListener:NO];
         return;
       }
       if (!outside && hasClick) {
-        if (touchDelegate == nil) {
+      if (touchDelegate == nil) {
           [proxy fireEvent:@"click" withObject:evt checkForListener:NO];
         }
       }

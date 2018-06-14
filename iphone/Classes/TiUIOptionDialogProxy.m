@@ -180,15 +180,8 @@
 - (void)show:(id)args
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
-  // prevent more than one JS thread from showing an alert box at a time
+  ENSURE_UI_THREAD_1_ARG(args);
   [self rememberSelf];
-  if ([NSThread isMainThread] == NO) {
-    TiThreadPerformOnMainThread(^{
-      [self show:args];
-    },
-        YES);
-    return;
-  }
 
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
 
@@ -579,7 +572,6 @@
 
     [self fireEvent:@"click" withObject:event checkForListener:NO];
   }
-  [self cleanup];
 }
 
 - (void)cleanup

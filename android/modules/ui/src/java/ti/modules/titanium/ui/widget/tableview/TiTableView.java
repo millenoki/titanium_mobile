@@ -18,6 +18,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -48,6 +49,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 	implements OnSearchChangeListener
 {
 	public static final int TI_TABLE_VIEW_ID = 101;
+	public static final int HEADER_FOOTER_WRAP_ID = 54321;
 	private static final String TAG = "TiTableView";
 
 	protected int maxClassname = 32;
@@ -110,7 +112,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 				if (filterCaseInsensitive) {
 					filter = filterText.toLowerCase();
 				}
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					boolean keep = true;
 					Item item = items.get(i);
 					registerClassName(item.className);
@@ -120,13 +122,13 @@ public class TiTableView extends TiSwipeRefreshLayout
 							t = t.toLowerCase();
 						}
 						if (filterAnchored) {
-						    if(!t.startsWith(filter)) {
-							keep = false;
+							if (!t.startsWith(filter)) {
+								keep = false;
 							}
 						}
 						else {
-						    if(t.indexOf(filter) < 0) {
-							keep = false;
+							if (t.indexOf(filter) < 0) {
+								keep = false;
 							}
 						}
 					}
@@ -135,7 +137,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					}
 				}
 			} else {
-				for(int i = 0; i < count; i++) {
+				for (int i = 0; i < count; i++) {
 					Item item = items.get(i);
 					registerClassName(item.className);
 					index.add(i);
@@ -165,8 +167,8 @@ public class TiTableView extends TiSwipeRefreshLayout
 
 		@Override
 		public int getViewTypeCount() {
-		        // Fix for TIMOB-20038. Seems that there are 3 more
-		        // hidden views that needs to be recreated onLayout
+			// Fix for TIMOB-20038. Seems that there are 3 more
+			// hidden views that needs to be recreated onLayout
 			return maxClassname + 3;
 		}
 
@@ -281,8 +283,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 			if (v == null) {
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
-					TiUIView headerView = layoutHeaderOrFooter(vproxy);
-					TiUIHelper.removeViewFromSuperView(headerView.getOuterView());
+					TiUIView headerView = layoutSectionHeaderOrFooter(vproxy);
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
 					return v;
@@ -365,7 +366,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 		setSwipeRefreshEnabled(false);
 
 		if (proxy.getProperties().containsKey(TiC.PROPERTY_MAX_CLASSNAME)) {
-			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)),maxClassname);
+			maxClassname = Math.max(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_MAX_CLASSNAME)), maxClassname);
 		}
 		rowTypes = new HashMap<String, Integer>();
 		rowTypeCounter = new AtomicInteger(-1);
@@ -417,7 +418,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					//we must check to see if the first visibleItem has changed.
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
-				if(fireScroll) {
+				if (fireScroll) {
 					lastValidfirstItem = firstVisibleItem;
 					if (fProxy.hasListeners(TiC.EVENT_SCROLL)) {
 					KrollDict eventArgs = new KrollDict();
@@ -443,13 +444,13 @@ public class TiTableView extends TiSwipeRefreshLayout
 			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel, proxy);
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
-			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.addHeaderView(layoutTableHeaderOrFooter(view), null, false);
 		}
-		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.addFooterView(layoutTableHeaderOrFooter(view), null, false);
 		}
 
 		listView.setAdapter(adapter);
@@ -459,7 +460,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 					if (!(view instanceof TiBaseTableViewItem)) {
 						return;
 					}
-					rowClicked((TiBaseTableViewItem)view, position, false);
+					rowClicked((TiBaseTableViewItem) view, position, false);
 				}
 			}
 		});
@@ -470,7 +471,7 @@ public class TiTableView extends TiSwipeRefreshLayout
 				}
 				TiBaseTableViewItem tvItem = null;
 				if (view instanceof TiBaseTableViewItem) {
-					tvItem = (TiBaseTableViewItem)view;
+					tvItem = (TiBaseTableViewItem) view;
 				} else {
 					tvItem = getParentTableViewItem(view);
 				}
@@ -494,10 +495,10 @@ public class TiTableView extends TiSwipeRefreshLayout
 
 	public void setHeaderView()
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			listView.setAdapter(null);
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_HEADER_VIEW);
-			listView.addHeaderView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.addHeaderView(layoutTableHeaderOrFooter(view), null, false);
 			listView.setAdapter(adapter);
 		}
 	}
@@ -513,10 +514,10 @@ public class TiTableView extends TiSwipeRefreshLayout
 
 	public void setFooterView()
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_FOOTER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			listView.setAdapter(null);
 			TiViewProxy view = (TiViewProxy) proxy.getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			listView.addFooterView(layoutHeaderOrFooter(view).getOuterView(), null, false);
+			listView.addFooterView(layoutTableHeaderOrFooter(view), null, false);
 			listView.setAdapter(adapter);
 		}
 	}
@@ -541,15 +542,15 @@ public class TiTableView extends TiSwipeRefreshLayout
 		Drawable currentSelector = getInternalListView().getSelector();
 		if (currentSelector != selector) {
 			selector = new StateListDrawable();
-			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);
-			selector.addState(new int[] {android.R.attr.state_pressed}, selectorDrawable);
+			TiTableViewSelector selectorDrawable = new TiTableViewSelector(listView);
+			selector.addState(new int[] { android.R.attr.state_pressed }, selectorDrawable);
 			listView.setSelector(selector);
 		}
 	}
 
 	public Item getItemAtPosition(int position)
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			position -= 1;
 		}
 		if (position == -1 || position == adapter.getCount()) {
@@ -609,14 +610,48 @@ public class TiTableView extends TiSwipeRefreshLayout
 		}
 	}
 
-	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
+	private View layoutTableHeaderOrFooter(TiViewProxy viewProxy)
+	{
+		TiUIView tiView = viewProxy.peekView();
+		if (tiView != null) {
+			TiViewProxy parentProxy = (TiViewProxy) viewProxy.getParent();
+			// Remove parent view if possible
+			if (parentProxy != null) {
+				TiUIView parentView = parentProxy.peekView();
+				if (parentView != null) {
+					parentView.remove(tiView);
+				}
+			}
+		} else {
+			if ((proxy != null) && (proxy.getActivity() != null)) {
+				viewProxy.setActivity(proxy.getActivity());
+			}
+			tiView = viewProxy.forceCreateView();
+		}
+		View outerView = tiView.getOuterView();
+		ViewGroup parentView = (ViewGroup) outerView.getParent();
+		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
+			return parentView;
+		} else {
+			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
+			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
+																		   AbsListView.LayoutParams.WRAP_CONTENT);
+			wrapper.setLayoutParams(params);
+			outerView = tiView.getOuterView();
+			wrapper.addView(outerView, tiView.getLayoutParams());
+			wrapper.setId(HEADER_FOOTER_WRAP_ID);
+			return wrapper;
+		}
+	}
+
+	private TiUIView layoutSectionHeaderOrFooter(TiViewProxy viewProxy)
 	{
 		//We are always going to create a new view here. So detach outer view here and recreate
 		View outerView = (viewProxy.peekView() == null) ? null : viewProxy.peekView().getOuterView();
 		if (outerView != null) {
 			ViewParent vParent = outerView.getParent();
-			if ( vParent instanceof ViewGroup ) {
-				((ViewGroup)vParent).removeView(outerView);
+			if (vParent instanceof ViewGroup) {
+				((ViewGroup) vParent).removeView(outerView);
 			}
 		}
 		viewProxy.clearViews();
@@ -668,11 +703,11 @@ public class TiTableView extends TiSwipeRefreshLayout
 	}
 
 	public void setSeparatorStyle(int style) {
-	    if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
-	        listView.setDividerHeight(0);
-	    } else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
-	        listView.setDividerHeight(dividerHeight);
-	    }
+		if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
+			listView.setDividerHeight(0);
+		} else if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE) {
+			listView.setDividerHeight(dividerHeight);
+		}
 	}
 
 	public TableViewModel getTableViewModel() {
@@ -700,11 +735,11 @@ public class TiTableView extends TiSwipeRefreshLayout
 	}
 
 	public void setFilterAnchored(boolean filterAnchored) {
-		this.filterAnchored  = filterAnchored;
+		this.filterAnchored = filterAnchored;
 	}
 
 	public void setFilterCaseInsensitive(boolean filterCaseInsensitive) {
-		this.filterCaseInsensitive  = filterCaseInsensitive;
+		this.filterCaseInsensitive = filterCaseInsensitive;
 	}
 
 	public void release() {

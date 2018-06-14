@@ -77,6 +77,10 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		return result;
 	}
 
+	public String[] getAssetPaths() {
+		return assets.keySet().toArray(new String[assets.size()]);
+	}
+
 	private static byte[] filterDataInRange(byte[] data, int offset, int length)
 	{
 		try {

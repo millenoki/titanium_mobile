@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
+import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -17,7 +18,7 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message; 
+import android.os.Message;
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
@@ -87,7 +88,7 @@ public abstract class KrollRuntime implements Handler.Callback
 			this.runtime = runtime;
 			this.runOnMain = onMainThread;
 		}
-		
+
 		@Override
 		public void run()
 		{
@@ -355,7 +356,7 @@ public abstract class KrollRuntime implements Handler.Callback
 				if (instance.thread.runOnMain) {
 				    instance.thread.run();
 				} else {
-	                instance.handler.sendEmptyMessage(MSG_INIT);
+					instance.handler.sendEmptyMessage(MSG_INIT);
 				}
 
 			} else if (runtimeState == State.RELEASED) {
@@ -402,7 +403,7 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static void incrementServiceReceiverRefCount()
 	{
 		waitForInit();
-		
+
 		serviceReceiverRefCount++;
 		if ((activityRefCount + serviceReceiverRefCount) == 1 && instance != null) {
 			syncInit();
@@ -509,34 +510,27 @@ public abstract class KrollRuntime implements Handler.Callback
 		}
 	}
 
-	public static void dispatchException(final String title, final String message, final String sourceName, final int line,
-		final String lineSource, final int columnStart, final int columnEnd, final String callstack)
+	public static void dispatchException(final String title, final String message, final String sourceName,
+										 final int line, final String lineSource, final int lineOffset, final int columnEnd,
+										 final String jsStack, final String javaStack)
 	{
 		if (instance != null) {
-		    HashMap error = new HashMap();
-		    error.put("name", title);
-		    error.put("message", message);
-		    error.put("fileName", sourceName);
-            error.put("lineNumber", line);
-            error.put("lineSource", lineSource);
-            error.put("columnNumber", columnStart);
-            error.put("columnEnd", columnEnd);
-            error.put("stack", callstack);
-            
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
 			KrollExceptionHandler currentHandler;
+			ExceptionMessage exceptionMessage =
+				new ExceptionMessage(title, message, sourceName, line, lineSource, lineOffset, jsStack, javaStack);
 
 			if (!handlers.isEmpty()) {
 				for (String key : handlers.keySet()) {
 					currentHandler = handlers.get(key);
 					if (currentHandler != null) {
-						currentHandler.handleException(error);
+						currentHandler.handleException(exceptionMessage);
 					}
 				}
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(error);
+			instance.primaryExceptionHandler.handleException(exceptionMessage);
 		}
 	}
 

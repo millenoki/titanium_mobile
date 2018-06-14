@@ -161,7 +161,6 @@ public class TiEnhancedServiceProxy extends ReusableProxy {
         return this.service != null;
     }
     
-    @SuppressWarnings("rawtypes")
     protected Class serviceClass() {
         return Service.class;
     }

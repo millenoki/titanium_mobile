@@ -6,6 +6,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <UserNotifications/UserNotifications.h>
 
 #import "KrollBridge.h"
 #import "TiHost.h"
@@ -30,7 +31,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  @see app
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate> {
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
   UIWindow *window;
   UIImageView *loadView;
   UIImageView *splashScreenImage;
@@ -57,7 +58,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
   NSMutableDictionary *pendingReplyHandlers;
   NSMutableDictionary *backgroundTransferCompletionHandlers;
   NSMutableDictionary *queuedBootEvents;
-  NSMutableDictionary<NSString *, NSSet<id> *> *_queuedApplicationSelectors;
+  NSMutableDictionary<NSString *, NSOrderedSet<id> *> *_queuedApplicationSelectors;
   NSMutableSet<id> *_applicationDelegates;
 
   BOOL _appBooted;
@@ -199,6 +200,16 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
  Returns the user agent string to use for system network requests.
  */
 - (NSString *)systemUserAgent;
+
+/**
+ Returns a dictionary containing the native notification information (iOS 10 and later).
+ */
++ (NSDictionary *)dictionaryWithUserNotification:(UNNotification *)notification withIdentifier:(NSString *)identifier;
+
+/**
+ Returns a dictionary containing the native notification information.
+ */
++ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier;
 
 /**
  Returns or set the user agent string to use for network requests.

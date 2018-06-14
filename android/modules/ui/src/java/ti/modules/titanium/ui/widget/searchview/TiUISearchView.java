@@ -47,7 +47,7 @@ import android.text.method.PasswordTransformationMethod;
 @SuppressLint("NewApi")
 public class TiUISearchView extends TiUIView implements
         SearchView.OnQueryTextListener, SearchView.OnCloseListener {
-    private SearchView searchView;
+	private SearchView searchView;
 
 	private boolean changeEventEnabled = true;
 
@@ -81,10 +81,10 @@ public class TiUISearchView extends TiUIView implements
     private boolean suppressReturn = true;
     private boolean iconifyOnBlur = true;
 
-    protected OnSearchChangeListener searchChangeListener;
+	protected OnSearchChangeListener searchChangeListener;
 
     public TiUISearchView(TiViewProxy proxy) {
-        super(proxy);
+		super(proxy);
 
         searchView = new SearchView(proxy.getActivity()) {
             @Override
@@ -94,11 +94,11 @@ public class TiUISearchView extends TiUIView implements
                 return super.dispatchTouchEvent(event);
             }
         };
-        searchView.setOnQueryTextListener(this);
-        searchView.setOnCloseListener(this);
-        searchView.setOnQueryTextFocusChangeListener(this);
+		searchView.setOnQueryTextListener(this);
+		searchView.setOnCloseListener(this);
+		searchView.setOnQueryTextFocusChangeListener(this);
 
-        setNativeView(searchView);
+		setNativeView(searchView);
 
     }
     
@@ -144,13 +144,13 @@ public class TiUISearchView extends TiUIView implements
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_ICONIFIED:
-            searchView.setIconified(TiConvert.toBoolean(newValue));
+			searchView.setIconified(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_ICONIFIED_BY_DEFAULT:
-            searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue));
+			searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_SUBMIT_ENABLED:
-            searchView.setSubmitButtonEnabled(TiConvert.toBoolean(newValue));
+			searchView.setSubmitButtonEnabled(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_COLOR:
             color = selectedColor = disabledColor = color = TiConvert.toColor(
@@ -193,7 +193,7 @@ public class TiUISearchView extends TiUIView implements
                 HashMap dict = (HashMap) newValue;
                 shadowX = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_X));
                 shadowY = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_Y));
-            } else {
+		} else {
                 shadowX = 0f;
                 shadowY = 0f;
             }
@@ -243,6 +243,7 @@ public class TiUISearchView extends TiUIView implements
                     TiConvert.toBoolean(newValue) ? TruncateAt.END : null);
             break;
         case TiC.PROPERTY_HINT_COLOR:
+        case TiC.PROPERTY_HINT_TEXT_COLOR:
             getTextView().setHintTextColor(
                     TiConvert.toColor(newValue, Color.GRAY));
             break;
@@ -369,10 +370,10 @@ public class TiUISearchView extends TiUIView implements
             fireEvent(TiC.EVENT_CANCEL, null, false, false);
         }
         this.blur();
-        return false;
-    }
-    
-    @Override
+		return false;
+	}
+
+	@Override
     public void onFocusChange(final View v, final boolean hasFocus)
     {
         if (!TiApplication.isUIThread()) {
@@ -412,26 +413,26 @@ public class TiUISearchView extends TiUIView implements
 //            Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
 //            return false;
 //        }
-        proxy.setProperty(TiC.PROPERTY_VALUE, query);
-        if (searchChangeListener != null) {
-            searchChangeListener.filterBy(query);
-        }
+		proxy.setProperty(TiC.PROPERTY_VALUE, query);
+		if (searchChangeListener != null) {
+			searchChangeListener.filterBy(query);
+		}
         if (hasListeners(TiC.EVENT_CHANGE, false)) {
             //We use the previous value to make it consistent with pre Jelly Bean behavior (onEditorAction is called before 
             //onTextChanged.
             KrollDict data = new KrollDict();
             data.put(TiC.PROPERTY_VALUE, query);
             fireEvent(TiC.EVENT_CHANGE, data, false, false);
-        }
-        return false;
-    }
+		}
+		return false;
+	}
 
-    @Override
+	@Override
     public boolean onQueryTextSubmit(String query) {
 //        TiUIHelper.showSoftKeyboard(nativeView, false);
         proxy.setProperty(TiC.PROPERTY_VALUE, query);
         if (hasListeners(TiC.EVENT_RETURN, false)) 
-        {
+	{
             KrollDict data = new KrollDict();
             data.put(TiC.PROPERTY_VALUE, query);
             fireEvent(TiC.EVENT_RETURN, data, false, false);
@@ -439,12 +440,12 @@ public class TiUISearchView extends TiUIView implements
         if (suppressReturn) {
             blur();
         }
-        return false;
-    }
+		return false;
+	}
 
     public void setOnSearchChangeListener(OnSearchChangeListener listener) {
-        searchChangeListener = listener;
-    }
+		searchChangeListener = listener;
+	}
 
     public void handleKeyboard() {
         TextView realtv = getTextView();

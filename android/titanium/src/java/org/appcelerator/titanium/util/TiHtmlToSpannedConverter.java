@@ -33,7 +33,6 @@ import android.text.style.TypefaceSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 class TiHtmlToSpannedConverter implements ContentHandler {
 
     private Attributes _currentAtts = null;

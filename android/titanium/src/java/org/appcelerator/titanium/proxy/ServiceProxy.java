@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,14 +15,18 @@ import org.appcelerator.titanium.TiServiceInterface;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Notification;
 import android.app.Service;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import ti.modules.titanium.TitaniumModule;
+
+import java.lang.reflect.Method;
 
 @Kroll.proxy(creatableInModule=TitaniumModule.class)
 /**
@@ -38,16 +42,15 @@ public class ServiceProxy extends KrollProxy {
 //    private boolean forBoundServices;
 
     // private Service service;
-    private int serviceInstanceId;
-    private IntentProxy intentProxy;
-    private final String TAG = "ServiceProxy";
+	private int serviceInstanceId;
+	private IntentProxy intentProxy;
+    private int notificationId;
+    private KrollProxy notificationProxy;
+    
+    private final String TAG = "TiServiceProxy";
 
     public static final String NEEDS_STARTING = "needsStarting";
     private boolean stopOnDestroy = false;
-
-    protected String logTAG() {
-        return TAG;
-    }
 
     public ServiceProxy() {
         super();
@@ -56,30 +59,30 @@ public class ServiceProxy extends KrollProxy {
                 .getApplicationContext(), serviceClass());
         intent.putExtra(NEEDS_STARTING, false);
         setIntent(intent);
-    }
+	}
 
-    /**
+	/**
      * For when creating a service proxy directly, for later binding using
      * bindService()
-     */
+	 */
     public ServiceProxy(IntentProxy intentProxy) {
-        setIntent(intentProxy);
+		setIntent(intentProxy);
 //        forBoundServices = true;
-    }
+	}
 
-    /**
+	/**
      * For when a service started via startService() creates a proxy when it
      * starts running
-     */
+	 */
     public ServiceProxy(Service service, Intent intent,
             Integer serviceInstanceId) {
         super();
         if (service instanceof TiServiceInterface) {
-            this.service = service;
+		this.service = service;
             this.tiService = (TiServiceInterface) service;
-            setIntent(intent);
-            this.serviceInstanceId = serviceInstanceId;
-        }
+		setIntent(intent);
+		this.serviceInstanceId = serviceInstanceId;
+	}
 
     }
 
@@ -105,41 +108,41 @@ public class ServiceProxy extends KrollProxy {
     }
 
     @Kroll.getProperty
-    @Kroll.method
+	@Kroll.method
     public int getServiceInstanceId() {
-        return serviceInstanceId;
-    }
+		return serviceInstanceId;
+	}
 
-    @Kroll.getProperty
+	@Kroll.getProperty
     @Kroll.method
     public IntentProxy getIntent() {
-        return intentProxy;
-    }
+		return intentProxy;
+	}
 
     public void setIntent(Intent intent) {
-        setIntent(new IntentProxy(intent));
-    }
+		setIntent(new IntentProxy(intent));
+	}
 
-    /**
-     * Sets the IntentProxy.
+	/**
+	 * Sets the IntentProxy.
      * 
      * @param intentProxy
      *            the proxy to set.
-     */
+	 */
     public void setIntent(IntentProxy intentProxy) {
-        this.intentProxy = intentProxy;
-    }
+		this.intentProxy = intentProxy;
+	}
 
-    @Kroll.method
+	@Kroll.method
     public void start() {
 //        if (!forBoundServices) {
 //            Log.w(TAG, "Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
 //            return;
 //        }
-        bindAndInvokeService();
-    }
+		bindAndInvokeService();
+	}
 
-    @Kroll.method
+	@Kroll.method
     public void stop() {
         if (service != null) {
 //            if (!forBoundServices) {
@@ -156,6 +159,38 @@ public class ServiceProxy extends KrollProxy {
     @Kroll.method
     public boolean getRunning() {
         return this.service != null && isServiceRunning();
+    }
+    
+    @Kroll.method
+    public void foregroundNotify(int notificationId, KrollProxy notificationProxy)
+    {
+        // Validate arguments.
+        if (notificationId == 0) {
+            throw new RuntimeException("Notification ID argument cannot be set to zero.");
+        }
+        if (notificationProxy == null) {
+            throw new RuntimeException("Notification object argument cannot be null.");
+        }
+        
+        // Update service's foreground state.
+        synchronized (this)
+        {
+            this.notificationId = notificationId;
+            this.notificationProxy = notificationProxy;
+        }
+        updateForegroundState();
+    }
+    
+    @Kroll.method
+    public void foregroundCancel()
+    {
+        // Update service's foreground state.
+        synchronized (this)
+        {
+            this.notificationId = 0;
+            this.notificationProxy = null;
+        }
+        updateForegroundState();
     }
 
     @SuppressWarnings("rawtypes")
@@ -181,7 +216,7 @@ public class ServiceProxy extends KrollProxy {
         boolean result = context.bindService(getIntent().getIntent(),
                 this.serviceConnection, Context.BIND_AUTO_CREATE);
         if (!result) {
-            Log.e(logTAG(), "Could not bind", Log.DEBUG_MODE);
+            Log.e(TAG, "Could not bind", Log.DEBUG_MODE);
         }
     }
 
@@ -201,11 +236,11 @@ public class ServiceProxy extends KrollProxy {
         TiServiceBinder akbinder = (TiServiceBinder) binder;
         Service localservice = (Service) akbinder.getService();
         if (localservice instanceof TiServiceInterface) {
-            ServiceProxy proxy = ServiceProxy.this;
+					ServiceProxy proxy = ServiceProxy.this;
             this.service = localservice;
             this.tiService = (TiServiceInterface) localservice;
             proxy.invokeBoundService();
-            proxy.serviceInstanceId = tiService.nextServiceInstanceId();
+					proxy.serviceInstanceId = tiService.nextServiceInstanceId();
         }
 
     }
@@ -218,16 +253,16 @@ public class ServiceProxy extends KrollProxy {
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
             handleBinder(binder);
-        }
-    };
+			}
+		};
 
     public void unbindService() {
-        Context context = TiApplication.getInstance();
-        if (context == null) {
-            Log.w(logTAG(),
+		Context context = TiApplication.getInstance();
+		if (context == null) {
+            Log.w(TAG,
                     "Cannot unbind service.  tiContext.getTiApp() returned null");
-            return;
-        }
+			return;
+		}
 
         if (this.tiService != null) {
             this.tiService.unbindProxy(this);
@@ -238,12 +273,16 @@ public class ServiceProxy extends KrollProxy {
         } catch (Exception e) {
 
         }
-        this.service = null;
+		this.service = null;
         this.tiService = null;
     }
 
     protected void invokeBoundService() {
         this.tiService.start(this);
+        // Enable the foreground state if configured.
+        if ((this.notificationId != 0) && (this.notificationProxy != null)) {
+            updateForegroundState();
+        }
     }
 
     @Override
@@ -255,11 +294,77 @@ public class ServiceProxy extends KrollProxy {
     public void release() {
         realUnbind();
         super.release();
-    }
+	}
 
-    @Override
-    public String getApiName()
-    {
-        return "Ti.Android.Service";
-    }
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Service";
+	}
+
+	private void updateForegroundState()
+	{
+		// Do not continue if we don't have access to the service yet.
+		if (this.service == null) {
+			return;
+		}
+
+		// Update the service on the main UI thread.
+		runOnMainThread(new Runnable() {
+			@Override
+			public void run()
+			{
+				// Fetch the service. (Make sure it hasn't been released.)
+				Service service = ServiceProxy.this.service;
+				if (service == null) {
+					return;
+				}
+
+				// Fetch the proxy's notification and ID.
+				int notificationId = 0;
+				Notification notificationObject = null;
+				try {
+					// Fetch notification settings from proxy.
+					synchronized (ServiceProxy.this)
+					{
+						notificationId = ServiceProxy.this.notificationId;
+						if (notificationId != 0) {
+							final String CLASS_NAME =
+								"ti.modules.titanium.android.notificationmanager.NotificationProxy";
+							Class proxyClass = Class.forName(CLASS_NAME);
+							Object object = proxyClass.cast(ServiceProxy.this.notificationProxy);
+							if (object != null) {
+								Method method = proxyClass.getMethod("buildNotification");
+								notificationObject = (Notification) method.invoke(object);
+							}
+						}
+					}
+
+					// If given notification was assigned Titanium's default channel, then make sure it's set up.
+					// Note: Notification channels are only supported on Android 8.0 and higher.
+					if ((notificationObject != null) && (Build.VERSION.SDK_INT >= 26)) {
+						final String CLASS_NAME =
+							"ti.modules.titanium.android.notificationmanager.NotificationManagerModule";
+						Class managerClass = Class.forName(CLASS_NAME);
+						String defaultChannelId = (String) managerClass.getField("DEFAULT_CHANNEL_ID").get(null);
+						if (defaultChannelId.equals(notificationObject.getChannelId())) {
+							Method method = managerClass.getMethod("useDefaultChannel");
+							method.invoke(null);
+						}
+					}
+				} catch (Exception ex) {
+					// We want reflection exceptions to cause a crash so that our unit tests will catch it.
+					throw new RuntimeException(ex);
+				}
+
+				// Enable/Disable the service's foreground state.
+				// Note: A notification will be shown in the status bar while enabled.
+				if ((notificationId != 0) && (notificationObject != null)) {
+					service.startForeground(notificationId, notificationObject);
+				} else {
+					service.stopForeground(true);
+				}
+			}
+		});
+	}
 }

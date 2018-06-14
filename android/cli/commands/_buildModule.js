@@ -1,15 +1,15 @@
 /**
-* Android module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * Android module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -399,24 +399,23 @@ AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callb
 };
 
 AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
-	// const cli = this.cli,
-	// 	manifest = this.manifest,
-	// 	eventName = 'android.' + cli.argv.type;
-
-	// cli.addAnalyticsEvent(eventName, {
-	// 	dir: cli.argv['project-dir'],
-	// 	name: manifest.name,
-	// 	publisher: manifest.author,
-	// 	appid: manifest.moduleid,
-	// 	description: manifest.description,
-	// 	type: cli.argv.type,
-	// 	guid: manifest.guid,
-	// 	version: manifest.version,
-	// 	copyright: manifest.copyright,
-	// 	date: (new Date()).toDateString()
-	// });
-
-	next();
+    //var cli = this.cli,
+    //manifest = this.manifest,
+    //eventName = 'android.' + cli.argv.type;
+    
+    //cli.addAnalyticsEvent(eventName, {
+    //    name: manifest.name,
+    //    publisher: manifest.author,
+    //    appid: manifest.moduleid,
+    //    description: manifest.description,
+    //    type: cli.argv.type,
+    //    guid: manifest.guid,
+    //    version: manifest.version,
+    //    copyright: manifest.copyright,
+    //    date: (new Date()).toDateString()
+    //});
+    
+    next();
 };
 
 AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
@@ -445,7 +444,7 @@ AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
 			console.log('googlePlayServicesKeep', googlePlayServicesKeep);
 			googlePlayServicesKeep = googlePlayServicesKeep.filter(function (item, pos) {
 				return !/common\./.test(item) && googlePlayServicesKeep.indexOf(item) === pos;
-			});
+	});
 			// classpath[path.join(_t.platformPath, 'modules', 'gms', 'base.jar')] = 1;
 			for (let i = googlePlayServicesKeep.length - 1; i >= 0; i--) {
 				const gmsModuleName = googlePlayServicesKeep[i].replace('com.google.android.gms.', '').replace('.*', '');
@@ -459,7 +458,6 @@ AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
 AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.tiSymbols = {};
 	this.metaData = [];
-	this.documentation = [];
 	this.classPaths = {};
 	this.useBabel = false;
 	this.classPaths[this.androidCompileSDK.androidJar] = 1;
@@ -653,7 +651,7 @@ AndroidModuleBuilder.prototype.cleanup = function cleanup(next) {
 
 	// remove old module libraries
 	fs.existsSync(this.libsDir) && this.dirWalker(this.libsDir, function (file) {
-		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i');
+		const libExp = new RegExp('lib' + this.manifest.moduleid + '.so$', 'i'); // eslint-disable-line security/detect-non-literal-regexp
 		if (libExp.test(file) && fs.existsSync(file)) {
 			this.logger.debug(__('Removing %s', file.cyan));
 			fs.removeSync(file);
@@ -1466,8 +1464,9 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				file: path.relative(this.buildGenTsDir, file),
 				src: file
 			});
-		}
-	}.bind(this));
+			}
+		}.bind(this));
+	}
 
 	if (!jsFilesToEncrypt.length) {
 		// nothing to encrypt, continue
@@ -1779,7 +1778,7 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 
 	if (fs.existsSync(jsBootstrapFile)) {
 
-		const str = new Buffer(fs.readFileSync(jsBootstrapFile)); // eslint-disable-line security/detect-new-buffer
+		const str = Buffer.from(fs.readFileSync(jsBootstrapFile));
 
 		[].forEach.call(str, function (char) {
 			result.push(char);
@@ -2225,26 +2224,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
 	const tasks = [
-		function (cb) {
-			// Generate documentation
-			if (fs.existsSync(this.documentationDir)) {
-				const files = fs.readdirSync(this.documentationDir);
-				for (const i in files) {
-					const file = files[i],
-						currentFile = path.join(this.documentationDir, file);
-					if (fs.statSync(currentFile).isFile()) {
-						const obj = {},
-							contents = fs.readFileSync(currentFile).toString();
-
-						obj[file] = markdown.toHTML(contents);
-						this.documentation.push(obj);
-					}
-				}
-			}
-
-			cb();
-		},
-
 		/**
 		 * Generates the module jar file.
 		 *
@@ -2275,9 +2254,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 			if (fs.existsSync(this.assetsDir)) {
 				this.dirWalker(this.assetsDir, function (file) {
 					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
-						moduleJarArchive.append(fs.createReadStream(file), {
-							name: path.relative(assetsParentDir, file)
-						});
+						moduleJarArchive.append(fs.createReadStream(file), { name: path.relative(assetsParentDir, file) });
 					}
 				});
 			}
@@ -2346,10 +2323,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 							return walk(file, path.join(parent, name));
 						}
 
-						let contents = fs.readFileSync(file).toString();
+						let contents = fs.readFileSync(file);
 
 						if (mdRegExp.test(name)) {
-							contents = markdown.toHTML(contents);
+							contents = markdown.toHTML(contents.toString());
 							name = name.replace(/\.md$/, '.html');
 						}
 

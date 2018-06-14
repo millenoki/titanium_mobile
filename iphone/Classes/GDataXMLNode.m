@@ -523,7 +523,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
       if (result > -1) {
         str = [[[NSString alloc] initWithBytes:(xmlBufferContent(buff))
                                         length:(xmlBufferLength(buff))
-                                      encoding:NSUTF8StringEncoding] autorelease];
+                                        encoding:NSUTF8StringEncoding] autorelease];
       }
       xmlBufferFree(buff);
     }

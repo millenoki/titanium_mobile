@@ -30,49 +30,40 @@
   [self logMessage:@[ message ] severity:severity];
 }
 
-- (void)log:(NSArray *)args
+- (void)time:(id)label
 {
-  [self log:args withSeverity:@"info"];
+  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
+  if (label == nil) {
+    label = @"default";
+  }
+
+  if (!_times) {
+    _times = [[NSMutableDictionary alloc] init];
+  }
+  if ([_times objectForKey:label] != nil) {
+    NSString *logMessage = [NSString stringWithFormat:@"Label \"%@\" already exists", label];
+    [self logMessage:[logMessage componentsSeparatedByString:@" "] severity:@"warn"];
+    return;
+  }
+  [_times setObject:[NSDate date] forKey:label];
 }
 
-- (void)error:(NSArray *)args
+- (void)timeEnd:(id)label
 {
-  [self log:args withSeverity:@"error"];
+  ENSURE_SINGLE_ARG_OR_NIL(label, NSString);
+  if (label == nil) {
+    label = @"default";
+  }
+  NSDate *startTime = _times[label];
+  if (startTime == nil) {
+    NSString *logMessage = [NSString stringWithFormat:@"Label \"%@\" does not exist", label];
+    [self logMessage:[logMessage componentsSeparatedByString:@" "] severity:@"warn"];
+    return;
+  }
+  double duration = [startTime timeIntervalSinceNow] * -1000;
+  NSString *logMessage = [NSString stringWithFormat:@"%@: %0.fms", label, duration];
+  [self logMessage:[logMessage componentsSeparatedByString:@" "] severity:@"info"];
+  [_times removeObjectForKey:label];
 }
 
-- (void)warn:(NSArray *)args
-{
-  [self log:args withSeverity:@"warn"];
-}
-
-- (void)info:(NSArray *)args
-{
-  [self log:args withSeverity:@"info"];
-}
-
-- (void)debug:(NSArray *)args
-{
-  [self log:args withSeverity:@"debug"];
-}
-
-
-- (void)time:(id)args
-{
-    ENSURE_SINGLE_ARG(args, NSString)
-    if (!_times) {
-        _times = [[NSMutableDictionary alloc] init];
-    }
-    [_times setObject:@([[NSDate date] timeIntervalSince1970]*1000) forKey:args];
-}
-
-- (void)timeEnd:(id)args
-{
-    ENSURE_SINGLE_ARG(args, NSString)
-    NSNumber* time = [_times objectForKey:args];
-    if (!time) {
-        [self throwException:[NSString stringWithFormat:@"No such label: %@", args] subreason:nil location:CODELOCATION];
-    }
-    long duration = [[NSDate date] timeIntervalSince1970]*1000 - time.integerValue;
-    [self log:@[[NSString stringWithFormat:@"%@: %lims", args, (long)duration]] withSeverity:@"info"];
-}
 @end

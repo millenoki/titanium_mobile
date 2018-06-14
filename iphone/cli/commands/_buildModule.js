@@ -1,15 +1,15 @@
 /**
-* iOS module build command.
-*
-* @module cli/_buildModule
-*
-* @copyright
-* Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
-*
-* @license
-* Licensed under the terms of the Apache Public License
-* Please see the LICENSE included with this distribution for details.
-*/
+ * iOS module build command.
+ *
+ * @module cli/_buildModule
+ *
+ * @copyright
+ * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ *
+ * @license
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
 
 'use strict';
 
@@ -155,21 +155,20 @@ iOSModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 };
 
 iOSModuleBuilder.prototype.doAnalytics = function doAnalytics() {
-    // const cli = this.cli,
-    //     eventName = 'ios.' + cli.argv.type;
+	// const cli = this.cli,
+	// 	eventName = 'ios.' + cli.argv.type;
 
-    // cli.addAnalyticsEvent(eventName, {
-    //     dir: this.cli.argv['project-dir'],
-    //     name: this.moduleName,
-    //     publisher: this.manifest.author,
-    //     appid: this.moduleId,
-    //     description: this.manifest.description,
-    //     type: this.cli.argv.type,
-    //     guid: this.moduleGuid,
-    //     version: this.moduleVersion,
-    //     copyright: this.manifest.copyright,
-    //     date: new Date().toDateString()
-    // });
+	// cli.addAnalyticsEvent(eventName, {
+	// 	name:        this.moduleName,
+	// 	publisher:   this.manifest.author,
+	// 	appid:       this.moduleId,
+	// 	description: this.manifest.description,
+	// 	type:        this.cli.argv.type,
+	// 	guid:        this.moduleGuid,
+	// 	version:     this.moduleVersion,
+	// 	copyright:   this.manifest.copyright,
+	// 	date:        new Date().toDateString()
+	// });
 };
 
 iOSModuleBuilder.prototype.initialize = function initialize() {
@@ -241,7 +240,7 @@ iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback)
             } else {
                 this.logger.warn(__('ignoring file %s', name.cyan));
 		}
-        }
+		}
 	}, this);
 };
 
@@ -673,41 +672,41 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
             }.bind(this))
 
 		},
-        // 1. compile module js
-        function(cb) {
+		// 1. compile module js
+		function (cb) {
             //if a jsFilesToEncrypt file exists then it means we already got the module mainEncryptedAsset
             if (this.jsFilesToEncrypt.length !== 0) {
                 return cb();
             }
             if (!fs.existsSync(path.join(this.assetsDir, moduleJS))) {
-                renderData.mainEncryptedAsset = '';
-                renderData.mainEncryptedAssetReturn = 'return nil;';
-                return cb();
-            }
+				renderData.mainEncryptedAsset = '';
+				renderData.mainEncryptedAssetReturn = 'return nil;';
+				return cb();
+			}
 
             this.compileJSFiles([{
                 path: moduleJS,
                 src: path.join(this.assetsDir, moduleJS)
             }], function() {
-                titaniumPrepHook(
+			titaniumPrepHook(
                     path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
                         cwd: this.universalBinaryDir,
                         'jsFiles': this.jsFilesToEncrypt,
                         'placeHolder': 'mainEncryptedAsset'
                     },
-                    cb
-                );
+				cb
+			);
             }.bind(this))
 
-        },
+		},
 
 		// 2. compile all other js files in assets dir
 		function (cb) {
-            const jsFilesCount = this.jsFilesToEncrypt.length;
+				const jsFilesCount = this.jsFilesToEncrypt.length;
 
             if (jsFilesCount === 0) {
                 renderData.allEncryptedAssets = '';
-                renderData.allEncryptedAssetsReturn = 'return nil;';
+				renderData.allEncryptedAssetsReturn = 'return nil;';
                 return cb();
 				}
 

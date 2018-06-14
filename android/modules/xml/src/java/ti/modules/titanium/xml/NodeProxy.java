@@ -116,7 +116,6 @@ public class NodeProxy extends KrollProxy
 		return new NodeProxy(node);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <T extends NodeProxy> T getProxy(Node node)
 	{
 		return (T) getNodeProxy(node);

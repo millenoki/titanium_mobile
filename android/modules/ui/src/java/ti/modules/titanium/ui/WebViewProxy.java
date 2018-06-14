@@ -31,14 +31,14 @@ import android.os.Message;
 import android.webkit.WebView;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_BLACKLISTED_URLS,
-	TiC.PROPERTY_DATA,
-	TiC.PROPERTY_ON_CREATE_WINDOW,
-	TiC.PROPERTY_SCALES_PAGE_TO_FIT,
-	TiC.PROPERTY_URL,
-	TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
-	TiC.PROPERTY_OVER_SCROLL_MODE,
-	TiC.PROPERTY_CACHE_MODE,
+		TiC.PROPERTY_BLACKLISTED_URLS,
+		TiC.PROPERTY_DATA,
+		TiC.PROPERTY_ON_CREATE_WINDOW,
+		TiC.PROPERTY_SCALES_PAGE_TO_FIT,
+		TiC.PROPERTY_URL,
+		TiC.PROPERTY_WEBVIEW_IGNORE_SSL_ERROR,
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
 	TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE,
 	"alwaysInjectTi",
@@ -64,6 +64,7 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
 	private static final int MSG_SET_HEADERS = MSG_FIRST_ID + 113;
 	private static final int MSG_GET_HEADERS = MSG_FIRST_ID + 114;
+	private static final int MSG_ZOOM_BY = MSG_FIRST_ID + 115;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -80,14 +81,15 @@ public class WebViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_LIGHT_TOUCH_ENABLED, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
+		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
 	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
 		TiUIWebView webView = new TiUIWebView(this);
-		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
-		((TiBaseActivity)activity).addInterceptOnBackPressedEventListener(this);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity) activity).addInterceptOnBackPressedEventListener(this);
 		if (postCreateMessage != null) {
 			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
 			postCreateMessage = null;
@@ -192,7 +194,7 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				}
 				case MSG_SET_HEADERS: {
-					getWebView().setRequestHeaders((HashMap)msg.obj);
+					getWebView().setRequestHeaders((HashMap) msg.obj);
 					return true;
 				}
 				case MSG_GET_HEADERS: {
@@ -227,7 +229,9 @@ public class WebViewProxy extends ViewProxy
 					String html = TiConvert.toString(getProperty(TiC.PROPERTY_HTML));
 					getWebView().setHtml(html);
 					return true;
-
+				case MSG_ZOOM_BY:
+					getWebView().zoomBy(TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL)));
+					return true;
 			}
 		}
 		return super.handleMessage(msg);
@@ -342,7 +346,7 @@ public class WebViewProxy extends ViewProxy
 			}
                 });
 //				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_BACK));
-		}
+			}
 		}
 		return false;
 	}
@@ -362,7 +366,7 @@ public class WebViewProxy extends ViewProxy
 			}
                 });
 //				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
-		}
+			}
 		}
 		return false;
 	}
@@ -469,6 +473,40 @@ public class WebViewProxy extends ViewProxy
 //		}
 //		return enabled;
 //	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.getProperty
+	public float getZoomLevel()
+	// clang-format on
+	{
+		TiUIView v = peekView();
+		if (v != null) {
+			return TiConvert.toFloat(getProperty(TiC.PROPERTY_ZOOM_LEVEL), 1.0f);
+		} else {
+			return 1.0f;
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setZoomLevel(float value)
+	// clang-format on
+	{
+		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
+
+		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// view is created.
+		TiUIView v = peekView();
+		if (v != null) {
+			if (TiApplication.isUIThread()) {
+				((TiUIWebView) v).zoomBy(value);
+			} else {
+				getMainHandler().sendEmptyMessage(MSG_ZOOM_BY);
+			}
+		}
+	}
 
 	public void clearBasicAuthentication()
 	{

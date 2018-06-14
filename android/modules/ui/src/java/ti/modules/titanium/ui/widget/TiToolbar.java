@@ -105,8 +105,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
             }, true);
             return;
 		} else {
-            ((Toolbar) getNativeView()).showOverflowMenu();
-		}
+		((Toolbar) getNativeView()).showOverflowMenu();
+	}
 	}
 
 	/**
@@ -119,10 +119,10 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
                     hideOverFlowMenu();
 		}
             }, true);
-        } else {
+		} else {
 		((Toolbar) getNativeView()).hideOverflowMenu();
 	}
-		}
+	}
 
 	/**
 	 * Return the current logo in the format it was passed
@@ -164,8 +164,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	}
             }, true);
 		} else {
-            ((Toolbar) getNativeView()).dismissPopupMenus();
-		}
+		((Toolbar) getNativeView()).dismissPopupMenus();
+	}
 	}
 
 	/**
@@ -176,7 +176,7 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	 */
 	private void setViewProxiesArray(Object[] value) {
 		viewProxiesArray = new TiViewProxy[value.length];
-		for (int i=0; i < value.length; i++) {
+		for (int i = 0; i < value.length; i++) {
 			viewProxiesArray[i] = (TiViewProxy) value[i];
 		}
 		setItems(viewProxiesArray);
@@ -194,8 +194,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
 	}
             }, true);
 		} else {
-            toolbar.collapseActionView();
-		}
+		toolbar.collapseActionView();
+	}
 	}
 
     public void setContentInsetsRelative(final int insetLeft, final int insetRight) {
@@ -221,8 +221,8 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
             }, true);
         } else {
 		toolbar.setContentInsetsAbsolute(values[0], values[1]);
-	}
 		}
+	}
 
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
@@ -316,9 +316,9 @@ public class TiToolbar extends TiUIView implements Handler.Callback{
                 toolbar.setContentInsetStartWithNavigation(TiConvert.toInt(newValue));
 			}
             break;
-        default:
+			default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
 		}
 	}
-		}
+}

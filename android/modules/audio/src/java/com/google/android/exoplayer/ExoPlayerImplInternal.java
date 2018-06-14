@@ -535,7 +535,6 @@ import java.util.List;
   private <T> void sendMessageInternal(int what, Object obj)
       throws ExoPlaybackException {
     try {
-      @SuppressWarnings("unchecked")
       Pair<ExoPlayerComponent, Object> targetAndMessage = (Pair<ExoPlayerComponent, Object>) obj;
       targetAndMessage.first.handleMessage(what, targetAndMessage.second);
     } finally {

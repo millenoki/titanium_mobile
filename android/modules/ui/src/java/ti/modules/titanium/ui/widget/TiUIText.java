@@ -55,6 +55,9 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.content.res.ColorStateList;
 
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_ACTION;
+import static ti.modules.titanium.ui.UIModule.RETURN_KEY_TYPE_NEW_LINE;
+
 public class TiUIText extends TiUINonViewGroupView
         implements TextWatcher, OnEditorActionListener, OnFocusChangeListener {
 	private static final String TAG = "TiUIText";
@@ -364,10 +367,10 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 
     public TiUIText(final TiViewProxy proxy, boolean field) {
-        super(proxy);
+		super(proxy);
         this.focusKeyboardState = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
         this.isFocusable = true; // default to true
-        this.field = field;
+		this.field = field;
         tv = new FocusFixedEditText(getProxy().getActivity());
         realtv = tv.getRealEditText();
         realtv.setSingleLine(field);
@@ -720,7 +723,9 @@ public class TiUIText extends TiUINonViewGroupView
                     .toString(proxy.getProperty(TiC.PROPERTY_VALUE));
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, value);
-            fireEvent(TiC.EVENT_RETURN, data, false, false);
+			// TODO: Enable this once we have it on iOS as well.
+			data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_NEW_LINE);
+			fireEvent(TiC.EVENT_RETURN, data, false, false);
 		}
 		/**
          * There is an Android bug regarding setting filter on EditText that
@@ -819,64 +824,70 @@ public class TiUIText extends TiUINonViewGroupView
 	}
 
 	@Override
-    public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent) {
-        // TIMOB-23757:
-        // https://code.google.com/p/android/issues/detail?id=182191
-        if (Build.VERSION.SDK_INT < 24
-                && (realtv.getGravity() & Gravity.START) != Gravity.START) {
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
+	{
+		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
+		if (Build.VERSION.SDK_INT < 24 && (realtv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);
 				view.requestFocus();
 			}
-            Context context = TiApplication.getInstance()
-                    .getApplicationContext();
-            InputMethodManager inputManager = (InputMethodManager) context
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(realtv.getWindowToken(), 0);
+			Context context = TiApplication.getInstance().getApplicationContext();
+			InputMethodManager inputManager =
+				(InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.hideSoftInputFromWindow(realtv.getWindowToken(), 0);
 		}
 
-        String value = realtv.getText().toString();
+		String value = realtv.getText().toString();
+		KrollDict data = new KrollDict();
+		data.put(TiC.PROPERTY_VALUE, value);
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-        Log.d(TAG,
-                "ActionID: " + actionId + " KeyEvent: "
-                        + (keyEvent != null ? keyEvent.getKeyCode() : null),
+		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			  Log.DEBUG_MODE);
 
         boolean result = !suppressReturn;
         boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT)
                 && suppressReturn;
+		boolean enableReturnKey = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_RETURN_KEY), false);
+        
+		if (enableReturnKey && v.getText().length() == 0) {
+			return true;
+		}
 
-        // This is to prevent 'return' event from being fired twice when return
-        // key is hit. In other words, when return key is clicked,
-        // this callback is triggered twice (except for keys that are mapped to
-        // EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first
-        // check is to deal with those keys - filter out
-        // one of the two callbacks, and the next checks deal with 'Next' and
-        // 'Done' callbacks, respectively.
-        // Refer to TiUIText.handleReturnKeyType(int) for a list of return keys
-        // that are mapped to EditorInfo.IME_ACTION_NEXT and
-        // EditorInfo.IME_ACTION_DONE.
-        if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-            if (hasListeners(TiC.EVENT_RETURN, false)) {
-                KrollDict data = new KrollDict();
-                data.put(TiC.PROPERTY_VALUE, value);
+        // TODO: Enable this once we have it on iOS as well.
+        //data.put(TiC.PROPERTY_BUTTON, RETURN_KEY_TYPE_ACTION);
+        if (shouldBlur) {
+            blur();
+        }
+        
+        // Check whether we are dealing with text area or text field. Multiline TextViews in Landscape
+        // orientation for phones have separate buttons for IME_ACTION and new line.
+        // And because of that we skip the firing of a RETURN event from this call in favor of the
+        // one from onTextChanged. The event carries a property to determine whether it was fired
+        // from the IME_ACTION button or the new line one.
+        if (this.field) {
+            fireEvent(TiC.EVENT_RETURN, data, false, false);
+            // Since IME_ACTION_NEXT and IME_ACTION_DONE take care of consuming the second call to
+            // onEditorAction we do not consume it for either of them.
+            return (!(actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+                      || (keyEvent != null))) && !suppressReturn;
+        } else {
+            // After clicking the IME_ACTION button we get two calls of onEditorAction.
+            // The second call of onEditorAction is treated as a KeyPress event and gives the
+            // keyEvent for that as the third parameter. If it is 'null' that's the first call -
+            // fire the JS event and consume the event to prevent the duplicate call.
+            if (keyEvent == null) {
                 fireEvent(TiC.EVENT_RETURN, data, false, false);
-		}
-            if (shouldBlur) {
-                blur();
-	}
-		}
+                return !suppressReturn;
+            }
+            // New line is treated immediately as KeyEvent, so we let the system propagate it
+            // to onTextChange where the JS event is loaded with the property that with was a new line.
+            return false;
+        }
 
-        Boolean enableReturnKey = proxy.getProperties()
-                .optBoolean(TiC.PROPERTY_ENABLE_RETURN_KEY, false);
-        if (enableReturnKey && value.length() == 0) {
-            result = true;
-		}
-
-        return result;
-		}
+    }
 
     public void handleKeyboard() {
 			int typeModifiers = autocorrect | autoCapValue;
@@ -935,7 +946,7 @@ public class TiUIText extends TiUINonViewGroupView
 
         if (!field) {
             textTypeAndClass |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
-				}
+			}
 
 			if (passwordMask) {
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_PASSWORD;
@@ -1071,5 +1082,5 @@ public class TiUIText extends TiUINonViewGroupView
             return false;
 			}
         return super.focus();
-		}
 	}
+}

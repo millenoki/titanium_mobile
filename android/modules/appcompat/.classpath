@@ -16,5 +16,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/android-support-transition.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-v7-recyclerview.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-annotations.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-core-common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-core-runtime.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-lifecycle-common.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-lifecycle-livedata-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-lifecycle-runtime.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-arch-lifecycle-viewmodel.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

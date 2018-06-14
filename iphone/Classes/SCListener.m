@@ -9,11 +9,7 @@
 #if defined(USE_TI_AUDIOSTARTMICROPHONEMONITOR) || defined(USE_TI_AUDIOSTOPMICROPHONEMONITOR) || defined(USE_TI_AUDIOPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOGETPEAKMICROPHONEPOWER) || defined(USE_TI_AUDIOAVERAGEMICROPHONEPOWER) || defined(USE_TI_AUDIOGETAVERAGEMICROPHONEPOWER)
 
 #import "SCListener.h"
-#if IS_XCODE_8
 #import <AVFoundation/AVFAudio.h>
-#else
-#import <AVFoundation/AVAudioSession.h>
-#endif
 
 @interface SCListener (Private)
 
@@ -38,8 +34,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 + (SCListener *)sharedListener
 {
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (sharedListener == nil) {
       sharedListener = [[self alloc] init];
     }
@@ -181,8 +176,7 @@ static void listeningCallback(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 + (id)allocWithZone:(NSZone *)zone
 {
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (sharedListener == nil) {
       sharedListener = [super allocWithZone:zone];
       return sharedListener;

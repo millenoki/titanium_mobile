@@ -7,7 +7,8 @@
 #ifdef USE_TI_AUDIOSOUND
 
 #import "TiFile.h"
-#import <AVFoundation/AVAudioPlayer.h>
+#import "TiProxy.h"
+#import <AVFoundation/AVFAudio.h>
 
 @interface TiAudioSoundProxy : TiProxy <AVAudioPlayerDelegate> {
   @private

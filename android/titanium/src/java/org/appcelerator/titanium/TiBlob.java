@@ -154,7 +154,7 @@ public class TiBlob extends KrollProxy {
             bitmap = ((BitmapDrawable) object).getBitmap();
         }
         if (bitmap != null) {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
             bitmap.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
             byte[] bitmapdata = bos.toByteArray();
             ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
@@ -205,19 +205,19 @@ public class TiBlob extends KrollProxy {
                 mimetype = getMimeTypeOfFile(image);
 			}
             TiBlob blob = new TiBlob(TYPE_IMAGE, null, mimetype);
-            blob.image = image;
+		blob.image = image;
             TiBitmapPool.incrementRefCount(image);
-            blob.width = image.getWidth();
-            blob.height = image.getHeight();
-            return blob;
+		blob.width = image.getWidth();
+		blob.height = image.getHeight();
+		return blob;
         } else if (object instanceof TiBaseFile) {
             TiBaseFile file = (TiBaseFile) object;
-            if (mimetype == null || mimetype.length() == 0) {
+		if (mimetype == null || mimetype.length() == 0) {
                 mimetype = TiMimeTypeHelper.getMimeType(file.nativePath());
-            }
+		}
             TiBlob blob = new TiBlob(TYPE_FILE, file, mimetype);
-            blob.loadBitmapInfo();
-            return blob;
+		blob.loadBitmapInfo();
+		return blob;
 //        } else if (object instanceof InputStream) {
 //            InputStream stream = (InputStream) object;
 //            return new TiBlob(TYPE_STREAM_BASE64, stream, mimetype);
@@ -462,7 +462,7 @@ public class TiBlob extends KrollProxy {
 			case TYPE_FILE:
 				try {
 					return ((TiBaseFile) data).getInputStream();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					Log.e(TAG, e.getMessage(), e);
 					return null;
 				}
@@ -473,8 +473,8 @@ public class TiBlob extends KrollProxy {
             } else {
                 return null;
 		}
+		}
 	}
-    }
 
 	@Kroll.method
     public void append(TiBlob blob) {
@@ -642,7 +642,7 @@ public class TiBlob extends KrollProxy {
         }
         if (result != null) {
             return result;
-        }
+		}
 		return "[object TiBlob]";
 	}
 
@@ -675,23 +675,23 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-    @Kroll.method
+	@Kroll.method
     public TiFileProxy getFile() {
-        if (data == null) {
-            return null;
-        }
-        if (this.type != TYPE_FILE) {
-            Log.w(TAG, "getFile not supported for non-file blob types.");
-            return null;
-        } else if (!(data instanceof TiBaseFile)) {
-            Log.w(TAG,
+		if (data == null) {
+			return null;
+		}
+		if (this.type != TYPE_FILE) {
+			Log.w(TAG, "getFile not supported for non-file blob types.");
+			return null;
+		} else if (!(data instanceof TiBaseFile)) {
+			Log.w(TAG,
                     "getFile unable to return value: underlying data is not file, rather "
                             + data.getClass().getName());
-            return null;
-        } else {
-            return new TiFileProxy((TiBaseFile) data);
-        }
-    }
+			return null;
+		} else {
+			return new TiFileProxy((TiBaseFile) data);
+		}
+	}
 	@Kroll.method
     public void clearData() {
 	    this.data = null;
@@ -766,7 +766,7 @@ public class TiBlob extends KrollProxy {
                     image = BitmapFactory.decodeByteArray(byteArray, 0,
                             byteArray.length, opts);
                     break;
-						}
+				}
 			} catch (OutOfMemoryError e) {
                 Log.e(TAG,
                         "Unable to get the image. Not enough memory: "
@@ -776,8 +776,8 @@ public class TiBlob extends KrollProxy {
                 if (image != null) {
                     TiBitmapPool.incrementRefCount(image);
 			}
+			}
 		}
-        }
 		return image;
 	}
 
@@ -923,8 +923,8 @@ public class TiBlob extends KrollProxy {
                     "Unable to resize the image. Unknown exception: "
                             + t.getMessage(), t);
 			return null;
-		}
 	}
+		}
 
 	@Kroll.method
     public TiBlob imageAsThumbnail(Number size,

@@ -1,8 +1,10 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
+ * 
+ * WARNING: This is generated code. Modify at your own risk and without support.
  */
 
 #import "TiErrorController.h"
@@ -17,6 +19,15 @@
 #import "TiUIButtonProxy.h"
 #endif
 
+@implementation TiErrorNavigationController
+
+- (UIViewController *)childViewControllerForHomeIndicatorAutoHidden
+{
+    return self.topViewController;
+}
+
+@end
+
 @implementation TiErrorController {
   TiScriptError *error;
   TiViewProxy *viewProxy;
@@ -27,7 +38,7 @@
   if (self = [super init]) {
     viewProxy = (TiViewProxy *)[[[TiViewProxy class] createFromDictionary:template rootProxy:nil inContext:bridge] retain];
     if (error_) {
-      error = [error_ retain];
+    error = [error_ retain];
       NSString *path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
       if ([path hasSuffix:@"/"]) {
         path = [path substringToIndex:path.length - 1];
@@ -52,6 +63,22 @@
           @"text" : [[error backtrace] stringByReplacingOccurrencesOfString:path withString:@""]
         }
                  forKey:@"callstack"];
+      } else {
+        NSArray<NSString *> *exceptionStackTrace = [NSThread callStackSymbols];
+        if (exceptionStackTrace != nil) {
+          NSMutableArray<NSString *> *formattedStackTrace = [[[NSMutableArray alloc] init] autorelease];
+          NSUInteger exceptionStackTraceLength = [exceptionStackTrace count];
+
+          // re-size stack trace and format results. Starting at index = 4 to not include the script-error API's
+          for (NSInteger i = 4; i <= (exceptionStackTraceLength >= 20 ? 20 : exceptionStackTraceLength); i++) {
+            NSString *line = [[exceptionStackTrace objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+            [formattedStackTrace addObject:line];
+          }
+          [dict setObject:@{
+            @"text" : [[formattedStackTrace componentsJoinedByString:@"\n"] stringByReplacingOccurrencesOfString:path withString:@""]
+          }
+                  forKey:@"callstack"];
+        }
       }
       if (error.sourceLine) {
         [dict setObject:@{
@@ -74,7 +101,7 @@
 
 - (void)dismiss:(id)sender
 {
-  [[TiApp app] hideModalController:self animated:YES];
+  [[TiApp app] hideModalController:self.navigationController animated:YES];
 }
 
 #ifndef TI_DEPLOY_TYPE_PRODUCTION

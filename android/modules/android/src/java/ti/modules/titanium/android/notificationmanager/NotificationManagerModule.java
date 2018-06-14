@@ -15,10 +15,11 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.android.AndroidModule;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.os.Build;
 import android.os.PowerManager;
@@ -27,7 +28,7 @@ import android.support.v4.app.NotificationManagerCompat;
 
 import java.util.HashMap;
 
-@Kroll.module(parentModule=AndroidModule.class)
+@Kroll.module(parentModule = AndroidModule.class)
 public class NotificationManagerModule extends KrollModule
 {
 	private static final String TAG = "TiNotification";
@@ -36,16 +37,31 @@ public class NotificationManagerModule extends KrollModule
 	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
 	protected static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_SERVICE;
 
-	@Kroll.constant public static final int DEFAULT_ALL = Notification.DEFAULT_ALL;
-	@Kroll.constant public static final int DEFAULT_LIGHTS = Notification.DEFAULT_LIGHTS;
-	@Kroll.constant public static final int DEFAULT_SOUND = Notification.DEFAULT_SOUND;
-	@Kroll.constant public static final int DEFAULT_VIBRATE = Notification.DEFAULT_VIBRATE;
-	@Kroll.constant public static final int FLAG_AUTO_CANCEL = Notification.FLAG_AUTO_CANCEL;
-	@Kroll.constant public static final int FLAG_INSISTENT = Notification.FLAG_INSISTENT;
-	@Kroll.constant public static final int FLAG_NO_CLEAR = Notification.FLAG_NO_CLEAR;
-	@Kroll.constant public static final int FLAG_ONGOING_EVENT = Notification.FLAG_ONGOING_EVENT;
-	@Kroll.constant public static final int FLAG_ONLY_ALERT_ONCE = Notification.FLAG_ONLY_ALERT_ONCE;
-	@Kroll.constant public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
+	private static NotificationManager notificationManager = null;
+	private static NotificationChannel defaultChannel = null;
+
+	public static final String DEFAULT_CHANNEL_ID = "ti_default_channel";
+
+	@Kroll.constant
+	public static final int DEFAULT_ALL = Notification.DEFAULT_ALL;
+	@Kroll.constant
+	public static final int DEFAULT_LIGHTS = Notification.DEFAULT_LIGHTS;
+	@Kroll.constant
+	public static final int DEFAULT_SOUND = Notification.DEFAULT_SOUND;
+	@Kroll.constant
+	public static final int DEFAULT_VIBRATE = Notification.DEFAULT_VIBRATE;
+	@Kroll.constant
+	public static final int FLAG_AUTO_CANCEL = Notification.FLAG_AUTO_CANCEL;
+	@Kroll.constant
+	public static final int FLAG_INSISTENT = Notification.FLAG_INSISTENT;
+	@Kroll.constant
+	public static final int FLAG_NO_CLEAR = Notification.FLAG_NO_CLEAR;
+	@Kroll.constant
+	public static final int FLAG_ONGOING_EVENT = Notification.FLAG_ONGOING_EVENT;
+	@Kroll.constant
+	public static final int FLAG_ONLY_ALERT_ONCE = Notification.FLAG_ONLY_ALERT_ONCE;
+	@Kroll.constant
+	public static final int FLAG_SHOW_LIGHTS = Notification.FLAG_SHOW_LIGHTS;
 	@SuppressWarnings("deprecation")
 	@Kroll.constant public static final int STREAM_DEFAULT = Notification.STREAM_DEFAULT;
 
@@ -63,9 +79,34 @@ public class NotificationManagerModule extends KrollModule
 		return notification;
 	}
 
-	private NotificationManager getManager()
+	public static NotificationManager getManager()
 	{
-		return (NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
+		if (notificationManager == null) {
+			notificationManager =
+				(NotificationManager) TiApplication.getInstance().getSystemService(Activity.NOTIFICATION_SERVICE);
+		}
+		return notificationManager;
+	}
+
+	@SuppressLint("NewApi")
+    public static boolean useDefaultChannel()
+	{
+		// use default channel if we are targeting API 26+
+		boolean useDefaultChannel =
+			Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.O;
+
+		// setup default channel it it does not exist
+		if (useDefaultChannel && defaultChannel == null) {
+			defaultChannel =
+				new NotificationChannel(DEFAULT_CHANNEL_ID, "miscellaneous", NotificationManager.IMPORTANCE_DEFAULT);
+			getManager().createNotificationChannel(defaultChannel);
+			Log.w(
+				TAG,
+				"Falling back to default notification channel.\nIt is highly advised to create your own notification channel using Ti.Android.NotificationManager.createNotificationChannel()");
+		}
+
+		return useDefaultChannel;
 	}
 
 	@TargetApi(26)
@@ -105,9 +146,15 @@ public class NotificationManagerModule extends KrollModule
 	    NotificationProxy notificationProxy = NotificationProxy.fromObject(notificationValue);
 		NotificationManager manager = getManager();
 		if (manager != null && notificationProxy != null) {
+            // targeting Android O or above? create default channel
+            
 		    try {
 		        notificationProxy.setCurrentId(id);
-	            getManager().notify(id, notificationProxy.getNotification());
+		        Notification notification = notificationProxy.getNotification();
+		        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && notification.getChannelId() == DEFAULT_CHANNEL_ID) {
+	                useDefaultChannel();
+	            }
+	            getManager().notify(id, notification);
                 HashMap wakeParams = notificationProxy.getWakeParams();
                 if (wakeParams != null) {
                     int wakeTime = TiConvert.toInt(wakeParams.get("time"), 3000);
@@ -124,7 +171,7 @@ public class NotificationManagerModule extends KrollModule
                 }
             } catch (Exception e) {
                 
-				}
+            }
 		}
 	}
 

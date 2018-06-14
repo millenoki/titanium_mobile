@@ -216,7 +216,6 @@ public class Eia608TrackRenderer extends TrackRenderer implements Callback {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean handleMessage(Message msg) {
     switch (msg.what) {

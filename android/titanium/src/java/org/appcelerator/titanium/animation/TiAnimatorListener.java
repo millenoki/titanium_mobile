@@ -17,7 +17,6 @@ import android.animation.AnimatorSet;
 
 import android.view.View;
 
-@SuppressWarnings("rawtypes")
 public class TiAnimatorListener implements AnimatorListener {
     private static final String TAG = "TiAnimatorListener";
     protected TiAnimatorSet tiSet;

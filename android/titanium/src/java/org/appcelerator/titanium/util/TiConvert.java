@@ -53,7 +53,7 @@ public class TiConvert
 	public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
 
-	// Bundle 
+	// Bundle
 	public static Object putInKrollDict(KrollDict d, String key, Object value)
 	{
 		if (value instanceof String || value instanceof Number || value instanceof Boolean || value instanceof Date) {
@@ -81,14 +81,14 @@ public class TiConvert
 
 				if (v != null && v instanceof String) {
 					String[] sa = new String[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						sa[i] = (String) a[i];
 					}
 					d.put(key, sa);
 
 				} else if (v != null && v instanceof Double) {
 					double[] da = new double[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						da[i] = (Double) a[i];
 					}
 					d.put(key, da);
@@ -104,7 +104,7 @@ public class TiConvert
 				} */else {
 
 					Object[] oa = new Object[len];
-					for(int i = 0; i < len; i++) {
+					for (int i = 0; i < len; i++) {
 						oa[i] = a[i];
 					}
 					d.put(key, oa);
@@ -123,18 +123,18 @@ public class TiConvert
 
 		} else if (value instanceof Map) {
 			KrollDict dict = new KrollDict();
-			Map<?,?> map = (Map<?,?>)value;
+			Map<?, ?> map = (Map<?, ?>) value;
 			Iterator<?> iter = map.keySet().iterator();
 			while(iter.hasNext())
 			{
-				String k = (String)iter.next();
-				putInKrollDict(dict,k,map.get(k));
+				String k = (String) iter.next();
+				putInKrollDict(dict, k, map.get(k));
 			}
-			d.put(key,dict);
+			d.put(key, dict);
 
 		} else {
 			throw new IllegalArgumentException("Unsupported property type "
-				+ (value == null ? "null" : value.getClass().getName()));
+											   + (value == null ? "null" : value.getClass().getName()));
 		}
 
 		return value;
@@ -414,7 +414,6 @@ public class TiConvert
 	public static void updateLayoutCenter(Object value, LayoutParams layoutParams)
 	{
 		if (value instanceof HashMap) {
-			@SuppressWarnings("rawtypes")
 			HashMap center = (HashMap) value;
 			Object x = center.get(TiC.PROPERTY_X);
 			Object y = center.get(TiC.PROPERTY_Y);
@@ -478,8 +477,9 @@ public class TiConvert
 		} else if (value instanceof String) {
 			return Boolean.parseBoolean(((String) value));
 
-        }  else if (value instanceof Number) {
-            return ((Number) value).intValue() > 0;
+		} else if (value instanceof Number) {
+			// in Javascript anything other than zero is 'true'
+			return ((Number) value).intValue() != 0;
 
 		} else {
 			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
@@ -496,10 +496,10 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(HashMap<String, Object> hashMap, String key, boolean def)
 	{
-		if (hashMap != null && key != null){
+		if (hashMap != null && key != null) {
 			return toBoolean(hashMap.get(key), def);
 		}
-		
+
 		return def;
 	}
 
@@ -738,7 +738,7 @@ public class TiConvert
 	 * @param value the value to convert.
 	 * @return a double value.
 	 * @module.api
-	 */ 
+	 */
 	public static double toDouble(Object value)
 	{
 		if (value instanceof Double) {
@@ -1110,7 +1110,7 @@ public class TiConvert
 					json.put(key, (Boolean) o);
 
 				} else if (o instanceof Date) {
-					json.put(key, toJSONString((Date)o));
+					json.put(key, toJSONString((Date) o));
 
 				} else if (o instanceof HashMap) {
 					json.put(key, toJSON((HashMap) o));
@@ -1158,7 +1158,7 @@ public class TiConvert
 				ja.put((Boolean) o);
 
 			} else if (o instanceof Date) {
-				ja.put(toJSONString((Date)o));
+				ja.put(toJSONString((Date) o));
 
 			} else if (o instanceof HashMap) {
 				ja.put(toJSON((HashMap) o));
@@ -1173,7 +1173,7 @@ public class TiConvert
 
 		return ja;
 	}
-	
+
 	/**
 	 * If value is a  Date, formats and returns it. Otherwise,
 	 * return a String representation of value.
@@ -1187,7 +1187,7 @@ public class TiConvert
 			DateFormat df = new SimpleDateFormat(JSON_DATE_FORMAT);
 			df.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-			return df.format((Date)value);
+			return df.format((Date) value);
 
 		} else if (value instanceof JSONObject) {
 		    return value.toString();
@@ -1205,7 +1205,7 @@ public class TiConvert
             } else {
                 return null;
             }
-        } else {
+		} else {
 			return toString(value);
 		}
 	}
@@ -1219,17 +1219,17 @@ public class TiConvert
 	public static Date toDate(Object value)
 	{
 		if (value instanceof Date) {
-			return (Date)value;
+			return (Date) value;
 
 		} else if (value instanceof Number) {
-			long millis = ((Number)value).longValue();
+			long millis = ((Number) value).longValue();
 
 			return new Date(millis);
 		}
 
 		return null;
 	}
-	
+
 	/**
 	 * A wrapper function.
 	 * Refer to {@link #toDate(Object)} for more details.
@@ -1292,7 +1292,6 @@ public class TiConvert
 	 * @return a RectF instance.
 	 * @module.api
 	 */
-	@SuppressWarnings("unchecked")
 	public static RectF toRect(Object value)
 	{
 		if (value instanceof RectF) {
@@ -1363,7 +1362,6 @@ public class TiConvert
 	 * @return a RectF instance.
 	 * @module.api
 	 */
-	@SuppressWarnings("unchecked")
 	public static TiPoint toPoint(Object value)
 	{
 		if (value instanceof TiPoint) {
@@ -1381,7 +1379,6 @@ public class TiConvert
 		return null;
 	}
 	
-    @SuppressWarnings("unchecked")
     public static PointF toPointF(Object value)
     {
         if (value instanceof PointF) {
@@ -1411,7 +1408,6 @@ public class TiConvert
      * @return a Ti2DMatrix instance.
      * @module.api
      */
-    @SuppressWarnings("unchecked")
     public static Ti2DMatrix toMatrix(Object value)
     {
         if (value instanceof Ti2DMatrix) {
@@ -1513,7 +1509,6 @@ public class TiConvert
 		return outArray;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static KrollDict toKrollDict(Object value)
 	{
 		if (value instanceof KrollDict) {
@@ -1542,7 +1537,6 @@ public class TiConvert
     }
 
 
-    @SuppressWarnings("unchecked")
     public static HashMap toHashMap(Object value)
     {
         if (value instanceof KrollDict) {

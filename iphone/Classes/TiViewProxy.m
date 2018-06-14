@@ -281,16 +281,16 @@
     [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
   },
       NO);
-    }
+}
 
 - (void)hide:(id)arg
-      {
-      TiThreadPerformOnMainThread(^{
+{
+  TiThreadPerformOnMainThread(^{
     [self setHidden:YES withArgs:arg];
     [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
-      },
-          NO);
-    }
+  },
+      NO);
+}
 
 #pragma Animations
 
@@ -300,7 +300,7 @@
     return [[self viewParent] animationDelegate];
     }
   return nil;
-  }
+}
 
 - (BOOL)readyToAnimate
 {
@@ -329,8 +329,8 @@
 
 - (void)aboutToBeAnimated
 {
-  if ([view superview] == nil) {
-    VerboseLog(@"Entering animation without a superview Parent is %@, props are %@", parent, dynprops);
+    if ([view superview] == nil) {
+      VerboseLog(@"Entering animation without a superview Parent is %@, props are %@", parent, dynprops);
     [self windowWillOpen]; // we need to manually attach the window if you're animating
     [[self viewParent] childWillResize:self];
     }
@@ -651,7 +651,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
   [self setVzIndex:[TiUtils intValue:value def:0]];
   //    }
-  }
+}
 
 - (NSMutableDictionary *)center
 {
@@ -998,7 +998,7 @@ SEL GetterForKrollProperty(NSString *key)
 - (LayoutConstraint *)layoutProperties
 {
   return &layoutProperties;
-  }
+}
 #endif
 
 @synthesize sandboxBounds = sandboxBounds;
@@ -1014,7 +1014,7 @@ SEL GetterForKrollProperty(NSString *key)
 - (void)setHidden:(BOOL)newHidden withArgs:(id)args
 {
   if (hidden != newHidden) {
-    hidden = newHidden;
+  hidden = newHidden;
     //            if (!hidden && !view && parent) {
     //                [parent childAdded:self atIndex:0 shouldRelayout:YES];
     //            }
@@ -1722,7 +1722,7 @@ SEL GetterForKrollProperty(NSString *key)
 {
   windowOpening = NO;
   [self makeViewChildrenPerformSelector:@selector(windowDidOpen) withObject:nil];
-  }
+}
 
 - (void)windowWillClose
 {
@@ -2297,9 +2297,9 @@ SEL GetterForKrollProperty(NSString *key)
   }
   TiThreadPerformBlockOnMainThread(^{
     [[self getOrCreateView] performSelector:selector withObject:object];
-    },
-        wait);
-  }
+  },
+      wait);
+}
 
 #pragma mark Listener Management
 
@@ -2325,7 +2325,7 @@ SEL GetterForKrollProperty(NSString *key)
   }
 
   [super _listenerAdded:type count:count];
-    }
+}
 
 - (void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
@@ -2338,7 +2338,7 @@ SEL GetterForKrollProperty(NSString *key)
     }
   }
   [super _listenerRemoved:type count:count];
-    }
+}
 
 #pragma mark Layout events, internal and external
 
@@ -2491,7 +2491,7 @@ SEL GetterForKrollProperty(NSString *key)
     [self parentContentWillChange];
   else {
     [self contentsWillChange];
-}
+  }
   [self willChange];
 }
 
@@ -3084,7 +3084,7 @@ SEL GetterForKrollProperty(NSString *key)
     positionCache = position;
     }
   return CGRectMake(position.x - size.width / 2, position.y - size.height / 2, size.width, size.height);
-  }
+}
 
 #pragma mark Layout commands that need refactoring out
 
@@ -3193,7 +3193,7 @@ SEL GetterForKrollProperty(NSString *key)
     }
 
     [self refreshView:nil];
-    }
+}
 
 - (BOOL)willBeRelaying
 {
@@ -3857,7 +3857,7 @@ SEL GetterForKrollProperty(NSString *key)
 + (TiProxy *)createFromDictionary:(NSDictionary *)dictionary rootProxy:(TiParentingProxy *)rootProxy inContext:(id<TiEvaluator>)context
 {
   return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:[[self class] defaultTemplateType]];
-  }
+}
 
 - (void)hideKeyboard:(id)arg
 {

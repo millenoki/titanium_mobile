@@ -9,13 +9,14 @@
 #import "TiAudioSession.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-#import <AVFoundation/AVAudioSession.h>
 
-NSString *const kTiAudioSessionInterruptionBegin = @"TiAudioSessionInterruptionBegin";
-NSString *const kTiAudioSessionInterruptionEnd = @"TiAudioSessionInterruptionEnd";
-NSString *const kTiAudioSessionRouteChange = @"TiAudioSessionRouteChange";
-NSString *const kTiAudioSessionVolumeChange = @"TiAudioSessionVolumeChange";
-NSString *const kTiAudioSessionInputChange = @"TiAudioSessionInputChange";
+#import <AVFoundation/AVFAudio.h>
+
+NSString *const kTiAudioSessionInterruptionBegin = @"TiMediaAudioSessionInterruptionBegin";
+NSString *const kTiAudioSessionInterruptionEnd = @"TiMediaAudioSessionInterruptionEnd";
+NSString *const kTiAudioSessionRouteChange = @"TiMediaAudioSessionRouteChange";
+NSString *const kTiAudioSessionVolumeChange = @"TiMediaAudioSessionVolumeChange";
+NSString *const kTiAudioSessionInputChange = @"TiMediaAudioSessionInputChange";
 
 @implementation TiAudioSession
 
@@ -164,8 +165,7 @@ NSString *const kTiAudioSessionInputChange = @"TiAudioSessionInputChange";
 + (TiAudioSession *)sharedSession
 {
   static TiAudioSession *session = nil;
-  @synchronized(self)
-  {
+  @synchronized(self) {
     if (session == nil) {
       session = [[TiAudioSession alloc] init];
     }

@@ -657,15 +657,15 @@
   }
   }
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiKeyboardHeightChangedNotification object:data];
-    }
+}
 
 - (UIView *)topWindowProxyView
 {
   TiViewProxy *topProxy = [self topWindow];
   if (topProxy)
     return [topProxy view];
-  return [self view];
-    }
+    return [self view];
+  }
 
 - (TiViewProxy *)topWindow
 {
@@ -851,7 +851,11 @@
   BOOL trulyAnimated = animated;
   UIViewController *topVC = [self topPresentedController];
 
-  if ([topVC isKindOfClass:[TiErrorController class]]) {
+  if ([topVC isBeingDismissed]) {
+    topVC = [topVC presentingViewController];
+  }
+
+  if ([topVC isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING showing of modal controller");
     return;
   }
@@ -859,7 +863,7 @@
   if ([topVC isKindOfClass:[UIAlertController class]]) {
     if (((UIAlertController *)topVC).preferredStyle == UIAlertControllerStyleAlert) {
       trulyAnimated = NO;
-      if (![theController isKindOfClass:[TiErrorController class]]) {
+      if (![theController isKindOfClass:[TiErrorNavigationController class]]) {
         DebugLog(@"[ERROR] UIAlertController is up and showing an alert. ABORTING showing of modal controller");
         return;
       }
@@ -985,7 +989,7 @@
     if (!presentedViewController || topmostController == presentedViewController) {
       break;
     }
-    topmostController = presentedViewController;
+      topmostController = presentedViewController;
   }
   return topmostController;
 }
@@ -1235,7 +1239,7 @@
     // } else {
       return retVal;
     // }
-    }
+  }
   return (UIInterfaceOrientationMask)[self orientationFlags];
 }
 
@@ -1260,7 +1264,7 @@
   //        forcingStatusBarOrientation = NO;
   //        [self updateOrientationHistory:deviceOrientation];
   //    }
-  }
+}
 
 - (void)refreshOrientationWithDuration:(id)unused forController:(id<TiOrientationController>)orientationController
 {
@@ -1306,7 +1310,7 @@
   //    } else {
   //        [self resetTransformAndForceLayout:NO];
   //    }
-  }
+}
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
 {
@@ -1329,7 +1333,7 @@
     i--;
   }
   orientationHistory[0] = newOrientation;
-}
+  }
 
 //#ifdef FORCE_WITH_MODAL
 //-(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
@@ -1532,6 +1536,12 @@
     [self refreshOrientationWithDuration:nil forController:(id<TiOrientationController>)orientationController];
     [self updateStatusBar:NO];
   }
+
+#if IS_XCODE_9
+  if ([TiUtils isIOS11OrGreater]) {
+    [self setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1735,6 +1745,18 @@
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
+
+#pragma mark - HomeIndicatorAutoHidden
+
+#if IS_XCODE_9
+- (BOOL)prefersHomeIndicatorAutoHidden
+{
+  if ([containedWindows count] > 0) {
+    return [[containedWindows lastObject] homeIndicatorAutoHide];
+  }
+  return NO;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 - (BOOL)prefersStatusBarHidden

@@ -15,6 +15,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiActivityHelper;
@@ -43,7 +44,7 @@ import android.view.accessibility.AccessibilityManager;
 public class AppModule extends KrollModule implements SensorEventListener
 {
 	private static final String TAG = "AppModule";
-	
+
 	private static final String APP_UUID_STRING = "com.appcelerator.uuid";
 
 	@Kroll.constant public static final String EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
@@ -61,6 +62,8 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 	private KrollDict licenseDict = null;
 
+	private static final String APP_PATH = "Resources/app.js";
+
 	public AppModule()
 	{
 		super("App");
@@ -72,9 +75,9 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public void onDestroy() {
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
-	
+
     private void initializeVersionValues()
-    {
+	{
         PackageInfo pInfo;
         try {
             pInfo = TiApplication.getInstance().getPackageManager()
@@ -105,11 +108,11 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getVersion() {
 		return appInfo.getVersion();
 	}
-	
+
     @Kroll.getProperty
-    @Kroll.method
+	@Kroll.method
     public String getVersionName()
-    {
+	{
         if (appVersionName == null) {
             initializeVersionValues();
         }
@@ -141,7 +144,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getCopyright() {
 		return appInfo.getCopyright();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
     public KrollDict getLicense() {
 	    if (licenseDict == null) {
@@ -179,7 +182,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getSessionId() {
 		return TiPlatformHelper.getInstance().getSessionId();
 	}
-	   
+
     @Kroll.getProperty @Kroll.method
     public String getInstallId() {
         return appIdentifier();
@@ -190,7 +193,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public boolean getAnalytics() {
 		return appInfo.isAnalyticsEnabled();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
     public long getBuildDate() {
         return appInfo.getBuildDate();
@@ -239,7 +242,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 		return enabled;
 	}
-	
+
 
     @Kroll.getProperty @Kroll.method
     public boolean getInBackground() {
@@ -250,28 +253,34 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method
 	public void restart(@Kroll.argument(optional = true) Object arg)
 	{
-//	    int delay = TiConvert.toInt(arg, 250);
-//        AlarmManager restartAlarmManager = (AlarmManager) TiApplication.getAppSystemService(Context.ALARM_SERVICE);
-//        if (restartAlarmManager != null) {
-//            final Context context = TiApplication.getAppContext();
-//            Intent relaunch = new Intent( context, TiApplication.getInstance().getRootActivity().getClass());
-//            relaunch.setAction(Intent.ACTION_MAIN);
-//            relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
-//            PendingIntent restartPendingIntent = PendingIntent.getActivity( context, 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
-//            restartAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, restartPendingIntent);
-//            TiApplication.getInstance().getRootActivity().finish();
-//            System.exit(0);
-//        }
-		Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
-		Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-		i.addCategory(Intent.CATEGORY_LAUNCHER);
-		i.setAction(Intent.ACTION_MAIN);
+        //Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
+        //Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+        //i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        //i.addCategory(Intent.CATEGORY_LAUNCHER);
+        //i.setAction(Intent.ACTION_MAIN);
+        //TiApplication.terminateActivityStack();
+        //app.startActivity(i);
+        
+		KrollRuntime runtime = KrollRuntime.getInstance();
+
+		// prevent termination of root activity via TiBaseActivity.shouldFinishRootActivity()
+		TiBaseActivity.canFinishRoot = false;
+
+		// terminate all activities excluding root
 		TiApplication.terminateActivityStack();
-		app.startActivity(i);
+
+		// allow termination again
+		TiBaseActivity.canFinishRoot = true;
+
+		// restart kroll runtime
+		runtime.doDispose();
+		runtime.initRuntime();
+
+		// manually re-launch app
+		runtime.doRunModule(KrollAssetHelper.readAsset(APP_PATH), APP_PATH, getActivityProxy());
 	}
-	
+
 	@Kroll.method(name = "_restart")
     public void internalRestart()
     {
@@ -310,7 +319,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 			Log.w(TAG, "Unknown system event: " + eventName);
 		}
 	}
-	
+
 	@Kroll.method
 	public void clearImageMemoryCache()
 	{

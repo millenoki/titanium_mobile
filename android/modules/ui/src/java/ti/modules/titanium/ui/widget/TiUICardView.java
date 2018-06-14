@@ -34,7 +34,7 @@ public class TiUICardView extends TiUIView
 	public class TiUICardViewLayout extends TiCompositeLayout {
 
 		public TiUICardViewLayout(Context context)
-		{
+	{
 			super(context, TiUICardView.this);
 		}
 
@@ -66,9 +66,9 @@ public class TiUICardView extends TiUIView
 			layout.addView(child, params);
 		}
 
-        @Override
+		@Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            super.onLayout(changed, left, top, right, bottom);
+			super.onLayout(changed, left, top, right, bottom);
             if (changed) {
                 TiUIHelper.firePostLayoutEvent(TiUICardView.this);
             }
@@ -80,32 +80,34 @@ public class TiUICardView extends TiUIView
             }
         }
 
-    }
+	}
 
-    public TiUICardView(final TiViewProxy proxy)
-    {
-        // we create the view after the properties are processed
-        super(proxy);
+	public TiUICardView(final TiViewProxy proxy)
+	{
+		super(proxy);
         View view = new TiCardView(getProxy().getActivity());
         view.setPadding(0, 0, 0, 0);
         view.setFocusable(false);
         setNativeView(view);
-    }
+	}
 
 	public TiUICardViewLayout getLayout()
 	{
 		View nativeView = getNativeView();
-		return ((TiCardView) nativeView).layout;
+		if (nativeView != null) {
+			return ((TiCardView) nativeView).layout;
+		}
+		return null;
 
     }
     
     private TiCardView getCardView() {
         return ((TiCardView) getNativeView());
-    }
-    
-    @Override
+	}
+
+	@Override
     public ViewGroup getParentViewForChild()
-    {
+	{
         return getLayout();
     }
     
@@ -122,14 +124,14 @@ public class TiUICardView extends TiUIView
 	}
 
 
-    @Override
-    public void resort()
-    {
-        View v = getLayout();
-        if ( v instanceof TiCompositeLayout) {
-            ((TiCompositeLayout) v).resort();
-        }
-    }
+	@Override
+	public void resort()
+	{
+		View v = getLayout();
+		if (v instanceof TiCompositeLayout) {
+			((TiCompositeLayout) v).resort();
+		}
+	}
     @Override
     protected void setBorderRadius(float[] radius) {
         super.setBorderRadius(radius);

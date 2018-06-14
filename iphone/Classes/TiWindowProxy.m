@@ -30,6 +30,10 @@
 
 @end
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+#import "TiUIiOSNavWindowProxy.h"
+#endif
+
 @interface TiWindowProxy (Private)
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
@@ -217,8 +221,8 @@
   [rootView addSubview:theView];
   [rootView bringSubviewToFront:theView];
     [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
-}
   }
+}
 
 - (BOOL)isRootViewLoaded
 {
@@ -238,7 +242,7 @@
 - (void)open:(id)args
 {
   //If an error is up, Go away
-  if (!_useCustomUIWindow && [[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+  if (!_useCustomUIWindow && [[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return;
   }
@@ -309,7 +313,7 @@
   //TODO Argument Processing
   id object = [self valueForUndefinedKey:@"orientationModes"];
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
-  }
+}
 
 //-(void)setStatusBarStyle:(id)style
 //{
@@ -470,6 +474,37 @@
   return result;
 }
 
+#if IS_XCODE_9
+- (NSNumber *)homeIndicatorAutoHidden
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return @(NO);
+  }
+  return @([self homeIndicatorAutoHide]);
+}
+
+- (void)setHomeIndicatorAutoHidden:(id)arg
+{
+  if (![TiUtils isIOS11OrGreater]) {
+    NSLog(@"[ERROR] This property is available on iOS 11 and above.");
+    return;
+  }
+
+  ENSURE_TYPE(arg, NSNumber);
+  id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
+  [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
+  if (current != arg && [TiUtils isIOS11OrGreater]) {
+    [[self windowHoldingController] setNeedsUpdateOfHomeIndicatorAutoHidden];
+  }
+}
+
+- (BOOL)homeIndicatorAutoHide
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"homeIndicatorAutoHidden"] def:NO];
+}
+#endif
+
 - (BOOL)hidesStatusBar
 {
   return _hidesStatusBar;
@@ -496,7 +531,7 @@
     focussed = YES;
     if ([self handleFocusEvents] && opened) {
       [self fireEvent:@"focus" propagate:NO];
-      }
+    }
     UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
     [view setAccessibilityElementsHidden:NO];
   }
@@ -727,6 +762,18 @@
   }
 }
 
+#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
+- (TiUIiOSNavWindowProxy *)navigationWindow
+{
+  if (parentController != nil && [parentController isKindOfClass:[TiUIiOSNavWindowProxy class]]) {
+    return (TiUIiOSNavWindowProxy *)parentController;
+  }
+
+  NSLog(@"[ERROR] Trying to receive a Ti.UI.NavigationWindow instance that does not exist in this context!");
+  return nil;
+}
+#endif
+
 - (void)hideToolbar:(NSArray *)args
 {
   ENSURE_UI_THREAD(hideToolbar, args);
@@ -822,9 +869,9 @@
      } completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
      {
      }];
-    }
-  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
+  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
 
 #pragma mark - TiAnimation Delegate Methods
 

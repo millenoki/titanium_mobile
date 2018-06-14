@@ -245,7 +245,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	}
 
 	Local<Value> property = jsObject->Get(jsPropertyName);
-	if (!property->IsFunction()) {
+	if (property.IsEmpty() || !property->IsFunction()) {
 		return JNIUtil::undefinedObject;
 	}
 

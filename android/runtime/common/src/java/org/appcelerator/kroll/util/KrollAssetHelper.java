@@ -33,6 +33,7 @@ public class KrollAssetHelper
 		String readAsset(String path);
 		boolean assetExists(String path);
 		Set<String> list(String path);
+		String[] getAssetPaths();
 	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)
@@ -94,6 +95,14 @@ public class KrollAssetHelper
 		return null;
 	}
 
+	public static String[] getEncryptedAssetPaths()
+	{
+		if (assetCrypt != null) {
+			return assetCrypt.getAssetPaths();
+		}
+		return null;
+	}
+
 	public static String readFile(String path)
 	{
 		try {
@@ -133,7 +142,7 @@ public class KrollAssetHelper
 				return assetManager.open(path) != null;
 			} catch (IOException e) {}
 		}
-        return false;
+		return false;
 	}
 
 	public static void getDirectoryListing(String path, List<String> listing)

@@ -592,7 +592,6 @@ public class IntentProxy extends KrollProxy
 		return "Ti.Android.Intent";
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
     @Kroll.method
     public IntentProxy putExtraInitialIntents(Object arg)
     {

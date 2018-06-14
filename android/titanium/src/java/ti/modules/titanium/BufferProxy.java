@@ -24,9 +24,9 @@ import ti.modules.titanium.codec.CodecModule;
  * A proxy that wraps a primitive byte array buffer
  */
 @Kroll.proxy(creatableInModule=TitaniumModule.class, propertyAccessors = {
-	TiC.PROPERTY_BYTE_ORDER,
-	TiC.PROPERTY_TYPE,
-	TiC.PROPERTY_VALUE
+		TiC.PROPERTY_BYTE_ORDER,
+		TiC.PROPERTY_TYPE,
+		TiC.PROPERTY_VALUE
 })
 public class BufferProxy extends KrollProxy
 {
@@ -88,7 +88,7 @@ public class BufferProxy extends KrollProxy
             if (bytes != null) {
                 System.arraycopy(bytes, 0, buffer, 0, bytes.length);
             }
-        }
+		}
 	}
 
 	protected void encodeNumber(Number value, HashMap dict)
@@ -146,7 +146,7 @@ public class BufferProxy extends KrollProxy
 	public void setIndexedProperty(int index, Object value)
 	{
 		if (value instanceof Number) {
-			buffer[index] = ((Number)value).byteValue();
+			buffer[index] = ((Number) value).byteValue();
 		} else {
 			super.setIndexedProperty(index, value);
 		}
@@ -304,7 +304,16 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		return new BufferProxy(copyOfRange(buffer, offset, offset+length));
+		BufferProxy clone = new BufferProxy(copyOfRange(buffer, offset, offset + length));
+		// Copy over byteOrder and type properties
+		clone.setProperty(TiC.PROPERTY_BYTE_ORDER, this.getProperty(TiC.PROPERTY_BYTE_ORDER));
+		clone.setProperty(TiC.PROPERTY_TYPE, this.getProperty(TiC.PROPERTY_TYPE));
+		// Copy value if cloning with no args
+		// TODO How would we handle this with a partial clone?
+		if (args.length == 0) {
+			clone.setProperty(TiC.PROPERTY_VALUE, this.getProperty(TiC.PROPERTY_VALUE));
+		}
+		return clone;
 	}
 
 	@Kroll.method
@@ -327,13 +336,13 @@ public class BufferProxy extends KrollProxy
 
 		validateOffsetAndLength(offset, length, buffer.length);
 
-		Arrays.fill(buffer, offset, (offset + length), (byte)fillByte);
+		Arrays.fill(buffer, offset, (offset + length), (byte) fillByte);
 	}
 
 	@Kroll.method
 	public void clear()
 	{
-		Arrays.fill(buffer, (byte)0);
+		Arrays.fill(buffer, (byte) 0);
 	}
 
 	@Kroll.method

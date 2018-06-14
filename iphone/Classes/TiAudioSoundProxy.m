@@ -6,8 +6,7 @@
  */
 #ifdef USE_TI_AUDIOSOUND
 
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
+#import <AVFoundation/AVFAudio.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 #import "TiAudioSession.h"
@@ -299,7 +298,7 @@
 {
   if ([self _hasListeners:@"complete"]) {
     NSString *message = flag ? nil : @"could not decode the audio data";
-    [self fireEvent:@"complete" withObject:nil errorCode:(flag ? 0 : -1) message:message];
+    [self fireEvent:@"complete" withObject:nil errorCode:(flag ? 0 : -1)message:message];
   }
   if (flag) {
     [[TiAudioSession sharedSession] stopAudioSession];
