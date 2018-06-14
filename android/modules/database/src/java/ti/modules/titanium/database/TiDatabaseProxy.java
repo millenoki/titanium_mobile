@@ -133,6 +133,8 @@ public class TiDatabaseProxy extends KrollProxy
 					for (int i = 0; i < sqlArgs.length; i++) {
 						if (sqlArgs[i] instanceof TiBlob) {
 							newArgs[i] = ((TiBlob) sqlArgs[i]).getBytes();
+						} else if (sqlArgs[i] instanceof Object[]) {
+						    newArgs[i] = TiConvert.toBytes(sqlArgs[i]);
 						} else {
 							newArgs[i] = TiConvert.toString(sqlArgs[i]);
 						}
