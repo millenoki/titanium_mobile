@@ -282,9 +282,9 @@ Module.prototype.require = function (request, context) {
 		request = path.normalize(request);
 	}
 
-	if (Module.cache[request]) {
-		return Module.cache[request].exports || true;
-	}
+	// if (Module.cache[request]) {
+	// 	return Module.cache[request].exports || true;
+	// }
 
 	loaded = this.loadAsFileOrDirectory(request, context);
 	if (loaded) {
