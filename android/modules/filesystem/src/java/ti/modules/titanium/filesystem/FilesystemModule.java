@@ -186,6 +186,7 @@ public class FilesystemModule extends KrollModule
 	public String getExternalStorageDirectory()
 	{
 		return "appdata://";
+		// return "file://" + TiApplication.getInstance().getExternalFilesDir(null).getAbsolutePath();
 	}
 
 	@Kroll.getProperty @Kroll.method
