@@ -24,18 +24,18 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnActivityResultEvent;
 import org.appcelerator.titanium.util.TiConvert;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
+//import com.google.android.gms.common.ConnectionResult;
+//import com.google.android.gms.common.api.GoogleApiClient;
+//import com.google.android.gms.common.api.PendingResult;
+//import com.google.android.gms.common.api.ResultCallback;
+//import com.google.android.gms.common.api.Status;
+//import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+//import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+//import com.google.android.gms.location.LocationRequest;
+//import com.google.android.gms.location.LocationServices;
+//import com.google.android.gms.location.LocationSettingsRequest;
+//import com.google.android.gms.location.LocationSettingsResult;
+//import com.google.android.gms.location.LocationSettingsStatusCodes;
 
 import ti.modules.titanium.geolocation.GeolocationModule;
 import ti.modules.titanium.geolocation.TiLocation;
@@ -59,7 +59,8 @@ import android.os.Handler;
 @SuppressWarnings({"rawtypes"})
 @Kroll.module(parentModule=GeolocationModule.class)
 public class AndroidModule extends KrollModule
-	implements Handler.Callback, ConnectionCallbacks, OnConnectionFailedListener
+//implements Handler.Callback, ConnectionCallbacks, OnConnectionFailedListener
+	implements Handler.Callback
 {
 	@Kroll.constant public static final String PROVIDER_PASSIVE = LocationManager.PASSIVE_PROVIDER;
 	@Kroll.constant public static final String PROVIDER_NETWORK = LocationManager.NETWORK_PROVIDER;
@@ -428,128 +429,128 @@ public class AndroidModule extends KrollModule
         return tiLocation.isProviderEnabled(name);
     }
 
-    @Override
-    public void onConnected(Bundle arg0) {
-        if (hasListeners("api.connected", false)) {
-            fireEvent("api.connected", null, false, false);
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int arg0) {
-        if (hasListeners("api.suspended", false)) {
-            KrollDict data = new KrollDict();
-            data.putCodeAndMessage(arg0, "The Google Api connection was suspended");
-            fireEvent("api.suspended", null, false, false);
-        }
-    }
-    
-    @Override
-    public void onConnectionFailed(ConnectionResult arg0) {
-        if (hasListeners("api.failed", false)) {
-            KrollDict data = new KrollDict();
-            data.putCodeAndMessage(arg0.getErrorCode(), arg0.getErrorMessage());
-            fireEvent("api.failed", null, false, false);
-        }
-    }
-    
-    private LocationRequest mLocationRequest;
-    PendingResult<LocationSettingsResult> result;
-    private GoogleApiClient mGoogleApiClient;
-   @Kroll.method
-    public void checkLocationSettings(@Kroll.argument(optional=true) final Object options, @Kroll.argument(optional=true) final KrollFunction callback) {
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(new ConnectionCallbacks() {
-                        
-                        @Override
-                        public void onConnectionSuspended(int arg0) {
-                            // TODO Auto-generated method stub
-                            
-                        }
-                        
-                        @Override
-                        public void onConnected(Bundle arg0) {
-                            checkLocationSettings(options, callback);
-                        }
-                    })
-                    .addOnConnectionFailedListener(new OnConnectionFailedListener() {
-                        
-                        @Override
-                        public void onConnectionFailed(ConnectionResult arg0) {
-                            if (callback != null) {
-                                KrollDict response = new KrollDict();
-                                response.putCodeAndMessage(arg0.getErrorCode(), arg0.getErrorMessage());
-                                callback.callAsync(getKrollObject(), response);
-                            }
-                        }
-                    }).build();
-            mGoogleApiClient.connect();
-            return;
-        }
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(30 * 1000);
-        mLocationRequest.setFastestInterval(5 * 1000);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest);
-        builder.setAlwaysShow(true);
-
-        result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-
-        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(LocationSettingsResult result) {
-                final Status status = result.getStatus();
-                //final LocationSettingsStates state = result.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        if (callback != null) {
-                            KrollDict response = new KrollDict();
-                            response.putCodeAndMessage(0, null);
-                            callback.callAsync(getKrollObject(), response);
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied. But could be fixed by showing the user
-                        // a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            TiBaseActivity activity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
-                            activity.addOnActivityResultListener(new OnActivityResultEvent() {
-                                
-                                @Override
-                                public void onActivityResult(Activity activity, int requestCode,
-                                        int resultCode, Intent data) {
-                                    if (callback != null) {
-                                        KrollDict response = new KrollDict();
-                                        response.putCodeAndMessage(-1-resultCode, null);
-                                        callback.callAsync(getKrollObject(), response);
-                                    }
-                                }
-                            });
-                            status.startResolutionForResult(
-                                    activity,
-                                    TiC.PERMISSION_CODE_GOOGLE_API_LOCATION);
-                        } catch (IntentSender.SendIntentException e) {
-                            Log.d(TAG, "", e);
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way to fix the
-                        // settings so we won't show the dialog.
-                        //...
-                        KrollDict response = new KrollDict();
-                        response.putCodeAndMessage(status.getStatusCode(), "Location settings are not satisfied");
-                        callback.callAsync(getKrollObject(), response);
-                        break;
-                }
-            }
-        });
-    }
+//    @Override
+//    public void onConnected(Bundle arg0) {
+//        if (hasListeners("api.connected", false)) {
+//            fireEvent("api.connected", null, false, false);
+//        }
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int arg0) {
+//        if (hasListeners("api.suspended", false)) {
+//            KrollDict data = new KrollDict();
+//            data.putCodeAndMessage(arg0, "The Google Api connection was suspended");
+//            fireEvent("api.suspended", null, false, false);
+//        }
+//    }
+//    
+//    @Override
+//    public void onConnectionFailed(ConnectionResult arg0) {
+//        if (hasListeners("api.failed", false)) {
+//            KrollDict data = new KrollDict();
+//            data.putCodeAndMessage(arg0.getErrorCode(), arg0.getErrorMessage());
+//            fireEvent("api.failed", null, false, false);
+//        }
+//    }
+//    
+//    private LocationRequest mLocationRequest;
+//    PendingResult<LocationSettingsResult> result;
+//    private GoogleApiClient mGoogleApiClient;
+//   @Kroll.method
+//    public void checkLocationSettings(@Kroll.argument(optional=true) final Object options, @Kroll.argument(optional=true) final KrollFunction callback) {
+//        if (mGoogleApiClient == null) {
+//            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+//                    .addApi(LocationServices.API)
+//                    .addConnectionCallbacks(new ConnectionCallbacks() {
+//                        
+//                        @Override
+//                        public void onConnectionSuspended(int arg0) {
+//                            // TODO Auto-generated method stub
+//                            
+//                        }
+//                        
+//                        @Override
+//                        public void onConnected(Bundle arg0) {
+//                            checkLocationSettings(options, callback);
+//                        }
+//                    })
+//                    .addOnConnectionFailedListener(new OnConnectionFailedListener() {
+//                        
+//                        @Override
+//                        public void onConnectionFailed(ConnectionResult arg0) {
+//                            if (callback != null) {
+//                                KrollDict response = new KrollDict();
+//                                response.putCodeAndMessage(arg0.getErrorCode(), arg0.getErrorMessage());
+//                                callback.callAsync(getKrollObject(), response);
+//                            }
+//                        }
+//                    }).build();
+//            mGoogleApiClient.connect();
+//            return;
+//        }
+//        mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        mLocationRequest.setInterval(30 * 1000);
+//        mLocationRequest.setFastestInterval(5 * 1000);
+//
+//        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+//                .addLocationRequest(mLocationRequest);
+//        builder.setAlwaysShow(true);
+//
+//        result = LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+//
+//        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+//            @Override
+//            public void onResult(LocationSettingsResult result) {
+//                final Status status = result.getStatus();
+//                //final LocationSettingsStates state = result.getLocationSettingsStates();
+//                switch (status.getStatusCode()) {
+//                    case LocationSettingsStatusCodes.SUCCESS:
+//                        if (callback != null) {
+//                            KrollDict response = new KrollDict();
+//                            response.putCodeAndMessage(0, null);
+//                            callback.callAsync(getKrollObject(), response);
+//                        }
+//                        break;
+//                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+//                        // Location settings are not satisfied. But could be fixed by showing the user
+//                        // a dialog.
+//                        try {
+//                            // Show the dialog by calling startResolutionForResult(),
+//                            // and check the result in onActivityResult().
+//                            TiBaseActivity activity = (TiBaseActivity) TiApplication.getAppCurrentActivity();
+//                            activity.addOnActivityResultListener(new OnActivityResultEvent() {
+//                                
+//                                @Override
+//                                public void onActivityResult(Activity activity, int requestCode,
+//                                        int resultCode, Intent data) {
+//                                    if (callback != null) {
+//                                        KrollDict response = new KrollDict();
+//                                        response.putCodeAndMessage(-1-resultCode, null);
+//                                        callback.callAsync(getKrollObject(), response);
+//                                    }
+//                                }
+//                            });
+//                            status.startResolutionForResult(
+//                                    activity,
+//                                    TiC.PERMISSION_CODE_GOOGLE_API_LOCATION);
+//                        } catch (IntentSender.SendIntentException e) {
+//                            Log.d(TAG, "", e);
+//                            // Ignore the error.
+//                        }
+//                        break;
+//                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+//                        // Location settings are not satisfied. However, we have no way to fix the
+//                        // settings so we won't show the dialog.
+//                        //...
+//                        KrollDict response = new KrollDict();
+//                        response.putCodeAndMessage(status.getStatusCode(), "Location settings are not satisfied");
+//                        callback.callAsync(getKrollObject(), response);
+//                        break;
+//                }
+//            }
+//        });
+//    }
 }
 

@@ -42,12 +42,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 /**
  * GeolocationModule exposes all common methods and properties relating to geolocation behavior
@@ -247,8 +244,10 @@ public class GeolocationModule extends KrollModule
 		super("geolocation");
 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
-
-		fusedLocationProvider = new FusedLocationProvider(context, this);
+		
+//		if (FusedLocationProvider.hasPlayServices(context)) {
+//	        fusedLocationProvider = new FusedLocationProvider(context, this);
+//        }
 
 		tiLocation = new TiLocation();
 		tiCompass = new TiCompass(this, tiLocation);
@@ -759,7 +758,7 @@ public class GeolocationModule extends KrollModule
 			return;
 		}
 
-		if (FusedLocationProvider.hasPlayServices(context)) {
+		if (fusedLocationProvider != null) {
 			fusedLocationProvider.registerLocationProvider(locationProvider);
 		} else {
 			String provider = TiConvert.toString(locationProvider.getProperty(TiC.PROPERTY_NAME));
@@ -783,7 +782,7 @@ public class GeolocationModule extends KrollModule
 	@SuppressLint("MissingPermission")
 	public void unregisterLocationProvider(LocationProviderProxy locationProvider)
 	{
-		if (FusedLocationProvider.hasPlayServices(context)) {
+        if (fusedLocationProvider != null) {
 			fusedLocationProvider.unregisterLocationProvider(locationProvider);
 		} else {
 			tiLocation.locationManager.removeUpdates(locationProvider);
