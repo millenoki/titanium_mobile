@@ -138,8 +138,10 @@ public class TiBlob extends KrollProxy {
         if (this.image != null) {
             TiBitmapPool.decrementRefCount(image);
             this.image = null;
-	}
+        }
     }
+    
+    
 
     public static String getMimeTypeOfFile(Object object) {
         if (object instanceof GifDrawable) {
@@ -673,22 +675,30 @@ public class TiBlob extends KrollProxy {
 	}
 
     @Kroll.getProperty(enumerable=false)
-	@Kroll.method
+    @Kroll.method
     public TiFileProxy getFile() {
-		if (data == null) {
-			return null;
-		}
-		if (this.type != TYPE_FILE) {
-			Log.w(TAG, "getFile not supported for non-file blob types.");
-			return null;
-		} else if (!(data instanceof TiBaseFile)) {
-			Log.w(TAG,
+        if (data == null) {
+            return null;
+        }
+        if (this.type != TYPE_FILE) {
+            Log.w(TAG, "getFile not supported for non-file blob types.");
+            return null;
+        } else if (!(data instanceof TiBaseFile)) {
+            Log.w(TAG,
                     "getFile unable to return value: underlying data is not file, rather "
                             + data.getClass().getName());
-			return null;
-		} else {
-			return new TiFileProxy((TiBaseFile) data);
-		}
+            return null;
+        } else {
+            return new TiFileProxy((TiBaseFile) data);
+        }
+    }
+	@Kroll.method
+    public void clearData() {
+	    this.data = null;
+	    if (this.image != null) {
+            TiBitmapPool.decrementRefCount(image);
+            this.image = null;
+        }
 	}
 
     public Drawable getDrawable() {
