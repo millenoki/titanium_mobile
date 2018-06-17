@@ -205,6 +205,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// Initialize V8.
 		// TODO Enable this when we use snapshots?
 		//V8::InitializeExternalStartupData(argv[0]);
+		LOG_TIMER(TAG, "Initialize V8");
 		V8Runtime::platform = platform::CreateDefaultPlatform();
 		V8::InitializePlatform(V8Runtime::platform);
 		V8::Initialize();
