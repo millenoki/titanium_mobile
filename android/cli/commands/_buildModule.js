@@ -1464,9 +1464,8 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				file: path.relative(this.buildGenTsDir, file),
 				src: file
 			});
-			}
-		}.bind(this));
-	}
+		}
+	}.bind(this));
 
 	if (!jsFilesToEncrypt.length) {
 		// nothing to encrypt, continue
@@ -1495,14 +1494,14 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	if (fs.existsSync(this.dependencyJsonFile)) {
 		const dependsMap = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
-	Array.prototype.push.apply(this.metaData, dependsMap.required);
-	Object.keys(dependsMap.dependencies).forEach(function (key) {
-		dependsMap.dependencies[key].forEach(function (item) {
-			if (this.metaData.indexOf(item) === -1) {
-				this.metaData.push(item);
-			}
+		Array.prototype.push.apply(this.metaData, dependsMap.required);
+		Object.keys(dependsMap.dependencies).forEach(function (key) {
+			dependsMap.dependencies[key].forEach(function (item) {
+				if (this.metaData.indexOf(item) === -1) {
+					this.metaData.push(item);
+				}
+			}, this);
 		}, this);
-	}, this);
 	}
 
 	// Compiling JS
