@@ -825,6 +825,9 @@ public class TiConvert
 	 */
 	public static String toString(Object value)
 	{
+	    if (value instanceof TiBlob) {
+	        return ((TiBlob) value).getText();
+	    }
 		return value == null ? null : value.toString();
 	}
 

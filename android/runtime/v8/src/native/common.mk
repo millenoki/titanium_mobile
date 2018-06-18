@@ -51,17 +51,18 @@ endif
 
 LDLIBS := -L$(SYSROOT)/usr/lib -ldl -llog -L$(TARGET_OUT)
 
+# FIXME: This breaks on Android NDK r16b and r17
 # optimize output size
-#CFLAGS += -Os -flto -ffunction-sections -fdata-sections
-#LDLIBS += -Wl,--gc-sections,--strip-all
+# CFLAGS += -Os -flto -ffunction-sections -fdata-sections
+# LDLIBS += -Wl,--gc-sections,--strip-all
 
 # exclude v8 libraries
-LDLIBS += -Wl,--exclude-libs=libv8_libbase
-LDLIBS += -Wl,--exclude-libs=libv8_libplatform
-# LDLIBS += -Wl,--exclude-libs=libv8_base
-LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
-LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
-LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
+# LDLIBS += -Wl,--exclude-libs=libv8_libbase
+# LDLIBS += -Wl,--exclude-libs=libv8_libplatform
+# # LDLIBS += -Wl,--exclude-libs=libv8_base
+# LDLIBS += -Wl,--exclude-libs=libv8_nosnapshot
+# LDLIBS += -Wl,--exclude-libs=libv8_builtins_generators
+# LDLIBS += -Wl,--exclude-libs=libv8_builtins_setup
 
 # tune for common architectures
 #ifeq ($(TARGET_ARCH_ABI),arm64-v8a)

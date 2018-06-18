@@ -42,30 +42,40 @@ Local<Object> ProxyFactory::createV8Proxy(v8::Isolate* isolate, Local<Value> cla
 		return Local<Object>();
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
 	v8::EscapableHandleScope scope(isolate);
 
-	Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(isolate));
+	Local<Object> exports = KrollBindings::getBinding(isolate, className->ToString(context).FromMaybe(String::Empty(isolate)));
 
 	if (exports.IsEmpty()) {
-		v8::String::Utf8Value classStr(className);
+		v8::String::Utf8Value classStr(isolate, className);
 		LOGE(TAG, "Failed to find class for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
 	}
 
 	// FIXME: We pick the first item in exports as the constructor. We should do something more intelligent (for ES6 look at default export?)
-	Local<Array> names = exports->GetPropertyNames();
-	if (names->Length() < 1) {
-		v8::String::Utf8Value classStr(className);
-		LOGE(TAG, "Failed to find class for %s", *classStr);
+	Local<Array> names;
+	MaybeLocal<Array> possibleNames = exports->GetPropertyNames(context);
+	if (!possibleNames.ToLocal(&names) || names->Length() < 1) {
+		v8::String::Utf8Value classStr(isolate, className);
+		LOGE(TAG, "Failed to find constructor in exports for %s", *classStr);
 		LOG_JNIENV_ERROR("while creating V8 Proxy.");
 		return Local<Object>();
 	}
-	Local<Function> creator = exports->Get(names->Get(0)).As<Function>();
+	MaybeLocal<Value> possibleConstructor = exports->Get(context, names->Get(context, 0).ToLocalChecked());
+	if (possibleConstructor.IsEmpty()) {
+		v8::String::Utf8Value classStr(isolate, className);
+		LOGE(TAG, "Failed to get constructor in exports for %s", *classStr);
+		LOG_JNIENV_ERROR("while creating V8 Proxy.");
+		return Local<Object>();
+	}
+
+	Local<Function> creator = possibleConstructor.ToLocalChecked().As<Function>();
 
 	Local<Value> javaObjectExternal = External::New(isolate, javaProxy);
 	TryCatch tryCatch(isolate);
-	Local<Context> context = isolate->GetCurrentContext();
+	// Local<Context> context = isolate->GetCurrentContext();
 	Local<Value> argv[1] = { javaObjectExternal };
 
 	Local<Object> v8Proxy;
@@ -100,6 +110,8 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 		return NULL;
 	}
 
+	Local<Context> context = isolate->GetCurrentContext();
+
 	// Grab the Proxy pointer from the JSObject that wraps it,
 	// pass along the address of the Proxy to use a pointer to get it back later when we deal with this object
 	titanium::Proxy* proxy = NativeObject::Unwrap<titanium::Proxy>(v8Proxy); // v8Proxy holds pointer to Proxy object in internal field
@@ -125,22 +137,29 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// depends how this constructor was called.
 	jobjectArray javaArgs;
 	if (calledFromCreate) {
-		Local<Object> arguments = args[0]->ToObject(isolate);
-		int length = arguments->Get(Proxy::lengthSymbol.Get(isolate))->Int32Value();
+		Local<Object> arguments = args[0].As<Object>();
+		MaybeLocal<Value> lengthValue = arguments->Get(context, Proxy::lengthSymbol.Get(isolate));
+		Maybe<int32_t> length = Nothing<int32_t>();
+		if (!lengthValue.IsEmpty()) {
+			length = lengthValue.ToLocalChecked()->Int32Value(context);
+		}
 		int start = 0;
 
 		// Get the scope variables if provided and extract the source URL.
 		// We need to send that to the Java side when creating the proxy.
-		if (length > 0) {
-			Local<Object> scopeVars = arguments->Get(0)->ToObject(isolate);
-			if (V8Util::constructorNameMatches(isolate, scopeVars, "ScopeVars")) {
-				Local<Value> sourceUrl = scopeVars->Get(Proxy::sourceUrlSymbol.Get(isolate));
-				javaSourceUrl = TypeConverter::jsValueToJavaString(isolate, env, sourceUrl);
-				start = 1;
+		if (length.FromMaybe(0) > 0) {
+			MaybeLocal<Value> maybeFirstArgument = arguments->Get(context, 0);
+			if (!maybeFirstArgument.IsEmpty()) {
+				MaybeLocal<Object> scopeVars = maybeFirstArgument.ToLocalChecked()->ToObject(context);
+				if (!scopeVars.IsEmpty() && V8Util::constructorNameMatches(isolate, scopeVars.ToLocalChecked(), "ScopeVars")) {
+					MaybeLocal<Value> sourceUrl = scopeVars.ToLocalChecked()->Get(context, Proxy::sourceUrlSymbol.Get(isolate));
+					javaSourceUrl = TypeConverter::jsValueToJavaString(isolate, env, sourceUrl.FromMaybe(String::Empty(isolate).As<Value>()));
+					start = 1;
+				}
 			}
 		}
 
-		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(isolate, env, arguments, start, length);
+		javaArgs = TypeConverter::jsObjectIndexPropsToJavaArray(isolate, env, arguments, start, length.FromMaybe(0));
 	} else {
 		javaArgs = TypeConverter::jsArgumentsToJavaArray(env, args);
 	}
@@ -156,7 +175,7 @@ jobject ProxyFactory::createJavaProxy(jclass javaClass, Local<Object> v8Proxy, c
 	// So, I think we can just skip this hack altogether? Or maybe just assume "app://app.js"?
 	if (javaSourceUrl == NULL) {
 		Local<String> sourceUrl = v8::StackTrace::CurrentStackTrace(isolate, 1, v8::StackTrace::kScriptName)->GetFrame(0)->GetScriptNameOrSourceURL();
-		// v8::String::Utf8Value sourceUrlThing(sourceUrl);
+		// v8::String::Utf8Value sourceUrlThing(isolate, sourceUrl);
 		// LOGE(TAG, "Was given no sourceURL. Trying to hack one from stack trace: %s", *sourceUrlThing);
 		javaSourceUrl = TypeConverter::jsValueToJavaString(isolate, env, sourceUrl);
 	}
