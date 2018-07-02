@@ -385,9 +385,9 @@ extern NSString *const TI_APPLICATION_GUID;
         UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:ok otherButtonTitles:nil];
         [servicesDisabledAlert show];
         [servicesDisabledAlert release];
-    }
       }
     }
+  }
   [self setHeadingUpdateState:startHeading];
   [self setLocationUpdateState:startLocation];
   if (!trackingHeading && !trackingLocation) {
