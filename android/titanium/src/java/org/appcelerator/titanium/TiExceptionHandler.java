@@ -126,7 +126,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 		if (lineSource != null) {
 			output += lineSource + "\n";
-			output += fill(lineOffset - 1) + "^\n";
+			if (lineOffset > 1) {
+	            output += fill(lineOffset - 1) + "^\n";			    
+			}
 		}
 		// sometimes the stacktrace can include the error
 		// don't re-print the error if that is the case
