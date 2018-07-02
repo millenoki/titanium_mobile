@@ -58,6 +58,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
 	private int appVersionCode = -1;
+	private long appInstallationDate = -1;
 	private String appVersionName;
 
 	private KrollDict licenseDict = null;
@@ -84,6 +85,7 @@ public class AppModule extends KrollModule implements SensorEventListener
                 .getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
             appVersionCode = pInfo.versionCode;
             appVersionName = pInfo.versionName;
+            appInstallationDate = pInfo.firstInstallTime;
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Unable to get package info", e);
         }
@@ -117,6 +119,16 @@ public class AppModule extends KrollModule implements SensorEventListener
             initializeVersionValues();
         }
         return appVersionName;
+    }
+
+    @Kroll.getProperty
+	@Kroll.method
+    public long getInstallationDate()
+	{
+        if (appVersionName == null) {
+            initializeVersionValues();
+        }
+        return appInstallationDate;
     }
 
 
@@ -468,6 +480,7 @@ public class AppModule extends KrollModule implements SensorEventListener
         result.put("version", getVersion());
         result.put("versionName", getVersionName());
         result.put("buildDate", getBuildDate());
+        result.put("installationDate", getInstallationDate());
         result.put("buildNumber", getBuildNumber());
         result.put("deployType", getDeployType());
         result.put("description", getDescription());

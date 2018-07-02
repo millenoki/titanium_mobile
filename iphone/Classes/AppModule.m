@@ -406,6 +406,12 @@ extern long long const TI_APPLICATION_BUILD_DATE;
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  BOOL hasLanchedOnce = [defaults boolForKey:@"HasLanchedOnce"];
+  if(!hasLanchedOnce){
+      [defaults setValue: NUMLONGLONG([[NSDate date] timeIntervalSince1970]) forKey:@"applicationFirstLaunch"];
+      [defaults setBool:YES forKey:@"HasLanchedOnce"];
+  }
   [super startup];
 }
 
@@ -599,7 +605,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 - (id)buildDate
 {
   if (TI_APPLICATION_BUILD_DATE == -1) {
-    NUMLONGLONG([[NSDate date] timeIntervalSince1970]);
+    return NUMLONGLONG([[NSDate date] timeIntervalSince1970]);
   }
   return NUMLONGLONG(TI_APPLICATION_BUILD_DATE);
 }
@@ -613,6 +619,11 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 {
   return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
 }
+- (id)installationDate
+{
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  return [defaults integerForKey:@"applicationFirstLaunch"];
+}
 
 - (id)fullInfo
 {
@@ -620,6 +631,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     @"version" : [self version],
     @"versionName" : [self versionName],
     @"buildDate" : [self buildDate],
+    @"installationDate" : [self installationDate],
     @"buildNumber" : [self buildNumber],
     @"deployType" : [self deployType],
     @"description" : [self description],
