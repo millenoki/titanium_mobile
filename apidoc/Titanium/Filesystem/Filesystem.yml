@@ -30,6 +30,10 @@ methods:
         object representing the new file.
     returns:
         type: Titanium.Filesystem.File
+    parameters:
+      - name: options
+        type: Dictionary
+        optional: true
 
   - name: getFile
     summary: Returns a `File` object representing the file identified by the path

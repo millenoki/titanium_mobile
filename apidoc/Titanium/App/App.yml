@@ -397,6 +397,11 @@ properties:
     permission: read-only
 
     
+  - name: license
+    summary: Application license, created based on modules licences.
+    type: Dictionay
+    permission: read-only
+    
   - name: copyright
     summary: Application copyright statement, determined by `tiapp.xml`.
     type: String

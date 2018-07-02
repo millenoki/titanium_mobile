@@ -752,15 +752,27 @@ methods:
         type: Boolean
     parameters:
       - name: options
-    summary: |
+        summary: |
             return true if the view is a subview ouf ourself
         type: AnimationOption
+        optional: true
+
+  - name: transitionViews
+    summary: transition a view to another.
+    parameters:
+      - name: viewIn
+        type: Titanium.UI.View
+      - name: viewOut
+        type: [Titanium.UI.View, Dictionary<Titanium.UI.View>]
+      - name: options
+        type: Dictionary
         optional: true
 
   - name: hide
     summary: Hides this view.
     parameters:
       - name: view
+        optional: true
         summary: |
             The view to test for
         type: Titanium.UI.View
@@ -1694,7 +1706,7 @@ properties:
   - name: transform
     summary: Transformation matrix to apply to the view.
     description: Android only supports 2DMatrix transforms.
-    type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
+    type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix, String ]
     default: Identity matrix
 
   - name: translationX

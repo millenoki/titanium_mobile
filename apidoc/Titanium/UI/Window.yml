@@ -1067,6 +1067,14 @@ properties:
     type: String
     availability: creation
 
+  - name: uiVisibilityFlags
+    summary: Additional ui visibility flags to set on the Activity Window.
+    description: |
+        Set the ui visibility flags of the window.
+        See [setSystemUiVisibility](https://developer.android.com/reference/android/view/View#setSystemUiVisibility(int) flag.
+    platforms: [android]
+    type: Number
+    since: "7.0.0"
 
   - name: windowFlags
     summary: Additional flags to set on the Activity Window.

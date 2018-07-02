@@ -431,6 +431,39 @@ methods:
 
         For example, calling this method would be required if a new version of
         your application no longer supports push notifications.
+
+  - name: alwaysPreferNetworksWith
+    summary: |
+        Android bindProcessToNetwork 
+    description: |
+        https://developer.android.com/reference/android/net/ConnectivityManager#bindProcessToNetwork(android.net.Network)
+    platforms: [android]
+    parameters:
+      - name: capabilities
+        type: Array<Number>
+      - name: transportTypes
+        type: Array<Number>
+      - name: callback
+        optional: true
+        type: Callback<Object>
+
+  - name: cancelPreferNetworks
+    summary: |
+        Android unregisterNetworkCallback 
+    description: |
+        https://developer.android.com/reference/android/net/ConnectivityManager#unregisterNetworkCallback(android.net.ConnectivityManager.NetworkCallback)
+    platforms: [android]
+    parameters:
+      - name: key
+        type: Number
+
+  - name: hasInternetConnection
+    summary: |
+        Android unregisterNetworkCallback 
+    platforms: [android]
+    returns:
+        type: Boolean
+
 events:
   - name: change
     summary: Fired when network connectivity changes.
@@ -681,6 +714,11 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     since: "3.3.0"
+
+  - name: networkInfo
+    summary: Network info.
+    type: Dictionary
+    permission: read-only
 
   - name: networkType
     summary: Network type value as a constant.
