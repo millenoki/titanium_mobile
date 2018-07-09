@@ -747,15 +747,15 @@ methods:
     summary: Cancel all animations on this view.
 
   - name: containsView
-    summary: Hides this view.
+    summary: test if the view is a subview ouf ourself
     returns:
         type: Boolean
     parameters:
-      - name: options
-        summary: |
-            return true if the view is a subview ouf ourself
-        type: AnimationOption
+      - name: view
         optional: true
+        summary: |
+            The view to test for
+        type: Titanium.UI.View
 
   - name: transitionViews
     summary: transition a view to another.
@@ -771,11 +771,11 @@ methods:
   - name: hide
     summary: Hides this view.
     parameters:
-      - name: view
-        optional: true
+      - name: options
         summary: |
-            The view to test for
-        type: Titanium.UI.View
+            return true if the view is a subview ouf ourself
+        type: AnimationOption
+        optional: true
 
   - name: insertAt
     summary: Inserts a view at the specified position in the [children](Titanium.UI.View.children) array.
