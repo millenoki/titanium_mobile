@@ -658,18 +658,18 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 			var returnTypes: Array<string> = [];
 			if (_.isArray(tiReturnType)) {
 				_.each(tiReturnType, (returnType: TypeField) => {
-					returnTypes.push(Mapper.ComputeType(returnType.type));
+					returnTypes.push(Mapper.ComputeType(returnType.type) as string);
 				});
 			}
 			else if (_.isArray(tiReturnType.type)) {
 				_.each(tiReturnType.type, (returnType: string) => {
-					returnTypes.push(Mapper.ComputeType(returnType));
+					returnTypes.push(Mapper.ComputeType(returnType) as string);
 				});
 			}
 			else if (_.isString(tiReturnType.type)) {
-				returnTypes.push(Mapper.ComputeType(tiReturnType.type));
+				returnTypes.push(Mapper.ComputeType(tiReturnType.type) as string);
 			} else {
-				returnTypes.push(Mapper.ComputeType('void'));
+				returnTypes.push(Mapper.ComputeType('void') as string);
 			}
 			return returnTypes;
 		}
@@ -711,13 +711,14 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		private static ComputeMethodParameter(tiParameter: TiParameter, shouldBeOptional: boolean): Array<string> {
 			var parameters: Array<string> = [];
 			var name: string = Mapper.SanitizeParameterName(tiParameter.name);
-			var type: Array<string> = Mapper.ComputeListOfTypes(tiParameter.type);
+			var type: Array<string | {result:string, multiple:boolean}> = Mapper.ComputeListOfTypes(tiParameter.type);
 			var optional: boolean = tiParameter.optional;
 			var stickyOptionalFlag: boolean = false;
-			var optionalStr: string;
-			_.each(type, (t: string) => {
+			var optionalStr: string, isMultiple: boolean;
+			_.each(type, (t: string | {result:string, multiple:boolean}) => {
 				optionalStr = (shouldBeOptional || optional) ? '?' : '';
-				parameters.push((tiParameter.multiple ? '...' : '') + name + optionalStr + ': ' + Mapper.SanitizeModuleRoute(t) + (tiParameter.multiple ? '[]' : ''));
+				isMultiple = !!tiParameter.multiple || !!(t.hasOwnProperty('multiple') && !!t['multiple']);
+				parameters.push((isMultiple ? '...' : '') + name + optionalStr + ': ' + Mapper.SanitizeModuleRoute(t['result'] || t) + (isMultiple ? '[]' : ''));
 			});
 			return parameters;
 		}
@@ -738,8 +739,8 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		///        all these types sanitized.
 		/// @param[in] type a list or just a single type.
 		/// @return a vector of sanitized types.
-		private static ComputeListOfTypes(type: any): Array<string> {
-			var types: Array<string> = [];
+		private static ComputeListOfTypes(type: any): Array<string | {result:string, multiple:boolean}> {
+			var types: Array<string | {result:string, multiple:boolean}> = [];
 			if (_.isArray(type)) {
 				_.each(type, (t: string) => {
 					types.push(Mapper.ComputeType(t));
@@ -757,9 +758,9 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		private static ComputePropertyType(type: string | string[], atModule: Module): string {
 			if (Array.isArray(type)) {
 				// console.log('ComputePropertyType', type);
-				return type.map(t => Mapper.ComputeType(t, atModule)).join(' | ');
+				return type.map(t => (Mapper.ComputeType(t, atModule)) as string).join(' | ');
 			}
-			return Mapper.ComputeType(<string>(type), atModule);
+			return Mapper.ComputeType(<string>(type), atModule) as string;
 		}
 
 		/// <b>SanitizeParameterName</b>
@@ -808,7 +809,7 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 		///        handling the Dictionary generic type.
 		/// @param[in] type is the type to be converted.
 		/// @return a valid type name.
-		private static ComputeType(type: string, atModule?: Module): string {
+		private static ComputeType(type: string, atModule?: Module): string | {result:string, multiple: boolean} {
 			if (!_.isNull(type.match('Callback<.*>'))) {
 				return '(...args : any[]) => any';
 			}
@@ -847,9 +848,21 @@ declare type TiPropertiesT<T> = titanium.PropertiesT<T>;`);
 				default:
 					if (match) {
 						if (secondType) {
+							if (match[1]) {
+								return {
+									result:mainType + '<' + secondType + '>',
+									multiple:true
+								}
+							}
 							result = mainType + '<' + secondType + '>';
 						} else {
-							result = mainType;
+							if (match[1]) {
+								return {
+									result:mainType,
+									multiple:true
+								}
+							}
+							result = ( match[1] ? '...' : '' ) + mainType;
 						}
 					}
 					else {
