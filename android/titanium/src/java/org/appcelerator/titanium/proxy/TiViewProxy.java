@@ -679,9 +679,9 @@ public abstract class TiViewProxy extends AnimatableProxy
     protected TiUIView handleGetView(final boolean enableModelListener,
             final boolean processProperties) {
 		if (view == null) {
-			if (Log.isDebugModeEnabled()) {
-				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
-			}
+//			if (Log.isDebugModeEnabled()) {
+//				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
+//			}
 
 			Activity activity = getActivity();
 			TiBaseActivity baseActivity = null;
