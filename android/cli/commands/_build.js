@@ -4241,6 +4241,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 		tiNamespaces: this.tiNamespaces,
 		targetSDK: this.realTargetSDK,
 		androidDevPath: path.relative(this.buildDir, this.config.get('android.devPath') || ''),
+		sdkBuildTools: this.config.get('android.buildTools.selectedVersion'),
 		androidModulesDevPath: path.relative(this.buildDir, this.config.get('android.devModulesPath') || '')
 	});
 
