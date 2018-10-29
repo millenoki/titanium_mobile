@@ -25,4 +25,4 @@
 	branch = 1.1
 [submodule "android/thirdparties/android-gif-drawable"]
 	path = android/thirdparties/android-gif-drawable
-	url = git@github.com:Akylas/android-gif-drawable.git
+	url = https://github.com/Akylas/android-gif-drawable.git
